@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.github.lianjiaTech</groupId>
+    <groupId>com.github.lianjiatech</groupId>
     <artifactId>retrofit-plus-parent</artifactId>
     <packaging>pom</packaging>
     <version>1.1.1</version>
@@ -12,7 +12,7 @@
 
     <name>retrofit-plus-parent</name>
     <description>retrofit-plus父工程项目</description>
-    <url>https://github.com/lianjiaTech/retrofit-plus</url>
+    <url>https://github.com/lianjiatech/retrofit-plus</url>
 
     <licenses>
         <license>
@@ -22,13 +22,13 @@
     </licenses>
 
     <scm>
-        <url>https://github.com/lianjiaTech/retrofit-plus</url>
-        <connection>https://github.com/lianjiaTech/retrofit-plus.git</connection>
+        <url>https://github.com/lianjiatech/retrofit-plus</url>
+        <connection>https://github.com/lianjiatech/retrofit-plus.git</connection>
     </scm>
 
     <issueManagement>
         <system>GitHub Issues</system>
-        <url>https://github.com/lianjiaTech/retrofit-plus/issues</url>
+        <url>https://github.com/lianjiatech/retrofit-plus/issues</url>
     </issueManagement>
 
     <developers>
