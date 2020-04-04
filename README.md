@@ -44,7 +44,7 @@ public class Application {
     }
 }
 ```
-**@RetrofitScan字段含义：[@RetrofitScan](https://github.com/lianjiaTech/retrofit-plus/blob/master/retrofit-plus/src/main/java/com/ke/jiaoyi/retrofit/plus/annotation/RetrofitScan.java)**
+**@RetrofitScan字段含义：[@RetrofitScan](https://github.com/lianjiaTech/retrofit-plus/blob/master/retrofit-plus/src/main/java/com/github/lianjiaTech/retrofit/plus/annotation/RetrofitScan.java)**
 
 ### 定义http调用接口
 **接口必须使用`@RetrofitClient`注解标记！**
@@ -56,7 +56,7 @@ public interface HttpApi {
     Result<Person> getPerson(@Query("id") Long id);
 }
 ```
-**@RetrofitClient字段含义：[@RetrofitClient](https://github.com/lianjiaTech/retrofit-plus/blob/master/retrofit-plus/src/main/java/com/ke/jiaoyi/retrofit/plus/annotation/RetrofitClient.java)**
+**@RetrofitClient字段含义：[@RetrofitClient](https://github.com/lianjiaTech/retrofit-plus/blob/master/retrofit-plus/src/main/java/com/github/lianjiaTech/retrofit/plus/annotation/RetrofitClient.java)**
 
 
 ### 注入使用
@@ -236,11 +236,11 @@ retrofit-plus默认使用的是fast-json进行序列化转换，你可以通过`
 ## 日志打印配置
 
 针对每个接口，支持日志打印级别和日志打印策略的配置。
-**配置使用可参考：[LogStrategy](https://github.com/lianjiaTech/retrofit-plus/blob/master/retrofit-plus/src/main/java/com/ke/jiaoyi/retrofit/plus/interceptor/LogStrategy.java)**
+**配置使用可参考：[LogStrategy](https://github.com/lianjiaTech/retrofit-plus/blob/master/retrofit-plus/src/main/java/com/github/lianjiaTech/retrofit/plus/interceptor/LogStrategy.java)**
 
 
 ## 路径拦截器 BasePathMatchInterceptor
-可以在接口上使用`@Intercept`注解指定要使用的路径拦截器，参见：[@Intercept](https://github.com/lianjiaTech/retrofit-plus/blob/master/retrofit-plus/src/main/java/com/ke/jiaoyi/retrofit/plus/annotation/Intercept.java)
+可以在接口上使用`@Intercept`注解指定要使用的路径拦截器，参见：[@Intercept](https://github.com/lianjiaTech/retrofit-plus/blob/master/retrofit-plus/src/main/java/com/github/lianjiaTech/retrofit/plus/annotation/Intercept.java)
 > 具体的拦截器需要继承`BasePathMatchInterceptor`
 
 ### 示例
@@ -439,3 +439,6 @@ Void upload(@Part MultipartBody.Part file);
  Map<String, Object> test3(@Url String url,@Query("name") String name);
 
 ```
+
+## 问题反馈
+陈添明 <chentianming11@qq.com> ，欢迎Fork&MergeRequest!
