@@ -1,0 +1,24 @@
+
+
+retrofit-plus:
+  # 是否启用 BodyCallAdapter适配器
+  enable-body-call-adapter: true
+  # 是否启用 ResponseCallAdapter适配器
+  enable-response-call-adapter: true
+  # 是否启用 Retrofit2Converter转码器
+  enable-fast-json-converter: true
+  # 启用日志打印
+  enable-log: true
+  # 连接池配置
+  pool:
+    test1:
+      max-idle-connections: 3
+      keep-alive-second: 100
+    test2:
+      max-idle-connections: 5
+      keep-alive-second: 50
+
+test:
+  baseUrl: http://localhost:8080/api/test/
+  accessKeyId: root
+  accessKeySecret: 123456
