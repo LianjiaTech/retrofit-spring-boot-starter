@@ -22,11 +22,11 @@
 以下以spring-boot项目为例，快速使用retrofit-plus！
 > 支持spring-boot 1.x/2.x
 
-**与spring集成可参考：[与spring集成](https://github.com/lianjiaTech/retrofit-plus/tree/master/doc/spring-integrate.md)**
+**与spring集成可参考：[与spring集成](https://github.com/lianjiatech/retrofit-plus/tree/master/doc/spring-integrate.md)**
 ### 引入依赖
 ```xml
 <dependency>
-    <groupId>com.github.lianjiaTech</groupId>
+    <groupId>com.github.lianjiatech</groupId>
     <artifactId>retrofit-plus-boot-starter</artifactId>
     <version>1.1.1</version>
 </dependency>
@@ -44,7 +44,7 @@ public class Application {
     }
 }
 ```
-**@RetrofitScan字段含义：[@RetrofitScan](https://github.com/lianjiaTech/retrofit-plus/blob/master/retrofit-plus/src/main/java/com/github/lianjia/retrofit/plus/annotation/RetrofitScan.java)**
+**@RetrofitScan字段含义：[@RetrofitScan](https://github.com/lianjiatech/retrofit-plus/blob/master/retrofit-plus/src/main/java/com/github/lianjia/retrofit/plus/annotation/RetrofitScan.java)**
 
 ### 定义http调用接口
 **接口必须使用`@RetrofitClient`注解标记！**
@@ -56,7 +56,7 @@ public interface HttpApi {
     Result<Person> getPerson(@Query("id") Long id);
 }
 ```
-**@RetrofitClient字段含义：[@RetrofitClient](https://github.com/lianjiaTech/retrofit-plus/blob/master/retrofit-plus/src/main/java/com/github/lianjia/retrofit/plus/annotation/RetrofitClient.java)**
+**@RetrofitClient字段含义：[@RetrofitClient](https://github.com/lianjiatech/retrofit-plus/blob/master/retrofit-plus/src/main/java/com/github/lianjia/retrofit/plus/annotation/RetrofitClient.java)**
 
 
 ### 注入使用
@@ -86,7 +86,7 @@ public void test() {
 | pool | | 连接池配置 |
 | disable-void-return-type | false | 禁用java.lang.Void返回类型 |
 
-**配置使用可参考：[配置使用](https://github.com/lianjiaTech/retrofit-plus/tree/master/doc/config.md)**
+**配置使用可参考：[配置使用](https://github.com/lianjiatech/retrofit-plus/tree/master/doc/config.md)**
 
 ## HTTP请求注解
 http请求注解，全部使用了`retrofit`注解。**详细信息可参考官方文档：[retrofit官方文档](https://square.github.io/retrofit/)**
@@ -236,11 +236,11 @@ retrofit-plus默认使用的是fast-json进行序列化转换，你可以通过`
 ## 日志打印配置
 
 针对每个接口，支持日志打印级别和日志打印策略的配置。
-**配置使用可参考：[LogStrategy](https://github.com/lianjiaTech/retrofit-plus/blob/master/retrofit-plus/src/main/java/com/github/lianjia/retrofit/plus/interceptor/LogStrategy.java)**
+**配置使用可参考：[LogStrategy](https://github.com/lianjiatech/retrofit-plus/blob/master/retrofit-plus/src/main/java/com/github/lianjia/retrofit/plus/interceptor/LogStrategy.java)**
 
 
 ## 路径拦截器 BasePathMatchInterceptor
-可以在接口上使用`@Intercept`注解指定要使用的路径拦截器，参见：[@Intercept](https://github.com/lianjiaTech/retrofit-plus/blob/master/retrofit-plus/src/main/java/com/github/lianjia/retrofit/plus/annotation/Intercept.java)
+可以在接口上使用`@Intercept`注解指定要使用的路径拦截器，参见：[@Intercept](https://github.com/lianjiatech/retrofit-plus/blob/master/retrofit-plus/src/main/java/com/github/lianjia/retrofit/plus/annotation/Intercept.java)
 > 具体的拦截器需要继承`BasePathMatchInterceptor`
 
 ### 示例
