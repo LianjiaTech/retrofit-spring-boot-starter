@@ -50,7 +50,7 @@ public class RetrofitRefBeanConfig {
     }
 }
 ```
-**@RetrofitScan字段含义：[@RetrofitScan](https://github.com/lianjiaTech/retrofit-plus/blob/master/retrofit-plus/src/main/java/com/ke/jiaoyi/retrofit/plus/annotation/RetrofitScan.java)**
+**@RetrofitScan字段含义：[@RetrofitScan](https://github.com/lianjiaTech/retrofit-plus/blob/master/retrofit-plus/src/main/java/com/github/lianjiaTech/retrofit/plus/annotation/RetrofitScan.java)**
 
 ### 定义http调用接口
 **接口必须使用`@RetrofitClient`注解标记！**
@@ -62,7 +62,7 @@ public interface HttpApi {
     Result<Person> getPerson(@Query("id") Long id);
 }
 ```
-**@RetrofitClient字段含义：[@RetrofitClient](https://github.com/lianjiaTech/retrofit-plus/blob/master/retrofit-plus/src/main/java/com/ke/jiaoyi/retrofit/plus/annotation/RetrofitClient.java)**
+**@RetrofitClient字段含义：[@RetrofitClient](https://github.com/lianjiaTech/retrofit-plus/blob/master/retrofit-plus/src/main/java/com/github/lianjiaTech/retrofit/plus/annotation/RetrofitClient.java)**
 
 
 ### 注入使用
@@ -82,5 +82,3 @@ public void test() {
 }
 ```
 
-## 问题反馈
-陈添明 <chentianming11@qq.com> ，欢迎Fork&MergeRequest!
