@@ -1,4 +1,6 @@
-# retrofit-plus
+
+## 简介
+
 **retrofit-plus基于retrofit2，并对retrofit2进行功能增强，实现了retrofit2与spring和spring-boot深度集成，极大简化http调用开发。**
 
 > Retrofit2是针对于Android/Java的、基于okHttp的、一种轻量级并使用注解方式和动态代理的网络请求框架。Retrofit2让开发者面向接口去请求服务，使用注解和代理去发起真正的请求，让开发者更快速的开发应用，省掉一些复杂的逻辑处理。
@@ -6,6 +8,7 @@
 *但是retrofit2官方并没有与spring-boot和spring实现深度整合，而网上各种与spring-boot的整合实现也不尽如人意。因此结合实际的业务场景，基于retrofit2进一步封装实现了retrofit-plus。*
 
 ## 特性
+
 - [x] 与spring深度集成
 - [x] 与spring-boot深度集成
 - [x] http调用接口化
@@ -19,11 +22,14 @@
 **需JDK1.8版本以上，如不满足请先升级JDK**
 
 ## 快速使用
+
 以下以spring-boot项目为例，快速使用retrofit-plus！
 > 支持spring-boot 1.x/2.x
 
 **与spring集成可参考：[与spring集成](https://github.com/lianjiatech/retrofit-plus/tree/master/doc/spring-integrate.md)**
+
 ### 引入依赖
+
 ```xml
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
@@ -33,7 +39,9 @@
 ```
 
 ## 配置`@RetrofitScan`注解
+
 你可以给带有 `@Configuration` 的类配置该注解，或者直接配置到 Spring Boot 的启动类上，如下：
+
 ```java
 @SpringBootApplication
 @RetrofitScan("扫描包路径")
@@ -44,10 +52,13 @@ public class Application {
     }
 }
 ```
+
 **@RetrofitScan字段含义：[@RetrofitScan](https://github.com/lianjiatech/retrofit-plus/blob/master/retrofit-plus/src/main/java/com/github/lianjiatechtech/retrofit/plus/annotation/RetrofitScan.java)**
 
 ### 定义http调用接口
+
 **接口必须使用`@RetrofitClient`注解标记！**
+
 ```java
 @RetrofitClient(baseUrl = "${test.baseUrl}")
 public interface HttpApi {
@@ -56,11 +67,13 @@ public interface HttpApi {
     Result<Person> getPerson(@Query("id") Long id);
 }
 ```
+
 **@RetrofitClient字段含义：[@RetrofitClient](https://github.com/lianjiatech/retrofit-plus/blob/master/retrofit-plus/src/main/java/com/github/lianjiatech/retrofit/plus/annotation/RetrofitClient.java)**
 
-
 ### 注入使用
+
 **将接口注入到其它bean中即可使用！**
+
 ```java
 @Autowired
 private HttpApi httpApi;
@@ -77,6 +90,7 @@ public void test() {
 ```
 
 ## 配置一览
+
 | 配置|默认值 | 说明 |
 |------------|-----------|--------|
 | enable-body-call-adapter | true| 是否启用 BodyCallAdapter适配器 |
@@ -89,6 +103,7 @@ public void test() {
 **配置使用可参考：[配置使用](https://github.com/lianjiatech/retrofit-plus/tree/master/doc/config.md)**
 
 ## HTTP请求注解
+
 http请求注解，全部使用了`retrofit`注解。**详细信息可参考官方文档：[retrofit官方文档](https://square.github.io/retrofit/)**
 
 | 注解分类|支持的注解 |
@@ -103,11 +118,14 @@ http请求注解，全部使用了`retrofit`注解。**详细信息可参考官�
 |url参数|`@Url`|
 
 ## 连接池管理
+
 **你可以在配置文件中配置所需要用到的连接池，在`@RetrofitClient`的使用`poolName`指定所用的连接池！**
 *如果没有配置`poolName=default`的连接池，retrofit-plus会按照`max-idle-connections=5`和`keep-alive-second=300`自动配置，当然你也可以自己配置`poolName=default`的连接池以覆盖默认配置值*
 
 ### spring-boot项目
-**yml配置**
+
+#### yml配置
+
 ```yml
 retrofit-plus:
   # 连接池配置
@@ -120,7 +138,8 @@ retrofit-plus:
       keep-alive-second: 50
 ```
 
-**properties配置**
+#### properties配置
+
 ```properties
 # 连接池配置
 retrofit-plus.pool.test1.max-idle-connections=3
@@ -129,9 +148,10 @@ retrofit-plus.pool.test2.max-idle-connections=2
 retrofit-plus.pool.test2.keep-alive-second=200
 ```
 
-
 ### spring项目
-**retrofitHelper配置**
+
+#### retrofitHelper配置
+
 ```java
 // 连接池配置
 PoolConfig test1 = new PoolConfig(5, 300);
@@ -144,9 +164,8 @@ Config config = new Config();
 config.setPool(pool);
 ```
 
-
-
 ## 调用适配器 CallAdapter
+
 Retrofit2可以通过调用适配器`CallAdapterFactory`将`Call<T>`对象适配成接口方法的返回值类型。
 retrofit-plus扩展2种`CallAdapterFactory`实现：
 
@@ -160,6 +179,7 @@ retrofit-plus扩展2种`CallAdapterFactory`实现：
     - 如果方法的返回值类型为`retrofit2.Response<T>`，则会使用该适配器。
 
 **retrofit2自动根据方法返回值类型选用对应的`CallAdapterFactory`执行适配处理！加上retrofit2默认的`CallAdapterFactory`，可支持多种形式的方法返回值类型：**
+
 - `Call<T>`: 不执行适配处理，直接返回`Call<T>`对象
 - `CompletableFuture<T>`: 将响应体内容适配成`CompletableFuture<T>`对象返回
 - `Void`: 不关注返回类型可以使用`Void`。如果http状态码不是2xx，直接抛错！
@@ -219,7 +239,9 @@ retrofit-plus扩展2种`CallAdapterFactory`实现：
 **然后直接将自定义的`CallAdapterFactory`配置成spring的bean即可，retrofit-plus会自动加载！手动配置的`CallAdapterFactory`优先级更高！**
 
 ## 数据转码器 Converter
+
 retrofit2使用Converter 将`@Body`注解标注的对象转换成请求体，将响应体数据转换成一个Java对象。你可以选用以下几种Converter：
+
 - Gson: com.squareup.retrofit2:converter-gson
 - Jackson: com.squareup.retrofit2:converter-jackson
 - Moshi: com.squareup.retrofit2:converter-moshi
@@ -232,21 +254,22 @@ retrofit-plus默认使用的是fast-json进行序列化转换，你可以通过`
 
 **直接将对应的`ConverterFactory`配置成spring的bean即可，retrofit-plus会自动加载！手动配置的`ConverterFactory`优先级更高！**
 
-
 ## 日志打印配置
 
 针对每个接口，支持日志打印级别和日志打印策略的配置。
 **配置使用可参考：[LogStrategy](https://github.com/lianjiatech/retrofit-plus/blob/master/retrofit-plus/src/main/java/com/github/lianjiatech/retrofit/plus/interceptor/LogStrategy.java)**
 
-
 ## 路径拦截器 BasePathMatchInterceptor
+
 可以在接口上使用`@Intercept`注解指定要使用的路径拦截器，参见：[@Intercept](https://github.com/lianjiatech/retrofit-plus/blob/master/retrofit-plus/src/main/java/com/github/lianjiatech/retrofit/plus/annotation/Intercept.java)
 > 具体的拦截器需要继承`BasePathMatchInterceptor`
 
 ### 示例
+
 给指定请求的url后面拼接timestamp时间戳，可以使用路径拦截器实现
 
 ### 拦截器实现
+
 ```java
 public class TimeStampInterceptor extends BasePathMatchInterceptor {
 
@@ -266,6 +289,7 @@ public class TimeStampInterceptor extends BasePathMatchInterceptor {
 }
 
 ```
+
 ### 接口加上`@Intercept`注解（非常实用）
 
 ```java
@@ -280,11 +304,13 @@ public interface HttpApi {
     Result<Person> savePerson(@Body Person person);
 }
 ```
-**优先从spring容器获取拦截器handler实例，如果获取不到，则使用反射创建一个！如果以Bean的形式配置，scope必须是prototype**
+
+**优先从spring容器获取拦截器handler实例，如果获取不到，则使用反射创建一个！** 如果以Bean的形式配置，scope必须是prototype
 
 ### 以原型bean的形式配置拦截器实例
 
-**适用于处理逻辑需要依赖其他Bean的场景**
+适用于**处理逻辑需要依赖其他Bean**的场景
+
 ```java
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -300,7 +326,6 @@ public class OtherInterceptor extends BasePathMatchInterceptor {
 }
 ```
 
-
 ## 扩展实现自定义拦截注解（非常实用）
 
 如果需要在拦截器注解上传入其它参数，可以通过使用`@InterceptMark`标记来扩展自己的拦截注解。
@@ -308,9 +333,11 @@ public class OtherInterceptor extends BasePathMatchInterceptor {
 > 注意：注解中必须包括`include()、exclude()、handler()`属性信息
 
 ### 示例
+
 需要给http的request的header中添加sign签名信息，可以扩展一个`@Sign`注解！
 
 ### 定义`@Sign`注解
+
 ```java
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
@@ -359,7 +386,9 @@ public @interface Sign {
 ```
 
 ### 实现`SignInterceptor`
-**自动将注解上的属性注入到拦截器实例的字段上！需提供setter方法**
+
+**自动将注解上的属性注入到拦截器实例的字段上！** 需提供setter方法
+
 ```java
 @Data
 public class SignInterceptor extends BasePathMatchInterceptor {
@@ -381,6 +410,7 @@ public class SignInterceptor extends BasePathMatchInterceptor {
 ```
 
 ### 接口使用
+
 ```java
 @RetrofitClient(baseUrl = "${test.baseUrl}")
 @Sign(accessKeyId = "${test.accessKeyId}", accessKeySecret = "${test.accessKeySecret}", exclude = {"/api/test/person"})
@@ -396,7 +426,9 @@ public interface HttpApi {
 
 
 ## 全局拦截器 BaseGlobalInterceptor
+
 如果你需要对整个系统的的http请求执行统一的拦截处理，可以自定义实现全局拦截器`BaseGlobalInterceptor`, 并配置成spring中的bean即可！
+
 ```java
 @Component
 public class PrintInteceptor extends BaseGlobalInterceptor{
@@ -420,6 +452,7 @@ okhttp3.RequestBody requestBody = okhttp3.RequestBody.create(MediaType.parse("mu
 MultipartBody.Part file = MultipartBody.Part.createFormData("file", fileName, requestBody);
 apiService.upload(file);
 ```
+
 ### http上传接口
 
 ```java
@@ -430,6 +463,7 @@ Void upload(@Part MultipartBody.Part file);
 ```
 
 ## 动态URL示例
+
 使用`@url`注解可实现动态URL。
 
 **注意：`@url`必须放在方法参数的第一个位置。原有定义`@GET`、`@POST`等注解上，不需要定义端点路径！**
@@ -441,4 +475,5 @@ Void upload(@Part MultipartBody.Part file);
 ```
 
 ## 问题反馈
+
 陈添明 <chentianming11@qq.com> ，欢迎Fork&MergeRequest!
