@@ -1,6 +1,5 @@
 package com.github.lianjiatech.retrofit.plus.interceptor;
 
-import okhttp3.Interceptor;
 import okhttp3.Response;
 
 import java.io.IOException;
@@ -11,7 +10,7 @@ import java.io.IOException;
  *
  * @author 陈添明
  */
-public abstract class BaseGlobalInterceptor implements Interceptor {
+public abstract class BaseGlobalInterceptor implements RetrofitPlusInterceptor {
 
 
     @Override

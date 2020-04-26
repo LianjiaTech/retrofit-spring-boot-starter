@@ -1,6 +1,5 @@
 package com.github.lianjiatech.retrofit.plus.interceptor;
 
-import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.springframework.core.env.Environment;
@@ -14,7 +13,7 @@ import java.io.IOException;
  *
  * @author 陈添明
  */
-public abstract class BasePathMatchInterceptor implements Interceptor {
+public abstract class BasePathMatchInterceptor implements RetrofitPlusInterceptor {
 
     private String[] include;
 

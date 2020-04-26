@@ -11,7 +11,7 @@ import java.io.IOException;
  * @author 陈添明
  */
 @Component
-public class PrintInteceptor extends BaseGlobalInterceptor {
+public class PrintInterceptor extends BaseGlobalInterceptor {
     @Override
     public Response doIntercept(Chain chain) throws IOException {
         Request request = chain.request();

@@ -4,9 +4,7 @@ import com.github.lianjiatech.retrofit.plus.interceptor.BasePathMatchInterceptor
 import lombok.Setter;
 import okhttp3.Request;
 import okhttp3.Response;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
@@ -16,8 +14,7 @@ import java.io.IOException;
  * @author 陈添明
  */
 @Setter
-@Service
-@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+@Component
 public class SignInterceptor extends BasePathMatchInterceptor {
 
     private String accessKeyId;
