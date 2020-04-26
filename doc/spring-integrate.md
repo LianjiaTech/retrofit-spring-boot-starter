@@ -6,7 +6,7 @@
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
     <artifactId>retrofit-plus</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
 </dependency>
 ```
 
@@ -48,6 +48,17 @@ public class RetrofitRefBeanConfig {
         retrofitHelper.addProperty("test.accessKeySecret", "sdjfsdfasdfdg");
         return retrofitHelper;
     }
+
+    /**
+     * 配置 {@link RetrofitPlusInterceptorBdfRegistryPostProcessor}
+     * 动态修改 {@link RetrofitPlusInterceptor} 的`BeanDefinition`中的scope为`prototype`
+     * @return RetrofitPlusInterceptorBdfRegistryPostProcessor instance
+     */
+    @Bean
+    public RetrofitPlusInterceptorBdfRegistryPostProcessor retrofitPlusInterceptorBdfRegistryPostProcessor() {
+        return new RetrofitPlusInterceptorBdfRegistryPostProcessor();
+    }
+
 }
 ```
 **@RetrofitScan字段含义：[@RetrofitScan](https://github.com/lianjiatech/retrofit-plus/blob/master/retrofit-plus/src/main/java/com/github/lianjiatech/retrofit/plus/annotation/RetrofitScan.java)**

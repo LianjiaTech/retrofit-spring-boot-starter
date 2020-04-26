@@ -4,6 +4,8 @@ import com.github.lianjiatech.retrofit.plus.annotation.RetrofitScan;
 import com.github.lianjiatech.retrofit.plus.config.Config;
 import com.github.lianjiatech.retrofit.plus.config.PoolConfig;
 import com.github.lianjiatech.retrofit.plus.core.RetrofitHelper;
+import com.github.lianjiatech.retrofit.plus.interceptor.RetrofitPlusInterceptor;
+import com.github.lianjiatech.retrofit.plus.interceptor.RetrofitPlusInterceptorBdfRegistryPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -54,5 +56,17 @@ public class RetrofitRefBeanConfig {
         retrofitHelper.addProperty("test.accessKeyId", "2523453463456");
         retrofitHelper.addProperty("test.accessKeySecret", "sdjfsdfasdfdg");
         return retrofitHelper;
+    }
+
+
+    /**
+     * 配置 {@link RetrofitPlusInterceptorBdfRegistryPostProcessor}
+     * 动态修改 {@link RetrofitPlusInterceptor} 的`BeanDefinition`中的scope为`prototype`
+     *
+     * @return RetrofitPlusInterceptorBdfRegistryPostProcessor instance
+     */
+    @Bean
+    public RetrofitPlusInterceptorBdfRegistryPostProcessor retrofitPlusInterceptorBdfRegistryPostProcessor() {
+        return new RetrofitPlusInterceptorBdfRegistryPostProcessor();
     }
 }

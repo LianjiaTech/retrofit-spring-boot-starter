@@ -38,7 +38,7 @@
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
     <artifactId>retrofit-plus-boot-starter</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
 </dependency>
 ```
 
@@ -275,6 +275,7 @@ retrofit-plus默认使用的是fast-json进行序列化转换，你可以通过`
 ### 拦截器实现
 
 ```java
+@Component
 public class TimeStampInterceptor extends BasePathMatchInterceptor {
 
     @Override
@@ -294,6 +295,8 @@ public class TimeStampInterceptor extends BasePathMatchInterceptor {
 
 ```
 
+*Bean的Scope会自动转化为`prototype`，不需要手工指定。*
+
 ### 接口加上`@Intercept`注解（非常实用）
 
 ```java
@@ -309,26 +312,8 @@ public interface HttpApi {
 }
 ```
 
-**优先从spring容器获取拦截器handler实例，如果获取不到，则使用反射创建一个！** 如果以Bean的形式配置，scope必须是prototype
+**优先从spring容器获取拦截器handler实例，如果获取不到，则使用反射创建一个！** 
 
-### 以原型bean的形式配置拦截器实例
-
-适用于**处理逻辑需要依赖其他Bean**的场景
-
-```java
-@Component
-@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class OtherInterceptor extends BasePathMatchInterceptor {
-
-    @Autowired
-    private OtherBean otherBean
-
-    @Override
-    public Response doIntercept(Chain chain) throws IOException {
-        // 拦截处理
-    }
-}
-```
 
 ## 扩展实现自定义拦截注解（非常实用）
 
@@ -394,7 +379,8 @@ public @interface Sign {
 **自动将注解上的属性注入到拦截器实例的字段上！** 需提供setter方法
 
 ```java
-@Data
+@Setter
+@Component
 public class SignInterceptor extends BasePathMatchInterceptor {
 
     private String accessKeyId;
@@ -434,7 +420,7 @@ public interface HttpApi {
 
 ```java
 @Component
-public class PrintInteceptor extends BaseGlobalInterceptor{
+public class PrintInterceptor extends BaseGlobalInterceptor{
     @Override
     public Response doIntercept(Chain chain) throws IOException {
         Request request = chain.request();

@@ -6,8 +6,8 @@ import com.github.lianjiatech.retrofit.plus.annotation.RetrofitClient;
 import com.github.lianjiatech.retrofit.plus.config.Config;
 import com.github.lianjiatech.retrofit.plus.config.PoolConfig;
 import com.github.lianjiatech.retrofit.plus.interceptor.BaseGlobalInterceptor;
-import com.github.lianjiatech.retrofit.plus.interceptor.LogInterceptor;
 import com.github.lianjiatech.retrofit.plus.interceptor.BasePathMatchInterceptor;
+import com.github.lianjiatech.retrofit.plus.interceptor.LogInterceptor;
 import com.github.lianjiatech.retrofit.plus.util.BeanExtendUtils;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,7 +22,6 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.EnvironmentAware;
-import org.springframework.context.annotation.Scope;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
@@ -222,10 +221,6 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
     private BasePathMatchInterceptor getInterceptorInstance(Class<? extends BasePathMatchInterceptor> interceptorClass) {
         // spring bean
         if (isComponent(interceptorClass)) {
-            // spring容器获取bean，必须是原型模式
-            Scope scope = interceptorClass.getAnnotation(Scope.class);
-            Assert.notNull(scope, interceptorClass.getName() + ": scope必须配置为prototype");
-            Assert.isTrue(PROTOTYPE.equalsIgnoreCase(scope.value()), interceptorClass.getName() + ": scope必须配置为prototype");
             return applicationContext.getBean(interceptorClass);
         } else {
             // spring容器获取失败，反射创建
