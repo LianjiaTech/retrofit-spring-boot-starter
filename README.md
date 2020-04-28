@@ -9,7 +9,6 @@
 
 > Retrofit2是针对于Android/Java的、基于okHttp的、一种轻量级并使用注解方式和动态代理的网络请求框架。Retrofit2让开发者面向接口去请求服务，使用注解和代理去发起真正的请求，让开发者更快速的开发应用，省掉一些复杂的逻辑处理。
 
-*但是retrofit2官方并没有与spring-boot和spring实现深度整合，而网上各种与spring-boot的整合实现也不尽如人意。因此结合实际的业务场景，基于retrofit2进一步封装实现了retrofit-plus。*
 
 ## 特性
 
