@@ -6,7 +6,7 @@
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
     <artifactId>retrofit-plus</artifactId>
-    <version>1.1.4</version>
+    <version>1.1.3-SNAPSHOT</version>
 </dependency>
 ```
 
