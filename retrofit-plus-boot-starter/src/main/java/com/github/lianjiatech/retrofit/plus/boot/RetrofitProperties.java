@@ -1,11 +1,10 @@
 package com.github.lianjiatech.retrofit.plus.boot;
 
 
-import com.alibaba.fastjson.support.retrofit.Retrofit2ConverterFactory;
-import com.github.lianjiatech.retrofit.plus.core.BodyCallAdapterFactory;
-import com.github.lianjiatech.retrofit.plus.core.ResponseCallAdapterFactory;
 import com.github.lianjiatech.retrofit.plus.config.Config;
 import com.github.lianjiatech.retrofit.plus.config.PoolConfig;
+import com.github.lianjiatech.retrofit.plus.core.BodyCallAdapterFactory;
+import com.github.lianjiatech.retrofit.plus.core.ResponseCallAdapterFactory;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -34,11 +33,6 @@ public class RetrofitProperties {
      * 启用 #{@link ResponseCallAdapterFactory} 调用适配器
      */
     private boolean enableResponseCallAdapter = true;
-
-    /**
-     * 启用 #{@link Retrofit2ConverterFactory} 数据转换器
-     */
-    private boolean enableFastJsonConverter = true;
 
     /**
      * 启用日志打印

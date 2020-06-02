@@ -1,6 +1,8 @@
 package com.github.lianjiatech.retrofit.plus.core;
 
-import com.alibaba.fastjson.support.retrofit.Retrofit2ConverterFactory;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.lianjiatech.retrofit.plus.annotation.InterceptMark;
 import com.github.lianjiatech.retrofit.plus.annotation.RetrofitClient;
 import com.github.lianjiatech.retrofit.plus.config.Config;
@@ -36,6 +38,7 @@ import org.springframework.util.CollectionUtils;
 import retrofit2.CallAdapter;
 import retrofit2.Converter;
 import retrofit2.Retrofit;
+import retrofit2.converter.jackson.JacksonConverterFactory;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -55,7 +58,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
 
     private ConfigurableEnvironment environment;
 
-    private Map<String, ConnectionPool> poolRegistry = new ConcurrentHashMap<>(16);
+    private Map<String, ConnectionPool> poolRegistry = new ConcurrentHashMap<>(4);
 
     @Setter
     @Getter
@@ -63,13 +66,15 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
 
     private ApplicationContext applicationContext;
 
-    private Retrofit2ConverterFactory retrofit2ConverterFactory;
-
     private BodyCallAdapterFactory bodyCallAdapterFactory;
 
     private ResponseCallAdapterFactory responseCallAdapterFactory;
 
-    private static final String PROTOTYPE = "prototype";
+    private JacksonConverterFactory jacksonConverterFactory = JacksonConverterFactory
+            .create(new ObjectMapper()
+                    .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                    .setSerializationInclusion(JsonInclude.Include.NON_NULL));
+
     private static final String DEFAULT_KEY = "default";
 
     public RetrofitFactoryBean() {
@@ -270,7 +275,11 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
             callAdapterFactories.addAll(factories);
         }
         Collection<Converter.Factory> factoryCollection = getBeans(Converter.Factory.class);
-        if (!CollectionUtils.isEmpty(factoryCollection)) {
+        if (CollectionUtils.isEmpty(factoryCollection)) {
+            // 没有指定自定义转换器，默认加载 converter-jackson
+            converterFactories.add(jacksonConverterFactory);
+        } else {
+            // 使用自定义的数据转换器
             converterFactories.addAll(factoryCollection);
         }
         // 添加配置中选择启用的适配器工厂和转换器工厂
@@ -282,10 +291,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
             responseCallAdapterFactory = Optional.ofNullable(responseCallAdapterFactory).orElse(new ResponseCallAdapterFactory());
             callAdapterFactories.add(responseCallAdapterFactory);
         }
-        if (config.isEnableFastJsonConverter()) {
-            retrofit2ConverterFactory = Optional.ofNullable(retrofit2ConverterFactory).orElse(new Retrofit2ConverterFactory());
-            converterFactories.add(retrofit2ConverterFactory);
-        }
+
         // 添加CallAdapter.Factory
         callAdapterFactories.forEach(retrofitBuilder::addCallAdapterFactory);
         // 添加Converter.Factory

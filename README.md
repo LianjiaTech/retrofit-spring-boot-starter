@@ -37,7 +37,7 @@
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
     <artifactId>retrofit-plus-boot-starter</artifactId>
-    <version>1.1.4</version>
+    <version>1.1.3-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -98,7 +98,6 @@ public void test() {
 |------------|-----------|--------|
 | enable-body-call-adapter | true| 是否启用 BodyCallAdapter适配器 |
 | enable-response-call-adapter | true| 是否启用 ResponseCallAdapter适配器 |
-| enable-fast-json-converter | true| 是否启用 fast-json 数据转换器 |
 | enable-log | true| 启用日志打印 |
 | pool | | 连接池配置 |
 | disable-void-return-type | false | 禁用java.lang.Void返回类型 |
@@ -252,10 +251,8 @@ retrofit2使用Converter 将`@Body`注解标注的对象转换成请求体，将
 - Wire: com.squareup.retrofit2:converter-wire
 - Simple XML: com.squareup.retrofit2:converter-simplexml
 
-retrofit-plus默认使用的是fast-json进行序列化转换，你可以通过`retrofit-plus.enable-fast-json-converter=false`关闭该转换器！
-**如果需要实现自定义的Converter， 只需继承`Converter.Factory`即可！**
-
-**直接将对应的`ConverterFactory`配置成spring的bean即可，retrofit-plus会自动加载！手动配置的`ConverterFactory`优先级更高！**
+retrofit-plus默认使用的是jackson进行序列化转换！**如果需要使用其它序列化方式，在项目中引入对应的依赖，再把对应的`ConverterFactory`配置成spring的bean即可**
+**如果需要实现自定义的Converter， 只需继承`Converter.Factory`，再将其配置成spring的bean**
 
 ## 日志打印配置
 

@@ -32,7 +32,7 @@ public class RetrofitRefBeanConfig {
         // 连接池配置
         PoolConfig test1 = new PoolConfig(5, 300);
         PoolConfig test2 = new PoolConfig(2, 100);
-        Map<String, PoolConfig> pool = new HashMap<>(16);
+        Map<String, PoolConfig> pool = new HashMap<>(4);
         pool.put("test1", test1);
         pool.put("test2", test2);
         // 配置对象
@@ -42,8 +42,6 @@ public class RetrofitRefBeanConfig {
         config.setEnableBodyCallAdapter(true);
         // 是否启用 ResponseCallAdapter适配器
         config.setEnableResponseCallAdapter(true);
-        // 是否启用 Retrofit2Converter转码器
-        config.setEnableFastJsonConverter(true);
         // 启用日志打印
         config.setEnableLog(true);
         // 禁用java.lang.Void作为返回值
@@ -57,7 +55,6 @@ public class RetrofitRefBeanConfig {
         retrofitHelper.addProperty("test.accessKeySecret", "sdjfsdfasdfdg");
         return retrofitHelper;
     }
-
 
     /**
      * 配置 {@link RetrofitPlusInterceptorBdfRegistryPostProcessor}
