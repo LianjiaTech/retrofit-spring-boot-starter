@@ -7,8 +7,6 @@ retrofit-plus:
   enable-body-call-adapter: true
   # 是否启用 ResponseCallAdapter适配器
   enable-response-call-adapter: true
-  # 是否启用 Retrofit2Converter转码器
-  enable-fast-json-converter: true
   # 启用日志打印
   enable-log: true
   # 连接池配置
@@ -28,8 +26,6 @@ retrofit-plus:
 retrofit-plus.enable-body-call-adapter=true
 # 是否启用 ResponseCallAdapter适配器
 retrofit-plus.enable-response-call-adapter=true
-# 是否启用 Retrofit2Converter转码器
-retrofit-plus.enable-fast-json-converter=true
 # 是否启用日志打印
 retrofit-plus.enable-log=true
 # 连接池配置
@@ -63,9 +59,6 @@ public class RetrofitRefBeanConfig {
         // 是否启用 BodyCallAdapter适配器
         config.setEnableBodyCallAdapter(true);
         // 是否启用 ResponseCallAdapter适配器
-        config.setEnableResponseCallAdapter(true);
-        // 是否启用 Retrofit2Converter转码器
-        config.setEnableFastJsonConverter(true);
         // 启用日志打印
         config.setEnableLog(true);
         // retrofitHelper bean

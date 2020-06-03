@@ -1,6 +1,5 @@
 package com.github.lianjiatech.retrofit.plus.config;
 
-import com.alibaba.fastjson.support.retrofit.Retrofit2ConverterFactory;
 import com.github.lianjiatech.retrofit.plus.core.BodyCallAdapterFactory;
 import com.github.lianjiatech.retrofit.plus.core.ResponseCallAdapterFactory;
 import lombok.Data;
@@ -27,10 +26,6 @@ public class Config {
      */
     private boolean enableResponseCallAdapter = true;
 
-    /**
-     * 启用 #{@link Retrofit2ConverterFactory} 数据转换器
-     */
-    private boolean enableFastJsonConverter = true;
     /**
      * 启用日志打印
      */

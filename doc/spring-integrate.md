@@ -6,7 +6,7 @@
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
     <artifactId>retrofit-plus</artifactId>
-    <version>1.1.2</version>
+    <version>1.1.3</version>
 </dependency>
 ```
 
@@ -35,8 +35,6 @@ public class RetrofitRefBeanConfig {
         config.setEnableBodyCallAdapter(true);
         // 是否启用 ResponseCallAdapter适配器
         config.setEnableResponseCallAdapter(true);
-        // 是否启用 Retrofit2Converter转码器
-        config.setEnableFastJsonConverter(true);
         // 启用日志打印
         config.setEnableLog(true);
         // retrofitHelper bean
