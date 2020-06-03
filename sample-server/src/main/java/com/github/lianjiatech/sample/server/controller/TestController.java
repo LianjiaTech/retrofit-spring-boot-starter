@@ -33,7 +33,7 @@ public class TestController {
 
     @PostMapping("/error")
     public ResponseEntity error(@RequestBody Person person) {
-        Map<String, Object> map = new HashMap<>(16);
+        Map<String, Object> map = new HashMap<>(4);
         map.put("errorMessage", "我就是要手动报个错");
         map.put("errorCode", 500);
         return ResponseEntity.status(500).body(map);
