@@ -1,6 +1,9 @@
 
 ## 简介
 
+[![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
+[![Maven central](https://maven-badges.herokuapp.com/maven-central/com.github.lianjiatech/retrofit-plus-boot-starter/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.lianjiatech/retrofit-plus-boot-starter)
+
 **retrofit-plus是一款基于retrofit2实现的轻量级httpClient客户端工具，与spring和spring-boot项目深度集成。**通过**注解式配置**的方式，可以灵活地配置客户端参数、连接池信息、基于url的路径匹配拦截器、全局拦截器、日志打印策略等。极大地简化了spring(spring-boot)项目中http调用开发。
 
 **github地址:** <https://github.com/LianjiaTech/retrofit-plus>
