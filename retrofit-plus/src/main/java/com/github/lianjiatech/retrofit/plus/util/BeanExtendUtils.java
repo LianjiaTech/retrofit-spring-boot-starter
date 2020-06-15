@@ -1,7 +1,5 @@
 package com.github.lianjiatech.retrofit.plus.util;
 
-import lombok.SneakyThrows;
-import lombok.experimental.UtilityClass;
 import org.springframework.beans.BeanUtils;
 
 import java.beans.PropertyDescriptor;
@@ -13,9 +11,11 @@ import java.util.Map;
 /**
  * @author 陈添明
  */
-@UtilityClass
-public class BeanExtendUtils {
+public final class BeanExtendUtils {
 
+    private BeanExtendUtils() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
 
     /**
      * 该方法是用于相同对象不同属性值的合并<br>
@@ -27,8 +27,7 @@ public class BeanExtendUtils {
      * @param targetBean 用于合并的对象bean
      * @return 合并后的对象
      */
-    @SneakyThrows
-    public static <T> T combineProperties(T sourceBean, T targetBean) {
+    public static <T> T combineProperties(T sourceBean, T targetBean) throws IllegalAccessException {
         Class sourceBeanClass = sourceBean.getClass();
         Class targetBeanClass = targetBean.getClass();
 

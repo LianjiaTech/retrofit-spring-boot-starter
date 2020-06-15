@@ -1,6 +1,5 @@
 package com.github.lianjiatech.retrofit.plus.util;
 
-import lombok.experimental.UtilityClass;
 import okhttp3.Headers;
 import okio.Buffer;
 
@@ -9,9 +8,11 @@ import java.io.EOFException;
 /**
  * @author 陈添明
  */
-@UtilityClass
-public class HttpDataUtils {
+public final class HttpDataUtils {
 
+    private HttpDataUtils() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
 
     private static final int INT_16 = 16;
 

@@ -4,8 +4,6 @@ import com.github.lianjiatech.retrofit.plus.annotation.RetrofitClient;
 import com.github.lianjiatech.retrofit.plus.config.Config;
 import com.github.lianjiatech.retrofit.plus.util.BeanExtendUtils;
 import com.github.lianjiatech.retrofit.plus.util.SpringBootBindUtil;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
@@ -24,7 +22,6 @@ import java.util.Set;
 /**
  * @author 陈添明
  */
-@Slf4j
 public class ClassPathRetrofitClientScanner extends ClassPathBeanDefinitionScanner {
 
     private final ClassLoader classLoader;
@@ -67,7 +64,7 @@ public class ClassPathRetrofitClientScanner extends ClassPathBeanDefinitionScann
                         classLoader);
                 return !target.isAnnotation();
             } catch (Exception ex) {
-                log.error("load class exception:", ex);
+                logger.error("load class exception:", ex);
             }
         }
         return false;
@@ -101,7 +98,7 @@ public class ClassPathRetrofitClientScanner extends ClassPathBeanDefinitionScann
     }
 
 
-    public void setRetrofitEnvironment(Environment environment) {
+    public void setRetrofitEnvironment(Environment environment) throws IllegalAccessException {
         // 配置属性
         Config config = SpringBootBindUtil.bind(environment, Config.class, Config.PREFIX);
         // 默认属性
@@ -114,8 +111,8 @@ public class ClassPathRetrofitClientScanner extends ClassPathBeanDefinitionScann
         retrofitHelper.setConfig(mergeConfig);
     }
 
-    @NonNull
-    private Config mergeConfig(Config config, Config defaultConfig) {
+
+    private Config mergeConfig(Config config, Config defaultConfig) throws IllegalAccessException {
         if (config == null) {
             return defaultConfig;
         }

@@ -11,13 +11,11 @@ import com.github.lianjiatech.retrofit.plus.interceptor.BaseGlobalInterceptor;
 import com.github.lianjiatech.retrofit.plus.interceptor.BasePathMatchInterceptor;
 import com.github.lianjiatech.retrofit.plus.interceptor.LogInterceptor;
 import com.github.lianjiatech.retrofit.plus.util.BeanExtendUtils;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 import okhttp3.ConnectionPool;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -49,19 +47,16 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author 陈添明
  */
-@Slf4j
 public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware, InitializingBean, ApplicationContextAware {
 
-    @Setter
-    @Getter
+    private final static Logger logger = LoggerFactory.getLogger(RetrofitFactoryBean.class);
+
     private Class<T> retrofitInterface;
 
     private ConfigurableEnvironment environment;
 
     private Map<String, ConnectionPool> poolRegistry = new ConcurrentHashMap<>(4);
 
-    @Setter
-    @Getter
     private RetrofitHelper retrofitHelper;
 
     private ApplicationContext applicationContext;
@@ -70,14 +65,32 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
 
     private ResponseCallAdapterFactory responseCallAdapterFactory;
 
+    public Class<T> getRetrofitInterface() {
+        return retrofitInterface;
+    }
+
+    public void setRetrofitInterface(Class<T> retrofitInterface) {
+        this.retrofitInterface = retrofitInterface;
+    }
+
+    public RetrofitHelper getRetrofitHelper() {
+        return retrofitHelper;
+    }
+
+    public void setRetrofitHelper(RetrofitHelper retrofitHelper) {
+        this.retrofitHelper = retrofitHelper;
+    }
+
     private JacksonConverterFactory jacksonConverterFactory = JacksonConverterFactory
             .create(new ObjectMapper()
+
                     .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                     .setSerializationInclusion(JsonInclude.Include.NON_NULL));
 
     private static final String DEFAULT_KEY = "default";
 
     public RetrofitFactoryBean() {
+
     }
 
     public RetrofitFactoryBean(Class<T> retrofitInterface) {
@@ -86,9 +99,9 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
 
     @Override
     @SuppressWarnings("unchecked")
-    public T getObject() {
-        if (log.isDebugEnabled()) {
-            log.debug("当前retrofit接口为={}, global_config = {}", retrofitInterface, retrofitHelper.getConfig());
+    public T getObject() throws Exception {
+        if (logger.isDebugEnabled()) {
+            logger.debug("当前retrofit接口为={}, global_config = {}", retrofitInterface, retrofitHelper.getConfig());
         }
         checkRetrofitInterface(retrofitInterface);
         Retrofit retrofit = getRetrofit(retrofitInterface);
@@ -137,7 +150,6 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
      * @param retrofitClientInterfaceClass retrofitClient接口类
      * @return okhttp3连接池
      */
-    @SneakyThrows
     private synchronized okhttp3.ConnectionPool getConnectionPool(Class<?> retrofitClientInterfaceClass) {
         RetrofitClient retrofitClient = retrofitClientInterfaceClass.getAnnotation(RetrofitClient.class);
         String poolName = retrofitClient.poolName();
@@ -153,7 +165,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
      * @param retrofitClientInterfaceClass retrofitClient接口类
      * @return OkHttpClient实例
      */
-    private synchronized OkHttpClient getOkHttpClient(Class<?> retrofitClientInterfaceClass) {
+    private synchronized OkHttpClient getOkHttpClient(Class<?> retrofitClientInterfaceClass) throws IllegalAccessException, InstantiationException {
         okhttp3.ConnectionPool connectionPool = getConnectionPool(retrofitClientInterfaceClass);
         RetrofitClient retrofitClient = retrofitClientInterfaceClass.getAnnotation(RetrofitClient.class);
         // 构建一个OkHttpClient对象
@@ -173,7 +185,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         // 添加日志拦截器
         Config config = retrofitHelper.getConfig();
         if (config.isEnableLog()) {
-            LogInterceptor.Logger logger = LogInterceptor.innerLogger(retrofitClient.logLevel(), log);
+            LogInterceptor.Logger logger = LogInterceptor.innerLogger(retrofitClient.logLevel());
             okHttpClientBuilder.addInterceptor(new LogInterceptor(logger, retrofitClient.logStrategy()));
         }
         return okHttpClientBuilder.build();
@@ -186,9 +198,8 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
      * @param retrofitClientInterfaceClass retrofitClient接口类
      * @return 拦截器实例集合
      */
-    @SneakyThrows
     @SuppressWarnings("unchecked")
-    private List<Interceptor> findInterceptorByAnnotation(Class<?> retrofitClientInterfaceClass) {
+    private List<Interceptor> findInterceptorByAnnotation(Class<?> retrofitClientInterfaceClass) throws InstantiationException, IllegalAccessException {
         Annotation[] classAnnotations = retrofitClientInterfaceClass.getAnnotations();
         List<Interceptor> interceptors = new ArrayList<>();
         // 找出被@InterceptMark标记的注解
@@ -222,8 +233,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
      * @param interceptorClass 路径拦截器类的子类，参见@{@link BasePathMatchInterceptor}
      * @return 路径拦截器实例
      */
-    @SneakyThrows
-    private BasePathMatchInterceptor getInterceptorInstance(Class<? extends BasePathMatchInterceptor> interceptorClass) {
+    private BasePathMatchInterceptor getInterceptorInstance(Class<? extends BasePathMatchInterceptor> interceptorClass) throws IllegalAccessException, InstantiationException {
         // spring bean
         if (isComponent(interceptorClass)) {
             return applicationContext.getBean(interceptorClass);
@@ -257,7 +267,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
      * @param retrofitClientInterfaceClass retrofitClient接口类
      * @return Retrofit实例
      */
-    public synchronized Retrofit getRetrofit(Class<?> retrofitClientInterfaceClass) {
+    public synchronized Retrofit getRetrofit(Class<?> retrofitClientInterfaceClass) throws InstantiationException, IllegalAccessException {
         RetrofitClient retrofitClient = retrofitClientInterfaceClass.getAnnotation(RetrofitClient.class);
         String baseUrl = retrofitClient.baseUrl();
         baseUrl = formatBaseUrl(baseUrl);

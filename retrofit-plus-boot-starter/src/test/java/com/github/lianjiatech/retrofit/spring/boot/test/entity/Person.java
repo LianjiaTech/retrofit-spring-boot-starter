@@ -1,13 +1,8 @@
 package com.github.lianjiatech.retrofit.spring.boot.test.entity;
 
-import lombok.Data;
-import lombok.experimental.Accessors;
-
 /**
  * @author 陈添明
  */
-@Data
-@Accessors(chain = true)
 public class Person {
 
     private Long id;
@@ -15,4 +10,31 @@ public class Person {
     private String name;
 
     private Integer age;
+
+    public Long getId() {
+        return id;
+    }
+
+    public Person setId(Long id) {
+        this.id = id;
+        return this;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Person setName(String name) {
+        this.name = name;
+        return this;
+    }
+
+    public Integer getAge() {
+        return age;
+    }
+
+    public Person setAge(Integer age) {
+        this.age = age;
+        return this;
+    }
 }

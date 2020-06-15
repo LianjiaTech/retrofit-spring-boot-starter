@@ -1,7 +1,6 @@
 package com.github.lianjiatech.retrofit.plus.core;
 
 import com.github.lianjiatech.retrofit.plus.config.Config;
-import lombok.Data;
 
 import java.util.Properties;
 
@@ -9,7 +8,6 @@ import java.util.Properties;
 /**
  * @author 陈添明
  */
-@Data
 public class RetrofitHelper {
 
     /**
@@ -38,5 +36,21 @@ public class RetrofitHelper {
     }
 
     public RetrofitHelper() {
+    }
+
+    public Config getConfig() {
+        return config;
+    }
+
+    public void setConfig(Config config) {
+        this.config = config;
+    }
+
+    public Properties getProperties() {
+        return properties;
+    }
+
+    public void setProperties(Properties properties) {
+        this.properties = properties;
     }
 }

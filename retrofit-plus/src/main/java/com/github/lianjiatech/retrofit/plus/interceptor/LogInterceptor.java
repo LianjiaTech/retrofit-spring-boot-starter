@@ -17,10 +17,11 @@ package com.github.lianjiatech.retrofit.plus.interceptor;
 
 import com.github.lianjiatech.retrofit.plus.core.RequestHolder;
 import com.github.lianjiatech.retrofit.plus.core.ResponseHolder;
-import lombok.extern.slf4j.Slf4j;
+import com.github.lianjiatech.retrofit.plus.core.RetrofitFactoryBean;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 import org.springframework.util.StringUtils;
 
@@ -29,8 +30,9 @@ import java.io.IOException;
 /**
  * @author 陈添明
  */
-@Slf4j
 public final class LogInterceptor implements Interceptor {
+
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(RetrofitFactoryBean.class);
 
     public interface Logger {
         /**
@@ -110,17 +112,17 @@ public final class LogInterceptor implements Interceptor {
         }
     }
 
-    public static LogInterceptor.Logger innerLogger(Level level, org.slf4j.Logger logger) {
+    public static LogInterceptor.Logger innerLogger(Level level) {
         if (level == Level.DEBUG) {
-            return logger::debug;
+            return log::debug;
         } else if (level == Level.ERROR) {
-            return logger::error;
+            return log::error;
         } else if (level == Level.INFO) {
-            return logger::info;
+            return log::info;
         } else if (level == Level.TRACE) {
-            return logger::trace;
+            return log::trace;
         } else if (level == Level.WARN) {
-            return logger::warn;
+            return log::warn;
         }
         throw new UnsupportedOperationException("We don't support this log level currently.");
     }
