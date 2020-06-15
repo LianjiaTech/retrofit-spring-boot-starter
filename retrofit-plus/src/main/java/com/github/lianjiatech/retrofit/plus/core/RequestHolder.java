@@ -2,7 +2,6 @@ package com.github.lianjiatech.retrofit.plus.core;
 
 
 import com.github.lianjiatech.retrofit.plus.util.HttpDataUtils;
-import lombok.SneakyThrows;
 import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.Request;
@@ -10,6 +9,7 @@ import okhttp3.RequestBody;
 import okio.Buffer;
 import org.springframework.util.StringUtils;
 
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Objects;
 
@@ -55,8 +55,7 @@ public class RequestHolder {
      *
      * @return request请求体信息
      */
-    @SneakyThrows
-    public String bodyString() {
+    public String bodyString() throws IOException {
         if (request == null) {
             return null;
         }
@@ -98,7 +97,12 @@ public class RequestHolder {
             buffer.append(requestHeaderString).append(", ");
         }
 
-        String requestBodyString = bodyString();
+        String requestBodyString = null;
+        try {
+            requestBodyString = bodyString();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         if (StringUtils.hasText(requestBodyString)) {
             buffer.append(requestBodyString).append(", ");
         }

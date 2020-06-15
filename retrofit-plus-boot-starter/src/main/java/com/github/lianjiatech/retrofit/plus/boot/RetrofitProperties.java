@@ -5,7 +5,6 @@ import com.github.lianjiatech.retrofit.plus.config.Config;
 import com.github.lianjiatech.retrofit.plus.config.PoolConfig;
 import com.github.lianjiatech.retrofit.plus.core.BodyCallAdapterFactory;
 import com.github.lianjiatech.retrofit.plus.core.ResponseCallAdapterFactory;
-import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.Map;
@@ -15,7 +14,6 @@ import java.util.Map;
  *
  * @author 陈添明
  */
-@Data
 @ConfigurationProperties(prefix = Config.PREFIX)
 public class RetrofitProperties {
 
@@ -43,4 +41,44 @@ public class RetrofitProperties {
      * 禁用Void返回类型
      */
     private boolean disableVoidReturnType = false;
+
+    public Map<String, PoolConfig> getPool() {
+        return pool;
+    }
+
+    public void setPool(Map<String, PoolConfig> pool) {
+        this.pool = pool;
+    }
+
+    public boolean isEnableBodyCallAdapter() {
+        return enableBodyCallAdapter;
+    }
+
+    public void setEnableBodyCallAdapter(boolean enableBodyCallAdapter) {
+        this.enableBodyCallAdapter = enableBodyCallAdapter;
+    }
+
+    public boolean isEnableResponseCallAdapter() {
+        return enableResponseCallAdapter;
+    }
+
+    public void setEnableResponseCallAdapter(boolean enableResponseCallAdapter) {
+        this.enableResponseCallAdapter = enableResponseCallAdapter;
+    }
+
+    public boolean isEnableLog() {
+        return enableLog;
+    }
+
+    public void setEnableLog(boolean enableLog) {
+        this.enableLog = enableLog;
+    }
+
+    public boolean isDisableVoidReturnType() {
+        return disableVoidReturnType;
+    }
+
+    public void setDisableVoidReturnType(boolean disableVoidReturnType) {
+        this.disableVoidReturnType = disableVoidReturnType;
+    }
 }

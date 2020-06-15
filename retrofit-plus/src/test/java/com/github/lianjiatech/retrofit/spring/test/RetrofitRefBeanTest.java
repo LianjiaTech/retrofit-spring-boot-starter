@@ -6,11 +6,12 @@ import com.github.lianjiatech.retrofit.spring.test.entity.Result;
 import com.github.lianjiatech.retrofit.spring.test.http.HttpApi2;
 import com.github.lianjiatech.retrofit.spring.test.http.HttpApi;
 import com.github.lianjiatech.retrofit.spring.test.http.HttpApi3;
-import lombok.extern.slf4j.Slf4j;
 import okhttp3.Request;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -28,9 +29,10 @@ import java.util.concurrent.ExecutionException;
  * @author 陈添明
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@Slf4j
 @ContextConfiguration(classes = RetrofitRefBeanConfig.class)
 public class RetrofitRefBeanTest {
+
+    private static final Logger logger = LoggerFactory.getLogger(RetrofitRefBeanTest.class);
 
     @Autowired
     private HttpApi httpApi;
@@ -76,7 +78,7 @@ public class RetrofitRefBeanTest {
             @Override
             public void onFailure(Call<Result<Person>> call, Throwable t) {
                 Request request = call.request();
-                log.error("请求执行失败! request = {}", request, t);
+                logger.error("请求执行失败! request = {}", request, t);
             }
         });
         countDownLatch.await();
@@ -89,7 +91,7 @@ public class RetrofitRefBeanTest {
         // 异步处理
         resultCompletableFuture.whenComplete((personResult, throwable) -> {
             // 异常处理
-            log.error("请求执行失败! request = {}", personResult, throwable);
+            logger.error("请求执行失败! request = {}", personResult, throwable);
         });
         // CompletableFuture处理
         Result<Person> personResult = resultCompletableFuture.get();

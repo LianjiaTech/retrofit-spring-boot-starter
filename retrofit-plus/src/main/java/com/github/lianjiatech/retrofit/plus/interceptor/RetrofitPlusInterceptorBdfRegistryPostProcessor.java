@@ -1,6 +1,5 @@
 package com.github.lianjiatech.retrofit.plus.interceptor;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -11,7 +10,7 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProce
 /**
  * @author 陈添明
  */
-@Slf4j
+
 public class RetrofitPlusInterceptorBdfRegistryPostProcessor implements BeanDefinitionRegistryPostProcessor {
     /**
      * Modify the application context's internal bean definition registry after its

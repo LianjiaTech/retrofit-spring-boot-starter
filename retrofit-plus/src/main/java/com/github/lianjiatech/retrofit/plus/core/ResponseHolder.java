@@ -1,7 +1,6 @@
 package com.github.lianjiatech.retrofit.plus.core;
 
 import com.github.lianjiatech.retrofit.plus.util.HttpDataUtils;
-import lombok.SneakyThrows;
 import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.Response;
@@ -11,6 +10,7 @@ import okio.BufferedSource;
 import okio.GzipSource;
 import org.springframework.util.StringUtils;
 
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Objects;
 
@@ -70,8 +70,7 @@ public class ResponseHolder {
      *
      * @return response请求体信息
      */
-    @SneakyThrows
-    public String bodyString() {
+    public String bodyString() throws IOException {
         if (response == null) {
             return null;
         }
@@ -93,6 +92,8 @@ public class ResponseHolder {
                 gzippedResponseBody = new GzipSource(buffer.clone());
                 buffer = new Buffer();
                 buffer.writeAll(gzippedResponseBody);
+            } catch (IOException e) {
+                e.printStackTrace();
             } finally {
                 if (gzippedResponseBody != null) {
                     gzippedResponseBody.close();
@@ -132,7 +133,12 @@ public class ResponseHolder {
             buffer.append(responseHeaderString).append(", ");
         }
 
-        String responseBodyString = bodyString();
+        String responseBodyString = null;
+        try {
+            responseBodyString = bodyString();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         if (StringUtils.hasText(responseBodyString)) {
             buffer.append(responseBodyString).append(", ");
         }

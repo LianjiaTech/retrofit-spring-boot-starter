@@ -1,7 +1,8 @@
 package com.github.lianjiatech.retrofit.plus.core;
 
 import com.github.lianjiatech.retrofit.plus.annotation.RetrofitScan;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.EnvironmentAware;
@@ -23,8 +24,9 @@ import java.util.Set;
 /**
  * @author 陈添明
  */
-@Slf4j
 public class RetrofitClientRegistrar implements ImportBeanDefinitionRegistrar, ResourceLoaderAware, BeanClassLoaderAware, EnvironmentAware {
+
+    private final static Logger logger = LoggerFactory.getLogger(RetrofitClientRegistrar.class);
 
     private ResourceLoader resourceLoader;
 
@@ -53,7 +55,7 @@ public class RetrofitClientRegistrar implements ImportBeanDefinitionRegistrar, R
             try {
                 scanner.setRetrofitEnvironment(this.environment);
             } catch (Exception e) {
-                log.warn("只有 Spring Boot 环境中可以通过 Environment(配置文件,环境变量,运行参数等方式) 配置通用 retrofit，" +
+                logger.warn("只有 Spring Boot 环境中可以通过 Environment(配置文件,环境变量,运行参数等方式) 配置通用 retrofit，" +
                         "其他环境请通过 @RetrofitScan 注解中的 retrofitHelperRef进行配置!", e);
             }
         }

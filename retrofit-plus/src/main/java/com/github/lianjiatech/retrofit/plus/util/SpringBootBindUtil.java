@@ -24,7 +24,6 @@
 
 package com.github.lianjiatech.retrofit.plus.util;
 
-import lombok.experimental.UtilityClass;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.PropertyValues;
 import org.springframework.core.env.Environment;
@@ -38,8 +37,11 @@ import java.util.Map;
  * @author liuzh
  * @since 1.2.1
  */
-@UtilityClass
-public class SpringBootBindUtil {
+public final class SpringBootBindUtil {
+
+    private SpringBootBindUtil() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
 
     private static final IBind BIND;
 
