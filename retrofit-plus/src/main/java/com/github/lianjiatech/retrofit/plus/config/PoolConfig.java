@@ -9,12 +9,12 @@ public class PoolConfig {
     /**
      * 最大空闲连接
      */
-    private int maxIdleConnections = 5;
+    private int maxIdleConnections;
 
     /**
      * 保活时间，单位为秒
      */
-    private long keepAliveSecond = 300;
+    private long keepAliveSecond;
 
     public PoolConfig(int maxIdleConnections, long keepAliveSecond) {
         this.maxIdleConnections = maxIdleConnections;
