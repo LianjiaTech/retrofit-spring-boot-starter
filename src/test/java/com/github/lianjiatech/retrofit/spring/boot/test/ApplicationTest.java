@@ -1,12 +1,18 @@
 package com.github.lianjiatech.retrofit.spring.boot.test;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.lianjiatech.retrofit.spring.boot.test.entity.Person;
 import com.github.lianjiatech.retrofit.spring.boot.test.entity.Result;
 import com.github.lianjiatech.retrofit.spring.boot.test.http.HttpApi;
 import com.github.lianjiatech.retrofit.spring.boot.test.http.HttpApi2;
 import com.github.lianjiatech.retrofit.spring.boot.test.http.HttpApi3;
 import okhttp3.Request;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -18,6 +24,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -40,6 +47,31 @@ public class ApplicationTest {
 
     @Autowired
     private HttpApi3 httpApi3;
+
+    @Before
+    public void buildMockServer() throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        MockWebServer server = new MockWebServer();
+        server.start(8080);
+        Person person = new Person().setId(1L)
+                .setName("test")
+                .setAge(10);
+        Result result = new Result<>()
+                .setCode(0)
+                .setMsg("ok")
+                .setData(person);
+        MockResponse response = new MockResponse()
+                .setResponseCode(200)
+                .addHeader("Content-Type", "application/json; charset=utf-8")
+                .addHeader("Cache-Control", "no-cache")
+                .setBody(objectMapper.writeValueAsString(result));
+
+        server.enqueue(response);
+        server.enqueue(response);
+        server.url("/api/test/person");
+
+    }
 
     @Test
     public void testRetrofitConfigRef() {
