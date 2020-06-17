@@ -14,8 +14,6 @@ import com.github.lianjiatech.retrofit.spring.boot.util.BeanExtendUtils;
 import okhttp3.ConnectionPool;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -45,8 +43,6 @@ import java.util.concurrent.TimeUnit;
  * @author 陈添明
  */
 public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware, InitializingBean, ApplicationContextAware {
-
-    private final static Logger logger = LoggerFactory.getLogger(RetrofitFactoryBean.class);
 
     private Class<T> retrofitInterface;
 
@@ -323,7 +319,6 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
             });
         }
     }
-
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
