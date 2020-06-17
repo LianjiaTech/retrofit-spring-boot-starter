@@ -5,13 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.lianjiatech</groupId>
-    <artifactId>retrofit-plus-parent</artifactId>
-    <packaging>pom</packaging>
-    <version>1.1.4</version>
-
+    <artifactId>retrofit-spring-boot-starter</artifactId>
+    <version>1.0.0</version>
 
     <name>retrofit-plus-parent</name>
-    <description>retrofit-plus父工程项目</description>
+    <description>retrofit-spring-boot-starter</description>
     <url>https://github.com/lianjiatech/retrofit-plus</url>
 
     <licenses>
@@ -38,13 +36,6 @@
         </developer>
     </developers>
 
-
-    <modules>
-        <module>retrofit-plus</module>
-        <module>retrofit-plus-boot-starter</module>
-        <module>sample-server</module>
-    </modules>
-
     <properties>
         <retrofit-plus.version>1.1.4</retrofit-plus.version>
         <retrofit.version>2.9.0</retrofit.version>
@@ -57,50 +48,20 @@
         <okhttp3.version>3.14.9</okhttp3.version>
     </properties>
 
-
-    <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-web</artifactId>
-                <version>${spring-boot.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-dependencies</artifactId>
-                <version>${spring-boot.version}</version>
-                <type>pom</type>
-            </dependency>
-
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-autoconfigure</artifactId>
                 <version>${spring-boot.version}</version>
+                <scope>compile</scope>
             </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-configuration-processor</artifactId>
                 <version>${spring-boot.version}</version>
+                <scope>compile</scope>
                 <optional>true</optional>
             </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-context</artifactId>
-                <version>${spring.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-beans</artifactId>
-                <version>${spring.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-test</artifactId>
-                <version>${spring.version}</version>
-            </dependency>
-
             <dependency>
                 <groupId>com.squareup.retrofit2</groupId>
                 <artifactId>retrofit</artifactId>
@@ -146,16 +107,12 @@
                 <version>${slf4j-api.version}</version>
                 <scope>test</scope>
             </dependency>
-
             <dependency>
                 <groupId>com.squareup.okhttp3</groupId>
                 <artifactId>logging-interceptor</artifactId>
                 <version>${okhttp3.version}</version>
             </dependency>
-
         </dependencies>
-    </dependencyManagement>
-
 
     <distributionManagement>
         <snapshotRepository>
