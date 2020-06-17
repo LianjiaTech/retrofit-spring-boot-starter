@@ -21,6 +21,17 @@ public class PoolConfig {
         this.keepAliveSecond = keepAliveSecond;
     }
 
+    public PoolConfig() {
+    }
+
+    public void setMaxIdleConnections(int maxIdleConnections) {
+        this.maxIdleConnections = maxIdleConnections;
+    }
+
+    public void setKeepAliveSecond(long keepAliveSecond) {
+        this.keepAliveSecond = keepAliveSecond;
+    }
+
     public int getMaxIdleConnections() {
         return maxIdleConnections;
     }

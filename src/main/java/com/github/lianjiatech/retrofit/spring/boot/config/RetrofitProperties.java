@@ -5,23 +5,21 @@ import com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory;
 import com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
  * @author 陈添明
  */
-@ConfigurationProperties(prefix = RetrofitProperties.PREFIX)
+@ConfigurationProperties(prefix = "retrofit")
 public class RetrofitProperties {
 
-    static final String PREFIX = "retrofit";
-
-    private static final String DEFAULT_POOL = "default_pool";
+    private static final String DEFAULT_POOL = "default";
 
     /**
      * 连接池配置
      */
-    private Map<String, PoolConfig> pool;
+    private Map<String, PoolConfig> pool = new LinkedHashMap<>();
 
     /**
      * 启用 #{@link BodyCallAdapterFactory} 调用适配器
@@ -43,11 +41,10 @@ public class RetrofitProperties {
      */
     private boolean disableVoidReturnType = false;
 
-    public synchronized Map<String, PoolConfig> getPool() {
-        if (pool != null) {
+    public Map<String, PoolConfig> getPool() {
+        if (!pool.isEmpty()) {
             return pool;
         }
-        pool = new HashMap<>(2);
         pool.put(DEFAULT_POOL, new PoolConfig(5, 300));
         return pool;
     }
