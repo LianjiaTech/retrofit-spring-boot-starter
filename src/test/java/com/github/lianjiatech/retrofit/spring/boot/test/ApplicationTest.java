@@ -12,7 +12,6 @@ import okhttp3.Request;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -25,6 +24,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -48,33 +49,32 @@ public class ApplicationTest {
     @Autowired
     private HttpApi3 httpApi3;
 
-    @Before
-    public void buildMockServer() throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                .setSerializationInclusion(JsonInclude.Include.NON_NULL);
+    private static final ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            .setSerializationInclusion(JsonInclude.Include.NON_NULL);
+
+    @Test
+    public void testRetrofitConfigRef() throws IOException {
+
+        // mock
         MockWebServer server = new MockWebServer();
         server.start(8080);
-        Person person = new Person().setId(1L)
+        Person mockPerson = new Person().setId(1L)
                 .setName("test")
                 .setAge(10);
-        Result result = new Result<>()
+        Result mockResult = new Result<>()
                 .setCode(0)
                 .setMsg("ok")
-                .setData(person);
+                .setData(mockPerson);
         MockResponse response = new MockResponse()
                 .setResponseCode(200)
                 .addHeader("Content-Type", "application/json; charset=utf-8")
                 .addHeader("Cache-Control", "no-cache")
-                .setBody(objectMapper.writeValueAsString(result));
-
+                .setBody(objectMapper.writeValueAsString(mockResult));
         server.enqueue(response);
         server.enqueue(response);
         server.url("/api/test/person");
 
-    }
-
-    @Test
-    public void testRetrofitConfigRef() {
+        // http check
         Result<Person> person = httpApi.getPerson(1L);
         Person data = person.getData();
         Assert.assertNotNull(data);
@@ -89,7 +89,26 @@ public class ApplicationTest {
 
 
     @Test
-    public void testRetCall() throws InterruptedException {
+    public void testRetCall() throws InterruptedException, IOException {
+        // mock
+        MockWebServer server = new MockWebServer();
+        server.start(8080);
+        Person mockPerson = new Person().setId(2L)
+                .setName("test")
+                .setAge(10);
+        Result mockResult = new Result<>()
+                .setCode(0)
+                .setMsg("ok")
+                .setData(mockPerson);
+        MockResponse response = new MockResponse()
+                .setResponseCode(200)
+                .addHeader("Content-Type", "application/json; charset=utf-8")
+                .addHeader("Cache-Control", "no-cache")
+                .setBody(objectMapper.writeValueAsString(mockResult));
+        server.enqueue(response);
+        server.url("/api/test/person");
+
+
         Call<Result<Person>> resultCall = httpApi.getPersonCall(2L);
         CountDownLatch countDownLatch = new CountDownLatch(1);
         // 异步回调处理
@@ -116,7 +135,26 @@ public class ApplicationTest {
 
 
     @Test
-    public void testFuture() throws ExecutionException, InterruptedException {
+    public void testFuture() throws ExecutionException, InterruptedException, IOException {
+
+        // mock
+        MockWebServer server = new MockWebServer();
+        server.start(8080);
+        Person mockPerson = new Person().setId(1L)
+                .setName("test")
+                .setAge(10);
+        Result mockResult = new Result<>()
+                .setCode(0)
+                .setMsg("ok")
+                .setData(mockPerson);
+        MockResponse response = new MockResponse()
+                .setResponseCode(200)
+                .addHeader("Content-Type", "application/json; charset=utf-8")
+                .addHeader("Cache-Control", "no-cache")
+                .setBody(objectMapper.writeValueAsString(mockResult));
+        server.enqueue(response);
+        server.url("/api/test/person");
+
         CompletableFuture<Result<Person>> resultCompletableFuture = httpApi.getPersonCompletableFuture(1L);
         // 异步处理
         resultCompletableFuture.whenComplete((personResult, throwable) -> {
@@ -133,7 +171,25 @@ public class ApplicationTest {
     }
 
     @Test
-    public void testResponse() {
+    public void testResponse() throws IOException {
+        // mock
+        MockWebServer server = new MockWebServer();
+        server.start(8080);
+        Person mockPerson = new Person().setId(1L)
+                .setName("test")
+                .setAge(10);
+        Result mockResult = new Result<>()
+                .setCode(0)
+                .setMsg("ok")
+                .setData(mockPerson);
+        MockResponse response = new MockResponse()
+                .setResponseCode(200)
+                .addHeader("Content-Type", "application/json; charset=utf-8")
+                .addHeader("Cache-Control", "no-cache")
+                .setBody(objectMapper.writeValueAsString(mockResult));
+        server.enqueue(response);
+        server.url("/api/test/person");
+
         Response<Result<Person>> resultResponse = httpApi.getPersonResponse(1L);
         Assert.assertTrue(resultResponse.isSuccessful());
         Result<Person> personResult = resultResponse.body();
@@ -146,7 +202,26 @@ public class ApplicationTest {
     }
 
     @Test
-    public void testApi2() {
+    public void testApi2() throws IOException {
+        // mock
+        MockWebServer server = new MockWebServer();
+        server.start(8080);
+        Person mockPerson = new Person().setId(1L)
+                .setName("test")
+                .setAge(10);
+        Result mockResult = new Result<>()
+                .setCode(0)
+                .setMsg("ok")
+                .setData(mockPerson);
+        MockResponse response = new MockResponse()
+                .setResponseCode(200)
+                .addHeader("Content-Type", "application/json; charset=utf-8")
+                .addHeader("Cache-Control", "no-cache")
+                .setBody(objectMapper.writeValueAsString(mockResult));
+        server.enqueue(response);
+        server.url("/api/test/person");
+
+
         Result<Person> person = httpApi2.getPerson(1L);
         Person data = person.getData();
         Assert.assertNotNull(data);
@@ -155,7 +230,25 @@ public class ApplicationTest {
     }
 
     @Test
-    public void savePerson() {
+    public void savePerson() throws IOException {
+
+        // mock
+        MockWebServer server = new MockWebServer();
+        server.start(8080);
+
+        Result mockResult = new Result<>()
+                .setCode(0)
+                .setMsg("ok");
+
+        MockResponse response = new MockResponse()
+                .setResponseCode(200)
+                .addHeader("Content-Type", "application/json; charset=utf-8")
+                .addHeader("Cache-Control", "no-cache")
+                .setBody(objectMapper.writeValueAsString(mockResult));
+        server.enqueue(response);
+        server.url("/api/test/savePerson");
+
+
         Person person = new Person().setId(1L).setName("test").setAge(10);
         Result<Void> voidResult = httpApi.savePerson(person);
         int code = voidResult.getCode();
@@ -163,13 +256,47 @@ public class ApplicationTest {
     }
 
     @Test
-    public void savePersonVoid() {
+    public void savePersonVoid() throws IOException {
+        // mock
+        MockWebServer server = new MockWebServer();
+        server.start(8080);
+
+        Result mockResult = new Result<>()
+                .setCode(0)
+                .setMsg("ok");
+
+        MockResponse response = new MockResponse()
+                .setResponseCode(200)
+                .addHeader("Content-Type", "application/json; charset=utf-8")
+                .addHeader("Cache-Control", "no-cache")
+                .setBody(objectMapper.writeValueAsString(mockResult));
+        server.enqueue(response);
+        server.url("/api/test/savePerson");
+
         Person person = new Person().setId(1L).setName("test").setAge(10);
         httpApi.savePersonVoid(person);
     }
 
     @Test
-    public void testNoBaseUrl() {
+    public void testNoBaseUrl() throws IOException {
+        // mock
+        MockWebServer server = new MockWebServer();
+        server.start(8080);
+        Person mockPerson = new Person().setId(1L)
+                .setName("test")
+                .setAge(10);
+        Result mockResult = new Result<>()
+                .setCode(0)
+                .setMsg("ok")
+                .setData(mockPerson);
+        MockResponse response = new MockResponse()
+                .setResponseCode(200)
+                .addHeader("Content-Type", "application/json; charset=utf-8")
+                .addHeader("Cache-Control", "no-cache")
+                .setBody(objectMapper.writeValueAsString(mockResult));
+        server.enqueue(response);
+        server.url("/api/test/person");
+
         String url = "http://localhost:8080/api/test/person";
         Result<Person> person = httpApi3.getPerson(url, 1L);
         Person data = person.getData();
@@ -180,9 +307,30 @@ public class ApplicationTest {
     }
 
     @Test(expected = Throwable.class)
-    public void testHttpError() {
+    public void testHttpError() throws IOException {
+        // mock
+        MockWebServer server = new MockWebServer();
+        server.start(8080);
+
+        Map<String, Object> map = new HashMap<>(4);
+        map.put("errorMessage", "我就是要手动报个错");
+        map.put("errorCode", 500);
+
+        Result mockResult = new Result<>()
+                .setCode(0)
+                .setMsg("ok")
+                .setData(objectMapper.writeValueAsString(map));
+        MockResponse response = new MockResponse()
+                .setResponseCode(500)
+                .addHeader("Content-Type", "application/json; charset=utf-8")
+                .addHeader("Cache-Control", "no-cache")
+                .setBody(objectMapper.writeValueAsString(mockResult));
+        server.enqueue(response);
+        server.url("/api/test/error");
+
         Person person = new Person().setId(1L).setName("test").setAge(10);
         Person error = httpApi.error(person);
+        System.out.println(error);
     }
 
 }
