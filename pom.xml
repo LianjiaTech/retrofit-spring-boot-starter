@@ -8,7 +8,7 @@
     <artifactId>retrofit-spring-boot-starter</artifactId>
     <version>1.0.0</version>
 
-    <name>retrofit-plus-parent</name>
+    <name>retrofit-spring-boot-starter</name>
     <description>retrofit-spring-boot-starter</description>
     <url>https://github.com/lianjiatech/retrofit-plus</url>
 
@@ -52,13 +52,13 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-autoconfigure</artifactId>
                 <version>${spring-boot.version}</version>
-                <scope>compile</scope>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-configuration-processor</artifactId>
                 <version>${spring-boot.version}</version>
-                <scope>compile</scope>
+                <scope>provided</scope>
                 <optional>true</optional>
             </dependency>
             <dependency>
@@ -95,23 +95,6 @@
                 <version>${slf4j-api.version}</version>
             </dependency>
 
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-log4j12</artifactId>
-                <version>${slf4j-api.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-nop</artifactId>
-                <version>${slf4j-api.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-simple</artifactId>
-                <version>${slf4j-api.version}</version>
-                <scope>test</scope>
-            </dependency>
             <dependency>
                 <groupId>com.squareup.okhttp3</groupId>
                 <artifactId>logging-interceptor</artifactId>
