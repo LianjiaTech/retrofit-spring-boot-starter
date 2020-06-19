@@ -1,8 +1,5 @@
 package com.github.lianjiatech.retrofit.spring.boot.core;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.lianjiatech.retrofit.spring.boot.annotation.InterceptMark;
 import com.github.lianjiatech.retrofit.spring.boot.annotation.RetrofitClient;
 import com.github.lianjiatech.retrofit.spring.boot.config.PoolConfig;
@@ -31,11 +28,13 @@ import org.springframework.util.CollectionUtils;
 import retrofit2.CallAdapter;
 import retrofit2.Converter;
 import retrofit2.Retrofit;
-import retrofit2.converter.jackson.JacksonConverterFactory;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -54,10 +53,6 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
 
     private ApplicationContext applicationContext;
 
-    private BodyCallAdapterFactory bodyCallAdapterFactory;
-
-    private ResponseCallAdapterFactory responseCallAdapterFactory;
-
     public Class<T> getRetrofitInterface() {
         return retrofitInterface;
     }
@@ -65,13 +60,6 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
     public void setRetrofitInterface(Class<T> retrofitInterface) {
         this.retrofitInterface = retrofitInterface;
     }
-
-
-    private JacksonConverterFactory jacksonConverterFactory = JacksonConverterFactory
-            .create(new ObjectMapper()
-                    .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                    .setSerializationInclusion(JsonInclude.Include.NON_NULL));
-
 
     public RetrofitFactoryBean() {
 
@@ -252,35 +240,17 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         Retrofit.Builder retrofitBuilder = new Retrofit.Builder()
                 .baseUrl(baseUrl)
                 .client(client);
-        // 配置的适配器工厂和转换器工厂
-        List<CallAdapter.Factory> callAdapterFactories = new ArrayList<>();
-        List<Converter.Factory> converterFactories = new ArrayList<>();
         // spring容器中的适配器工厂和转换器工厂
-        Collection<CallAdapter.Factory> factories = getBeans(CallAdapter.Factory.class);
-        if (!CollectionUtils.isEmpty(factories)) {
-            callAdapterFactories.addAll(factories);
+        Collection<CallAdapter.Factory> callAdapterFactories = getBeans(CallAdapter.Factory.class);
+        if (!CollectionUtils.isEmpty(callAdapterFactories)) {
+            // 添加CallAdapter.Factory
+            callAdapterFactories.forEach(retrofitBuilder::addCallAdapterFactory);
         }
-        Collection<Converter.Factory> factoryCollection = getBeans(Converter.Factory.class);
-        if (CollectionUtils.isEmpty(factoryCollection)) {
-            // 没有指定自定义转换器，默认加载 converter-jackson
-            converterFactories.add(jacksonConverterFactory);
-        } else {
-            // 使用自定义的数据转换器
-            converterFactories.addAll(factoryCollection);
+        Collection<Converter.Factory> converterFactories = getBeans(Converter.Factory.class);
+        if (!CollectionUtils.isEmpty(converterFactories)) {
+            // 添加Converter.Factory
+            converterFactories.forEach(retrofitBuilder::addConverterFactory);
         }
-        // 添加配置中选择启用的适配器工厂和转换器工厂
-        if (retrofitProperties.isEnableBodyCallAdapter()) {
-            bodyCallAdapterFactory = Optional.ofNullable(this.bodyCallAdapterFactory).orElse(new BodyCallAdapterFactory());
-            callAdapterFactories.add(bodyCallAdapterFactory);
-        }
-        if (retrofitProperties.isEnableResponseCallAdapter()) {
-            responseCallAdapterFactory = Optional.ofNullable(responseCallAdapterFactory).orElse(new ResponseCallAdapterFactory());
-            callAdapterFactories.add(responseCallAdapterFactory);
-        }
-        // 添加CallAdapter.Factory
-        callAdapterFactories.forEach(retrofitBuilder::addCallAdapterFactory);
-        // 添加Converter.Factory
-        converterFactories.forEach(retrofitBuilder::addConverterFactory);
         return retrofitBuilder.build();
     }
 
