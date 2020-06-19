@@ -10,7 +10,7 @@ import java.io.IOException;
  *
  * @author 陈添明
  */
-public abstract class BaseGlobalInterceptor implements RetrofitPlusInterceptor {
+public abstract class BaseGlobalInterceptor implements PrototypeInterceptor {
 
 
     @Override

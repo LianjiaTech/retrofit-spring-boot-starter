@@ -11,7 +11,7 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProce
  * @author 陈添明
  */
 
-public class RetrofitPlusInterceptorBdfRegistryPostProcessor implements BeanDefinitionRegistryPostProcessor {
+public class PrototypeInterceptorBdfProcessor implements BeanDefinitionRegistryPostProcessor {
 
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
@@ -24,7 +24,7 @@ public class RetrofitPlusInterceptorBdfRegistryPostProcessor implements BeanDefi
             }
             try {
                 Class<?> beanClass = Class.forName(beanClassName);
-                if (RetrofitPlusInterceptor.class.isAssignableFrom(beanClass)) {
+                if (PrototypeInterceptor.class.isAssignableFrom(beanClass)) {
                     beanDefinition.setScope(ConfigurableBeanFactory.SCOPE_PROTOTYPE);
                 }
             } catch (ClassNotFoundException e) {
