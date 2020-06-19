@@ -9,5 +9,5 @@ import okhttp3.Interceptor;
  *
  * @author 陈添明
  */
-public interface RetrofitPlusInterceptor extends Interceptor {
+public interface PrototypeInterceptor extends Interceptor {
 }

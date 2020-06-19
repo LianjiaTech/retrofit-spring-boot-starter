@@ -13,7 +13,7 @@ import java.io.IOException;
  *
  * @author 陈添明
  */
-public abstract class BasePathMatchInterceptor implements RetrofitPlusInterceptor {
+public abstract class BasePathMatchInterceptor implements PrototypeInterceptor {
 
     private String[] include;
 
