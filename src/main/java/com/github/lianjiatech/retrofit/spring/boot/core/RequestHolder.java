@@ -1,17 +1,10 @@
 package com.github.lianjiatech.retrofit.spring.boot.core;
 
 
-import com.github.lianjiatech.retrofit.spring.boot.util.HttpDataUtils;
-import okhttp3.Headers;
-import okhttp3.MediaType;
 import okhttp3.Request;
-import okhttp3.RequestBody;
-import okio.Buffer;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.Objects;
 
 /**
  * @author 陈添明
@@ -43,11 +36,13 @@ public class RequestHolder {
      * @return request头信息
      */
     public String headersString() {
-        if (request == null) {
-            return null;
-        }
-        Headers headers = request.headers();
-        return "requestHeader" + HttpDataUtils.headersString(headers);
+//        if (request == null) {
+//            return null;
+//        }
+//        Headers headers = request.headers();
+//        return "requestHeader" + HttpDataUtils.headersString(headers);
+
+        return null;
     }
 
     /**
@@ -56,33 +51,35 @@ public class RequestHolder {
      * @return request请求体信息
      */
     public String bodyString() throws IOException {
-        if (request == null) {
-            return null;
-        }
-        RequestBody requestBody = request.body();
-        if (requestBody == null || HttpDataUtils.bodyHasUnknownEncoding(request.headers())) {
-            return null;
-        }
-        StringBuilder result = new StringBuilder("requestBody");
-        Buffer buffer = new Buffer();
-        requestBody.writeTo(buffer);
-        Charset charset = Charset.forName("UTF-8");
-        MediaType contentType = requestBody.contentType();
-        if (contentType != null) {
-            charset = contentType.charset(charset);
-        }
-        if (HttpDataUtils.isPlaintext(buffer)) {
-            result.append(buffer.readString(Objects.requireNonNull(charset)))
-                    .append("(")
-                    .append(requestBody.contentLength())
-                    .append("-byte body)");
+//        if (request == null) {
+//            return null;
+//        }
+//        RequestBody requestBody = request.body();
+//        if (requestBody == null || HttpDataUtils.bodyHasUnknownEncoding(request.headers())) {
+//            return null;
+//        }
+//        StringBuilder result = new StringBuilder("requestBody");
+//        Buffer buffer = new Buffer();
+//        requestBody.writeTo(buffer);
+//        Charset charset = Charset.forName("UTF-8");
+//        MediaType contentType = requestBody.contentType();
+//        if (contentType != null) {
+//            charset = contentType.charset(charset);
+//        }
+//        if (HttpDataUtils.isPlaintext(buffer)) {
+//            result.append(buffer.readString(Objects.requireNonNull(charset)))
+//                    .append("(")
+//                    .append(requestBody.contentLength())
+//                    .append("-byte body)");
+//
+//        } else {
+//            result.append("(binary ")
+//                    .append(requestBody.contentLength())
+//                    .append("-byte body omitted)");
+//        }
+//        return result.toString();
 
-        } else {
-            result.append("(binary ")
-                    .append(requestBody.contentLength())
-                    .append("-byte body omitted)");
-        }
-        return result.toString();
+        return null;
     }
 
     @Override

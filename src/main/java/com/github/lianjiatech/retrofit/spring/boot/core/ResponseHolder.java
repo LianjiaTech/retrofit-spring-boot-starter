@@ -1,18 +1,10 @@
 package com.github.lianjiatech.retrofit.spring.boot.core;
 
-import com.github.lianjiatech.retrofit.spring.boot.util.HttpDataUtils;
-import okhttp3.Headers;
-import okhttp3.MediaType;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
-import okio.Buffer;
-import okio.BufferedSource;
-import okio.GzipSource;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.Objects;
 
 /**
  * @author 陈添明
@@ -58,11 +50,13 @@ public class ResponseHolder {
      * @return response头信息
      */
     public String headersString() {
-        if (response == null) {
-            return null;
-        }
-        Headers headers = response.headers();
-        return "responseHeader" + HttpDataUtils.headersString(headers);
+//        if (response == null) {
+//            return null;
+//        }
+//        Headers headers = response.headers();
+//        return "responseHeader" + HttpDataUtils.headersString(headers);
+
+        return null;
     }
 
     /**
@@ -71,52 +65,54 @@ public class ResponseHolder {
      * @return response请求体信息
      */
     public String bodyString() throws IOException {
-        if (response == null) {
-            return null;
-        }
-        if (HttpDataUtils.bodyHasUnknownEncoding(response.headers())) {
-            return null;
-        }
-        StringBuilder result = new StringBuilder("responseBody");
-        Headers headers = response.headers();
-        BufferedSource source = responseBody.source();
-        long contentLength = responseBody.contentLength();
-        // Buffer the entire body.
-        source.request(Long.MAX_VALUE);
-        Buffer buffer = source.buffer();
-        Long gzippedLength = null;
-        if (GZIP.equalsIgnoreCase(headers.get(CONTENT_ENCODING))) {
-            gzippedLength = buffer.size();
-            GzipSource gzippedResponseBody = null;
-            try {
-                gzippedResponseBody = new GzipSource(buffer.clone());
-                buffer = new Buffer();
-                buffer.writeAll(gzippedResponseBody);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                if (gzippedResponseBody != null) {
-                    gzippedResponseBody.close();
-                }
-            }
-        }
-        Charset charset = Charset.forName("UTF-8");
-        MediaType contentType = responseBody.contentType();
-        if (contentType != null) {
-            charset = contentType.charset(charset);
-        }
-        if (!HttpDataUtils.isPlaintext(buffer)) {
-            result.append("(binary ").append(buffer.size()).append("-byte body omitted)");
-        } else if (contentLength != 0) {
-            result.append(buffer.clone().readString(Objects.requireNonNull(charset)));
-        }
+//        if (response == null) {
+//            return null;
+//        }
+//        if (HttpDataUtils.bodyHasUnknownEncoding(response.headers())) {
+//            return null;
+//        }
+//        StringBuilder result = new StringBuilder("responseBody");
+//        Headers headers = response.headers();
+//        BufferedSource source = responseBody.source();
+//        long contentLength = responseBody.contentLength();
+//        // Buffer the entire body.
+//        source.request(Long.MAX_VALUE);
+//        Buffer buffer = source.buffer();
+//        Long gzippedLength = null;
+//        if (GZIP.equalsIgnoreCase(headers.get(CONTENT_ENCODING))) {
+//            gzippedLength = buffer.size();
+//            GzipSource gzippedResponseBody = null;
+//            try {
+//                gzippedResponseBody = new GzipSource(buffer.clone());
+//                buffer = new Buffer();
+//                buffer.writeAll(gzippedResponseBody);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            } finally {
+//                if (gzippedResponseBody != null) {
+//                    gzippedResponseBody.close();
+//                }
+//            }
+//        }
+//        Charset charset = Charset.forName("UTF-8");
+//        MediaType contentType = responseBody.contentType();
+//        if (contentType != null) {
+//            charset = contentType.charset(charset);
+//        }
+//        if (!HttpDataUtils.isPlaintext(buffer)) {
+//            result.append("(binary ").append(buffer.size()).append("-byte body omitted)");
+//        } else if (contentLength != 0) {
+//            result.append(buffer.clone().readString(Objects.requireNonNull(charset)));
+//        }
+//
+//        if (gzippedLength != null) {
+//            result.append("(").append(buffer.size()).append("-byte, ").append(gzippedLength).append("-gzipped-byte body)");
+//        } else {
+//            result.append("(").append(buffer.size()).append("-byte body)");
+//        }
+//        return result.toString();
 
-        if (gzippedLength != null) {
-            result.append("(").append(buffer.size()).append("-byte, ").append(gzippedLength).append("-gzipped-byte body)");
-        } else {
-            result.append("(").append(buffer.size()).append("-byte body)");
-        }
-        return result.toString();
+        return null;
     }
 
     @Override
