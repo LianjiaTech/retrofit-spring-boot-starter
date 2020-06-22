@@ -19,10 +19,6 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.env.Environment;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
-import org.springframework.stereotype.Repository;
-import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import retrofit2.CallAdapter;
@@ -200,31 +196,14 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
      */
     private BasePathMatchInterceptor getInterceptorInstance(Class<? extends BasePathMatchInterceptor> interceptorClass) throws IllegalAccessException, InstantiationException {
         // spring bean
-        if (isComponent(interceptorClass)) {
+        try {
             return applicationContext.getBean(interceptorClass);
-        } else {
+        } catch (BeansException e) {
             // spring容器获取失败，反射创建
             return interceptorClass.newInstance();
         }
     }
 
-
-    private boolean isComponent(Class<? extends BasePathMatchInterceptor> interceptorClass) {
-
-        if (interceptorClass.isAnnotationPresent(Component.class)) {
-            return true;
-        }
-
-        if (interceptorClass.isAnnotationPresent(Service.class)) {
-            return true;
-        }
-
-        if (interceptorClass.isAnnotationPresent(Controller.class)) {
-            return true;
-        }
-
-        return interceptorClass.isAnnotationPresent(Repository.class);
-    }
 
     /**
      * 获取Retrofit实例，一个retrofitClient接口对应一个Retrofit实例
