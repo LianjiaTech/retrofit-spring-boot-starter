@@ -1,6 +1,8 @@
 package com.github.lianjiatech.retrofit.spring.boot.core;
 
 import com.github.lianjiatech.retrofit.spring.boot.annotation.RetrofitClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -19,6 +21,8 @@ import java.util.Set;
 public class ClassPathRetrofitClientScanner extends ClassPathBeanDefinitionScanner {
 
     private final ClassLoader classLoader;
+
+    private final static Logger logger = LoggerFactory.getLogger(ClassPathRetrofitClientScanner.class);
 
     public ClassPathRetrofitClientScanner(BeanDefinitionRegistry registry, ClassLoader classLoader) {
         super(registry, false);

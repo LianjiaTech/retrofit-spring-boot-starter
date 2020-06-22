@@ -1,6 +1,6 @@
 package com.github.lianjiatech.retrofit.spring.boot.annotation;
 
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.LogStrategy;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseLoggingInterceptor;
 import org.slf4j.event.Level;
 
 import java.lang.annotation.*;
@@ -58,9 +58,9 @@ public @interface RetrofitClient {
     Level logLevel() default Level.INFO;
 
     /**
-     * 日志打印策略，支持的日志打印策略参见{@link LogStrategy}
+     * 日志打印策略，支持的日志打印策略参见{@link BaseLoggingInterceptor.LogStrategy}
      *
      * @return 日志打印策略
      */
-    LogStrategy logStrategy() default LogStrategy.BASIC;
+    BaseLoggingInterceptor.LogStrategy logStrategy() default BaseLoggingInterceptor.LogStrategy.BASIC;
 }

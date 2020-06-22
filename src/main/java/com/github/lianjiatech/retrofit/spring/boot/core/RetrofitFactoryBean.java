@@ -5,12 +5,14 @@ import com.github.lianjiatech.retrofit.spring.boot.annotation.RetrofitClient;
 import com.github.lianjiatech.retrofit.spring.boot.config.PoolConfig;
 import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitProperties;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseGlobalInterceptor;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseLoggingInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.BasePathMatchInterceptor;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.LogInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.util.BeanExtendUtils;
 import okhttp3.ConnectionPool;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -38,6 +40,8 @@ import java.util.concurrent.TimeUnit;
  * @author 陈添明
  */
 public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware, InitializingBean, ApplicationContextAware {
+
+    private final static Logger logger = LoggerFactory.getLogger(RetrofitFactoryBean.class);
 
     private Class<T> retrofitInterface;
 
@@ -68,6 +72,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
     @Override
     @SuppressWarnings("unchecked")
     public T getObject() throws Exception {
+
         checkRetrofitInterface(retrofitInterface);
         Retrofit retrofit = getRetrofit(retrofitInterface);
         return retrofit.create(retrofitInterface);
@@ -144,10 +149,13 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
             interceptors.addAll(globalInterceptors);
         }
         interceptors.forEach(okHttpClientBuilder::addInterceptor);
-        // 添加日志拦截器
-        if (retrofitProperties.isEnableLog()) {
-            LogInterceptor.Logger logger = LogInterceptor.innerLogger(retrofitClient.logLevel());
-            okHttpClientBuilder.addInterceptor(new LogInterceptor(logger, retrofitClient.logStrategy()));
+
+        // 日志打印拦截器
+        try {
+            BaseLoggingInterceptor loggingInterceptor = applicationContext.getBean(BaseLoggingInterceptor.class, retrofitClient.logLevel(), retrofitClient.logStrategy());
+            okHttpClientBuilder.addInterceptor(loggingInterceptor);
+        } catch (BeansException e) {
+            logger.warn("未配置okHttp日志打印器");
         }
         return okHttpClientBuilder.build();
     }
