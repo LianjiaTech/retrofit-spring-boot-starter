@@ -3,6 +3,8 @@ package com.github.lianjiatech.retrofit.spring.boot.config;
 
 import com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory;
 import com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseLoggingInterceptor;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.LinkedHashMap;
@@ -37,9 +39,23 @@ public class RetrofitProperties {
     private boolean enableLog = true;
 
     /**
+     * 日志打印拦截器
+     */
+    private Class<? extends BaseLoggingInterceptor> loggingInterceptorClass = DefaultLoggingInterceptor.class;
+
+    /**
      * 禁用Void返回类型
      */
     private boolean disableVoidReturnType = false;
+
+
+    public Class<? extends BaseLoggingInterceptor> getLoggingInterceptorClass() {
+        return loggingInterceptorClass;
+    }
+
+    public void setLoggingInterceptorClass(Class<? extends BaseLoggingInterceptor> loggingInterceptorClass) {
+        this.loggingInterceptorClass = loggingInterceptorClass;
+    }
 
     public Map<String, PoolConfig> getPool() {
         if (!pool.isEmpty()) {

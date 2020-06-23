@@ -11,8 +11,7 @@ import com.github.lianjiatech.retrofit.spring.boot.util.BeanExtendUtils;
 import okhttp3.ConnectionPool;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -28,6 +27,8 @@ import retrofit2.Converter;
 import retrofit2.Retrofit;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,8 +41,6 @@ import java.util.concurrent.TimeUnit;
  * @author 陈添明
  */
 public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware, InitializingBean, ApplicationContextAware {
-
-    private final static Logger logger = LoggerFactory.getLogger(RetrofitFactoryBean.class);
 
     private Class<T> retrofitInterface;
 
@@ -132,7 +131,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
      * @param retrofitClientInterfaceClass retrofitClient接口类
      * @return OkHttpClient实例
      */
-    private synchronized OkHttpClient getOkHttpClient(Class<?> retrofitClientInterfaceClass) throws IllegalAccessException, InstantiationException {
+    private synchronized OkHttpClient getOkHttpClient(Class<?> retrofitClientInterfaceClass) throws IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
         okhttp3.ConnectionPool connectionPool = getConnectionPool(retrofitClientInterfaceClass);
         RetrofitClient retrofitClient = retrofitClientInterfaceClass.getAnnotation(RetrofitClient.class);
         // 构建一个OkHttpClient对象
@@ -151,11 +150,11 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         interceptors.forEach(okHttpClientBuilder::addInterceptor);
 
         // 日志打印拦截器
-        try {
-            BaseLoggingInterceptor loggingInterceptor = applicationContext.getBean(BaseLoggingInterceptor.class, retrofitClient.logLevel(), retrofitClient.logStrategy());
+        if (retrofitProperties.isEnableLog()) {
+            Class<? extends BaseLoggingInterceptor> loggingInterceptorClass = retrofitProperties.getLoggingInterceptorClass();
+            Constructor<? extends BaseLoggingInterceptor> constructor = loggingInterceptorClass.getConstructor(Level.class, BaseLoggingInterceptor.LogStrategy.class);
+            BaseLoggingInterceptor loggingInterceptor = constructor.newInstance(retrofitClient.logLevel(), retrofitClient.logStrategy());
             okHttpClientBuilder.addInterceptor(loggingInterceptor);
-        } catch (BeansException e) {
-            logger.warn("未配置okHttp日志打印器");
         }
         return okHttpClientBuilder.build();
     }
@@ -219,7 +218,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
      * @param retrofitClientInterfaceClass retrofitClient接口类
      * @return Retrofit实例
      */
-    public synchronized Retrofit getRetrofit(Class<?> retrofitClientInterfaceClass) throws InstantiationException, IllegalAccessException {
+    private synchronized Retrofit getRetrofit(Class<?> retrofitClientInterfaceClass) throws InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         RetrofitClient retrofitClient = retrofitClientInterfaceClass.getAnnotation(RetrofitClient.class);
         String baseUrl = retrofitClient.baseUrl();
         baseUrl = formatBaseUrl(baseUrl);
