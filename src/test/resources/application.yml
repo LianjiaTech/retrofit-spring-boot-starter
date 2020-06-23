@@ -16,6 +16,9 @@ retrofit:
       keep-alive-second: 50
   # 禁用void返回值类型
   disable-void-return-type: false
+  # 日志打印拦截器
+  logging-interceptor-class: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor
+
 
 test:
   baseUrl: http://localhost:8080/api/test/
