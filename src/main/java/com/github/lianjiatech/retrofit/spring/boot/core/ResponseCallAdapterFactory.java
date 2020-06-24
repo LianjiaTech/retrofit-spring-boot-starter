@@ -15,9 +15,6 @@
  */
 package com.github.lianjiatech.retrofit.spring.boot.core;
 
-import com.github.lianjiatech.retrofit.spring.boot.exception.HttpExecuteException;
-import com.github.lianjiatech.retrofit.spring.boot.exception.HttpIOException;
-import okhttp3.Request;
 import org.springframework.util.Assert;
 import retrofit2.Call;
 import retrofit2.CallAdapter;
@@ -66,15 +63,10 @@ public final class ResponseCallAdapterFactory extends CallAdapter.Factory {
 
         @Override
         public Response<R> adapt(Call<R> call) {
-            Request request = call.request();
             try {
                 return call.execute();
             } catch (IOException e) {
-                RequestHolder requestHolder = new RequestHolder(request);
-                throw new HttpIOException(requestHolder, null, e);
-            } catch (Exception e) {
-                RequestHolder requestHolder = new RequestHolder(request);
-                throw new HttpExecuteException(requestHolder, null, e);
+                throw new RuntimeException(e);
             }
         }
     }

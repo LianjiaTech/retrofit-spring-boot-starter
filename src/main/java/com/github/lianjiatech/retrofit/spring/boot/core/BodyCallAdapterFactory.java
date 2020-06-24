@@ -15,11 +15,6 @@
  */
 package com.github.lianjiatech.retrofit.spring.boot.core;
 
-import com.github.lianjiatech.retrofit.spring.boot.exception.FailResponseException;
-import com.github.lianjiatech.retrofit.spring.boot.exception.HttpExecuteException;
-import com.github.lianjiatech.retrofit.spring.boot.exception.HttpIOException;
-import okhttp3.Request;
-import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.CallAdapter;
 import retrofit2.Response;
@@ -69,22 +64,10 @@ public final class BodyCallAdapterFactory extends CallAdapter.Factory {
         @Override
         public R adapt(Call<R> call) {
             Response<R> response;
-            Request request = call.request();
             try {
                 response = call.execute();
             } catch (IOException e) {
-                RequestHolder requestHolder = new RequestHolder(request);
-                throw new HttpIOException(requestHolder, null, e);
-            } catch (Exception e) {
-                RequestHolder requestHolder = new RequestHolder(request);
-                throw new HttpExecuteException(requestHolder, null, e);
-            }
-            if (!response.isSuccessful()) {
-                RequestHolder requestHolder = new RequestHolder(request);
-                okhttp3.Response raw = response.raw();
-                ResponseBody errorBody = response.errorBody();
-                ResponseHolder responseHolder = new ResponseHolder(raw, errorBody);
-                throw new FailResponseException(requestHolder, responseHolder);
+                throw new RuntimeException(e);
             }
             return response.body();
         }
