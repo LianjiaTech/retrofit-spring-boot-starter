@@ -3,7 +3,9 @@ package com.github.lianjiatech.retrofit.spring.boot.config;
 
 import com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory;
 import com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseAlarmFormatter;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseLoggingInterceptor;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultAlarmFormatter;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -42,6 +44,20 @@ public class RetrofitProperties {
      * 日志打印拦截器
      */
     private Class<? extends BaseLoggingInterceptor> loggingInterceptorClass = DefaultLoggingInterceptor.class;
+
+    /**
+     * 调用报警信息格式化器
+     */
+    private Class<? extends BaseAlarmFormatter> alarmFormatterClass = DefaultAlarmFormatter.class;
+
+
+    public Class<? extends BaseAlarmFormatter> getAlarmFormatterClass() {
+        return alarmFormatterClass;
+    }
+
+    public void setAlarmFormatterClass(Class<? extends BaseAlarmFormatter> alarmFormatterClass) {
+        this.alarmFormatterClass = alarmFormatterClass;
+    }
 
     /**
      * 禁用Void返回类型
