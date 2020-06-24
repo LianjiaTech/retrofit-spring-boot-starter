@@ -52,7 +52,7 @@ public final class BodyCallAdapterFactory extends CallAdapter.Factory {
 
         private Type returnType;
 
-        public BodyCallAdapter(Type returnType) {
+        BodyCallAdapter(Type returnType) {
             this.returnType = returnType;
         }
 

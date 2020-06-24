@@ -48,7 +48,7 @@ public final class ResponseCallAdapterFactory extends CallAdapter.Factory {
 
         private Type returnType;
 
-        public ResponseCallAdapter(Type returnType) {
+        ResponseCallAdapter(Type returnType) {
             this.returnType = returnType;
         }
 
