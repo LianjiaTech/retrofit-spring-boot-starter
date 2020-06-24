@@ -1,6 +1,5 @@
 package com.github.lianjiatech.retrofit.spring.boot.interceptor;
 
-import com.github.lianjiatech.retrofit.spring.boot.core.ClassPathRetrofitClientScanner;
 import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 import org.slf4j.Logger;
@@ -14,7 +13,7 @@ import java.io.IOException;
  */
 public class DefaultLoggingInterceptor extends BaseLoggingInterceptor {
 
-    private final static Logger logger = LoggerFactory.getLogger(ClassPathRetrofitClientScanner.class);
+    private final static Logger logger = LoggerFactory.getLogger(DefaultLoggingInterceptor.class);
 
     private final HttpLoggingInterceptor httpLoggingInterceptor;
 
