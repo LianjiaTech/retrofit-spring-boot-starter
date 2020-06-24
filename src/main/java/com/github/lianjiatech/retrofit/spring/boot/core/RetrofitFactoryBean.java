@@ -4,9 +4,7 @@ import com.github.lianjiatech.retrofit.spring.boot.annotation.InterceptMark;
 import com.github.lianjiatech.retrofit.spring.boot.annotation.RetrofitClient;
 import com.github.lianjiatech.retrofit.spring.boot.config.PoolConfig;
 import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitProperties;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseGlobalInterceptor;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseLoggingInterceptor;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.BasePathMatchInterceptor;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.*;
 import com.github.lianjiatech.retrofit.spring.boot.util.BeanExtendUtils;
 import okhttp3.ConnectionPool;
 import okhttp3.Interceptor;
@@ -156,6 +154,13 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
             BaseLoggingInterceptor loggingInterceptor = constructor.newInstance(retrofitClient.logLevel(), retrofitClient.logStrategy());
             okHttpClientBuilder.addInterceptor(loggingInterceptor);
         }
+
+        // 报警信息拦截器
+        Class<? extends BaseAlarmFormatter> alarmFormatterClass = retrofitProperties.getAlarmFormatterClass();
+        BaseAlarmFormatter alarmFormatter = alarmFormatterClass.newInstance();
+        AlarmInterceptor alarmInterceptor = new AlarmInterceptor(alarmFormatter);
+        okHttpClientBuilder.addInterceptor(alarmInterceptor);
+
         return okHttpClientBuilder.build();
     }
 
