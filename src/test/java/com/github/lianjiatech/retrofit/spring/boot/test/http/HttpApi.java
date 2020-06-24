@@ -2,12 +2,10 @@ package com.github.lianjiatech.retrofit.spring.boot.test.http;
 
 import com.github.lianjiatech.retrofit.spring.boot.annotation.Intercept;
 import com.github.lianjiatech.retrofit.spring.boot.annotation.RetrofitClient;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseLoggingInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.test.entity.Person;
 import com.github.lianjiatech.retrofit.spring.boot.test.entity.Result;
 import com.github.lianjiatech.retrofit.spring.boot.test.interceptor.Sign;
 import com.github.lianjiatech.retrofit.spring.boot.test.interceptor.TimeStampInterceptor;
-import org.slf4j.event.Level;
 import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.http.Body;
@@ -20,7 +18,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * @author 陈添明
  */
-@RetrofitClient(baseUrl = "${test.baseUrl}", poolName = "test1", logStrategy = BaseLoggingInterceptor.LogStrategy.BODY, logLevel = Level.ERROR)
+@RetrofitClient(baseUrl = "${test.baseUrl}", poolName = "test1")
 @Sign(accessKeyId = "${test.accessKeyId}", accessKeySecret = "${test.accessKeySecret}", exclude = {"/api/test/query"})
 @Intercept(handler = TimeStampInterceptor.class)
 public interface HttpApi {
