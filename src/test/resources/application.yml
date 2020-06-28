@@ -18,7 +18,8 @@ retrofit:
   disable-void-return-type: false
   # 日志打印拦截器
   logging-interceptor-class: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor
-
+  # 报警信息格式化器
+  alarm-formatter-class: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultAlarmFormatter
 
 test:
   baseUrl: http://localhost:8080/api/test/

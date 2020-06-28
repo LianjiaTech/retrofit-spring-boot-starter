@@ -16,6 +16,17 @@ public class DefaultAlarmFormatter extends BaseAlarmFormatter {
      */
     @Override
     public String alarmFormat(Request request, Response response) {
-        return "这个请求失败了。。。。";
+
+        StringBuffer stringBuffer = new StringBuffer("HTTP execute fail！");
+
+        if (request != null) {
+            stringBuffer.append(request.toString());
+        }
+
+        if (response != null) {
+            stringBuffer.append("; ").append(response.toString());
+        }
+
+        return stringBuffer.toString();
     }
 }

@@ -26,11 +26,11 @@ public class AlarmInterceptor implements Interceptor {
             response = chain.proceed(request);
         } catch (IOException e) {
             String alarmFormat = alarmFormatter.alarmFormat(request, response);
-            String message = e.getMessage() + "\ndetail: " + alarmFormat;
+            String message = e.getMessage() + "\n" + alarmFormat;
             throw new IOException(message, e);
         } catch (Exception e) {
             String alarmFormat = alarmFormatter.alarmFormat(request, response);
-            String message = e.getMessage() + "\ndetail: " + alarmFormat;
+            String message = e.getMessage() + "\n" + alarmFormat;
             throw new RuntimeException(message, e);
         }
         return response;
