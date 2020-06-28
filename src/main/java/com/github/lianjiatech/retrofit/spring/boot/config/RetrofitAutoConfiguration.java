@@ -8,6 +8,7 @@ import com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFacto
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.PrototypeInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.PrototypeInterceptorBdfProcessor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -47,6 +48,7 @@ public class RetrofitAutoConfiguration {
 
     @Bean("defaultJacksonConverterFactory")
     @ConditionalOnClass(JacksonConverterFactory.class)
+    @ConditionalOnMissingBean
     public JacksonConverterFactory jacksonConverterFactory() {
         return JacksonConverterFactory.create(new ObjectMapper()
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
