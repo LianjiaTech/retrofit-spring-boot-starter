@@ -15,7 +15,9 @@
  */
 package com.github.lianjiatech.retrofit.spring.boot.core;
 
+import com.github.lianjiatech.retrofit.spring.boot.exception.InvalidResponseException;
 import com.github.lianjiatech.retrofit.spring.boot.exception.RetrofitExecuteIOException;
+import okhttp3.Request;
 import retrofit2.Call;
 import retrofit2.CallAdapter;
 import retrofit2.Response;
@@ -67,6 +69,14 @@ public final class BodyCallAdapterFactory extends CallAdapter.Factory {
             Response<R> response;
             try {
                 response = call.execute();
+
+                if (!response.isSuccessful()) {
+                    Request request = call.request();
+                    String message = "HTTP InvalidResponse！" + request.toString() +
+                            "; " + response.toString();
+                    throw new InvalidResponseException(message);
+                }
+
             } catch (IOException e) {
                 throw new RetrofitExecuteIOException(e);
             }

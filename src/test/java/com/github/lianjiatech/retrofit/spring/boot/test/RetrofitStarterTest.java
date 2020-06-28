@@ -71,7 +71,7 @@ public class RetrofitStarterTest {
         server.close();
     }
 
-    @Test
+    @Test(expected = Throwable.class)
     public void testIOException() {
         // http check
         Result<Person> person = httpApi.getPerson(1L);

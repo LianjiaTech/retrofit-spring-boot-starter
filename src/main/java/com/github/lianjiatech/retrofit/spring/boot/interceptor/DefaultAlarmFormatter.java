@@ -17,16 +17,16 @@ public class DefaultAlarmFormatter extends BaseAlarmFormatter {
     @Override
     public String alarmFormat(Request request, Response response) {
 
-        StringBuffer stringBuffer = new StringBuffer("HTTP execute fail！");
+        StringBuilder builder = new StringBuilder("HTTP execute fail！");
 
         if (request != null) {
-            stringBuffer.append(request.toString());
+            builder.append(request.toString());
         }
 
         if (response != null) {
-            stringBuffer.append("; ").append(response.toString());
+            builder.append("; ").append(response.toString());
         }
 
-        return stringBuffer.toString();
+        return builder.toString();
     }
 }
