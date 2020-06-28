@@ -3,7 +3,7 @@ package com.github.lianjiatech.retrofit.spring.boot.exception;
 /**
  * @author 陈添明
  */
-public class RetrofitExecuteException extends RuntimeException {
+public class RetrofitExecuteIOException extends RuntimeException {
     /**
      * Constructs a new runtime exception with the specified detail message.
      * The cause is not initialized, and may subsequentRetrofitExecuteExceptionly be initialized by a
@@ -12,7 +12,7 @@ public class RetrofitExecuteException extends RuntimeException {
      * @param message the detail message. The detail message is saved for
      *                later retrieval by the {@link #getMessage()} method.
      */
-    public RetrofitExecuteException(String message) {
+    public RetrofitExecuteIOException(String message) {
         super(message);
     }
 
@@ -30,7 +30,7 @@ public class RetrofitExecuteException extends RuntimeException {
      *                unknown.)
      * @since 1.4
      */
-    public RetrofitExecuteException(String message, Throwable cause) {
+    public RetrofitExecuteIOException(String message, Throwable cause) {
         super(message, cause);
     }
 
@@ -47,7 +47,7 @@ public class RetrofitExecuteException extends RuntimeException {
      *              unknown.)
      * @since 1.4
      */
-    public RetrofitExecuteException(Throwable cause) {
+    public RetrofitExecuteIOException(Throwable cause) {
         super(cause);
     }
 }

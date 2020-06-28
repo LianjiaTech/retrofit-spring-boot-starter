@@ -15,13 +15,14 @@
  */
 package com.github.lianjiatech.retrofit.spring.boot.core;
 
-import com.github.lianjiatech.retrofit.spring.boot.exception.RetrofitExecuteException;
+import com.github.lianjiatech.retrofit.spring.boot.exception.RetrofitExecuteIOException;
 import org.springframework.util.Assert;
 import retrofit2.Call;
 import retrofit2.CallAdapter;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -65,8 +66,8 @@ public final class ResponseCallAdapterFactory extends CallAdapter.Factory {
         public Response<R> adapt(Call<R> call) {
             try {
                 return call.execute();
-            } catch (Exception e) {
-                throw new RetrofitExecuteException(e);
+            } catch (IOException e) {
+                throw new RetrofitExecuteIOException(e);
             }
         }
     }
