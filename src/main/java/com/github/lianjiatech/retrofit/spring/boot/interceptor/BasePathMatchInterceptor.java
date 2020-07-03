@@ -2,7 +2,6 @@ package com.github.lianjiatech.retrofit.spring.boot.interceptor;
 
 import okhttp3.Request;
 import okhttp3.Response;
-import org.springframework.core.env.Environment;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 
@@ -19,11 +18,6 @@ public abstract class BasePathMatchInterceptor implements PrototypeInterceptor {
 
     private String[] exclude;
 
-    /**
-     * spring环境配置参数
-     */
-    protected Environment environment;
-
     private PathMatcher pathMatcher = new AntPathMatcher();
 
 
@@ -33,10 +27,6 @@ public abstract class BasePathMatchInterceptor implements PrototypeInterceptor {
 
     public void setExclude(String[] exclude) {
         this.exclude = exclude;
-    }
-
-    public void setEnvironment(Environment environment) {
-        this.environment = environment;
     }
 
     @Override
@@ -85,16 +75,5 @@ public abstract class BasePathMatchInterceptor implements PrototypeInterceptor {
             }
         }
         return false;
-    }
-
-
-    /**
-     * 处理文本中的占位符
-     *
-     * @param text the String to resolve
-     * @return the resolved String (never {@code null})
-     */
-    protected final String resolvePlaceholders(String text) {
-        return environment.resolvePlaceholders(text);
     }
 }
