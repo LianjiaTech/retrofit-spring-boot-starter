@@ -31,8 +31,8 @@ public class SignInterceptor extends BasePathMatchInterceptor {
     public Response doIntercept(Chain chain) throws IOException {
         Request request = chain.request();
         Request newReq = request.newBuilder()
-                .addHeader("accessKeyId", resolvePlaceholders(accessKeyId))
-                .addHeader("accessKeySecret", resolvePlaceholders(accessKeySecret))
+                .addHeader("accessKeyId", accessKeyId)
+                .addHeader("accessKeySecret", accessKeySecret)
                 .build();
         return chain.proceed(newReq);
     }

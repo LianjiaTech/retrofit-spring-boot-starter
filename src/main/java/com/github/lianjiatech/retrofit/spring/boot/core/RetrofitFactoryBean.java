@@ -28,10 +28,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -192,9 +189,18 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
             Assert.notNull(annotationAttributes.get("exclude"), "@InterceptMark标记的注解必须配置: String[] exclude()");
             Class<? extends BasePathMatchInterceptor> interceptorClass = (Class<? extends BasePathMatchInterceptor>) handler;
             BasePathMatchInterceptor interceptor = getInterceptorInstance(interceptorClass);
+            Map<String, Object> annotationResolveAttributes = new HashMap<>(8);
+            // 占位符属性替换
+            annotationAttributes.forEach((key, value) -> {
+                if (value instanceof String) {
+                    String newValue = environment.resolvePlaceholders((String) value);
+                    annotationResolveAttributes.put(key, newValue);
+                } else {
+                    annotationResolveAttributes.put(key, value);
+                }
+            });
             // 动态设置属性值
-            BeanExtendUtils.populate(interceptor, annotationAttributes);
-            interceptor.setEnvironment(environment);
+            BeanExtendUtils.populate(interceptor, annotationResolveAttributes);
             interceptors.add(interceptor);
         }
         return interceptors;
@@ -226,7 +232,8 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
     private synchronized Retrofit getRetrofit(Class<?> retrofitClientInterfaceClass) throws InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         RetrofitClient retrofitClient = retrofitClientInterfaceClass.getAnnotation(RetrofitClient.class);
         String baseUrl = retrofitClient.baseUrl();
-        baseUrl = formatBaseUrl(baseUrl);
+        // 解析baseUrl占位符
+        baseUrl = environment.resolveRequiredPlaceholders(baseUrl);
         OkHttpClient client = getOkHttpClient(retrofitClientInterfaceClass);
         Retrofit.Builder retrofitBuilder = new Retrofit.Builder()
                 .baseUrl(baseUrl)
@@ -255,10 +262,6 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         return null;
     }
 
-
-    private String formatBaseUrl(String baseUrl) {
-        return this.environment.resolveRequiredPlaceholders(baseUrl);
-    }
 
 
     @Override
