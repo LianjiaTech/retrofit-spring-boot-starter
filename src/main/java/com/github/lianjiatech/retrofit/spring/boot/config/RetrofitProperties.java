@@ -3,9 +3,9 @@ package com.github.lianjiatech.retrofit.spring.boot.config;
 
 import com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory;
 import com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseAlarmFormatter;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseHttpExceptionMessageFormatter;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseLoggingInterceptor;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultAlarmFormatter;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultHttpExceptionMessageFormatter;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -46,17 +46,16 @@ public class RetrofitProperties {
     private Class<? extends BaseLoggingInterceptor> loggingInterceptorClass = DefaultLoggingInterceptor.class;
 
     /**
-     * 调用报警信息格式化器
+     * Http异常信息格式化器
      */
-    private Class<? extends BaseAlarmFormatter> alarmFormatterClass = DefaultAlarmFormatter.class;
+    private Class<? extends BaseHttpExceptionMessageFormatter> httpExceptionMessageFormatterClass = DefaultHttpExceptionMessageFormatter.class;
 
-
-    public Class<? extends BaseAlarmFormatter> getAlarmFormatterClass() {
-        return alarmFormatterClass;
+    public Class<? extends BaseHttpExceptionMessageFormatter> getHttpExceptionMessageFormatterClass() {
+        return httpExceptionMessageFormatterClass;
     }
 
-    public void setAlarmFormatterClass(Class<? extends BaseAlarmFormatter> alarmFormatterClass) {
-        this.alarmFormatterClass = alarmFormatterClass;
+    public void setHttpExceptionMessageFormatterClass(Class<? extends BaseHttpExceptionMessageFormatter> httpExceptionMessageFormatterClass) {
+        this.httpExceptionMessageFormatterClass = httpExceptionMessageFormatterClass;
     }
 
     /**

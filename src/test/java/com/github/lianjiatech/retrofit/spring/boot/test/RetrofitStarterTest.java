@@ -139,19 +139,23 @@ public class RetrofitStarterTest {
         resultCall.enqueue(new Callback<Result<Person>>() {
             @Override
             public void onResponse(Call<Result<Person>> call, Response<Result<Person>> response) {
-                Result<Person> personResult = response.body();
-                Assert.assertEquals(0, personResult.getCode());
-                Assert.assertNotNull(personResult.getData());
-                Person data = personResult.getData();
-                Assert.assertEquals(10, data.getAge().longValue());
-                Assert.assertEquals("test", data.getName());
-                countDownLatch.countDown();
+                try {
+                    Result<Person> personResult = response.body();
+                    Assert.assertEquals(0, personResult.getCode());
+                    Assert.assertNotNull(personResult.getData());
+                    Person data = personResult.getData();
+                    Assert.assertEquals(10, data.getAge().longValue());
+                    Assert.assertEquals("test", data.getName());
+                } finally {
+                    countDownLatch.countDown();
+                }
             }
 
             @Override
             public void onFailure(Call<Result<Person>> call, Throwable t) {
                 Request request = call.request();
                 logger.error("请求执行失败! request = {}", request, t);
+                countDownLatch.countDown();
             }
         });
         countDownLatch.await();

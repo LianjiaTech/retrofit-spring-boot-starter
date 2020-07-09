@@ -7,14 +7,15 @@ import okhttp3.Response;
 import java.io.IOException;
 
 /**
+ * http异常信息格式化
  * @author 陈添明
  */
-public class AlarmInterceptor implements Interceptor {
+public class HttpExceptionMessageFormatterInterceptor implements Interceptor {
 
-    private final BaseAlarmFormatter alarmFormatter;
+    private final BaseHttpExceptionMessageFormatter httpExceptionMessageFormatter;
 
-    public AlarmInterceptor(BaseAlarmFormatter alarmFormatter) {
-        this.alarmFormatter = alarmFormatter;
+    public HttpExceptionMessageFormatterInterceptor(BaseHttpExceptionMessageFormatter httpExceptionMessageFormatter) {
+        this.httpExceptionMessageFormatter = httpExceptionMessageFormatter;
     }
 
     @Override
@@ -25,11 +26,11 @@ public class AlarmInterceptor implements Interceptor {
             request = chain.request();
             response = chain.proceed(request);
         } catch (IOException e) {
-            String alarmFormat = alarmFormatter.alarmFormat(request, response);
+            String alarmFormat = httpExceptionMessageFormatter.alarmFormat(request, response);
             String message = e.getMessage() + "\n" + alarmFormat;
             throw new IOException(message, e);
         } catch (Exception e) {
-            String alarmFormat = alarmFormatter.alarmFormat(request, response);
+            String alarmFormat = httpExceptionMessageFormatter.alarmFormat(request, response);
             String message = e.getMessage() + "\n" + alarmFormat;
             throw new RuntimeException(message, e);
         }

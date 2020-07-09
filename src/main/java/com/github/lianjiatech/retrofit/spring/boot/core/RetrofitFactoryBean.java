@@ -153,10 +153,10 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         }
 
         // 报警信息拦截器
-        Class<? extends BaseAlarmFormatter> alarmFormatterClass = retrofitProperties.getAlarmFormatterClass();
-        BaseAlarmFormatter alarmFormatter = alarmFormatterClass.newInstance();
-        AlarmInterceptor alarmInterceptor = new AlarmInterceptor(alarmFormatter);
-        okHttpClientBuilder.addInterceptor(alarmInterceptor);
+        Class<? extends BaseHttpExceptionMessageFormatter> httpExceptionMessageFormatterClass = retrofitProperties.getHttpExceptionMessageFormatterClass();
+        BaseHttpExceptionMessageFormatter alarmFormatter = httpExceptionMessageFormatterClass.newInstance();
+        HttpExceptionMessageFormatterInterceptor httpExceptionMessageFormatterInterceptor = new HttpExceptionMessageFormatterInterceptor(alarmFormatter);
+        okHttpClientBuilder.addInterceptor(httpExceptionMessageFormatterInterceptor);
 
         return okHttpClientBuilder.build();
     }
