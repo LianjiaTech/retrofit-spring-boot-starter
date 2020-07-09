@@ -22,7 +22,7 @@
 </dependency>
 ```
 
-## 配置`@RetrofitScan`注解
+### 配置`@RetrofitScan`注解
 
 你可以给带有 `@Configuration` 的类配置`@RetrofitScan`，或者直接配置到`spring-boot`的启动类上，如下：
 
