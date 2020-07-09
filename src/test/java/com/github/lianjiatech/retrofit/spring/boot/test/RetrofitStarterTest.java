@@ -71,17 +71,6 @@ public class RetrofitStarterTest {
         server.close();
     }
 
-    @Test(expected = Throwable.class)
-    public void testIOException() {
-        // http check
-        Result<Person> person = httpApi.getPerson(1L);
-        Person data = person.getData();
-        Assert.assertNotNull(data);
-        Assert.assertEquals("test", data.getName());
-        Assert.assertEquals(10, data.getAge().intValue());
-    }
-
-
     @Test
     public void testRetrofitConfigRef() throws IOException {
 
