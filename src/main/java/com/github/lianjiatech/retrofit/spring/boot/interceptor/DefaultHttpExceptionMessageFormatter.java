@@ -6,7 +6,7 @@ import okhttp3.Response;
 /**
  * @author 陈添明
  */
-public class DefaultAlarmFormatter extends BaseAlarmFormatter {
+public class DefaultHttpExceptionMessageFormatter extends BaseHttpExceptionMessageFormatter {
     /**
      * 格式化okHttp的request和response数据
      *
