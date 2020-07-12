@@ -100,10 +100,10 @@ public class RetrofitStarterTest {
 | enable-body-call-adapter | true| 是否启用 BodyCallAdapter适配器 |
 | enable-response-call-adapter | true| 是否启用 ResponseCallAdapter适配器 |
 | enable-log | true| 启用日志打印 |
-|logging-interceptor-class | com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor| 日志打印拦截器 |
+|logging-interceptor | com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor| 日志打印拦截器 |
 | pool | | 连接池配置 |
 | disable-void-return-type | false | 禁用java.lang.Void返回类型 |
-| alarm-formatter-class | com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultHttpExceptionMessageFormatter | Http异常信息格式化器 |
+| http-exception-message-formatter | com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultHttpExceptionMessageFormatter | Http异常信息格式化器 |
 
 `yml`配置方式：
 
@@ -126,9 +126,9 @@ retrofit:
   # 禁用void返回值类型
   disable-void-return-type: false
   # 日志打印拦截器
-  logging-interceptor-class: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor
+  logging-interceptor: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor
   # Http异常信息格式化器
-  alarm-formatter-class: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultHttpExceptionMessageFormatter
+  http-exception-message-formatter: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultHttpExceptionMessageFormatter
 ```
 
 ## 高级功能
@@ -334,7 +334,7 @@ public interface HttpApi {
 ```yaml
 retrofit:
   # 日志打印拦截器
-  logging-interceptor-class: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor
+  logging-interceptor: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor
 ```
 
 ### Http异常信息格式化器
@@ -344,7 +344,7 @@ retrofit:
 ```yaml
 retrofit:
   # Http异常信息格式化器
-  alarm-formatter-class: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultHttpExceptionMessageFormatter
+  http-exception-message-formatter: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultHttpExceptionMessageFormatter
 ```
 
 ## 调用适配器 CallAdapter

@@ -47,6 +47,8 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
 
     private ApplicationContext applicationContext;
 
+    private HttpExceptionMessageFormatterInterceptor httpExceptionMessageFormatterInterceptor;
+
     public Class<T> getRetrofitInterface() {
         return retrofitInterface;
     }
@@ -55,11 +57,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         this.retrofitInterface = retrofitInterface;
     }
 
-    public RetrofitFactoryBean() {
-
-    }
-
-    public RetrofitFactoryBean(Class<T> retrofitInterface) {
+    public RetrofitFactoryBean(Class<T> retrofitInterface) throws IllegalAccessException, InstantiationException {
         this.retrofitInterface = retrofitInterface;
     }
 
@@ -75,7 +73,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
     /**
      * RetrofitInterface检查
      *
-     * @param retrofitInterface
+     * @param retrofitInterface .
      */
     private void checkRetrofitInterface(Class<T> retrofitInterface) {
         // check class type
@@ -146,18 +144,13 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
 
         // 日志打印拦截器
         if (retrofitProperties.isEnableLog()) {
-            Class<? extends BaseLoggingInterceptor> loggingInterceptorClass = retrofitProperties.getLoggingInterceptorClass();
+            Class<? extends BaseLoggingInterceptor> loggingInterceptorClass = retrofitProperties.getLoggingInterceptor();
             Constructor<? extends BaseLoggingInterceptor> constructor = loggingInterceptorClass.getConstructor(Level.class, BaseLoggingInterceptor.LogStrategy.class);
             BaseLoggingInterceptor loggingInterceptor = constructor.newInstance(retrofitClient.logLevel(), retrofitClient.logStrategy());
             okHttpClientBuilder.addInterceptor(loggingInterceptor);
         }
-
-        // 报警信息拦截器
-        Class<? extends BaseHttpExceptionMessageFormatter> httpExceptionMessageFormatterClass = retrofitProperties.getHttpExceptionMessageFormatterClass();
-        BaseHttpExceptionMessageFormatter alarmFormatter = httpExceptionMessageFormatterClass.newInstance();
-        HttpExceptionMessageFormatterInterceptor httpExceptionMessageFormatterInterceptor = new HttpExceptionMessageFormatterInterceptor(alarmFormatter);
+        //  http异常信息格式化
         okHttpClientBuilder.addInterceptor(httpExceptionMessageFormatterInterceptor);
-
         return okHttpClientBuilder.build();
     }
 
@@ -271,7 +264,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
 
 
     @Override
-    public void afterPropertiesSet() {
+    public void afterPropertiesSet() throws Exception{
         // 初始化连接池
         Map<String, PoolConfig> pool = retrofitProperties.getPool();
         if (pool != null) {
@@ -282,6 +275,10 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
                 poolRegistry.put(poolName, connectionPool);
             });
         }
+        // Http异常信息格式化器
+        Class<? extends BaseHttpExceptionMessageFormatter> httpExceptionMessageFormatterClass = retrofitProperties.getHttpExceptionMessageFormatter();
+        BaseHttpExceptionMessageFormatter alarmFormatter = httpExceptionMessageFormatterClass.newInstance();
+        httpExceptionMessageFormatterInterceptor = new HttpExceptionMessageFormatterInterceptor(alarmFormatter);
     }
 
     @Override

@@ -17,9 +17,9 @@ retrofit:
   # 禁用void返回值类型
   disable-void-return-type: false
   # 日志打印拦截器
-  logging-interceptor-class: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor
+  logging-interceptor: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor
   # Http异常信息格式化器
-  alarm-formatter-class: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultHttpExceptionMessageFormatter
+  http-exception-message-formatter: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultHttpExceptionMessageFormatter
 
 test:
   baseUrl: http://localhost:8080/api/test/
