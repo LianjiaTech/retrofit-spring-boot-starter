@@ -10,23 +10,23 @@
 
     <name>retrofit-spring-boot-starter</name>
     <description>retrofit-spring-boot-starter</description>
-    <url>https://github.com/lianjiatech/retrofit-plus</url>
+    <url>https://github.com/lianjiatech/retrofit-spring-boot-starter</url>
 
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
-            <url>https://github.com/LianjiaTech/retrofit-plus/blob/master/LICENSE</url>
+            <url>https://github.com/LianjiaTech/retrofit-spring-boot-starter/blob/master/LICENSE</url>
         </license>
     </licenses>
 
     <scm>
-        <url>https://github.com/lianjiatech/retrofit-plus</url>
-        <connection>https://github.com/lianjiatech/retrofit-plus.git</connection>
+        <url>https://github.com/lianjiatech/retrofit-spring-boot-starter</url>
+        <connection>https://github.com/lianjiatech/retrofit-spring-boot-starter.git</connection>
     </scm>
 
     <issueManagement>
         <system>GitHub Issues</system>
-        <url>https://github.com/lianjiatech/retrofit-plus/issues</url>
+        <url>https://github.com/lianjiatech/retrofit-spring-boot-starter/issues</url>
     </issueManagement>
 
     <developers>
@@ -37,7 +37,6 @@
     </developers>
 
     <properties>
-        <retrofit-plus.version>1.1.4</retrofit-plus.version>
         <retrofit.version>2.9.0</retrofit.version>
         <junit.version>4.12</junit.version>
         <javax.annotation-api.version>1.3.2</javax.annotation-api.version>
