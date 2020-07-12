@@ -43,19 +43,19 @@ public class RetrofitProperties {
     /**
      * 日志打印拦截器
      */
-    private Class<? extends BaseLoggingInterceptor> loggingInterceptorClass = DefaultLoggingInterceptor.class;
+    private Class<? extends BaseLoggingInterceptor> loggingInterceptor = DefaultLoggingInterceptor.class;
 
     /**
-     * Http异常信息格式化器
+     * Http异常信息格式化器，用于将request和response格式化为可阅读的String数据，并发到Exception的信息中。
      */
-    private Class<? extends BaseHttpExceptionMessageFormatter> httpExceptionMessageFormatterClass = DefaultHttpExceptionMessageFormatter.class;
+    private Class<? extends BaseHttpExceptionMessageFormatter> httpExceptionMessageFormatter = DefaultHttpExceptionMessageFormatter.class;
 
-    public Class<? extends BaseHttpExceptionMessageFormatter> getHttpExceptionMessageFormatterClass() {
-        return httpExceptionMessageFormatterClass;
+    public Class<? extends BaseHttpExceptionMessageFormatter> getHttpExceptionMessageFormatter() {
+        return httpExceptionMessageFormatter;
     }
 
-    public void setHttpExceptionMessageFormatterClass(Class<? extends BaseHttpExceptionMessageFormatter> httpExceptionMessageFormatterClass) {
-        this.httpExceptionMessageFormatterClass = httpExceptionMessageFormatterClass;
+    public void setHttpExceptionMessageFormatter(Class<? extends BaseHttpExceptionMessageFormatter> httpExceptionMessageFormatter) {
+        this.httpExceptionMessageFormatter = httpExceptionMessageFormatter;
     }
 
     /**
@@ -64,12 +64,12 @@ public class RetrofitProperties {
     private boolean disableVoidReturnType = false;
 
 
-    public Class<? extends BaseLoggingInterceptor> getLoggingInterceptorClass() {
-        return loggingInterceptorClass;
+    public Class<? extends BaseLoggingInterceptor> getLoggingInterceptor() {
+        return loggingInterceptor;
     }
 
-    public void setLoggingInterceptorClass(Class<? extends BaseLoggingInterceptor> loggingInterceptorClass) {
-        this.loggingInterceptorClass = loggingInterceptorClass;
+    public void setLoggingInterceptor(Class<? extends BaseLoggingInterceptor> loggingInterceptor) {
+        this.loggingInterceptor = loggingInterceptor;
     }
 
     public Map<String, PoolConfig> getPool() {
