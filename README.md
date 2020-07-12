@@ -81,7 +81,7 @@ public class RetrofitStarterTest {
 `HTTP`请求相关注解，全部使用了`retrofit`原生注解。**详细信息可参考官方文档：[retrofit官方文档](https://square.github.io/retrofit/)**，以下是一个简单说明。
 
 | 注解分类|支持的注解 |
-|:-:|:-:|
+|------------|-----------|
 |请求方式|`@GET` `@HEAD` `@POST` `@PUT` `@DELETE` `@OPTIONS`|
 |请求头|`@Header` `@HeaderMap` `@Headers`|
 |Query参数|`@Query` `@QueryMap` `@QueryName`|
@@ -96,7 +96,7 @@ public class RetrofitStarterTest {
 `retrofit-spring-boot-starter`支持了多个可配置的属性，用来应对不同的业务场景。您可以视情况进行修改，具体说明如下：
 
 | 配置|默认值 | 说明 |
-| :-: | :-: | :-: |
+|------------|-----------|--------|
 | enable-body-call-adapter | true| 是否启用 BodyCallAdapter适配器 |
 | enable-response-call-adapter | true| 是否启用 ResponseCallAdapter适配器 |
 | enable-log | true| 启用日志打印 |
