@@ -26,7 +26,7 @@ public class RetrofitAutoConfiguration {
      * 配置 {@link PrototypeInterceptorBdfProcessor}
      * 动态修改 {@link PrototypeInterceptor} 的`BeanDefinition`中的scope为`prototype`
      *
-     * @return RetrofitPlusInterceptorBdfRegistryPostProcessor instance
+     * @return PrototypeInterceptorBdfProcessor instance
      */
     @Bean
     public PrototypeInterceptorBdfProcessor retrofitPlusInterceptorBdfRegistryPostProcessor() {
