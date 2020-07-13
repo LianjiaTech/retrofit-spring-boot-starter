@@ -49,4 +49,14 @@ public class Result<T> implements Serializable {
         this.data = data;
         return this;
     }
+
+    @Override
+    public String toString() {
+        return "Result{" +
+                "code=" + code +
+                ", msg='" + msg + '\'' +
+                ", exceptionMsg='" + exceptionMsg + '\'' +
+                ", data=" + data +
+                '}';
+    }
 }
