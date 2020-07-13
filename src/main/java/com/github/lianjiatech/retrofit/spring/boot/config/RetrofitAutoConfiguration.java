@@ -3,13 +3,10 @@ package com.github.lianjiatech.retrofit.spring.boot.config;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory;
-import com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.PrototypeInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.PrototypeInterceptorBdfProcessor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,19 +28,6 @@ public class RetrofitAutoConfiguration {
     @Bean
     public PrototypeInterceptorBdfProcessor retrofitPlusInterceptorBdfRegistryPostProcessor() {
         return new PrototypeInterceptorBdfProcessor();
-    }
-
-    @Bean
-    @ConditionalOnProperty(name = "retrofit.enable-body-call-adapter", havingValue = "true")
-    public BodyCallAdapterFactory bodyCallAdapterFactory() {
-        return new BodyCallAdapterFactory();
-    }
-
-
-    @Bean
-    @ConditionalOnProperty(name = "retrofit.enable-response-call-adapter", havingValue = "true")
-    public ResponseCallAdapterFactory responseCallAdapterFactory() {
-        return new ResponseCallAdapterFactory();
     }
 
     @Bean("defaultJacksonConverterFactory")

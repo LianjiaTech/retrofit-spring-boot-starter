@@ -37,6 +37,10 @@ import java.util.concurrent.TimeUnit;
  */
 public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware, InitializingBean, ApplicationContextAware {
 
+    private List<CallAdapter.Factory> callAdapterFactories = new ArrayList<>();
+
+    private List<Converter.Factory> converterFactories = new ArrayList<>();
+
     private Class<T> retrofitInterface;
 
     private Environment environment;
@@ -64,7 +68,6 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
     @Override
     @SuppressWarnings("unchecked")
     public T getObject() throws Exception {
-
         checkRetrofitInterface(retrofitInterface);
         Retrofit retrofit = getRetrofit(retrofitInterface);
         return retrofit.create(retrofitInterface);
@@ -231,15 +234,12 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         Retrofit.Builder retrofitBuilder = new Retrofit.Builder()
                 .baseUrl(baseUrl)
                 .client(client);
-        // spring容器中的适配器工厂和转换器工厂
-        Collection<CallAdapter.Factory> callAdapterFactories = getBeans(CallAdapter.Factory.class);
+        // 添加CallAdapter.Factory
         if (!CollectionUtils.isEmpty(callAdapterFactories)) {
-            // 添加CallAdapter.Factory
             callAdapterFactories.forEach(retrofitBuilder::addCallAdapterFactory);
         }
-        Collection<Converter.Factory> converterFactories = getBeans(Converter.Factory.class);
+        // 添加Converter.Factory
         if (!CollectionUtils.isEmpty(converterFactories)) {
-            // 添加Converter.Factory
             converterFactories.forEach(retrofitBuilder::addConverterFactory);
         }
         return retrofitBuilder.build();
@@ -256,7 +256,6 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
     }
 
 
-
     @Override
     public void setEnvironment(Environment environment) {
         this.environment = environment;
@@ -264,7 +263,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
 
 
     @Override
-    public void afterPropertiesSet() throws Exception{
+    public void afterPropertiesSet() throws Exception {
         // 初始化连接池
         Map<String, PoolConfig> pool = retrofitProperties.getPool();
         if (pool != null) {
@@ -279,6 +278,23 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         Class<? extends BaseHttpExceptionMessageFormatter> httpExceptionMessageFormatterClass = retrofitProperties.getHttpExceptionMessageFormatter();
         BaseHttpExceptionMessageFormatter alarmFormatter = httpExceptionMessageFormatterClass.newInstance();
         httpExceptionMessageFormatterInterceptor = new HttpExceptionMessageFormatterInterceptor(alarmFormatter);
+
+        // callAdapterFactory
+        Collection<CallAdapter.Factory> callAdapterFactoryBeans = getBeans(CallAdapter.Factory.class);
+        if (!CollectionUtils.isEmpty(callAdapterFactoryBeans)) {
+            callAdapterFactories.addAll(callAdapterFactoryBeans);
+        }
+        if (retrofitProperties.isEnableBodyCallAdapter()) {
+            callAdapterFactories.add(new BodyCallAdapterFactory());
+        }
+        if (retrofitProperties.isEnableResponseCallAdapter()) {
+            callAdapterFactories.add(new ResponseCallAdapterFactory());
+        }
+        // converterFactory
+        Collection<Converter.Factory> converterFactoryBeans = getBeans(Converter.Factory.class);
+        if (!CollectionUtils.isEmpty(converterFactoryBeans)) {
+            converterFactories.addAll(converterFactoryBeans);
+        }
     }
 
     @Override
