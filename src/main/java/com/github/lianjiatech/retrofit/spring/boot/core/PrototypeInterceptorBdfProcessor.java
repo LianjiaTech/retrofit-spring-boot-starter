@@ -1,5 +1,6 @@
-package com.github.lianjiatech.retrofit.spring.boot.interceptor;
+package com.github.lianjiatech.retrofit.spring.boot.core;
 
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.PrototypeInterceptor;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
