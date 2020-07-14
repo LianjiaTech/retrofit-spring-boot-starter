@@ -2,9 +2,12 @@ package com.github.lianjiatech.retrofit.spring.boot.core;
 
 import com.github.lianjiatech.retrofit.spring.boot.annotation.InterceptMark;
 import com.github.lianjiatech.retrofit.spring.boot.annotation.RetrofitClient;
-import com.github.lianjiatech.retrofit.spring.boot.config.PoolConfig;
+import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitConfigBean;
 import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitProperties;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.*;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseGlobalInterceptor;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseLoggingInterceptor;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.BasePathMatchInterceptor;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.HttpExceptionMessageFormatterInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.util.BeanExtendUtils;
 import okhttp3.ConnectionPool;
 import okhttp3.Interceptor;
@@ -12,7 +15,6 @@ import okhttp3.OkHttpClient;
 import org.slf4j.event.Level;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.EnvironmentAware;
@@ -29,39 +31,24 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
  * @author 陈添明
  */
-public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware, InitializingBean, ApplicationContextAware {
-
-    private List<CallAdapter.Factory> callAdapterFactories = new ArrayList<>();
-
-    private List<Converter.Factory> converterFactories = new ArrayList<>();
+public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware, ApplicationContextAware {
 
     private Class<T> retrofitInterface;
 
     private Environment environment;
 
-    private Map<String, ConnectionPool> poolRegistry = new ConcurrentHashMap<>(4);
-
     private RetrofitProperties retrofitProperties;
+
+    private RetrofitConfigBean retrofitConfigBean;
 
     private ApplicationContext applicationContext;
 
-    private HttpExceptionMessageFormatterInterceptor httpExceptionMessageFormatterInterceptor;
-
-    public Class<T> getRetrofitInterface() {
-        return retrofitInterface;
-    }
-
-    public void setRetrofitInterface(Class<T> retrofitInterface) {
-        this.retrofitInterface = retrofitInterface;
-    }
-
-    public RetrofitFactoryBean(Class<T> retrofitInterface) throws IllegalAccessException, InstantiationException {
+    public RetrofitFactoryBean(Class<T> retrofitInterface) {
         this.retrofitInterface = retrofitInterface;
     }
 
@@ -115,6 +102,8 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
     private synchronized okhttp3.ConnectionPool getConnectionPool(Class<?> retrofitClientInterfaceClass) {
         RetrofitClient retrofitClient = retrofitClientInterfaceClass.getAnnotation(RetrofitClient.class);
         String poolName = retrofitClient.poolName();
+        Map<String, ConnectionPool> poolRegistry = retrofitConfigBean.getPoolRegistry();
+        Assert.notNull(poolRegistry, "poolRegistry不存在！请设置retrofitConfigBean.poolRegistry！");
         ConnectionPool connectionPool = poolRegistry.get(poolName);
         Assert.notNull(connectionPool, "当前poolName对应的连接池不存在！poolName = " + poolName);
         return connectionPool;
@@ -139,8 +128,8 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         // 添加接口上注解定义的拦截器
         List<Interceptor> interceptors = new ArrayList<>(findInterceptorByAnnotation(retrofitClientInterfaceClass));
         // 添加全局拦截器
-        Collection<BaseGlobalInterceptor> globalInterceptors = getBeans(BaseGlobalInterceptor.class);
-        if (globalInterceptors != null) {
+        Collection<BaseGlobalInterceptor> globalInterceptors = retrofitConfigBean.getGlobalInterceptors();
+        if (!CollectionUtils.isEmpty(globalInterceptors)) {
             interceptors.addAll(globalInterceptors);
         }
         interceptors.forEach(okHttpClientBuilder::addInterceptor);
@@ -153,7 +142,10 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
             okHttpClientBuilder.addInterceptor(loggingInterceptor);
         }
         //  http异常信息格式化
-        okHttpClientBuilder.addInterceptor(httpExceptionMessageFormatterInterceptor);
+        HttpExceptionMessageFormatterInterceptor httpExceptionMessageFormatterInterceptor = retrofitConfigBean.getHttpExceptionMessageFormatterInterceptor();
+        if (httpExceptionMessageFormatterInterceptor != null) {
+            okHttpClientBuilder.addInterceptor(httpExceptionMessageFormatterInterceptor);
+        }
         return okHttpClientBuilder.build();
     }
 
@@ -235,24 +227,16 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
                 .baseUrl(baseUrl)
                 .client(client);
         // 添加CallAdapter.Factory
+        List<CallAdapter.Factory> callAdapterFactories = retrofitConfigBean.getCallAdapterFactories();
         if (!CollectionUtils.isEmpty(callAdapterFactories)) {
             callAdapterFactories.forEach(retrofitBuilder::addCallAdapterFactory);
         }
         // 添加Converter.Factory
+        List<Converter.Factory> converterFactories = retrofitConfigBean.getConverterFactories();
         if (!CollectionUtils.isEmpty(converterFactories)) {
             converterFactories.forEach(retrofitBuilder::addConverterFactory);
         }
         return retrofitBuilder.build();
-    }
-
-    private <U> Collection<U> getBeans(Class<U> clz) {
-        try {
-            Map<String, U> beanMap = applicationContext.getBeansOfType(clz);
-            return beanMap.values();
-        } catch (BeansException e) {
-            // do nothing
-        }
-        return null;
     }
 
 
@@ -261,45 +245,10 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         this.environment = environment;
     }
 
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        // 初始化连接池
-        Map<String, PoolConfig> pool = retrofitProperties.getPool();
-        if (pool != null) {
-            pool.forEach((poolName, poolConfig) -> {
-                long keepAliveSecond = poolConfig.getKeepAliveSecond();
-                int maxIdleConnections = poolConfig.getMaxIdleConnections();
-                ConnectionPool connectionPool = new ConnectionPool(maxIdleConnections, keepAliveSecond, TimeUnit.SECONDS);
-                poolRegistry.put(poolName, connectionPool);
-            });
-        }
-        // Http异常信息格式化器
-        Class<? extends BaseHttpExceptionMessageFormatter> httpExceptionMessageFormatterClass = retrofitProperties.getHttpExceptionMessageFormatter();
-        BaseHttpExceptionMessageFormatter alarmFormatter = httpExceptionMessageFormatterClass.newInstance();
-        httpExceptionMessageFormatterInterceptor = new HttpExceptionMessageFormatterInterceptor(alarmFormatter);
-
-        // callAdapterFactory
-        Collection<CallAdapter.Factory> callAdapterFactoryBeans = getBeans(CallAdapter.Factory.class);
-        if (!CollectionUtils.isEmpty(callAdapterFactoryBeans)) {
-            callAdapterFactories.addAll(callAdapterFactoryBeans);
-        }
-        if (retrofitProperties.isEnableBodyCallAdapter()) {
-            callAdapterFactories.add(new BodyCallAdapterFactory());
-        }
-        if (retrofitProperties.isEnableResponseCallAdapter()) {
-            callAdapterFactories.add(new ResponseCallAdapterFactory());
-        }
-        // converterFactory
-        Collection<Converter.Factory> converterFactoryBeans = getBeans(Converter.Factory.class);
-        if (!CollectionUtils.isEmpty(converterFactoryBeans)) {
-            converterFactories.addAll(converterFactoryBeans);
-        }
-    }
-
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
-        retrofitProperties = applicationContext.getBean(RetrofitProperties.class);
+        this.retrofitConfigBean = applicationContext.getBean(RetrofitConfigBean.class);
+        this.retrofitProperties = retrofitConfigBean.getRetrofitProperties();
     }
 }
