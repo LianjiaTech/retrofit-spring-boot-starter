@@ -2,7 +2,7 @@
 ## 简介
 
 [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
-[![Maven central](https://maven-badges.herokuapp.com/maven-central/com.github.lianjiatech/retrofit-spring-boot-starter/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.lianjiatech/retrofit-spring-boot-starter)
+[![Maven central](https://maven-badges.herokuapp.com/maven-central/com.github.lianjiatech/retrofit-spring-boot-starter/badge.svg)](https://search.maven.org/artifact/com.github.lianjiatech/retrofit-spring-boot-starter/2.0.0/jar)
 
 > 众所周知，`Retrofit`是适用于`Android`和`Java`且类型安全的HTTP客户端，其最大的特性的是**支持通过`接口`的方式发起HTTP请求**；而`spring-boot`是使用最广泛的Java开发框架。但是`Retrofit`官方没有支持与`spring-boot`框架快速整合，从而加大了在`spring-boot`框架中引入`Retrofit`的难度。
 
@@ -355,11 +355,11 @@ retrofit:
 1. `BodyCallAdapterFactory`
     - 默认启用，可通过配置`retrofit.enable-body-call-adapter=false`关闭
     - 同步执行http请求，将响应体内容适配成接口方法的返回值类型实例。
-    - 如果返回值类型为`Retrofit.Call<T>`、`Retrofit.Response<T>`、`java.util.concurrent.CompletableFuture<T>`，则不会使用适配器。
+    - 除了`Retrofit.Call<T>`、`Retrofit.Response<T>`、`java.util.concurrent.CompletableFuture<T>`之后，其它返回类型都可以使用该适配器。
 2. `ResponseCallAdapterFactory`
     - 默认启用，可通过配置`retrofit.enable-response-call-adapter=false`关闭
     - 同步执行http请求，将响应体内容适配成`Retrofit.Response<T>`返回。
-    - 如果方法的返回值类型为`Retrofit.Response<T>`，则会使用该适配器。
+    - 如果方法的返回值类型为`Retrofit.Response<T>`，则可以使用该适配器。
 
 **Retrofit自动根据方法返回值类型选用对应的`CallAdapterFactory`执行适配处理！加上Retrofit默认的`CallAdapterFactory`，可支持多种形式的方法返回值类型：**
 
