@@ -4,9 +4,9 @@
 [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 [![Maven central](https://maven-badges.herokuapp.com/maven-central/com.github.lianjiatech/retrofit-spring-boot-starter/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.lianjiatech/retrofit-spring-boot-starter)
 
-众所周知，`Retrofit2`是适用于`Android`和`Java`且类型安全的HTTP客户端，其最大的特性的是**支持通过`接口`的方式发起HTTP请求**；而`spring-boot`是使用最广泛的Java开发框架。但是`Retrofit2`官方不支持与`spring-boot`框架快速整合，从而加大了在`spring-boot`框架中引入`Retrofit2`的难度。
+> 众所周知，`Retrofit`是适用于`Android`和`Java`且类型安全的HTTP客户端，其最大的特性的是**支持通过`接口`的方式发起HTTP请求**；而`spring-boot`是使用最广泛的Java开发框架。但是`Retrofit`官方没有支持与`spring-boot`框架快速整合，从而加大了在`spring-boot`框架中引入`Retrofit`的难度。
 
-**`retrofit-spring-boot-starter`实现了`Retrofit2`与`spring-boot`框架快速整合，以及部分功能增强，从而极大的简化`spring-boot`项目下`http`接口调用开发**。
+**`retrofit-spring-boot-starter`实现了`Retrofit`与`spring-boot`框架快速整合，并且支持了部分功能增强，从而极大的简化`spring-boot`项目下`http`接口调用开发**。
 
 <!--more-->
 
@@ -100,10 +100,10 @@ public class RetrofitStarterTest {
 | enable-body-call-adapter | true| 是否启用 BodyCallAdapter适配器 |
 | enable-response-call-adapter | true| 是否启用 ResponseCallAdapter适配器 |
 | enable-log | true| 启用日志打印 |
-|logging-interceptor |  | 日志打印拦截器 |
+|logging-interceptor | DefaultLoggingInterceptor | 日志打印拦截器 |
 | pool | | 连接池配置 |
 | disable-void-return-type | false | 禁用java.lang.Void返回类型 |
-| http-exception-message-formatter |  | Http异常信息格式化器 |
+| http-exception-message-formatter | DefaultHttpExceptionMessageFormatter | Http异常信息格式化器 |
 
 `yml`配置方式：
 
@@ -295,7 +295,7 @@ public interface HttpApi {
 
 ### 连接池管理
 
-默认情况下，所有通过`retrofit2`发送的http请求都会使用`max-idle-connections=5  keep-alive-second=300`的默认连接池。
+默认情况下，所有通过`Retrofit`发送的http请求都会使用`max-idle-connections=5  keep-alive-second=300`的默认连接池。
 
 您也可以在配置文件中配置多个自定义的连接池，然后通过`@RetrofitClient`的使用`poolName`属性来指定使用。
 
@@ -349,19 +349,19 @@ retrofit:
 
 ## 调用适配器 CallAdapter
 
-`Retrofit2`可以通过调用适配器`CallAdapterFactory`将`Call<T>`对象适配成接口方法的返回值类型。
+`Retrofit`可以通过调用适配器`CallAdapterFactory`将`Call<T>`对象适配成接口方法的返回值类型。
 `retrofit-spring-boot-starter`扩展2种`CallAdapterFactory`实现：
 
 1. `BodyCallAdapterFactory`
     - 默认启用，可通过配置`retrofit.enable-body-call-adapter=false`关闭
     - 同步执行http请求，将响应体内容适配成接口方法的返回值类型实例。
-    - 如果返回值类型为`retrofit2.Call<T>`、`retrofit2.Response<T>`、`java.util.concurrent.CompletableFuture<T>`，则不会使用适配器。
+    - 如果返回值类型为`Retrofit.Call<T>`、`Retrofit.Response<T>`、`java.util.concurrent.CompletableFuture<T>`，则不会使用适配器。
 2. `ResponseCallAdapterFactory`
     - 默认启用，可通过配置`retrofit.enable-response-call-adapter=false`关闭
-    - 同步执行http请求，将响应体内容适配成`retrofit2.Response<T>`返回。
-    - 如果方法的返回值类型为`retrofit2.Response<T>`，则会使用该适配器。
+    - 同步执行http请求，将响应体内容适配成`Retrofit.Response<T>`返回。
+    - 如果方法的返回值类型为`Retrofit.Response<T>`，则会使用该适配器。
 
-**retrofit2自动根据方法返回值类型选用对应的`CallAdapterFactory`执行适配处理！加上retrofit2默认的`CallAdapterFactory`，可支持多种形式的方法返回值类型：**
+**Retrofit自动根据方法返回值类型选用对应的`CallAdapterFactory`执行适配处理！加上Retrofit默认的`CallAdapterFactory`，可支持多种形式的方法返回值类型：**
 
 - `Call<T>`: 不执行适配处理，直接返回`Call<T>`对象
 - `CompletableFuture<T>`: 将响应体内容适配成`CompletableFuture<T>`对象返回
@@ -423,14 +423,14 @@ retrofit:
 
 ## 数据转码器 Converter
 
-retrofit2使用Converter 将`@Body`注解标注的对象转换成请求体，将响应体数据转换成一个Java对象。你可以选用以下几种Converter：
+Retrofit使用Converter 将`@Body`注解标注的对象转换成请求体，将响应体数据转换成一个Java对象。你可以选用以下几种Converter：
 
-- Gson: com.squareup.retrofit2:converter-gson
-- Jackson: com.squareup.retrofit2:converter-jackson
-- Moshi: com.squareup.retrofit2:converter-moshi
-- Protobuf: com.squareup.retrofit2:converter-protobuf
-- Wire: com.squareup.retrofit2:converter-wire
-- Simple XML: com.squareup.retrofit2:converter-simplexml
+- Gson: com.squareup.Retrofit:converter-gson
+- Jackson: com.squareup.Retrofit:converter-jackson
+- Moshi: com.squareup.Retrofit:converter-moshi
+- Protobuf: com.squareup.Retrofit:converter-protobuf
+- Wire: com.squareup.Retrofit:converter-wire
+- Simple XML: com.squareup.Retrofit:converter-simplexml
 
 `retrofit-spring-boot-starter`默认使用的是jackson进行序列化转换！**如果需要使用其它序列化方式，在项目中引入对应的依赖，再把对应的`ConverterFactory`配置成spring的bean即可**
 **如果需要实现自定义的Converter， 只需继承`Converter.Factory`，再将其配置成spring的bean**
