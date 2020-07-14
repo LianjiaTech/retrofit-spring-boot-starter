@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>retrofit2.Retrofit</OriginalElement>
+  <nodes>
+    <node x="0.0" y="0.0">okhttp3.Interceptor</node>
+    <node x="709.0" y="0.0">retrofit2.Converter</node>
+    <node x="322.0" y="0.0">okhttp3.Call.Factory</node>
+    <node x="161.2791666666667" y="109.0">okhttp3.OkHttpClient</node>
+    <node x="436.0" y="0.0">retrofit2.CallAdapter</node>
+    <node x="156.0" y="0.0">okhttp3.ConnectionPool</node>
+    <node x="595.0" y="0.0">okhttp3.HttpUrl</node>
+    <node x="521.75" y="109.0">retrofit2.Retrofit</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="okhttp3.OkHttpClient" target="okhttp3.Interceptor">
+      <point x="-25.600000000000023" y="-14.5" />
+      <point x="199.67916666666667" y="79.0" />
+      <point x="87.0" y="79.0" />
+      <point x="29.0" y="14.5" />
+    </edge>
+    <edge source="okhttp3.HttpUrl" target="okhttp3.HttpUrl">
+      <point x="-31.333333333333343" y="14.5" />
+      <point x="610.6666666666667" y="49.0" />
+      <point x="575.0" y="49.0" />
+      <point x="575.0" y="14.5" />
+      <point x="-47.0" y="-0.0" />
+    </edge>
+    <edge source="okhttp3.OkHttpClient" target="okhttp3.Call.Factory">
+      <point x="51.200000000000045" y="-14.5" />
+      <point x="276.47916666666674" y="89.0" />
+      <point x="337.66666666666674" y="89.0" />
+      <point x="-31.333333333333314" y="14.5" />
+    </edge>
+    <edge source="okhttp3.ConnectionPool" target="okhttp3.ConnectionPool">
+      <point x="-48.66666666666666" y="14.5" />
+      <point x="180.33333333333334" y="49.0" />
+      <point x="136.0" y="49.0" />
+      <point x="136.0" y="14.5" />
+      <point x="-73.0" y="-0.0" />
+    </edge>
+    <edge source="retrofit2.Retrofit" target="okhttp3.HttpUrl">
+      <point x="7.833333333333314" y="-14.5" />
+      <point x="576.5833333333334" y="69.0" />
+      <point x="642.0" y="69.0" />
+      <point x="0.0" y="14.5" />
+    </edge>
+    <edge source="okhttp3.OkHttpClient" target="okhttp3.OkHttpClient">
+      <point x="0.0" y="14.5" />
+      <point x="225.2791666666667" y="158.0" />
+      <point x="141.2791666666667" y="158.0" />
+      <point x="141.2791666666667" y="123.5" />
+      <point x="-64.0" y="-0.0" />
+    </edge>
+    <edge source="retrofit2.Retrofit" target="retrofit2.CallAdapter">
+      <point x="-7.833333333333314" y="-14.5" />
+      <point x="560.9166666666667" y="69.0" />
+      <point x="495.5" y="69.0" />
+      <point x="0.0" y="14.5" />
+    </edge>
+    <edge source="retrofit2.Retrofit" target="okhttp3.Call.Factory">
+      <point x="-39.16666666666663" y="-14.5" />
+      <point x="529.5833333333334" y="89.0" />
+      <point x="369.0" y="89.0" />
+      <point x="0.0" y="14.5" />
+    </edge>
+    <edge source="okhttp3.OkHttpClient" target="okhttp3.ConnectionPool">
+      <point x="25.600000000000023" y="-14.5" />
+      <point x="250.87916666666672" y="79.0" />
+      <point x="277.66666666666663" y="79.0" />
+      <point x="48.66666666666663" y="14.5" />
+    </edge>
+    <edge source="retrofit2.Retrofit" target="retrofit2.Converter">
+      <point x="39.166666666666686" y="-14.5" />
+      <point x="607.9166666666667" y="89.0" />
+      <point x="763.5" y="89.0" />
+      <point x="0.0" y="14.5" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="0.9691148004931273" x="409.4963528785704" y="44.50915522509712" />
+  <SelectedNodes />
+  <Categories />
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+
