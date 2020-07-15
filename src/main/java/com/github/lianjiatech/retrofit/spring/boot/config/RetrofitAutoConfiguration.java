@@ -5,11 +5,12 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory;
 import com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.*;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseGlobalInterceptor;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseHttpExceptionMessageFormatter;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.HttpExceptionMessageFormatterInterceptor;
 import okhttp3.ConnectionPool;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
@@ -40,15 +41,6 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
 
     private ApplicationContext applicationContext;
 
-    @Bean("defaultJacksonConverterFactory")
-    @ConditionalOnClass(JacksonConverterFactory.class)
-    @ConditionalOnMissingBean
-    public JacksonConverterFactory jacksonConverterFactory() {
-        return JacksonConverterFactory.create(new ObjectMapper()
-                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                .setSerializationInclusion(JsonInclude.Include.NON_NULL));
-    }
-
     @Bean
     @ConditionalOnMissingBean
     public RetrofitConfigBean retrofitConfigBean() throws IllegalAccessException, InstantiationException {
@@ -74,7 +66,6 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
 
         // callAdapterFactory
         List<CallAdapter.Factory> callAdapterFactories = new ArrayList<>();
-        List<Converter.Factory> converterFactories = new ArrayList<>();
         Collection<CallAdapter.Factory> callAdapterFactoryBeans = getBeans(CallAdapter.Factory.class);
         if (!CollectionUtils.isEmpty(callAdapterFactoryBeans)) {
             callAdapterFactories.addAll(callAdapterFactoryBeans);
@@ -88,10 +79,15 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
         retrofitConfigBean.setCallAdapterFactories(callAdapterFactories);
 
         // converterFactory
+        List<Converter.Factory> converterFactories = new ArrayList<>();
         Collection<Converter.Factory> converterFactoryBeans = getBeans(Converter.Factory.class);
         if (!CollectionUtils.isEmpty(converterFactoryBeans)) {
             converterFactories.addAll(converterFactoryBeans);
         }
+        JacksonConverterFactory defaultJacksonConverterFactory = JacksonConverterFactory.create(new ObjectMapper()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .setSerializationInclusion(JsonInclude.Include.NON_NULL));
+        converterFactories.add(defaultJacksonConverterFactory);
         retrofitConfigBean.setConverterFactories(converterFactories);
 
         // globalInterceptors
