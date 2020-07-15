@@ -2,7 +2,7 @@
 ## 简介
 
 [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
-[![Maven central](https://maven-badges.herokuapp.com/maven-central/com.github.lianjiatech/retrofit-spring-boot-starter/badge.svg)](https://search.maven.org/artifact/com.github.lianjiatech/retrofit-spring-boot-starter/2.0.0/jar)
+[![Maven central](https://maven-badges.herokuapp.com/maven-central/com.github.lianjiatech/retrofit-spring-boot-starter/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.lianjiatech/retrofit-spring-boot-starter)
 
 > 众所周知，`Retrofit`是适用于`Android`和`Java`且类型安全的HTTP客户端，其最大的特性的是**支持通过`接口`的方式发起HTTP请求**；而`spring-boot`是使用最广泛的Java开发框架。但是`Retrofit`官方没有支持与`spring-boot`框架快速整合，从而加大了在`spring-boot`框架中引入`Retrofit`的难度。
 
