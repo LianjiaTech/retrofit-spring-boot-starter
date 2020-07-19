@@ -41,7 +41,7 @@ public class RetrofitTestApplication {
 
 ### 定义http接口
 
-**接口必须使用`@RetrofitClient`注解标记！**
+**接口必须使用`@RetrofitClient`注解标记**！http相关注解可参考官方文档：[retrofit官方文档](https://square.github.io/retrofit/)。
 
 ```java
 @RetrofitClient(baseUrl = "${test.baseUrl}")
@@ -54,24 +54,17 @@ public interface HttpApi {
 
 ### 注入使用
 
-**将接口注入到其它bean中即可使用！**
+**将接口注入到其它Service中即可使用！**
 
 ```java
-@SpringBootTest(classes = RetrofitTestApplication.class)
-@RunWith(SpringRunner.class)
-public class RetrofitStarterTest {
+@Service
+public class TestService {
 
     @Autowired
     private HttpApi httpApi;
 
-    @Test
     public void test() {
-        Result<Person> person = httpApi.getPerson(1L);
-        Person data = person.getData();
-        Assert.assertNotNull(data);
-        Assert.assertEquals(1L,data.getId().longValue());
-        Assert.assertEquals("test",data.getName());
-        Assert.assertEquals(10,data.getAge().intValue());
+        // 通过httpApi发起http请求
     }
 }
 ```
@@ -137,8 +130,8 @@ retrofit:
 
 很多时候，我们希望某个接口下的某些http请求执行统一的拦截处理逻辑。为了支持这个功能，`retrofit-spring-boot-starter`提供了**注解式拦截器**，同时做到了**基于url路径的匹配拦截**。使用的步骤主要分为2步：
 
-1. 继承`BasePathMatchInterceptor`编写拦截处理器。
-2. 接口上使用`@Intercept`进行标注；
+1. 继承`BasePathMatchInterceptor`编写拦截处理器；
+2. 接口上使用`@Intercept`进行标注。
 
 下面以*给指定请求的url后面拼接timestamp时间戳*为例，介绍下如何使用注解式拦截器。
 
@@ -182,7 +175,7 @@ public interface HttpApi {
 
 上面的`@Intercept`配置表示：拦截`HttpApi`接口下`/api/**`路径下（排除`/api/test/savePerson`）的请求，拦截处理器使用`TimeStampInterceptor`。
 
-#### 自定义拦截注解
+### 扩展注解式拦截器
 
 有的时候，我们需要在**拦截注解**动态传入一些参数，然后再执行拦截的时候需要使用这个参数。这种时候，我们可以扩展实现**自定义拦截注解**。`自定义拦截注解`必须使用`@InterceptMark`标记，并且**注解中必须包括`include()、exclude()、handler()`属性信息**。使用的步骤主要分为3步：
 
@@ -190,14 +183,10 @@ public interface HttpApi {
 2. 继承`BasePathMatchInterceptor`编写拦截处理器
 3. 接口上使用自定义拦截注解；
 
-下面以**自定义一个加签拦截器注解`@Sign`**为例进行说明。
+例如我们需要**在请求头里面动态加入`accessKeyId`、`accessKeySecret`签名信息才能正常发起http请求**，这个时候可以**自定义一个加签拦截器注解`@Sign`**来实现。下面以自定义`@Sign`拦截注解为例进行说明。
 
 
-
-如果需要在拦截器注解上传入其它参数，可以通过使用`@InterceptMark`标记来扩展自己的拦截注解。
-例如需要给http的request的header中添加sign签名信息，可以扩展一个`@Sign`注解！
-
-##### 自定义`@Sign`注解
+#### 自定义`@Sign`注解
 
 ```java
 @Retention(RetentionPolicy.RUNTIME)
@@ -238,7 +227,6 @@ public @interface Sign {
     /**
      * 处理该注解的拦截器类
      * 优先从spring容器获取对应的Bean，如果获取不到，则使用反射创建一个！
-     * 如果以Bean的形式配置，scope必须是prototype
      *
      * @return
      */
@@ -246,9 +234,12 @@ public @interface Sign {
 }
 ```
 
-##### 实现`SignInterceptor`
+扩展`自定义拦截注解`有以下2点需要注意：
 
-注意：**自动赋值的字段要提供`setter`方法**。
+1. `自定义拦截注解`必须使用`@InterceptMark`标记。
+2. 注解中必须包括`include()、exclude()、handler()`属性信息。
+
+#### 实现`SignInterceptor`
 
 ```java
 @Component
@@ -278,7 +269,9 @@ public class SignInterceptor extends BasePathMatchInterceptor {
 }
 ```
 
-##### 接口上使用`@Sign`
+**上述`accessKeyId`和`accessKeySecret`字段值会依据`@Sign`注解的`accessKeyId()`和`accessKeySecret()`值自动注入，如果`@Sign`指定的是占位符形式的字符串，则会取配置属性值进行注入**。另外，**`accessKeyId`和`accessKeySecret`字段必须提供`setter`方法**。
+
+#### 接口上使用`@Sign`
 
 ```java
 @RetrofitClient(baseUrl = "${test.baseUrl}")
@@ -293,41 +286,45 @@ public interface HttpApi {
 }
 ```
 
+这样就能再指定url的请求上，自动加上签名信息了。
+
 ### 连接池管理
 
-默认情况下，所有通过`Retrofit`发送的http请求都会使用`max-idle-connections=5  keep-alive-second=300`的默认连接池。
+默认情况下，所有通过`Retrofit`发送的http请求都会使用`max-idle-connections=5  keep-alive-second=300`的默认连接池。当然，我们也可以在配置文件中配置多个自定义的连接池，然后通过`@RetrofitClient`的`poolName`属性来指定使用。比如我们要让某个接口下的请求全部使用`poolName=test1`的连接池，代码实现如下：
 
-您也可以在配置文件中配置多个自定义的连接池，然后通过`@RetrofitClient`的使用`poolName`属性来指定使用。
+1. 配置连接池。
 
-比如有如下连接池配置：
+    ```yaml
+    retrofit:
+        # 连接池配置
+        pool:
+            test1:
+            max-idle-connections: 3
+            keep-alive-second: 100
+            test2:
+            max-idle-connections: 5
+            keep-alive-second: 50
+    ```
 
-```yaml
-retrofit:
-  # 连接池配置
-  pool:
-    test1:
-      max-idle-connections: 3
-      keep-alive-second: 100
-    test2:
-      max-idle-connections: 5
-      keep-alive-second: 50
-```
+2. 通过`@RetrofitClient`的`poolName`属性来指定使用的连接池。
 
-如果您需要指定某个接口下的http请求全部使用`test1`连接池，代码如下：
+    ```java
+    @RetrofitClient(baseUrl = "${test.baseUrl}", poolName="test1")
+    public interface HttpApi {
 
-```java
-@RetrofitClient(baseUrl = "${test.baseUrl}", poolName="test1")
-public interface HttpApi {
-
-    @GET("person")
-    Result<Person> getPerson(@Query("id") Long id);
-}
-```
+        @GET("person")
+        Result<Person> getPerson(@Query("id") Long id);
+    }
+    ```
 
 ### 日志打印
 
-很多情况下，我们希望将http请求日志记录下来。通过`@RetrofitClient`的`logLevel`和`logStrategy`属性，您可以指定每个接口的日志打印级别以及日志打印策略。
-`retrofit-spring-boot-starter`支持了5种日志打印级别(`ERROR`, `WARN`, `INFO`, `DEBUG`, `TRACE`)，默认`INFO`；支持了4种日志打印策略（`NONE`, `BASIC`, `HEADERS`, `BODY`），默认`BASIC`。
+很多情况下，我们希望将http请求日志记录下来。通过`@RetrofitClient`的`logLevel`和`logStrategy`属性，您可以指定每个接口的日志打印级别以及日志打印策略。`retrofit-spring-boot-starter`支持了5种日志打印级别(`ERROR`, `WARN`, `INFO`, `DEBUG`, `TRACE`)，默认`INFO`；支持了4种日志打印策略（`NONE`, `BASIC`, `HEADERS`, `BODY`），默认`BASIC`。4种日志打印策略含义如下：
+
+1. `NONE`：No logs.
+2. `BASIC`：Logs request and response lines.
+3. `HEADERS`：Logs request and response lines and their respective headers.
+4. `BODY`：Logs request and response lines and their respective headers and bodies (if present).
 
 `retrofit-spring-boot-starter`默认使用了`DefaultLoggingInterceptor`执行真正的日志打印功能，其底层就是`okhttp`原生的`HttpLoggingInterceptor`。当然，你也可以自定义实现自己的日志打印拦截器，只需要继承`BaseLoggingInterceptor`（具体可以参考`DefaultLoggingInterceptor`的实现），然后在配置文件中进行相关配置即可。
 
@@ -349,13 +346,12 @@ retrofit:
 
 ## 调用适配器 CallAdapter
 
-`Retrofit`可以通过调用适配器`CallAdapterFactory`将`Call<T>`对象适配成接口方法的返回值类型。
-`retrofit-spring-boot-starter`扩展2种`CallAdapterFactory`实现：
+`Retrofit`可以通过调用适配器`CallAdapterFactory`将`Call<T>`对象适配成接口方法的返回值类型。`retrofit-spring-boot-starter`扩展2种`CallAdapterFactory`实现：
 
 1. `BodyCallAdapterFactory`
     - 默认启用，可通过配置`retrofit.enable-body-call-adapter=false`关闭
     - 同步执行http请求，将响应体内容适配成接口方法的返回值类型实例。
-    - 除了`Retrofit.Call<T>`、`Retrofit.Response<T>`、`java.util.concurrent.CompletableFuture<T>`之后，其它返回类型都可以使用该适配器。
+    - 除了`Retrofit.Call<T>`、`Retrofit.Response<T>`、`java.util.concurrent.CompletableFuture<T>`之外，其它返回类型都可以使用该适配器。
 2. `ResponseCallAdapterFactory`
     - 默认启用，可通过配置`retrofit.enable-response-call-adapter=false`关闭
     - 同步执行http请求，将响应体内容适配成`Retrofit.Response<T>`返回。
@@ -417,13 +413,13 @@ retrofit:
 
 ```
 
-**你也可以自己扩展实现自己的`CallAdapter`，只需要继承`CallAdapter.Factory`即可。**
+**我们也可以通过继承`CallAdapter.Factory`扩展实现自己的`CallAdapter`**；然后将自定义的`CallAdapterFactory`配置成`spring`的`bean`！
 
-**然后直接将自定义的`CallAdapterFactory`配置成spring的bean即可！手动配置的`CallAdapterFactory`优先级更高！**
+> 自定义配置的`CallAdapter.Factory`优先级更高！
 
 ## 数据转码器 Converter
 
-Retrofit使用Converter 将`@Body`注解标注的对象转换成请求体，将响应体数据转换成一个Java对象。你可以选用以下几种Converter：
+`Retrofit`使用`Converter`将`@Body`注解标注的对象转换成请求体，将响应体数据转换成一个`Java`对象，可以选用以下几种`Converter`：
 
 - Gson: com.squareup.Retrofit:converter-gson
 - Jackson: com.squareup.Retrofit:converter-jackson
@@ -432,21 +428,27 @@ Retrofit使用Converter 将`@Body`注解标注的对象转换成请求体，将�
 - Wire: com.squareup.Retrofit:converter-wire
 - Simple XML: com.squareup.Retrofit:converter-simplexml
 
-`retrofit-spring-boot-starter`默认使用的是jackson进行序列化转换！**如果需要使用其它序列化方式，在项目中引入对应的依赖，再把对应的`ConverterFactory`配置成spring的bean即可**
-**如果需要实现自定义的Converter， 只需继承`Converter.Factory`，再将其配置成spring的bean**
+`retrofit-spring-boot-starter`默认使用的是jackson进行序列化转换！**如果需要使用其它序列化方式，在项目中引入对应的依赖，再把对应的`ConverterFactory`配置成spring的bean即可**。
+
+**我们也可以通过继承`Converter.Factory`扩展实现自己的`Converter`**；然后将自定义的`Converter.Factory`配置成`spring`的`bean`！
+
+> 自定义配置的`Converter.Factory`优先级更高！
+
 
 ## 全局拦截器 BaseGlobalInterceptor
 
-如果你需要对整个系统的的http请求执行统一的拦截处理，可以自定义实现全局拦截器`BaseGlobalInterceptor`, 并配置成spring中的bean！
+如果我们需要对整个系统的的http请求执行统一的拦截处理，可以自定义实现全局拦截器`BaseGlobalInterceptor`, 并配置成`spring`中的`bean`！例如我们需要在整个系统发起的http请求，都带上来源信息。
 
 ```java
 @Component
-public class PrintInterceptor extends BaseGlobalInterceptor{
+public class SourceInterceptor extends BaseGlobalInterceptor {
     @Override
     public Response doIntercept(Chain chain) throws IOException {
         Request request = chain.request();
-        System.out.println("=============test===========");
-        return chain.proceed(request);
+        Request newReq = request.newBuilder()
+                .addHeader("source", "test")
+                .build();
+        return chain.proceed(newReq);
     }
 }
 ```
