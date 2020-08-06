@@ -20,7 +20,7 @@
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
     <artifactId>retrofit-spring-boot-starter</artifactId>
-    <version>2.0.2</version>
+    <version>2.0.3</version>
 </dependency>
 ```
 
@@ -488,3 +488,7 @@ Void upload(@Part MultipartBody.Part file);
 
 ```
 
+### TODO
+
+1. 缓存支持：支持客户端内存级别缓存，降低调用接口频率
+2. BasePathMatchInterceptor自定义Scope，减少内存占用
