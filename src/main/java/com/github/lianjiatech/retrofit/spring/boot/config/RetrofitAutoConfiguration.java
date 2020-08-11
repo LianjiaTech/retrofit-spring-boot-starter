@@ -11,7 +11,9 @@ import com.github.lianjiatech.retrofit.spring.boot.interceptor.HttpExceptionMess
 import okhttp3.ConnectionPool;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -34,6 +36,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Configuration
 @EnableConfigurationProperties(RetrofitProperties.class)
+@AutoConfigureAfter(JacksonAutoConfiguration.class)
 public class RetrofitAutoConfiguration implements ApplicationContextAware {
 
     @Autowired
@@ -43,7 +46,7 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
 
     @Bean
     @ConditionalOnMissingBean
-    public RetrofitConfigBean retrofitConfigBean() throws IllegalAccessException, InstantiationException {
+    public RetrofitConfigBean retrofitConfigBean(@Autowired ObjectMapper objectMapper) throws IllegalAccessException, InstantiationException {
         RetrofitConfigBean retrofitConfigBean = new RetrofitConfigBean(retrofitProperties);
         // 初始化连接池
         Map<String, ConnectionPool> poolRegistry = new ConcurrentHashMap<>(4);
@@ -84,17 +87,22 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
         if (!CollectionUtils.isEmpty(converterFactoryBeans)) {
             converterFactories.addAll(converterFactoryBeans);
         }
-        JacksonConverterFactory defaultJacksonConverterFactory = JacksonConverterFactory.create(new ObjectMapper()
-                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                .setSerializationInclusion(JsonInclude.Include.NON_NULL));
+        JacksonConverterFactory defaultJacksonConverterFactory = JacksonConverterFactory.create(objectMapper);
         converterFactories.add(defaultJacksonConverterFactory);
         retrofitConfigBean.setConverterFactories(converterFactories);
-
         // globalInterceptors
         Collection<BaseGlobalInterceptor> globalInterceptors = getBeans(BaseGlobalInterceptor.class);
         retrofitConfigBean.setGlobalInterceptors(globalInterceptors);
 
         return retrofitConfigBean;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ObjectMapper jacksonObjectMapper() {
+        return new ObjectMapper()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
 
     private <U> Collection<U> getBeans(Class<U> clz) {
