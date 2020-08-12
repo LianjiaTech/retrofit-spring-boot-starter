@@ -490,7 +490,7 @@ Void upload(@Part MultipartBody.Part file);
 
 ### TODO
 
-1. 考虑使用springboot JacksonAutoConfiguration提供的ObjectMapper替代自定义的
-2. 缓存支持：支持客户端内存级别缓存，降低调用接口频率
-3. BasePathMatchInterceptor自定义Scope，减少内存占用
-4. 整合熔断降级
+- [X] 考虑使用springboot JacksonAutoConfiguration提供的ObjectMapper替代自定义的
+- [ ] 缓存支持：支持客户端内存级别缓存，降低调用接口频率
+- [ ] BasePathMatchInterceptor自定义Scope，减少内存占用
+- [ ] 整合熔断降级
