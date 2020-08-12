@@ -428,7 +428,7 @@ retrofit:
 - Wire: com.squareup.Retrofit:converter-wire
 - Simple XML: com.squareup.Retrofit:converter-simplexml
 
-`retrofit-spring-boot-starter`默认使用的是jackson进行序列化转换！**如果需要使用其它序列化方式，在项目中引入对应的依赖，再把对应的`ConverterFactory`配置成spring的bean即可**。
+`retrofit-spring-boot-starter`默认使用的是jackson进行序列化转换，你可以直接通过`spring.jackson.*`配置`jackson`序列化规则，配置可参考[Customize the Jackson ObjectMapper](https://docs.spring.io/spring-boot/docs/2.1.5.RELEASE/reference/htmlsingle/#howto-customize-the-jackson-objectmapper)！**如果需要使用其它序列化方式，在项目中引入对应的依赖，再把对应的`ConverterFactory`配置成spring的bean即可**。
 
 **我们也可以通过继承`Converter.Factory`扩展实现自己的`Converter`**；然后将自定义的`Converter.Factory`配置成`spring`的`bean`！
 
