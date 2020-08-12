@@ -4,7 +4,7 @@
 [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 [![Maven central](https://maven-badges.herokuapp.com/maven-central/com.github.lianjiatech/retrofit-spring-boot-starter/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.lianjiatech/retrofit-spring-boot-starter)
 
-> 众所周知，`Retrofit`是适用于`Android`和`Java`且类型安全的HTTP客户端，其最大的特性的是**支持通过`接口`的方式发起HTTP请求**；而`spring-boot`是使用最广泛的Java开发框架。但是`Retrofit`官方没有支持与`spring-boot`框架快速整合，从而加大了在`spring-boot`框架中引入`Retrofit`的难度。
+众所周知，`Retrofit`是适用于`Android`和`Java`且类型安全的HTTP客户端，其最大的特性的是**支持通过`接口`的方式发起HTTP请求**；而`spring-boot`是使用最广泛的Java开发框架。但是`Retrofit`官方没有支持与`spring-boot`框架快速整合，从而加大了在`spring-boot`框架中引入`Retrofit`的难度。
 
 **`retrofit-spring-boot-starter`实现了`Retrofit`与`spring-boot`框架快速整合，并且支持了部分功能增强，从而极大的简化`spring-boot`项目下`http`接口调用开发**。
 
@@ -20,7 +20,7 @@
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
     <artifactId>retrofit-spring-boot-starter</artifactId>
-    <version>2.0.2</version>
+    <version>2.0.3</version>
 </dependency>
 ```
 
@@ -428,7 +428,7 @@ retrofit:
 - Wire: com.squareup.Retrofit:converter-wire
 - Simple XML: com.squareup.Retrofit:converter-simplexml
 
-`retrofit-spring-boot-starter`默认使用的是jackson进行序列化转换！**如果需要使用其它序列化方式，在项目中引入对应的依赖，再把对应的`ConverterFactory`配置成spring的bean即可**。
+`retrofit-spring-boot-starter`默认使用的是jackson进行序列化转换，你可以直接通过`spring.jackson.*`配置`jackson`序列化规则，配置可参考[Customize the Jackson ObjectMapper](https://docs.spring.io/spring-boot/docs/2.1.5.RELEASE/reference/htmlsingle/#howto-customize-the-jackson-objectmapper)！**如果需要使用其它序列化方式，在项目中引入对应的依赖，再把对应的`ConverterFactory`配置成spring的bean即可**。
 
 **我们也可以通过继承`Converter.Factory`扩展实现自己的`Converter`**；然后将自定义的`Converter.Factory`配置成`spring`的`bean`！
 
@@ -488,3 +488,9 @@ Void upload(@Part MultipartBody.Part file);
 
 ```
 
+### TODO
+
+- [X] 考虑使用springboot JacksonAutoConfiguration提供的ObjectMapper替代自定义的
+- [ ] 缓存支持：支持客户端内存级别缓存，降低调用接口频率
+- [ ] BasePathMatchInterceptor自定义Scope，减少内存占用
+- [ ] 整合熔断降级
