@@ -135,7 +135,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         interceptors.forEach(okHttpClientBuilder::addInterceptor);
 
         // 日志打印拦截器
-        if (retrofitProperties.isEnableLog()) {
+        if (retrofitProperties.isEnableLog() && retrofitClient.enableLog()) {
             Class<? extends BaseLoggingInterceptor> loggingInterceptorClass = retrofitProperties.getLoggingInterceptor();
             Constructor<? extends BaseLoggingInterceptor> constructor = loggingInterceptorClass.getConstructor(Level.class, BaseLoggingInterceptor.LogStrategy.class);
             BaseLoggingInterceptor loggingInterceptor = constructor.newInstance(retrofitClient.logLevel(), retrofitClient.logStrategy());
