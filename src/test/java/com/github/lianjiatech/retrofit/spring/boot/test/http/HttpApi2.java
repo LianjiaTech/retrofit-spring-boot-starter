@@ -11,7 +11,7 @@ import retrofit2.http.Query;
 /**
  * @author 陈添明
  */
-@RetrofitClient(baseUrl = "${test.baseUrl}")
+@RetrofitClient(baseUrl = "${test.baseUrl}", enableLog = false)
 @Intercept(handler = TimeStampInterceptor.class, include = "/a/b", exclude = "/c/d")
 public interface HttpApi2 {
 
