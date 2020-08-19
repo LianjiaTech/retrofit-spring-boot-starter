@@ -500,5 +500,7 @@ Void upload(@Part MultipartBody.Part file);
 
 如有任何问题，欢迎提issue或者加QQ群反馈。
 
-![](https://github.com/LianjiaTech/retrofit-spring-boot-starter/blob/master/qun.png)
+群号：806714302
+
+![QQ群图片](https://img.ljcdn.com/hc-picture/4a926779-a464-4fbe-92fb-bc1b54460d8d)
 
