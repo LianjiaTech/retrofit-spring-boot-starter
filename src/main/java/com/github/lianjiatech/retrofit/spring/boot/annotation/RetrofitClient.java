@@ -51,6 +51,12 @@ public @interface RetrofitClient {
     int writeTimeoutMs() default 10_000;
 
     /**
+     * 针对当前接口是否启用日志打印
+     * @return
+     */
+    boolean enableLog() default true;
+
+    /**
      * 日志打印级别，支持的日志级别参见{@link Level}
      *
      * @return 日志打印级别
