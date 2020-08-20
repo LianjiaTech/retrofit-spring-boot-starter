@@ -2,7 +2,7 @@
 ## 简介
 
 [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
-[![Build Status](https://travis-ci.org/lianjiatech/retrofit-spring-boot-starter.svg?branch=master)](https://travis-ci.org/lianjiatech/retrofit-spring-boot-starter)
+[![Build Status](https://api.travis-ci.com/LianjiaTech/retrofit-spring-boot-starter.svg?branch=master)](https://travis-ci.com/github/LianjiaTech/retrofit-spring-boot-starter)
 [![Maven central](https://maven-badges.herokuapp.com/maven-central/com.github.lianjiatech/retrofit-spring-boot-starter/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.lianjiatech/retrofit-spring-boot-starter)
 [![GitHub release](https://img.shields.io/github/v/release/lianjiatech/retrofit-spring-boot-starter.svg)](https://github.com/LianjiaTech/retrofit-spring-boot-starter/releases)
 [![Author](https://img.shields.io/badge/Author-%E9%99%88%E6%B7%BB%E6%98%8E-orange.svg?style=flat-square)](https://juejin.im/user/3562073404738584/posts)
