@@ -34,21 +34,21 @@ public @interface RetrofitClient {
      *
      * @return 连接超时时间
      */
-    int connectTimeoutMs() default 10_000;
+    int connectTimeoutMs() default 5_000;
 
     /**
      * 读取超时，单位为毫秒
      *
      * @return 读取超时时间
      */
-    int readTimeoutMs() default 10_000;
+    int readTimeoutMs() default 5_000;
 
     /**
      * 写入超时，单位为毫秒
      *
      * @return 写入超时时间
      */
-    int writeTimeoutMs() default 10_000;
+    int writeTimeoutMs() default 5_000;
 
     /**
      * 针对当前接口是否启用日志打印
