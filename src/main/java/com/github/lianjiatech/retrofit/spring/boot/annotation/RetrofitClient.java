@@ -52,6 +52,7 @@ public @interface RetrofitClient {
 
     /**
      * 针对当前接口是否启用日志打印
+     *
      * @return
      */
     boolean enableLog() default true;

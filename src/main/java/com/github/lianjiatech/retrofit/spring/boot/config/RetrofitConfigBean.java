@@ -3,6 +3,7 @@ package com.github.lianjiatech.retrofit.spring.boot.config;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseGlobalInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.HttpExceptionMessageFormatterInterceptor;
 import okhttp3.ConnectionPool;
+import okhttp3.Interceptor;
 import retrofit2.CallAdapter;
 import retrofit2.Converter;
 
@@ -26,6 +27,8 @@ public class RetrofitConfigBean {
     private Map<String, ConnectionPool> poolRegistry;
 
     private Collection<BaseGlobalInterceptor> globalInterceptors;
+
+    private Interceptor retryInterceptor;
 
     public RetrofitProperties getRetrofitProperties() {
         return retrofitProperties;
@@ -73,5 +76,13 @@ public class RetrofitConfigBean {
 
     public void setGlobalInterceptors(Collection<BaseGlobalInterceptor> globalInterceptors) {
         this.globalInterceptors = globalInterceptors;
+    }
+
+    public Interceptor getRetryInterceptor() {
+        return retryInterceptor;
+    }
+
+    public void setRetryInterceptor(Interceptor retryInterceptor) {
+        this.retryInterceptor = retryInterceptor;
     }
 }

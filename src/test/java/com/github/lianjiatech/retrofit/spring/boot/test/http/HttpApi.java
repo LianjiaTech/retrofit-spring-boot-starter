@@ -2,6 +2,7 @@ package com.github.lianjiatech.retrofit.spring.boot.test.http;
 
 import com.github.lianjiatech.retrofit.spring.boot.annotation.Intercept;
 import com.github.lianjiatech.retrofit.spring.boot.annotation.RetrofitClient;
+import com.github.lianjiatech.retrofit.spring.boot.annotation.Retry;
 import com.github.lianjiatech.retrofit.spring.boot.test.entity.Person;
 import com.github.lianjiatech.retrofit.spring.boot.test.entity.Result;
 import com.github.lianjiatech.retrofit.spring.boot.test.interceptor.Sign;
@@ -21,6 +22,7 @@ import java.util.concurrent.CompletableFuture;
 @RetrofitClient(baseUrl = "${test.baseUrl}", poolName = "test1")
 @Sign(accessKeyId = "${test.accessKeyId}", accessKeySecret = "${test.accessKeySecret}", exclude = {"/api/test/query"})
 @Intercept(handler = TimeStampInterceptor.class)
+@Retry
 public interface HttpApi {
 
     /**

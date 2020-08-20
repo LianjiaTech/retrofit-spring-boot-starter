@@ -302,7 +302,8 @@ public class RetrofitStarterTest {
 
     }
 
-    @Test(expected = Throwable.class)
+    //    @Test(expected = Throwable.class)
+    @Test
     public void testHttpError() throws IOException {
         // mock
         Map<String, Object> map = new HashMap<>(4);
