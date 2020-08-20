@@ -8,6 +8,7 @@ import com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFacto
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseGlobalInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseHttpExceptionMessageFormatter;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.HttpExceptionMessageFormatterInterceptor;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.RetryInterceptor;
 import okhttp3.ConnectionPool;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,6 +94,9 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
         // globalInterceptors
         Collection<BaseGlobalInterceptor> globalInterceptors = getBeans(BaseGlobalInterceptor.class);
         retrofitConfigBean.setGlobalInterceptors(globalInterceptors);
+
+        // retryInterceptor
+        retrofitConfigBean.setRetryInterceptor(new RetryInterceptor());
 
         return retrofitConfigBean;
     }

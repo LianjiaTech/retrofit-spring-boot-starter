@@ -8,6 +8,7 @@ import java.io.IOException;
 
 /**
  * http异常信息格式化
+ *
  * @author 陈添明
  */
 public class HttpExceptionMessageFormatterInterceptor implements Interceptor {

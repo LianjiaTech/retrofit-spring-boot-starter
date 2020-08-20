@@ -3,10 +3,7 @@ package com.github.lianjiatech.retrofit.spring.boot.config;
 
 import com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory;
 import com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseHttpExceptionMessageFormatter;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseLoggingInterceptor;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultHttpExceptionMessageFormatter;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.*;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.LinkedHashMap;
