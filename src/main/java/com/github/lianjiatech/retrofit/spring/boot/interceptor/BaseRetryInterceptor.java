@@ -14,7 +14,7 @@ import java.lang.reflect.Method;
  *
  * @author 陈添明
  */
-public class RetryInterceptor implements Interceptor {
+public abstract class BaseRetryInterceptor implements Interceptor {
 
 
     private static final int LIMIT_RETRIES = 10;
@@ -42,7 +42,7 @@ public class RetryInterceptor implements Interceptor {
         int intervalMs = retry.intervalMs();
         // 最多重试10次
         maxRetries = maxRetries > LIMIT_RETRIES ? LIMIT_RETRIES : maxRetries;
-        return proceed(maxRetries, intervalMs, chain);
+        return retryIntercept(maxRetries, intervalMs, chain);
     }
 
 
@@ -53,37 +53,9 @@ public class RetryInterceptor implements Interceptor {
      * @param maxRetries 最大重试次数
      * @param intervalMs 重试时间间隔
      * @param chain      执行链
+     * @throws IOException 执行IO异常
      * @return 请求响应
      */
-    protected Response proceed(int maxRetries, int intervalMs, Chain chain) throws IOException {
-        while (true) {
-            try {
-                Request request = chain.request();
-                Response response = chain.proceed(request);
-                if (response.isSuccessful()) {
-                    return response;
-                }
-                // 执行重试
-                maxRetries--;
-                if (maxRetries < 0) {
-                    // 最后一次还没成功，返回最后一次response
-                    return response;
-                }
-                response.close();
-                Thread.sleep(intervalMs);
-            } catch (Exception e) {
-                try {
-                    maxRetries--;
-                    if (maxRetries < 0) {
-                        // 最后一次还没成功，抛出最后一次访问的异常
-                        throw e;
-                    }
-                    Thread.sleep(intervalMs);
-                } catch (InterruptedException e1) {
-                    throw new RuntimeException(e1);
-                }
-            }
-        }
-    }
+    protected abstract Response retryIntercept(int maxRetries, int intervalMs, Chain chain) throws IOException;
 
 }
