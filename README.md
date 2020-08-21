@@ -138,6 +138,8 @@ retrofit:
   logging-interceptor: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor
   # Http异常信息格式化器
   http-exception-message-formatter: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultHttpExceptionMessageFormatter
+  # 请求重试拦截器
+  retry-interceptor: com.github.lianjiatech.retrofit.spring.boot.retry.DefaultRetryInterceptor
 ```
 
 ## 高级功能
@@ -363,12 +365,12 @@ retrofit:
 
 ### 请求重试
 
-`retrofit-spring-boot-starter`支持请求重试功能，只需要在接口或者方法上加上`@Retry`注解即可，默认使用`DefaultRetryInterceptor`请求重试拦截器，在发生异常或者响应码非`2xx`的时候自动进行重试。你也可以继承`BaseRetryInterceptor`实现自己的请求重试拦截器，然后将其配置上去。
+`retrofit-spring-boot-starter`支持请求重试功能，只需要在接口或者方法上加上`@Retry`注解即可，默认使用`DefaultRetryInterceptor`请求重试拦截器，在发生IO异常或者响应码非`2xx`的时候自动进行重试。你也可以继承`BaseRetryInterceptor`实现自己的请求重试拦截器，然后将其配置上去。
 
 ```yaml
 retrofit:
   # 请求重试拦截器
-  retry-interceptor: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultRetryInterceptor
+  retry-interceptor: com.github.lianjiatech.retrofit.spring.boot.retry.DefaultRetryInterceptor
 ```
 
 ### 全局拦截器 BaseGlobalInterceptor

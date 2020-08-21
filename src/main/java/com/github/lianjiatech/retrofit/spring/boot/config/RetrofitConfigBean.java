@@ -1,7 +1,7 @@
 package com.github.lianjiatech.retrofit.spring.boot.config;
 
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseGlobalInterceptor;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseRetryInterceptor;
+import com.github.lianjiatech.retrofit.spring.boot.retry.BaseRetryInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.HttpExceptionMessageFormatterInterceptor;
 import okhttp3.ConnectionPool;
 import retrofit2.CallAdapter;
