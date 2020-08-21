@@ -47,6 +47,12 @@ public class RetrofitProperties {
      */
     private Class<? extends BaseHttpExceptionMessageFormatter> httpExceptionMessageFormatter = DefaultHttpExceptionMessageFormatter.class;
 
+
+    /**
+     * 请求重试拦截器
+     */
+    private Class<? extends BaseRetryInterceptor> retryInterceptor = BaseRetryInterceptor.class;
+
     public Class<? extends BaseHttpExceptionMessageFormatter> getHttpExceptionMessageFormatter() {
         return httpExceptionMessageFormatter;
     }
@@ -111,5 +117,13 @@ public class RetrofitProperties {
 
     public void setDisableVoidReturnType(boolean disableVoidReturnType) {
         this.disableVoidReturnType = disableVoidReturnType;
+    }
+
+    public Class<? extends BaseRetryInterceptor> getRetryInterceptor() {
+        return retryInterceptor;
+    }
+
+    public void setRetryInterceptor(Class<? extends BaseRetryInterceptor> retryInterceptor) {
+        this.retryInterceptor = retryInterceptor;
     }
 }

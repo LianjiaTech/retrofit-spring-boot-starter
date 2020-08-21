@@ -10,11 +10,22 @@
 
 众所周知，`Retrofit`是适用于`Android`和`Java`且类型安全的HTTP客户端，其最大的特性的是**支持通过`接口`的方式发起HTTP请求**；而`spring-boot`是使用最广泛的Java开发框架。但是`Retrofit`官方没有支持与`spring-boot`框架快速整合，从而加大了在`spring-boot`框架中引入`Retrofit`的难度。
 
-**`retrofit-spring-boot-starter`实现了`Retrofit`与`spring-boot`框架快速整合，并且支持了部分功能增强，从而极大的简化`spring-boot`项目下`http`接口调用开发**。
+**`retrofit-spring-boot-starter`实现了`Retrofit`与`spring-boot`框架快速整合，并且支持了诸多功能增强**。
 
 <!--more-->
 
 > 支持`spring-boot 1.x/2.x`；支持`Java8`及以上版本。
+
+## 功能特性
+
+- [x] 与`spring-boot`框架快速整合
+- [x] 注解式拦截器，支持在接口上进行声明式拦截处理
+- [x] 自定义连接池管理
+- [x] 配置化的日志打印
+- [x] Http异常信息格式化处理
+- [x] 请求重试
+- [x] 统一异常处理
+- [x] 全局拦截器
 
 ## 快速使用
 
@@ -101,6 +112,7 @@ public class TestService {
 | pool | | 连接池配置 |
 | disable-void-return-type | false | 禁用java.lang.Void返回类型 |
 | http-exception-message-formatter | DefaultHttpExceptionMessageFormatter | Http异常信息格式化器 |
+| retry-interceptor | DefaultRetryInterceptor | 请求重试拦截器 |
 
 `yml`配置方式：
 
@@ -351,8 +363,31 @@ retrofit:
 
 ### 请求重试
 
-`retrofit-spring-boot-starter`支持请求重试功能，只需要在接口或者方法上加上`@Retry`注解即可。
+`retrofit-spring-boot-starter`支持请求重试功能，只需要在接口或者方法上加上`@Retry`注解即可，默认使用`DefaultRetryInterceptor`请求重试拦截器，在发生异常或者响应码非`2xx`的时候自动进行重试。你也可以继承`BaseRetryInterceptor`实现自己的请求重试拦截器，然后将其配置上去。
 
+```yaml
+retrofit:
+  # 请求重试拦截器
+  retry-interceptor: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultRetryInterceptor
+```
+
+### 全局拦截器 BaseGlobalInterceptor
+
+如果我们需要对整个系统的的http请求执行统一的拦截处理，可以自定义实现全局拦截器`BaseGlobalInterceptor`, 并配置成`spring`中的`bean`！例如我们需要在整个系统发起的http请求，都带上来源信息。
+
+```java
+@Component
+public class SourceInterceptor extends BaseGlobalInterceptor {
+    @Override
+    public Response doIntercept(Chain chain) throws IOException {
+        Request request = chain.request();
+        Request newReq = request.newBuilder()
+                .addHeader("source", "test")
+                .build();
+        return chain.proceed(newReq);
+    }
+}
+```
 
 ## 调用适配器 CallAdapter
 
@@ -445,24 +480,6 @@ retrofit:
 > 自定义配置的`Converter.Factory`优先级更高！
 
 
-## 全局拦截器 BaseGlobalInterceptor
-
-如果我们需要对整个系统的的http请求执行统一的拦截处理，可以自定义实现全局拦截器`BaseGlobalInterceptor`, 并配置成`spring`中的`bean`！例如我们需要在整个系统发起的http请求，都带上来源信息。
-
-```java
-@Component
-public class SourceInterceptor extends BaseGlobalInterceptor {
-    @Override
-    public Response doIntercept(Chain chain) throws IOException {
-        Request request = chain.request();
-        Request newReq = request.newBuilder()
-                .addHeader("source", "test")
-                .build();
-        return chain.proceed(newReq);
-    }
-}
-```
-
 ## 其他功能示例
 
 ### 上传文件示例
@@ -497,13 +514,6 @@ Void upload(@Part MultipartBody.Part file);
  Map<String, Object> test3(@Url String url,@Query("name") String name);
 
 ```
-
-### TODO
-
-- [X] 考虑使用springboot JacksonAutoConfiguration提供的ObjectMapper替代自定义的
-- [ ] 缓存支持：支持客户端内存级别缓存，降低调用接口频率
-- [ ] BasePathMatchInterceptor自定义Scope，减少内存占用
-- [ ] 整合熔断降级
 
 ## 反馈建议
 
