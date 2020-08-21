@@ -21,7 +21,7 @@ retrofit:
   # Http异常信息格式化器
   http-exception-message-formatter: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultHttpExceptionMessageFormatter
   # 请求重试拦截器
-  retry-interceptor: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultRetryInterceptor
+  retry-interceptor: com.github.lianjiatech.retrofit.spring.boot.retry.DefaultRetryInterceptor
 
 test:
   baseUrl: http://localhost:8080/api/test/

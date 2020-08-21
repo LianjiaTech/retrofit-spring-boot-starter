@@ -1,6 +1,5 @@
-package com.github.lianjiatech.retrofit.spring.boot.interceptor;
+package com.github.lianjiatech.retrofit.spring.boot.retry;
 
-import com.github.lianjiatech.retrofit.spring.boot.annotation.Retry;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -40,9 +39,14 @@ public abstract class BaseRetryInterceptor implements Interceptor {
         // 重试
         int maxRetries = retry.maxRetries();
         int intervalMs = retry.intervalMs();
+        RetryRule[] retryRules = retry.retryRules();
         // 最多重试10次
         maxRetries = maxRetries > LIMIT_RETRIES ? LIMIT_RETRIES : maxRetries;
-        return retryIntercept(maxRetries, intervalMs, chain);
+        try {
+            return retryIntercept(maxRetries, intervalMs, retryRules, chain);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
@@ -52,10 +56,12 @@ public abstract class BaseRetryInterceptor implements Interceptor {
      *
      * @param maxRetries 最大重试次数
      * @param intervalMs 重试时间间隔
+     * @param retryRules 重试规则
      * @param chain      执行链
-     * @throws IOException 执行IO异常
      * @return 请求响应
+     * @throws IOException 执行IO异常
+     * @throws InterruptedException 中断异常
      */
-    protected abstract Response retryIntercept(int maxRetries, int intervalMs, Chain chain) throws IOException;
+    protected abstract Response retryIntercept(int maxRetries, int intervalMs, RetryRule[] retryRules, Chain chain) throws IOException, InterruptedException;
 
 }

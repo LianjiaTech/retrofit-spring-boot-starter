@@ -2,7 +2,7 @@ package com.github.lianjiatech.retrofit.spring.boot.test.http;
 
 import com.github.lianjiatech.retrofit.spring.boot.annotation.Intercept;
 import com.github.lianjiatech.retrofit.spring.boot.annotation.RetrofitClient;
-import com.github.lianjiatech.retrofit.spring.boot.annotation.Retry;
+import com.github.lianjiatech.retrofit.spring.boot.retry.Retry;
 import com.github.lianjiatech.retrofit.spring.boot.test.entity.Person;
 import com.github.lianjiatech.retrofit.spring.boot.test.entity.Result;
 import com.github.lianjiatech.retrofit.spring.boot.test.interceptor.TimeStampInterceptor;
