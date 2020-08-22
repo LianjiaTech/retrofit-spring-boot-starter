@@ -17,7 +17,7 @@ public enum  RetryRule {
     OCCUR_EXCEPTION,
 
     /**
-     * 发生任意IO异常
+     * 发生IO异常
      */
     OCCUR_IO_EXCEPTION,
 
