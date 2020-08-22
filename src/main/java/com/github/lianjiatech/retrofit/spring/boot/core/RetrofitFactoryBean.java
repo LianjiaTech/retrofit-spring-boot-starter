@@ -118,6 +118,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         RetrofitClient retrofitClient = retrofitClientInterfaceClass.getAnnotation(RetrofitClient.class);
         // 构建一个OkHttpClient对象
         OkHttpClient.Builder okHttpClientBuilder = new OkHttpClient.Builder()
+                .retryOnConnectionFailure(true)
                 .connectTimeout(retrofitClient.connectTimeoutMs(), TimeUnit.MILLISECONDS)
                 .readTimeout(retrofitClient.readTimeoutMs(), TimeUnit.MILLISECONDS)
                 .writeTimeout(retrofitClient.writeTimeoutMs(), TimeUnit.MILLISECONDS)
@@ -131,21 +132,30 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         }
         interceptors.forEach(okHttpClientBuilder::addInterceptor);
 
-        // 日志打印拦截器
-        if (retrofitProperties.isEnableLog() && retrofitClient.enableLog()) {
-            Class<? extends BaseLoggingInterceptor> loggingInterceptorClass = retrofitProperties.getLoggingInterceptor();
-            Constructor<? extends BaseLoggingInterceptor> constructor = loggingInterceptorClass.getConstructor(Level.class, BaseLoggingInterceptor.LogStrategy.class);
-            BaseLoggingInterceptor loggingInterceptor = constructor.newInstance(retrofitClient.logLevel(), retrofitClient.logStrategy());
-            okHttpClientBuilder.addInterceptor(loggingInterceptor);
-        }
         //  http异常信息格式化
         HttpExceptionMessageFormatterInterceptor httpExceptionMessageFormatterInterceptor = retrofitConfigBean.getHttpExceptionMessageFormatterInterceptor();
         if (httpExceptionMessageFormatterInterceptor != null) {
             okHttpClientBuilder.addInterceptor(httpExceptionMessageFormatterInterceptor);
         }
+
         // 请求重试拦截器
         Interceptor retryInterceptor = retrofitConfigBean.getRetryInterceptor();
         okHttpClientBuilder.addInterceptor(retryInterceptor);
+
+        // 日志打印拦截器
+        if (retrofitProperties.isEnableLog() && retrofitClient.enableLog()) {
+            Class<? extends BaseLoggingInterceptor> loggingInterceptorClass = retrofitProperties.getLoggingInterceptor();
+            Constructor<? extends BaseLoggingInterceptor> constructor = loggingInterceptorClass.getConstructor(Level.class, BaseLoggingInterceptor.LogStrategy.class);
+            BaseLoggingInterceptor loggingInterceptor = constructor.newInstance(retrofitClient.logLevel(), retrofitClient.logStrategy());
+            okHttpClientBuilder.addNetworkInterceptor(loggingInterceptor);
+        }
+
+        Collection<NetworkInterceptor> networkInterceptors = retrofitConfigBean.getNetworkInterceptors();
+        if (!CollectionUtils.isEmpty(networkInterceptors)) {
+            for (NetworkInterceptor networkInterceptor : networkInterceptors) {
+                okHttpClientBuilder.addNetworkInterceptor(networkInterceptor);
+            }
+        }
 
         return okHttpClientBuilder.build();
     }
