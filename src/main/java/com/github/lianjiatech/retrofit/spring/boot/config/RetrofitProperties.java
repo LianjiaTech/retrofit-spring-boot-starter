@@ -3,10 +3,8 @@ package com.github.lianjiatech.retrofit.spring.boot.config;
 
 import com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory;
 import com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseHttpExceptionMessageFormatter;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseLoggingInterceptor;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultHttpExceptionMessageFormatter;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.*;
+import com.github.lianjiatech.retrofit.spring.boot.retry.BaseRetryInterceptor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.LinkedHashMap;
@@ -49,6 +47,12 @@ public class RetrofitProperties {
      * Http异常信息格式化器，用于将request和response格式化为可阅读的String数据，并发到Exception的信息中。
      */
     private Class<? extends BaseHttpExceptionMessageFormatter> httpExceptionMessageFormatter = DefaultHttpExceptionMessageFormatter.class;
+
+
+    /**
+     * 请求重试拦截器
+     */
+    private Class<? extends BaseRetryInterceptor> retryInterceptor = BaseRetryInterceptor.class;
 
     public Class<? extends BaseHttpExceptionMessageFormatter> getHttpExceptionMessageFormatter() {
         return httpExceptionMessageFormatter;
@@ -114,5 +118,13 @@ public class RetrofitProperties {
 
     public void setDisableVoidReturnType(boolean disableVoidReturnType) {
         this.disableVoidReturnType = disableVoidReturnType;
+    }
+
+    public Class<? extends BaseRetryInterceptor> getRetryInterceptor() {
+        return retryInterceptor;
+    }
+
+    public void setRetryInterceptor(Class<? extends BaseRetryInterceptor> retryInterceptor) {
+        this.retryInterceptor = retryInterceptor;
     }
 }
