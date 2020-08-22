@@ -5,16 +5,16 @@
 [![Build Status](https://api.travis-ci.com/LianjiaTech/retrofit-spring-boot-starter.svg?branch=master)](https://travis-ci.com/github/LianjiaTech/retrofit-spring-boot-starter)
 [![Maven central](https://maven-badges.herokuapp.com/maven-central/com.github.lianjiatech/retrofit-spring-boot-starter/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.lianjiatech/retrofit-spring-boot-starter)
 [![GitHub release](https://img.shields.io/github/v/release/lianjiatech/retrofit-spring-boot-starter.svg)](https://github.com/LianjiaTech/retrofit-spring-boot-starter/releases)
-[![Author](https://img.shields.io/badge/Author-%E9%99%88%E6%B7%BB%E6%98%8E-orange.svg?style=flat-square)](https://juejin.im/user/3562073404738584/posts)
+[![License](https://img.shields.io/badge/JDK-1.8+-4EB1BA.svg)](https://docs.oracle.com/javase/8/docs/index.html)
+[![License](https://img.shields.io/badge/springboot-1.x+-green.svg)](https://docs.spring.io/spring-boot/docs/2.1.5.RELEASE/reference/htmlsingle/)
+[![Author](https://img.shields.io/badge/Author-chentianming-orange.svg?style=flat-square)](https://juejin.im/user/3562073404738584/posts)
 [![QQ-Group](https://img.shields.io/badge/QQ%E7%BE%A4-806714302-orange.svg?style=flat-square) ](https://img.ljcdn.com/hc-picture/6302d742-ebc8-4649-95cf-62ccf57a1add)
 
-众所周知，`Retrofit`是适用于`Android`和`Java`且类型安全的HTTP客户端，其最大的特性的是**支持通过`接口`的方式发起HTTP请求**；而`spring-boot`是使用最广泛的Java开发框架。但是`Retrofit`官方没有支持与`spring-boot`框架快速整合，从而加大了在`spring-boot`框架中引入`Retrofit`的难度。
+> 众所周知，`Retrofit`是适用于`Android`和`Java`且类型安全的HTTP客户端，其最大的特性的是**支持通过`接口`的方式发起HTTP请求**。而`spring-boot`是使用最广泛的Java开发框架，但是`Retrofit`官方没有支持与`spring-boot`框架快速整合，因此我们开发了`retrofit-spring-boot-starter`。
 
-**`retrofit-spring-boot-starter`实现了`Retrofit`与`spring-boot`框架快速整合，并且支持了诸多功能增强**。
+**`retrofit-spring-boot-starter`实现了`Retrofit`与`spring-boot`框架快速整合，并且支持了诸多功能增强，极大简化开发**。
 
 <!--more-->
-
-> 支持`spring-boot 1.x/2.x`；支持`Java8`及以上版本。
 
 ## 功能特性
 
@@ -24,7 +24,6 @@
 - [x] 配置化的日志打印
 - [x] Http异常信息格式化处理
 - [x] 请求重试
-- [x] 统一异常处理
 - [x] 全局拦截器
 
 ## 快速使用
@@ -365,7 +364,13 @@ retrofit:
 
 ### 请求重试
 
-`retrofit-spring-boot-starter`支持请求重试功能，只需要在接口或者方法上加上`@Retry`注解即可，默认使用`DefaultRetryInterceptor`请求重试拦截器，在发生IO异常或者响应码非`2xx`的时候自动进行重试。你也可以继承`BaseRetryInterceptor`实现自己的请求重试拦截器，然后将其配置上去。
+`retrofit-spring-boot-starter`支持请求重试功能，只需要在接口或者方法上加上`@Retry`注解即可。`@Retry`支持**重试次数`maxRetries`**、**重试时间间隔`intervalMs`**以及**重试规则`retryRules`**配置。重试规则支持三种配置：
+
+1. `RESPONSE_STATUS_NOT_2XX`：响应状态码不是`2xx`时执行重试；
+2. `OCCUR_IO_EXCEPTION`：发生IO异常时执行重试；
+3. `OCCUR_EXCEPTION`：发生任意异常时执行重试；
+
+默认响应状态码不是`2xx`或者发生IO异常时自动进行重试。需要的话，你也可以继承`BaseRetryInterceptor`实现自己的请求重试拦截器，然后将其配置上去。
 
 ```yaml
 retrofit:
@@ -373,7 +378,7 @@ retrofit:
   retry-interceptor: com.github.lianjiatech.retrofit.spring.boot.retry.DefaultRetryInterceptor
 ```
 
-### 全局拦截器 BaseGlobalInterceptor
+### 全局拦截器
 
 如果我们需要对整个系统的的http请求执行统一的拦截处理，可以自定义实现全局拦截器`BaseGlobalInterceptor`, 并配置成`spring`中的`bean`！例如我们需要在整个系统发起的http请求，都带上来源信息。
 
@@ -391,7 +396,9 @@ public class SourceInterceptor extends BaseGlobalInterceptor {
 }
 ```
 
-## 调用适配器 CallAdapter
+## 调用适配器和数据转码器
+
+### 调用适配器
 
 `Retrofit`可以通过调用适配器`CallAdapterFactory`将`Call<T>`对象适配成接口方法的返回值类型。`retrofit-spring-boot-starter`扩展2种`CallAdapterFactory`实现：
 
@@ -464,7 +471,7 @@ public class SourceInterceptor extends BaseGlobalInterceptor {
 
 > 自定义配置的`CallAdapter.Factory`优先级更高！
 
-## 数据转码器 Converter
+### 数据转码器
 
 `Retrofit`使用`Converter`将`@Body`注解标注的对象转换成请求体，将响应体数据转换成一个`Java`对象，可以选用以下几种`Converter`：
 
