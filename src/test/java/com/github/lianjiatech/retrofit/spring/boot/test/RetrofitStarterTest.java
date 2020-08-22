@@ -173,7 +173,7 @@ public class RetrofitStarterTest {
         // 异步处理
         resultCompletableFuture.whenComplete((personResult, throwable) -> {
             // 异常处理
-            logger.error("请求执行失败! request = {}", personResult, throwable);
+            logger.error("请求执行失败! personResult = {}", personResult, throwable);
         });
         // CompletableFuture处理
         Result<Person> personResult = resultCompletableFuture.get();
@@ -303,6 +303,7 @@ public class RetrofitStarterTest {
     }
 
     @Test(expected = Throwable.class)
+//    @Test
     public void testHttpError() throws IOException {
         // mock
         Map<String, Object> map = new HashMap<>(4);
