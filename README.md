@@ -192,7 +192,7 @@ public interface HttpApi {
 2. 继承`BasePathMatchInterceptor`编写拦截处理器
 3. 接口上使用自定义拦截注解；
 
-例如我们需要**在请求头里面动态加入`accessKeyId`、`accessKeySecret`签名信息才能正常发起http请求**，这个时候可以**自定义一个加签拦截器注解`@Sign`**来实现。下面以自定义`@Sign`拦截注解为例进行说明。
+例如我们需要**在请求头里面动态加入`accessKeyId`、`accessKeySecret`签名信息才能正常发起http请求**，这个时候**可以自定义一个加签拦截器注解`@Sign`来实现**。下面以自定义`@Sign`拦截注解为例进行说明。
 
 
 #### 自定义`@Sign`注解
@@ -356,7 +356,7 @@ retrofit:
 
 ### 请求重试
 
-`retrofit-spring-boot-starter`支持请求重试功能，只需要在接口或者方法上加上`@Retry`注解即可。`@Retry`支持**重试次数`maxRetries`**、**重试时间间隔`intervalMs`**以及**重试规则`retryRules`**配置。重试规则支持三种配置：
+`retrofit-spring-boot-starter`支持请求重试功能，只需要在接口或者方法上加上`@Retry`注解即可。**`@Retry`支持重试次数`maxRetries`、重试时间间隔`intervalMs`以及重试规则`retryRules`配置**。重试规则支持三种配置：
 
 1. `RESPONSE_STATUS_NOT_2XX`：响应状态码不是`2xx`时执行重试；
 2. `OCCUR_IO_EXCEPTION`：发生IO异常时执行重试；
