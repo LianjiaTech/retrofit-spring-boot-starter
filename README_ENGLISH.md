@@ -8,13 +8,13 @@
 [![License](https://img.shields.io/badge/JDK-1.8+-4EB1BA.svg)](https://docs.oracle.com/javase/8/docs/index.html)
 [![License](https://img.shields.io/badge/springboot-1.x+-green.svg)](https://docs.spring.io/spring-boot/docs/2.1.5.RELEASE/reference/htmlsingle/)
 [![Author](https://img.shields.io/badge/Author-chentianming-orange.svg?style=flat-square)](https://juejin.im/user/3562073404738584/posts)
-[![QQ-Group](https://img.shields.io/badge/QQ%E7%BE%A4-806714302-orange.svg?style=flat-square) ](https://img.ljcdn.com/hc-picture/6302d742-ebc8-4649-95cf-62ccf57a1add)
+[![QQ-Group](https://img.shields.io/badge/QQ%E7%BE%A4-806714302-orange.svg?style=flat-square) ](https://img.ljcdn.com/hc-picture/HTTP-exception-information-formatter6302d742-ebc8-4649-95cf-62ccf57a1add)
 
 > As is known to us all, `Retrofit` is a type safe HTTP client for `Android` and `Java`. **Supporting HTTP requests through `interfaces`** is the strongest feature of `Retrofit`. `Spring-boot` is the most widely used java development framework, but there is no official `Retrofit` support for rapid integration with `spring-boot` framework, so we have developed `retrofit-spring-boot-starter`.
 
 **`Retrofit-spring-boot-starter` realizes the rapid integration of `Retrofit` and `spring-boot`, supports many enhanced features and greatly simplifies development**.
 
-| [Quick start](#Quick-start) | [Annotation interceptor](#Annotation-interceptor) | [Connection pool management](#Connection-pool-management) | [Log printing](#Log-printing) | [异常信息格式化](#Http异常信息格式化器) | [请求重试](#请求重试) |[全局拦截器](#全局拦截器) | [调用适配器](#调用适配器) | [数据转换器](#数据转码器) |
+| [Quick start](#Quick-start) | [Annotation interceptor](#Annotation-interceptor) | [Connection pool management](#Connection-pool-management) | [Log printing](#Log-printing) | [Exception information formatter ](#HTTP-exception-message-formatter) | [请求重试](#请求重试) |[全局拦截器](#全局拦截器) | [调用适配器](#调用适配器) | [数据转换器](#数据转码器) |
 
 <!--more-->
 
@@ -101,7 +101,7 @@ All of the related annotations of `HTTP` request use native annotations of `retr
 |logging-interceptor | DefaultLoggingInterceptor | Log print interceptor |
 | pool | | Connection pool configuration |
 | disable-void-return-type | false | disable java.lang.Void return type |
-| http-exception-message-formatter | DefaultHttpExceptionMessageFormatter | HTTP exception information formatter |
+| http-exception-message-formatter | DefaultHttpExceptionMessageFormatter | HTTP exception message formatter |
 | retry-interceptor | DefaultRetryInterceptor | Retry Interceptor |
 
 `yml` Configuration:
@@ -126,7 +126,7 @@ retrofit:
   disable-void-return-type: false
   # Log print interceptor
   logging-interceptor: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor
-  # HTTP exception information formatter
+  # HTTP exception message formatter
   http-exception-message-formatter: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultHttpExceptionMessageFormatter
   # Retry Interceptor
   retry-interceptor: com.github.lianjiatech.retrofit.spring.boot.retry.DefaultRetryInterceptor
@@ -334,21 +334,19 @@ In many cases, we want to record the http request log. You can global control wh
 3. `HEADERS`：Logs request and response lines and their respective headers.
 4. `BODY`：Logs request and response lines and their respective headers and bodies (if present).
 
-`retrofit-spring-boot-starter`默认使用了`DefaultLoggingInterceptor`执行真正的日志打印功能，其底层就是`okhttp`原生的`HttpLoggingInterceptor`。当然，你也可以自定义实现自己的日志打印拦截器，只需要继承`BaseLoggingInterceptor`（具体可以参考`DefaultLoggingInterceptor`的实现），然后在配置文件中进行相关配置即可。
-
+By default, `retrofit-spring-boot-starter` uses `DefaultLoggingInterceptor` to perform the real log printing function. The bottom is `okhttp` native `HttpLoggingInterceptor`. Of course, you can also customize and implement your own log printing interceptor by simply inheriting the `baselogginginterceptor`( For details, please refer to the implementation of `defaultlogginginterceptor`), and then configure it in the configuration file.
 ```yaml
 retrofit:
-  # 日志打印拦截器
+  # log printing interceptor
   logging-interceptor: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor
 ```
 
-### Http异常信息格式化器
+### HTTP-exception-message-formatter
 
-当出现http请求异常时，原始的异常信息可能阅读起来并不友好，因此`retrofit-spring-boot-starter`提供了`Http异常信息格式化器`，用来美化输出http请求参数，默认使用`DefaultHttpExceptionMessageFormatter`进行请求数据格式化。你也可以进行自定义，只需要继承`BaseHttpExceptionMessageFormatter`，再进行相关配置即可。
-
+When an HTTP request exception occurs, the original exception information may not be friendly to read. So `retrofit-spring-boot-starter` provides `HTTP exception message formatter` to beautify output HTTP request parameters. By default, `defaulthttpexceptionmessageFormatter` is used to format the request data. You can also customize it by inheriting `BaseHttpExceptionMessageFormatter` and configuring it.
 ```yaml
 retrofit:
-  # Http异常信息格式化器
+  # HTTP exception message formatter
   http-exception-message-formatter: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultHttpExceptionMessageFormatter
 ```
 
