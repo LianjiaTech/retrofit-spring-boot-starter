@@ -1,12 +1,11 @@
 package com.github.lianjiatech.retrofit.spring.boot.interceptor;
 
-import okhttp3.Interceptor;
 import org.slf4j.event.Level;
 
 /**
  * @author 陈添明
  */
-public abstract class BaseLoggingInterceptor implements Interceptor {
+public abstract class BaseLoggingInterceptor implements NetworkInterceptor {
 
     /**
      * 日志打印级别
