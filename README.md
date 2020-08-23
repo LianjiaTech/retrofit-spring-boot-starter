@@ -14,7 +14,7 @@
 
 **`retrofit-spring-boot-starter`实现了`Retrofit`与`spring-boot`框架快速整合，并且支持了诸多功能增强，极大简化开发**。
 
-| [快速使用](#快速使用) | [注解式拦截器](#注解式拦截器) | [连接池管理](#连接池管理) | [日志打印](#日志打印) | [异常信息格式化](#Http异常信息格式化器) | [请求重试](#请求重试) |[全局拦截器](#全局拦截器) | [调用适配器](#调用适配器) | [数据转换器](#数据转码器) |
+| [快速使用](#快速使用) | [自定义注入OkHttpClient](#自定义注入OkHttpClient) | [注解式拦截器](#注解式拦截器) | [连接池管理](#连接池管理) | [日志打印](#日志打印) | [异常信息格式化](#Http异常信息格式化器) | [请求重试](#请求重试) |[全局拦截器](#全局拦截器) | [调用适配器](#调用适配器) | [数据转换器](#数据转码器) |
 
 <!--more-->
 
@@ -134,6 +134,29 @@ retrofit:
 ```
 
 ## 高级功能
+
+### 自定义注入OkHttpClient
+
+通过`@RetrofitClient`注解动态创建`OkHttpClient`对象会存在诸多限制，因此`retrofit-spring-boot-starter`支持在接口上自定义`OkHttpClient.Builder`对象。具体来说就是实现一个返回类型是`OkHttpClient.Builder`的静态方法，并使用`@OkHttpClientBuilder`注解标注，这样就能使用自定义的`OkHttpClient.Builder`对象来构建`OkHttpClient`了。
+
+```java
+@RetrofitClient(baseUrl = "http://ke.com")
+public interface HttpApi3 {
+
+    @OkHttpClientBuilder
+    static OkHttpClient.Builder okhttpClientBuilder() {
+        return new OkHttpClient.Builder()
+                .connectTimeout(1, TimeUnit.SECONDS)
+                .readTimeout(1, TimeUnit.SECONDS)
+                .writeTimeout(1, TimeUnit.SECONDS);
+
+    }
+
+    @GET
+    Result<Person> getPerson(@Url String url, @Query("id") Long id);
+}
+
+```
 
 ### 注解式拦截器
 
