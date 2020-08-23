@@ -1,6 +1,7 @@
 package com.github.lianjiatech.retrofit.spring.boot.core;
 
 import com.github.lianjiatech.retrofit.spring.boot.annotation.InterceptMark;
+import com.github.lianjiatech.retrofit.spring.boot.annotation.OkHttpClientBuilder;
 import com.github.lianjiatech.retrofit.spring.boot.annotation.RetrofitClient;
 import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitConfigBean;
 import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitProperties;
@@ -27,6 +28,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -67,7 +69,13 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         Assert.isTrue(retrofitInterface.isInterface(), "@RetrofitClient只能作用在接口类型上！");
         Method[] methods = retrofitInterface.getMethods();
         for (Method method : methods) {
+
             Class<?> returnType = method.getReturnType();
+            if (method.isAnnotationPresent(OkHttpClientBuilder.class)) {
+                Assert.isTrue(returnType.equals(OkHttpClient.Builder.class), "被@OkHttpClientBuilder注解标注的方法，返回值必须是OkHttpClient.Builder");
+                Assert.isTrue(Modifier.isStatic(method.getModifiers()), "被@OkHttpClientBuilder注解只能标注在静态方法上");
+            }
+
             Assert.isTrue(!void.class.isAssignableFrom(returnType),
                     "不支持使用void关键字做返回类型，请使用java.lang.Void! method=" + method);
             if (retrofitProperties.isDisableVoidReturnType()) {
@@ -114,14 +122,25 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
      * @return OkHttpClient实例
      */
     private synchronized OkHttpClient getOkHttpClient(Class<?> retrofitClientInterfaceClass) throws IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
-        okhttp3.ConnectionPool connectionPool = getConnectionPool(retrofitClientInterfaceClass);
         RetrofitClient retrofitClient = retrofitClientInterfaceClass.getAnnotation(RetrofitClient.class);
-        // 构建一个OkHttpClient对象
-        OkHttpClient.Builder okHttpClientBuilder = new OkHttpClient.Builder()
-                .connectTimeout(retrofitClient.connectTimeoutMs(), TimeUnit.MILLISECONDS)
-                .readTimeout(retrofitClient.readTimeoutMs(), TimeUnit.MILLISECONDS)
-                .writeTimeout(retrofitClient.writeTimeoutMs(), TimeUnit.MILLISECONDS)
-                .connectionPool(connectionPool);
+        Method method = findOkHttpClientBuilderMethod(retrofitClientInterfaceClass);
+        OkHttpClient.Builder okHttpClientBuilder;
+        if (method != null) {
+            okHttpClientBuilder = (OkHttpClient.Builder) method.invoke(null);
+        } else {
+            okhttp3.ConnectionPool connectionPool = getConnectionPool(retrofitClientInterfaceClass);
+            // 构建一个OkHttpClient对象
+            okHttpClientBuilder = new OkHttpClient.Builder()
+                    .connectTimeout(retrofitClient.connectTimeoutMs(), TimeUnit.MILLISECONDS)
+                    .readTimeout(retrofitClient.readTimeoutMs(), TimeUnit.MILLISECONDS)
+                    .writeTimeout(retrofitClient.writeTimeoutMs(), TimeUnit.MILLISECONDS)
+                    .callTimeout(retrofitClient.callTimeoutMs(), TimeUnit.MILLISECONDS)
+                    .retryOnConnectionFailure(retrofitClient.retryOnConnectionFailure())
+                    .followRedirects(retrofitClient.followRedirects())
+                    .followSslRedirects(retrofitClient.followSslRedirects())
+                    .pingInterval(retrofitClient.pingIntervalMs(), TimeUnit.MILLISECONDS)
+                    .connectionPool(connectionPool);
+        }
         // 添加接口上注解定义的拦截器
         List<Interceptor> interceptors = new ArrayList<>(findInterceptorByAnnotation(retrofitClientInterfaceClass));
         // 添加全局拦截器
@@ -131,23 +150,44 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         }
         interceptors.forEach(okHttpClientBuilder::addInterceptor);
 
-        // 日志打印拦截器
-        if (retrofitProperties.isEnableLog() && retrofitClient.enableLog()) {
-            Class<? extends BaseLoggingInterceptor> loggingInterceptorClass = retrofitProperties.getLoggingInterceptor();
-            Constructor<? extends BaseLoggingInterceptor> constructor = loggingInterceptorClass.getConstructor(Level.class, BaseLoggingInterceptor.LogStrategy.class);
-            BaseLoggingInterceptor loggingInterceptor = constructor.newInstance(retrofitClient.logLevel(), retrofitClient.logStrategy());
-            okHttpClientBuilder.addInterceptor(loggingInterceptor);
-        }
         //  http异常信息格式化
         HttpExceptionMessageFormatterInterceptor httpExceptionMessageFormatterInterceptor = retrofitConfigBean.getHttpExceptionMessageFormatterInterceptor();
         if (httpExceptionMessageFormatterInterceptor != null) {
             okHttpClientBuilder.addInterceptor(httpExceptionMessageFormatterInterceptor);
         }
+
         // 请求重试拦截器
         Interceptor retryInterceptor = retrofitConfigBean.getRetryInterceptor();
         okHttpClientBuilder.addInterceptor(retryInterceptor);
 
+        // 日志打印拦截器
+        if (retrofitProperties.isEnableLog() && retrofitClient.enableLog()) {
+            Class<? extends BaseLoggingInterceptor> loggingInterceptorClass = retrofitProperties.getLoggingInterceptor();
+            Constructor<? extends BaseLoggingInterceptor> constructor = loggingInterceptorClass.getConstructor(Level.class, BaseLoggingInterceptor.LogStrategy.class);
+            BaseLoggingInterceptor loggingInterceptor = constructor.newInstance(retrofitClient.logLevel(), retrofitClient.logStrategy());
+            okHttpClientBuilder.addNetworkInterceptor(loggingInterceptor);
+        }
+
+        Collection<NetworkInterceptor> networkInterceptors = retrofitConfigBean.getNetworkInterceptors();
+        if (!CollectionUtils.isEmpty(networkInterceptors)) {
+            for (NetworkInterceptor networkInterceptor : networkInterceptors) {
+                okHttpClientBuilder.addNetworkInterceptor(networkInterceptor);
+            }
+        }
+
         return okHttpClientBuilder.build();
+    }
+
+    private Method findOkHttpClientBuilderMethod(Class<?> retrofitClientInterfaceClass) {
+        Method[] methods = retrofitClientInterfaceClass.getMethods();
+        for (Method method : methods) {
+            if (Modifier.isStatic(method.getModifiers())
+                    && method.isAnnotationPresent(OkHttpClientBuilder.class)
+                    && method.getReturnType().equals(OkHttpClient.Builder.class)) {
+                return method;
+            }
+        }
+        return null;
     }
 
 
@@ -226,6 +266,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         OkHttpClient client = getOkHttpClient(retrofitClientInterfaceClass);
         Retrofit.Builder retrofitBuilder = new Retrofit.Builder()
                 .baseUrl(baseUrl)
+                .validateEagerly(retrofitClient.validateEagerly())
                 .client(client);
         // 添加CallAdapter.Factory
         List<CallAdapter.Factory> callAdapterFactories = retrofitConfigBean.getCallAdapterFactories();

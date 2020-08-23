@@ -14,9 +14,19 @@
 
 **`retrofit-spring-boot-starter`实现了`Retrofit`与`spring-boot`框架快速整合，并且支持了诸多功能增强，极大简化开发**。
 
-| [快速使用](#快速使用) | [注解式拦截器](#注解式拦截器) | [连接池管理](#连接池管理) | [日志打印](#日志打印) | [异常信息格式化](#Http异常信息格式化器) | [请求重试](#请求重试) |[全局拦截器](#全局拦截器) | [调用适配器](#调用适配器) | [数据转换器](#数据转码器) |
-
 <!--more-->
+
+## 功能特性
+
+- [x] [自定义注入OkHttpClient](#自定义注入OkHttpClient)
+- [x] [注解式拦截器](#注解式拦截器)
+- [x] [连接池管理](#连接池管理)
+- [x] [日志打印](#日志打印)
+- [x] [异常信息格式化](#Http异常信息格式化器)
+- [x] [请求重试](#请求重试)
+- [x] [全局拦截器](#全局拦截器)
+- [x] [调用适配器](#调用适配器)
+- [x] [数据转换器](#数据转码器)
 
 ## 快速使用
 
@@ -26,7 +36,7 @@
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
     <artifactId>retrofit-spring-boot-starter</artifactId>
-    <version>2.1.0</version>
+    <version>2.1.1</version>
 </dependency>
 ```
 
@@ -134,6 +144,30 @@ retrofit:
 ```
 
 ## 高级功能
+
+### 自定义注入OkHttpClient
+
+通常情况下，通过`@RetrofitClient`注解属性动态创建`OkHttpClient`对象能够满足大部分使用场景。但是在某些情况下，用户可能需要自定义`OkHttpClient`，这个时候，可以在接口上定义返回类型是`OkHttpClient.Builder`的静态方法来实现。代码示例如下：
+
+```java
+@RetrofitClient(baseUrl = "http://ke.com")
+public interface HttpApi3 {
+
+    @OkHttpClientBuilder
+    static OkHttpClient.Builder okhttpClientBuilder() {
+        return new OkHttpClient.Builder()
+                .connectTimeout(1, TimeUnit.SECONDS)
+                .readTimeout(1, TimeUnit.SECONDS)
+                .writeTimeout(1, TimeUnit.SECONDS);
+
+    }
+
+    @GET
+    Result<Person> getPerson(@Url String url, @Query("id") Long id);
+}
+```
+
+> 方法必须使用`@OkHttpClientBuilder`注解标记！
 
 ### 注解式拦截器
 
@@ -370,9 +404,11 @@ retrofit:
   retry-interceptor: com.github.lianjiatech.retrofit.spring.boot.retry.DefaultRetryInterceptor
 ```
 
-### 全局拦截器
+## 全局拦截器
 
-如果我们需要对整个系统的的http请求执行统一的拦截处理，可以自定义实现全局拦截器`BaseGlobalInterceptor`, 并配置成`spring`中的`bean`！例如我们需要在整个系统发起的http请求，都带上来源信息。
+### 全局应用拦截器
+
+如果我们需要对整个系统的的http请求执行统一的拦截处理，可以自定义实现全局拦截器`BaseGlobalInterceptor`, 并配置成`spring`容器中的`bean`！例如我们需要在整个系统发起的http请求，都带上来源信息。
 
 ```java
 @Component
@@ -387,6 +423,10 @@ public class SourceInterceptor extends BaseGlobalInterceptor {
     }
 }
 ```
+
+### 全局网络拦截器
+
+只需要实现`NetworkInterceptor`接口 并配置成`spring`容器中的`bean`就支持自动织入全局网络拦截器。
 
 ## 调用适配器和数据转码器
 
