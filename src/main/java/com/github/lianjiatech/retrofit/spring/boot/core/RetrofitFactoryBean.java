@@ -118,11 +118,16 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         RetrofitClient retrofitClient = retrofitClientInterfaceClass.getAnnotation(RetrofitClient.class);
         // 构建一个OkHttpClient对象
         OkHttpClient.Builder okHttpClientBuilder = new OkHttpClient.Builder()
-                .retryOnConnectionFailure(true)
                 .connectTimeout(retrofitClient.connectTimeoutMs(), TimeUnit.MILLISECONDS)
                 .readTimeout(retrofitClient.readTimeoutMs(), TimeUnit.MILLISECONDS)
                 .writeTimeout(retrofitClient.writeTimeoutMs(), TimeUnit.MILLISECONDS)
+                .callTimeout(retrofitClient.callTimeoutMs(), TimeUnit.MILLISECONDS)
+                .retryOnConnectionFailure(retrofitClient.retryOnConnectionFailure())
+                .followRedirects(retrofitClient.followRedirects())
+                .followSslRedirects(retrofitClient.followSslRedirects())
+                .pingInterval(retrofitClient.pingIntervalMs(), TimeUnit.MILLISECONDS)
                 .connectionPool(connectionPool);
+
         // 添加接口上注解定义的拦截器
         List<Interceptor> interceptors = new ArrayList<>(findInterceptorByAnnotation(retrofitClientInterfaceClass));
         // 添加全局拦截器
@@ -236,6 +241,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         OkHttpClient client = getOkHttpClient(retrofitClientInterfaceClass);
         Retrofit.Builder retrofitBuilder = new Retrofit.Builder()
                 .baseUrl(baseUrl)
+                .validateEagerly(retrofitClient.validateEagerly())
                 .client(client);
         // 添加CallAdapter.Factory
         List<CallAdapter.Factory> callAdapterFactories = retrofitConfigBean.getCallAdapterFactories();
