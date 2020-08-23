@@ -137,7 +137,7 @@ retrofit:
 
 ### 自定义注入OkHttpClient
 
-通过`@RetrofitClient`注解动态创建`OkHttpClient`对象会存在诸多限制，因此`retrofit-spring-boot-starter`支持在接口上自定义`OkHttpClient.Builder`对象。具体来说就是实现一个返回类型是`OkHttpClient.Builder`的静态方法，并使用`@OkHttpClientBuilder`注解标注，这样就能使用自定义的`OkHttpClient.Builder`对象来构建`OkHttpClient`了。
+通常情况下，通过`@RetrofitClient`注解属性动态创建`OkHttpClient`对象能够满足大部分使用场景。但是在某些情况下，用户可能需要自定义`OkHttpClient`，这个时候，可以在接口上定义返回类型是`OkHttpClient.Builder`的静态方法来实现。代码示例如下：
 
 ```java
 @RetrofitClient(baseUrl = "http://ke.com")
@@ -155,8 +155,9 @@ public interface HttpApi3 {
     @GET
     Result<Person> getPerson(@Url String url, @Query("id") Long id);
 }
-
 ```
+
+> 方法必须使用`@OkHttpClientBuilder`注解标记！
 
 ### 注解式拦截器
 
