@@ -74,6 +74,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
             if (method.isAnnotationPresent(OkHttpClientBuilder.class)) {
                 Assert.isTrue(returnType.equals(OkHttpClient.Builder.class), "被@OkHttpClientBuilder注解标注的方法，返回值必须是OkHttpClient.Builder");
                 Assert.isTrue(Modifier.isStatic(method.getModifiers()), "被@OkHttpClientBuilder注解只能标注在静态方法上");
+                continue;
             }
 
             Assert.isTrue(!void.class.isAssignableFrom(returnType),
