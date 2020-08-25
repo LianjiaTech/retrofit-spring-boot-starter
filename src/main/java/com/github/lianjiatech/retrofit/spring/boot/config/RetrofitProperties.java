@@ -5,6 +5,7 @@ import com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory;
 import com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.*;
 import com.github.lianjiatech.retrofit.spring.boot.retry.BaseRetryInterceptor;
+import com.github.lianjiatech.retrofit.spring.boot.retry.DefaultRetryInterceptor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.LinkedHashMap;
@@ -52,7 +53,7 @@ public class RetrofitProperties {
     /**
      * 请求重试拦截器
      */
-    private Class<? extends BaseRetryInterceptor> retryInterceptor = BaseRetryInterceptor.class;
+    private Class<? extends BaseRetryInterceptor> retryInterceptor = DefaultRetryInterceptor.class;
 
     public Class<? extends BaseHttpExceptionMessageFormatter> getHttpExceptionMessageFormatter() {
         return httpExceptionMessageFormatter;
