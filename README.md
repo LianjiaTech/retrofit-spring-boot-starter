@@ -14,6 +14,8 @@
 
 **`retrofit-spring-boot-starter`实现了`Retrofit`与`spring-boot`框架快速整合，并且支持了诸多功能增强，极大简化开发**。
 
+🚀项目持续优化迭代，欢迎大家提ISSUE和PR！路过的朋友记得给一颗star✨，您的star是我们持续更新的动力！
+
 <!--more-->
 
 ## 功能特性
@@ -36,7 +38,7 @@
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
     <artifactId>retrofit-spring-boot-starter</artifactId>
-    <version>2.1.1</version>
+    <version>2.1.2</version>
 </dependency>
 ```
 
