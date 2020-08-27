@@ -2,8 +2,11 @@ package com.github.lianjiatech.retrofit.spring.boot.config;
 
 
 import com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory;
+import com.github.lianjiatech.retrofit.spring.boot.core.DefaultErrorDecoder;
+import com.github.lianjiatech.retrofit.spring.boot.core.ErrorDecoder;
 import com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.*;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseLoggingInterceptor;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.retry.BaseRetryInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.retry.DefaultRetryInterceptor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -21,56 +24,63 @@ public class RetrofitProperties {
 
     /**
      * 连接池配置
+     * Connection pool configuration
      */
     private Map<String, PoolConfig> pool = new LinkedHashMap<>();
 
     /**
      * 启用 #{@link BodyCallAdapterFactory} 调用适配器
+     * Enable #{@link BodyCallAdapterFactory} call adapter
      */
     private boolean enableBodyCallAdapter = true;
 
     /**
      * 启用 #{@link ResponseCallAdapterFactory} 调用适配器
+     * Enable #{@link ResponseCallAdapterFactory} call adapter
      */
     private boolean enableResponseCallAdapter = true;
 
     /**
      * 启用日志打印
+     * Enable log printing
      */
     private boolean enableLog = true;
 
     /**
      * 日志打印拦截器
+     * Log print Interceptor
+     *
      */
     private Class<? extends BaseLoggingInterceptor> loggingInterceptor = DefaultLoggingInterceptor.class;
 
-    /**
-     * Http异常信息格式化器，用于将request和response格式化为可阅读的String数据，并发到Exception的信息中。
-     */
-    private Class<? extends BaseHttpExceptionMessageFormatter> httpExceptionMessageFormatter = DefaultHttpExceptionMessageFormatter.class;
-
 
     /**
-     * 请求重试拦截器
+     * retry interceptor
      */
     private Class<? extends BaseRetryInterceptor> retryInterceptor = DefaultRetryInterceptor.class;
 
-    public Class<? extends BaseHttpExceptionMessageFormatter> getHttpExceptionMessageFormatter() {
-        return httpExceptionMessageFormatter;
-    }
-
-    public void setHttpExceptionMessageFormatter(Class<? extends BaseHttpExceptionMessageFormatter> httpExceptionMessageFormatter) {
-        this.httpExceptionMessageFormatter = httpExceptionMessageFormatter;
-    }
 
     /**
-     * 禁用Void返回类型
+     * Disable Void return type
      */
     private boolean disableVoidReturnType = false;
 
 
     public Class<? extends BaseLoggingInterceptor> getLoggingInterceptor() {
         return loggingInterceptor;
+    }
+
+    /**
+     * When the response is invalid, decode the http information into the exception
+     */
+    private Class<? extends ErrorDecoder> errorDecoder = DefaultErrorDecoder.class;
+
+    public Class<? extends ErrorDecoder> getErrorDecoder() {
+        return errorDecoder;
+    }
+
+    public void setErrorDecoder(Class<? extends ErrorDecoder> errorDecoder) {
+        this.errorDecoder = errorDecoder;
     }
 
     public void setLoggingInterceptor(Class<? extends BaseLoggingInterceptor> loggingInterceptor) {

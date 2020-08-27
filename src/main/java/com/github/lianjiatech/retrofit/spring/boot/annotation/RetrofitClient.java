@@ -15,10 +15,11 @@ import java.lang.annotation.*;
 public @interface RetrofitClient {
 
     /**
-     * 基础url, 支持占位符形式配置。<br>
-     * 例如：http://${baseUrl.test}
+     * 基础url, 支持占位符形式配置。
+     * baseUrl, Supports placeholder configuration.
+     * http://${baseUrl.test}
      *
-     * @return RetrofitClient的baseUrl
+     * @return baseUrl
      */
     String baseUrl();
 
@@ -31,10 +32,9 @@ public @interface RetrofitClient {
     boolean validateEagerly() default false;
 
     /**
-     * 使用的连接池名称<br>
-     * default连接池自动加载，也可以手动配置覆盖默认default连接池属性
+     * connection pool name
      *
-     * @return 使用的连接池名称
+     * @return connection pool name
      */
     String poolName() default "default";
 
@@ -42,7 +42,7 @@ public @interface RetrofitClient {
      * Sets the default connect timeout for new connections. A value of 0 means no timeout,
      * otherwise values must be between 1 and Integer.MAX_VALUE when converted to milliseconds.
      *
-     * @return 连接超时时间
+     * @return connectTimeoutMs
      */
     int connectTimeoutMs() default 10_000;
 
@@ -50,7 +50,7 @@ public @interface RetrofitClient {
      * Sets the default read timeout for new connections. A value of 0 means no timeout,
      * otherwise values must be between 1 and Integer.MAX_VALUE when converted to milliseconds.
      *
-     * @return 读取超时时间
+     * @return readTimeoutMs
      */
     int readTimeoutMs() default 10_000;
 
@@ -58,7 +58,7 @@ public @interface RetrofitClient {
      * Sets the default write timeout for new connections. A value of 0 means no timeout,
      * otherwise values must be between 1 and Integer.MAX_VALUE when converted to milliseconds
      *
-     * @return 写入超时时间
+     * @return writeTimeoutMs
      */
     int writeTimeoutMs() default 10_000;
 
@@ -107,6 +107,7 @@ public @interface RetrofitClient {
 
     /**
      * 针对当前接口是否启用日志打印
+     * Whether to enable log printing for the current interface
      *
      * @return
      */
@@ -114,15 +115,17 @@ public @interface RetrofitClient {
 
     /**
      * 日志打印级别，支持的日志级别参见{@link Level}
+     * Log printing level, see {@link Level} for supported log levels
      *
-     * @return 日志打印级别
+     * @return logLevel
      */
     Level logLevel() default Level.INFO;
 
     /**
      * 日志打印策略，支持的日志打印策略参见{@link BaseLoggingInterceptor.LogStrategy}
+     * Log printing strategy, see {@link BaseLoggingInterceptor.LogStrategy} for supported log printing strategies
      *
-     * @return 日志打印策略
+     * @return logStrategy
      */
     BaseLoggingInterceptor.LogStrategy logStrategy() default BaseLoggingInterceptor.LogStrategy.BASIC;
 }

@@ -3,8 +3,8 @@ package com.github.lianjiatech.retrofit.spring.boot.annotation;
 import java.lang.annotation.*;
 
 /**
- * <p>拦截标记注解<br>
- * 标记一个注解是拦截器
+ * 拦截标记注解
+ * Intercept mark
  *
  * @author 陈添明
  */

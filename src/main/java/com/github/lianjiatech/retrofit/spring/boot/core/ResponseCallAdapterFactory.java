@@ -15,7 +15,8 @@
  */
 package com.github.lianjiatech.retrofit.spring.boot.core;
 
-import com.github.lianjiatech.retrofit.spring.boot.exception.RetrofitExecuteIOException;
+import com.github.lianjiatech.retrofit.spring.boot.exception.RetrofitException;
+import okhttp3.Request;
 import org.springframework.util.Assert;
 import retrofit2.Call;
 import retrofit2.CallAdapter;
@@ -26,11 +27,13 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Objects;
 
 
 /**
  * <p>
  * 同步调用执行，直接返回 #{@link Response} 对象
+ * Synchronous call execution, directly return #{@link Response} object
  * </p>
  *
  * @author 陈添明
@@ -57,17 +60,20 @@ public final class ResponseCallAdapterFactory extends CallAdapter.Factory {
         public Type responseType() {
             ParameterizedType parameterizedType = (ParameterizedType) returnType;
             Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
-            Assert.notEmpty(actualTypeArguments, "Response必须指定泛型参数！");
+            Assert.notEmpty(actualTypeArguments, "Response must specify generic parameters!");
             return actualTypeArguments[0];
         }
 
 
         @Override
         public Response<R> adapt(Call<R> call) {
+            Request request = call.request();
             try {
                 return call.execute();
             } catch (IOException e) {
-                throw new RetrofitExecuteIOException(e);
+                throw Objects.requireNonNull(RetrofitException.errorExecuting(request, e));
+            } catch (Exception e) {
+                throw Objects.requireNonNull(RetrofitException.errorUnknown(request, e));
             }
         }
     }

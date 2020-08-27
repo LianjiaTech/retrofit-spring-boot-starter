@@ -29,15 +29,15 @@ public class RetrofitClientRegistrar implements ImportBeanDefinitionRegistrar, R
     public void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
         AnnotationAttributes attributes = AnnotationAttributes
                 .fromMap(metadata.getAnnotationAttributes(RetrofitScan.class.getName()));
-        // 扫描指定路径下@RetrofitClient注解的接口，并注册到BeanDefinitionRegistry
+        // Scan the @RetrofitClient annotated interface under the specified path and register it to the BeanDefinitionRegistry
         ClassPathRetrofitClientScanner scanner = new ClassPathRetrofitClientScanner(registry, classLoader);
         if (resourceLoader != null) {
             scanner.setResourceLoader(resourceLoader);
         }
-        //指定扫描的基础包
+        // Specify the base package for scanning
         String[] basePackages = getPackagesToScan(attributes);
         scanner.registerFilters();
-        // 扫描并注册到BeanDefinition
+        // Scan and register to BeanDefinition
         scanner.doScan(basePackages);
     }
 
