@@ -1,7 +1,7 @@
 package com.github.lianjiatech.retrofit.spring.boot.config;
 
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseGlobalInterceptor;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.HttpExceptionMessageFormatterInterceptor;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.ErrorDecoderInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.NetworkInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.retry.BaseRetryInterceptor;
 import okhttp3.ConnectionPool;
@@ -19,8 +19,6 @@ public class RetrofitConfigBean {
 
     private final RetrofitProperties retrofitProperties;
 
-    private HttpExceptionMessageFormatterInterceptor httpExceptionMessageFormatterInterceptor;
-
     private List<CallAdapter.Factory> callAdapterFactories;
 
     private List<Converter.Factory> converterFactories;
@@ -33,21 +31,17 @@ public class RetrofitConfigBean {
 
     private BaseRetryInterceptor retryInterceptor;
 
+    private ErrorDecoderInterceptor errorDecoderInterceptor;
+
     public RetrofitProperties getRetrofitProperties() {
         return retrofitProperties;
     }
 
-    public HttpExceptionMessageFormatterInterceptor getHttpExceptionMessageFormatterInterceptor() {
-        return httpExceptionMessageFormatterInterceptor;
-    }
 
     public RetrofitConfigBean(RetrofitProperties retrofitProperties) {
         this.retrofitProperties = retrofitProperties;
     }
 
-    public void setHttpExceptionMessageFormatterInterceptor(HttpExceptionMessageFormatterInterceptor httpExceptionMessageFormatterInterceptor) {
-        this.httpExceptionMessageFormatterInterceptor = httpExceptionMessageFormatterInterceptor;
-    }
 
     public List<CallAdapter.Factory> getCallAdapterFactories() {
         return callAdapterFactories;
@@ -95,5 +89,13 @@ public class RetrofitConfigBean {
 
     public void setNetworkInterceptors(Collection<NetworkInterceptor> networkInterceptors) {
         this.networkInterceptors = networkInterceptors;
+    }
+
+    public ErrorDecoderInterceptor getErrorDecoderInterceptor() {
+        return errorDecoderInterceptor;
+    }
+
+    public void setErrorDecoderInterceptor(ErrorDecoderInterceptor errorDecoderInterceptor) {
+        this.errorDecoderInterceptor = errorDecoderInterceptor;
     }
 }

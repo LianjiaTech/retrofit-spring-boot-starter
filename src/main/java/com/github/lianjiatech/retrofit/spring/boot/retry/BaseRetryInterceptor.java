@@ -10,6 +10,7 @@ import java.lang.reflect.Method;
 
 /**
  * 请求重试拦截器
+ * Request retry interceptor
  *
  * @author 陈添明
  */
@@ -51,16 +52,17 @@ public abstract class BaseRetryInterceptor implements Interceptor {
 
 
     /**
-     * 执行可重试请求
+     * process a retryable request
+     * The access level here is set to protected, which can facilitate business personalized expansion
      * 这里访问级别设置为protected，可方便业务个性化扩展
      *
-     * @param maxRetries 最大重试次数
-     * @param intervalMs 重试时间间隔
-     * @param retryRules 重试规则
-     * @param chain      执行链
-     * @return 请求响应
-     * @throws IOException 执行IO异常
-     * @throws InterruptedException 中断异常
+     * @param maxRetries 最大重试次数。Maximum number of retries
+     * @param intervalMs 重试时间间隔。Retry interval
+     * @param retryRules 重试规则。Retry rules
+     * @param chain      执行链。Execution chain
+     * @return 请求响应。Response
+     * @throws IOException IOException
+     * @throws InterruptedException InterruptedException
      */
     protected abstract Response retryIntercept(int maxRetries, int intervalMs, RetryRule[] retryRules, Chain chain) throws IOException, InterruptedException;
 

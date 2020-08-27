@@ -6,15 +6,15 @@
 [![Maven central](https://maven-badges.herokuapp.com/maven-central/com.github.lianjiatech/retrofit-spring-boot-starter/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.lianjiatech/retrofit-spring-boot-starter)
 [![GitHub release](https://img.shields.io/github/v/release/lianjiatech/retrofit-spring-boot-starter.svg)](https://github.com/LianjiaTech/retrofit-spring-boot-starter/releases)
 [![License](https://img.shields.io/badge/JDK-1.8+-4EB1BA.svg)](https://docs.oracle.com/javase/8/docs/index.html)
-[![License](https://img.shields.io/badge/springboot-1.x+-green.svg)](https://docs.spring.io/spring-boot/docs/2.1.5.RELEASE/reference/htmlsingle/)
+[![License](https://img.shields.io/badge/SpringBoot-1.x+-green.svg)](https://docs.spring.io/spring-boot/docs/2.1.5.RELEASE/reference/htmlsingle/)
 [![Author](https://img.shields.io/badge/Author-chentianming-orange.svg?style=flat-square)](https://juejin.im/user/3562073404738584/posts)
 [![QQ-Group](https://img.shields.io/badge/QQ%E7%BE%A4-806714302-orange.svg?style=flat-square) ](https://img.ljcdn.com/hc-picture/6302d742-ebc8-4649-95cf-62ccf57a1add)
 
-> 众所周知，`Retrofit`是适用于`Android`和`Java`且类型安全的HTTP客户端，其最大的特性的是**支持通过`接口`的方式发起HTTP请求**。而`spring-boot`是使用最广泛的Java开发框架，但是`Retrofit`官方没有支持与`spring-boot`框架快速整合，因此我们开发了`retrofit-spring-boot-starter`。
+众所周知，`Retrofit`是适用于`Android`和`Java`且类型安全的HTTP客户端，其最大的特性的是**支持通过`接口`的方式发起HTTP请求**。而`spring-boot`是使用最广泛的Java开发框架，但是`Retrofit`官方没有支持与`spring-boot`框架快速整合，因此我们开发了`retrofit-spring-boot-starter`。
 
 **`retrofit-spring-boot-starter`实现了`Retrofit`与`spring-boot`框架快速整合，并且支持了诸多功能增强，极大简化开发**。
 
-🚀项目持续优化迭代，欢迎大家提ISSUE和PR！路过的朋友记得给一颗star✨，您的star是我们持续更新的动力！
+🚀项目持续优化迭代，欢迎大家提ISSUE和PR！造轮子不易，麻烦大家给一颗star✨，您的star是我们持续更新的动力！
 
 <!--more-->
 
@@ -38,7 +38,7 @@
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
     <artifactId>retrofit-spring-boot-starter</artifactId>
-    <version>2.1.2</version>
+    <version>2.1.3</version>
 </dependency>
 ```
 

@@ -46,22 +46,22 @@ public abstract class BasePathMatchInterceptor implements PrototypeInterceptor {
     }
 
     /**
-     * 执行拦截
+     * do intercept
      *
-     * @param chain 拦截器链
+     * @param chain interceptor chain
      * @return http Response
-     * @throws IOException 可能因为网络IO问题，抛出IOException
+     * @throws IOException IOException
      */
     protected abstract Response doIntercept(Chain chain) throws IOException;
 
     /**
      * <p>
      * 当前http的url路径是否与指定的patterns匹配
+     * Whether the current http URL path matches the specified patterns
      * </p>
-     * 有一个pattern匹配中，就算匹配
      *
-     * @param patterns 路径匹配patterns
-     * @param path     http请求路径
+     * @param patterns the specified patterns
+     * @param path     http URL path
      * @return 匹配结果
      */
     private boolean isMatch(String[] patterns, String path) {

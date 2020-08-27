@@ -9,6 +9,7 @@ import com.github.lianjiatech.retrofit.spring.boot.test.http.HttpApi;
 import com.github.lianjiatech.retrofit.spring.boot.test.http.HttpApi2;
 import com.github.lianjiatech.retrofit.spring.boot.test.http.HttpApi3;
 import okhttp3.Request;
+import okhttp3.ResponseBody;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.After;
@@ -115,7 +116,7 @@ public class RetrofitStarterTest {
                 .setMsg("ok")
                 .setData(mockPerson);
         MockResponse response = new MockResponse()
-                .setResponseCode(200)
+                .setResponseCode(500)
                 .addHeader("Content-Type", "application/json; charset=utf-8")
                 .addHeader("Cache-Control", "no-cache")
                 .setBody(objectMapper.writeValueAsString(mockResult));
@@ -129,12 +130,18 @@ public class RetrofitStarterTest {
             @Override
             public void onResponse(Call<Result<Person>> call, Response<Result<Person>> response) {
                 try {
-                    Result<Person> personResult = response.body();
-                    Assert.assertEquals(0, personResult.getCode());
-                    Assert.assertNotNull(personResult.getData());
-                    Person data = personResult.getData();
-                    Assert.assertEquals(10, data.getAge().longValue());
-                    Assert.assertEquals("test", data.getName());
+                    if (response.isSuccessful()) {
+                        Result<Person> personResult = response.body();
+                        Assert.assertEquals(0, personResult.getCode());
+                        Assert.assertNotNull(personResult.getData());
+                        Person data = personResult.getData();
+                        Assert.assertEquals(10, data.getAge().longValue());
+                        Assert.assertEquals("test", data.getName());
+                    } else {
+                        ResponseBody errorBody = response.errorBody();
+                        System.out.println(errorBody);
+                    }
+
                 } finally {
                     countDownLatch.countDown();
                 }
@@ -302,28 +309,5 @@ public class RetrofitStarterTest {
 
     }
 
-    @Test(expected = Throwable.class)
-//    @Test
-    public void testHttpError() throws IOException {
-        // mock
-        Map<String, Object> map = new HashMap<>(4);
-        map.put("errorMessage", "我就是要手动报个错");
-        map.put("errorCode", 500);
-
-        Result mockResult = new Result<>()
-                .setCode(0)
-                .setMsg("ok")
-                .setData(objectMapper.writeValueAsString(map));
-        MockResponse response = new MockResponse()
-                .setResponseCode(500)
-                .addHeader("Content-Type", "application/json; charset=utf-8")
-                .addHeader("Cache-Control", "no-cache")
-                .setBody(objectMapper.writeValueAsString(mockResult));
-        server.enqueue(response);
-
-        Person person = new Person().setId(1L).setName("test").setAge(10);
-        Person error = httpApi.error(person);
-        System.out.println(error);
-    }
 
 }
