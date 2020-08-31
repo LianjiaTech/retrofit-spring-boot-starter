@@ -4,10 +4,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory;
-import com.github.lianjiatech.retrofit.spring.boot.core.ErrorDecoder;
 import com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseGlobalInterceptor;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.ErrorDecoderInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.NetworkInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.retry.BaseRetryInterceptor;
 import okhttp3.ConnectionPool;
@@ -97,12 +95,6 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
         // add networkInterceptor
         Collection<NetworkInterceptor> networkInterceptors = getBeans(NetworkInterceptor.class);
         retrofitConfigBean.setNetworkInterceptors(networkInterceptors);
-
-        // add ErrorDecoderInterceptor
-        Class<? extends ErrorDecoder> errorDecoder = retrofitProperties.getErrorDecoder();
-        ErrorDecoder decoder = errorDecoder.newInstance();
-        ErrorDecoderInterceptor errorDecoderInterceptor = new ErrorDecoderInterceptor(decoder);
-        retrofitConfigBean.setErrorDecoderInterceptor(errorDecoderInterceptor);
 
         return retrofitConfigBean;
     }

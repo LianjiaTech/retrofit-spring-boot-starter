@@ -145,10 +145,13 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         }
 
         // add ErrorDecoderInterceptor
-        ErrorDecoderInterceptor errorDecoderInterceptor = retrofitConfigBean.getErrorDecoderInterceptor();
-        if (errorDecoderInterceptor != null) {
-            okHttpClientBuilder.addInterceptor(errorDecoderInterceptor);
+        Class<? extends ErrorDecoder> errorDecoderClass = retrofitClient.errorDecoder();
+        ErrorDecoder decoder = getBean(errorDecoderClass);
+        if (decoder == null) {
+            decoder = errorDecoderClass.newInstance();
         }
+        ErrorDecoderInterceptor decoderInterceptor = ErrorDecoderInterceptor.create(decoder);
+        okHttpClientBuilder.addInterceptor(decoderInterceptor);
 
         // Add the interceptor defined by the annotation on the interface
         List<Interceptor> interceptors = new ArrayList<>(findInterceptorByAnnotation(retrofitClientInterfaceClass));
@@ -179,6 +182,15 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         }
 
         return okHttpClientBuilder.build();
+    }
+
+    private <U> U getBean(Class<U> clz) {
+        try {
+            U bean = applicationContext.getBean(clz);
+            return bean;
+        } catch (BeansException e) {
+            return null;
+        }
     }
 
     private Method findOkHttpClientBuilderMethod(Class<?> retrofitClientInterfaceClass) {

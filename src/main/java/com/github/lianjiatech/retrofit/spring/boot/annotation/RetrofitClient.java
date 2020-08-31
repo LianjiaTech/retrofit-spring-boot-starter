@@ -1,5 +1,7 @@
 package com.github.lianjiatech.retrofit.spring.boot.annotation;
 
+import com.github.lianjiatech.retrofit.spring.boot.core.DefaultErrorDecoder;
+import com.github.lianjiatech.retrofit.spring.boot.core.ErrorDecoder;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseLoggingInterceptor;
 import org.slf4j.event.Level;
 import retrofit2.Retrofit;
@@ -30,6 +32,18 @@ public @interface RetrofitClient {
      * @return validateEagerly
      */
     boolean validateEagerly() default false;
+
+    /**
+     * 当前接口采用的错误解码器，当请求发生异常或者收到无效响应结果的时候，将HTTP相关信息解码到异常中，无效响应由业务自己判断。
+     * 一般情况下，每个服务对应的无效响应各不相同，可以自定义对应的{@link ErrorDecoder}，然后配置在这里。
+     * <p>
+     * The error decoder used in the current interface will decode HTTP related information into the exception when an exception occurs in the request or an invalid response result is received.
+     * The invalid response is determined by the business itself.
+     * In general, the invalid response corresponding to each service is different, you can customize the corresponding {@link ErrorDecoder}, and then configure it here.
+     *
+     * @return ErrorDecoder
+     */
+    Class<? extends ErrorDecoder> errorDecoder() default DefaultErrorDecoder.class;
 
     /**
      * connection pool name

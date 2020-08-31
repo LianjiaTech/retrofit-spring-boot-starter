@@ -2,8 +2,6 @@ package com.github.lianjiatech.retrofit.spring.boot.config;
 
 
 import com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory;
-import com.github.lianjiatech.retrofit.spring.boot.core.DefaultErrorDecoder;
-import com.github.lianjiatech.retrofit.spring.boot.core.ErrorDecoder;
 import com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseLoggingInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor;
@@ -68,19 +66,6 @@ public class RetrofitProperties {
 
     public Class<? extends BaseLoggingInterceptor> getLoggingInterceptor() {
         return loggingInterceptor;
-    }
-
-    /**
-     * When the response is invalid, decode the http information into the exception
-     */
-    private Class<? extends ErrorDecoder> errorDecoder = DefaultErrorDecoder.class;
-
-    public Class<? extends ErrorDecoder> getErrorDecoder() {
-        return errorDecoder;
-    }
-
-    public void setErrorDecoder(Class<? extends ErrorDecoder> errorDecoder) {
-        this.errorDecoder = errorDecoder;
     }
 
     public void setLoggingInterceptor(Class<? extends BaseLoggingInterceptor> loggingInterceptor) {
