@@ -460,7 +460,7 @@ public interface ErrorDecoder {
 
 ```
 
-
+`InvalidRespDecoder`抽象类实现了`ErrorDecoder`，并且实现了`ioExceptionDecode()`和`exceptionDecode`方法。**如果你更关注响应无效情况下的`HTTP`信息解码转换，可以直接继承`InvalidRespDecoder`抽象类**。
 
 ## 全局拦截器
 
