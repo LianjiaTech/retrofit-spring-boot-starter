@@ -177,11 +177,6 @@ public class RetrofitStarterTest {
         server.enqueue(response);
 
         CompletableFuture<Result<Person>> resultCompletableFuture = httpApi.getPersonCompletableFuture(1L);
-        // 异步处理
-        resultCompletableFuture.whenComplete((personResult, throwable) -> {
-            // 异常处理
-            logger.error("请求执行失败! personResult = {}", personResult, throwable);
-        });
         // CompletableFuture处理
         Result<Person> personResult = resultCompletableFuture.get();
         Assert.assertEquals(0, personResult.getCode());
