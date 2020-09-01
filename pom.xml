@@ -44,6 +44,7 @@
         <spring-boot.version>2.1.1.RELEASE</spring-boot.version>
         <log4j-core.version>2.12.1</log4j-core.version>
         <okhttp3.version>3.14.9</okhttp3.version>
+        <okio.version>1.17.5</okio.version>
     </properties>
 
     <dependencies>
@@ -104,6 +105,11 @@
             <artifactId>mockwebserver</artifactId>
             <version>${okhttp3.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okio</groupId>
+            <artifactId>okio</artifactId>
+            <version>${okio.version}</version>
         </dependency>
     </dependencies>
 

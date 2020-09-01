@@ -13,11 +13,11 @@ import java.io.IOException;
 public class RetrofitException extends RuntimeException {
 
 
-    protected RetrofitException(String message, Throwable cause) {
+    public RetrofitException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    protected RetrofitException(String message) {
+    public RetrofitException(String message) {
         super(message);
     }
 
@@ -29,8 +29,8 @@ public class RetrofitException extends RuntimeException {
             if (StringUtils.hasText(responseBody)) {
                 msg += ", body=" + responseBody;
             }
-        } catch (IOException e) {
-            // do nothing
+        } catch (ReadResponseBodyException e) {
+            throw new RetrofitException(String.format("read ResponseBody error! request=%s, response=%s", request, response), e);
         }
         return new RetrofitException(msg);
     }

@@ -6,11 +6,11 @@ package com.github.lianjiatech.retrofit.spring.boot.exception;
 public class RetrofitIOException extends RetrofitException {
 
 
-    protected RetrofitIOException(String message, Throwable cause) {
+    public RetrofitIOException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    protected RetrofitIOException(String message) {
+    public RetrofitIOException(String message) {
         super(message);
     }
 
