@@ -8,7 +8,6 @@ import okio.Buffer;
 import okio.BufferedSource;
 import okio.GzipSource;
 
-import java.io.EOFException;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
@@ -24,10 +23,17 @@ public final class RetrofitUtils {
     }
 
 
-    public static String readReponseBody(Response response) throws IOException {
+    /**
+     * read ResponseBody as String
+     *
+     * @param response response
+     * @return ResponseBody String
+     * @throws IOException
+     */
+    public static String readResponseBody(Response response) throws IOException {
         Headers headers = response.headers();
         if (bodyHasUnknownEncoding(headers)) {
-            return "encoded body omitted";
+            return null;
         }
         ResponseBody responseBody = response.body();
         if (responseBody == null) {
@@ -52,10 +58,6 @@ public final class RetrofitUtils {
             charset = contentType.charset(UTF8);
         }
 
-        if (isPlaintext(buffer)) {
-            return "binary " + buffer.size() + "-byte body omitted";
-        }
-
         if (contentLength != 0) {
             return buffer.clone().readString(charset);
         } else {
@@ -69,32 +71,6 @@ public final class RetrofitUtils {
         return contentEncoding != null
                 && !contentEncoding.equalsIgnoreCase("identity")
                 && !contentEncoding.equalsIgnoreCase("gzip");
-    }
-
-
-    /**
-     * Returns true if the body in question probably contains human readable text. Uses a small sample
-     * of code points to detect unicode control characters commonly used in binary file signatures.
-     */
-    private static boolean isPlaintext(Buffer buffer) {
-        try {
-            Buffer prefix = new Buffer();
-            long byteCount = buffer.size() < 64 ? buffer.size() : 64;
-            buffer.copyTo(prefix, 0, byteCount);
-            for (int i = 0; i < 16; i++) {
-                if (prefix.exhausted()) {
-                    break;
-                }
-                int codePoint = prefix.readUtf8CodePoint();
-                if (Character.isISOControl(codePoint) && !Character.isWhitespace(codePoint)) {
-                    return false;
-                }
-            }
-            return true;
-        } catch (EOFException e) {
-            // Truncated UTF-8 sequence.
-            return false;
-        }
     }
 }
 

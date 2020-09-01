@@ -1,8 +1,9 @@
 package com.github.lianjiatech.retrofit.spring.boot.exception;
 
+import com.github.lianjiatech.retrofit.spring.boot.util.RetrofitUtils;
 import okhttp3.Request;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 
@@ -23,20 +24,19 @@ public class RetrofitException extends RuntimeException {
 
     public static RetrofitException errorStatus(Request request, Response response) {
         String msg = String.format("invalid Response! request=%s, response=%s", request, response);
-        ResponseBody body = response.body();
-        if (body != null) {
-            try {
-                String bodyString = body.string();
-                msg += ", body=" + bodyString;
-            } catch (IOException e) {
-                // do nothing
+        try {
+            String responseBody = RetrofitUtils.readResponseBody(response);
+            if (StringUtils.hasText(responseBody)) {
+                msg += ", body=" + responseBody;
             }
+        } catch (IOException e) {
+            // do nothing
         }
         return new RetrofitException(msg);
     }
 
     public static RetrofitException errorExecuting(Request request, IOException cause) {
-        return new RetrofitException(cause.getMessage() + ", request=" + request, cause);
+        return new RetrofitIOException(cause.getMessage() + ", request=" + request, cause);
     }
 
     public static RetrofitException errorUnknown(Request request, Exception cause) {
