@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory;
+import com.github.lianjiatech.retrofit.spring.boot.core.PrototypeInterceptorBdfProcessor;
 import com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseGlobalInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.NetworkInterceptor;
@@ -43,6 +44,15 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
     private RetrofitProperties retrofitProperties;
 
     private ApplicationContext applicationContext;
+
+    @Configuration
+    public static class RetrofitProcessorAutoConfiguration {
+
+        @Bean
+        public static PrototypeInterceptorBdfProcessor prototypeInterceptorBdfProcessor() {
+            return new PrototypeInterceptorBdfProcessor();
+        }
+    }
 
     @Bean
     @ConditionalOnMissingBean
