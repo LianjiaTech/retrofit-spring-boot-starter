@@ -24,7 +24,6 @@
 - [x] [注解式拦截器](#注解式拦截器)
 - [x] [连接池管理](#连接池管理)
 - [x] [日志打印](#日志打印)
-- [x] [异常信息格式化](#Http异常信息格式化器)
 - [x] [请求重试](#请求重试)
 - [x] [错误解码器](#错误解码器)
 - [x] [全局拦截器](#全局拦截器)
@@ -423,7 +422,6 @@ retrofit:
  */
 public interface ErrorDecoder {
 
-
     /**
      * 当无效响应的时候，将HTTP信息解码到异常中，无效响应由业务自行判断。
      * When the response is invalid, decode the HTTP information into the exception, invalid response is determined by business.
@@ -432,7 +430,12 @@ public interface ErrorDecoder {
      * @param response response
      * @return If it returns null, the processing is ignored and the processing continues with the original response.
      */
-    RuntimeException invalidRespDecode(Request request, Response response);
+    default RuntimeException invalidRespDecode(Request request, Response response) {
+        if (!response.isSuccessful()) {
+            throw RetrofitException.errorStatus(request, response);
+        }
+        return null;
+    }
 
 
     /**
@@ -443,8 +446,9 @@ public interface ErrorDecoder {
      * @param cause   IOException
      * @return RuntimeException
      */
-    RuntimeException ioExceptionDecode(Request request, IOException cause);
-
+    default RuntimeException ioExceptionDecode(Request request, IOException cause) {
+        return RetrofitException.errorExecuting(request, cause);
+    }
 
     /**
      * 当请求发生除IO异常之外的其它异常时，将HTTP信息解码到异常中。
@@ -454,13 +458,13 @@ public interface ErrorDecoder {
      * @param cause   Exception
      * @return RuntimeException
      */
-    RuntimeException exceptionDecode(Request request, Exception cause);
+    default RuntimeException exceptionDecode(Request request, Exception cause) {
+        return RetrofitException.errorUnknown(request, cause);
+    }
 
 }
 
 ```
-
-`InvalidRespDecoder`抽象类实现了`ErrorDecoder`，并且实现了`ioExceptionDecode()`和`exceptionDecode`方法。**如果你更关注响应无效情况下的`HTTP`信息解码转换，可以直接继承`InvalidRespDecoder`抽象类**。
 
 ## 全局拦截器
 
