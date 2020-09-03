@@ -18,6 +18,9 @@ import java.nio.charset.Charset;
 public final class RetrofitUtils {
 
     private static final Charset UTF8 = Charset.forName("UTF-8");
+    public static final String GZIP = "gzip";
+    public static final String CONTENT_ENCODING = "Content-Encoding";
+    public static final String IDENTITY = "identity";
 
     private RetrofitUtils() {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
@@ -48,7 +51,7 @@ public final class RetrofitUtils {
             source.request(Long.MAX_VALUE);
             Buffer buffer = source.getBuffer();
 
-            if ("gzip".equalsIgnoreCase(headers.get("Content-Encoding"))) {
+            if (GZIP.equalsIgnoreCase(headers.get(CONTENT_ENCODING))) {
                 try (GzipSource gzippedResponseBody = new GzipSource(buffer.clone())) {
                     buffer = new Buffer();
                     buffer.writeAll(gzippedResponseBody);
@@ -72,10 +75,10 @@ public final class RetrofitUtils {
 
 
     private static boolean bodyHasUnknownEncoding(Headers headers) {
-        String contentEncoding = headers.get("Content-Encoding");
+        String contentEncoding = headers.get(CONTENT_ENCODING);
         return contentEncoding != null
-                && !contentEncoding.equalsIgnoreCase("identity")
-                && !contentEncoding.equalsIgnoreCase("gzip");
+                && !IDENTITY.equalsIgnoreCase(contentEncoding)
+                && !GZIP.equalsIgnoreCase(contentEncoding);
     }
 }
 
