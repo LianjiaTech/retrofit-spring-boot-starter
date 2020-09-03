@@ -14,7 +14,7 @@
 
 **`retrofit-spring-boot-starter`实现了`Retrofit`与`spring-boot`框架快速整合，并且支持了诸多功能增强，极大简化开发**。
 
-🚀项目持续优化迭代，欢迎大家提ISSUE和PR！造轮子不易，麻烦大家给一颗star✨，您的star是我们持续更新的动力！
+🚀项目持续优化迭代，欢迎大家提ISSUE和PR！麻烦大家能给一颗star✨，您的star是我们持续更新的动力！
 
 <!--more-->
 
