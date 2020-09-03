@@ -114,7 +114,6 @@ public class TestService {
 |logging-interceptor | DefaultLoggingInterceptor | 日志打印拦截器 |
 | pool | | 连接池配置 |
 | disable-void-return-type | false | 禁用java.lang.Void返回类型 |
-| http-exception-message-formatter | DefaultHttpExceptionMessageFormatter | Http异常信息格式化器 |
 | retry-interceptor | DefaultRetryInterceptor | 请求重试拦截器 |
 
 `yml`配置方式：
@@ -139,8 +138,6 @@ retrofit:
   disable-void-return-type: false
   # 日志打印拦截器
   logging-interceptor: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor
-  # Http异常信息格式化器
-  http-exception-message-formatter: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultHttpExceptionMessageFormatter
   # 请求重试拦截器
   retry-interceptor: com.github.lianjiatech.retrofit.spring.boot.retry.DefaultRetryInterceptor
 ```
