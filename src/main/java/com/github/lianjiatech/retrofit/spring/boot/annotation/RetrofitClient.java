@@ -26,6 +26,13 @@ public @interface RetrofitClient {
     String baseUrl();
 
     /**
+     * 启用服务发现
+     *
+     * @return
+     */
+    boolean enableServiceDiscovery() default false;
+
+    /**
      * When calling {@link Retrofit#create(Class)} on the resulting {@link Retrofit} instance, eagerly validate the
      * configuration of all methods in the supplied interface.
      *
