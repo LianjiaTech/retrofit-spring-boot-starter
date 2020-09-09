@@ -2,6 +2,7 @@ package com.github.lianjiatech.retrofit.spring.boot.config;
 
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseGlobalInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.NetworkInterceptor;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.ServiceInstanceChooserInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.retry.BaseRetryInterceptor;
 import okhttp3.ConnectionPool;
 import retrofit2.CallAdapter;
@@ -29,6 +30,8 @@ public class RetrofitConfigBean {
     private Collection<NetworkInterceptor> networkInterceptors;
 
     private BaseRetryInterceptor retryInterceptor;
+
+    private ServiceInstanceChooserInterceptor serviceInstanceChooserInterceptor;
 
     public RetrofitProperties getRetrofitProperties() {
         return retrofitProperties;
@@ -86,5 +89,13 @@ public class RetrofitConfigBean {
 
     public void setNetworkInterceptors(Collection<NetworkInterceptor> networkInterceptors) {
         this.networkInterceptors = networkInterceptors;
+    }
+
+    public ServiceInstanceChooserInterceptor getServiceInstanceChooserInterceptor() {
+        return serviceInstanceChooserInterceptor;
+    }
+
+    public void setServiceInstanceChooserInterceptor(ServiceInstanceChooserInterceptor serviceInstanceChooserInterceptor) {
+        this.serviceInstanceChooserInterceptor = serviceInstanceChooserInterceptor;
     }
 }

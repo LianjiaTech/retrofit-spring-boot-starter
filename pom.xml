@@ -37,6 +37,7 @@
     </developers>
 
     <properties>
+        <spring-cloud-starter-commons.version>2.1.6.RELEASE</spring-cloud-starter-commons.version>
         <retrofit.version>2.9.0</retrofit.version>
         <junit.version>4.12</junit.version>
         <javax.annotation-api.version>1.3.2</javax.annotation-api.version>
@@ -48,6 +49,12 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-commons</artifactId>
+            <version>${spring-cloud-starter-commons.version}</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-autoconfigure</artifactId>
