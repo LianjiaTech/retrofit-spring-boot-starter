@@ -17,20 +17,29 @@ import java.lang.annotation.*;
 public @interface RetrofitClient {
 
     /**
-     * 基础url, 支持占位符形式配置。
-     * baseUrl, Supports placeholder configuration.
-     * http://${baseUrl.test}
+     * 绝对URL（协议是必需的）。
+     * 可以指定为属性键，例如：$ {propertyKey}。
+     * 如果baseUrl没有配置，则必须配置serviceId以及，path可选配置。
+     *
+     * An absolute URL (the protocol is necessary).
+     * Can be specified as property key, eg: ${propertyKey}.
+     * If baseUrl is not configured, you must configure serviceId and path optional configuration.
+     *
      *
      * @return baseUrl
      */
-    String baseUrl();
+    String baseUrl() default "";
 
     /**
-     * 启用服务发现
-     *
-     * @return
+     * The name of the service.
+     * Can be specified as property key, eg: ${propertyKey}.
      */
-    boolean enableServiceDiscovery() default false;
+    String serviceId() default "";
+
+    /**
+     * Path prefix to be used by all method-level mappings.
+     */
+    String path() default "";
 
     /**
      * When calling {@link Retrofit#create(Class)} on the resulting {@link Retrofit} instance, eagerly validate the
