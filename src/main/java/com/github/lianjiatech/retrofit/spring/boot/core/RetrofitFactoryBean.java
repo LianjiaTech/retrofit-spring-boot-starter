@@ -150,6 +150,12 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
                     .connectionPool(connectionPool);
         }
 
+        // add ServiceInstanceChooserInterceptor
+        ServiceInstanceChooserInterceptor serviceInstanceChooserInterceptor = retrofitConfigBean.getServiceInstanceChooserInterceptor();
+        if (serviceInstanceChooserInterceptor != null) {
+            okHttpClientBuilder.addInterceptor(serviceInstanceChooserInterceptor);
+        }
+
         // add ErrorDecoderInterceptor
         Class<? extends ErrorDecoder> errorDecoderClass = retrofitClient.errorDecoder();
         ErrorDecoder decoder = getBean(errorDecoderClass);
@@ -175,7 +181,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         // add log printing interceptor
         if (retrofitProperties.isEnableLog() && retrofitClient.enableLog()) {
             Class<? extends BaseLoggingInterceptor> loggingInterceptorClass = retrofitProperties.getLoggingInterceptor();
-            Constructor<? extends BaseLoggingInterceptor> constructor = loggingInterceptorClass.getConstructor(Level.class, BaseLoggingInterceptor.LogStrategy.class);
+            Constructor<? extends BaseLoggingInterceptor> constructor = loggingInterceptorClass.getConstructor(Level.class, LogStrategy.class);
             BaseLoggingInterceptor loggingInterceptor = constructor.newInstance(retrofitClient.logLevel(), retrofitClient.logStrategy());
             okHttpClientBuilder.addNetworkInterceptor(loggingInterceptor);
         }

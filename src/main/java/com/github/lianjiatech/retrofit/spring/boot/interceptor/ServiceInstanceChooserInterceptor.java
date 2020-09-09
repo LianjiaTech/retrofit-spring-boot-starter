@@ -1,7 +1,7 @@
 package com.github.lianjiatech.retrofit.spring.boot.interceptor;
 
 import com.github.lianjiatech.retrofit.spring.boot.annotation.RetrofitClient;
-import com.github.lianjiatech.retrofit.spring.boot.core.ServiceDiscovery;
+import com.github.lianjiatech.retrofit.spring.boot.core.ServiceInstanceChooser;
 import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
 import okhttp3.Request;
@@ -16,12 +16,12 @@ import java.net.URI;
 /**
  * @author 陈添明
  */
-public class ServiceDiscoveryInterceptor implements Interceptor {
+public class ServiceInstanceChooserInterceptor implements Interceptor {
 
-    private final ServiceDiscovery serviceDiscovery;
+    private final ServiceInstanceChooser serviceInstanceChooser;
 
-    public ServiceDiscoveryInterceptor(ServiceDiscovery serviceDiscovery) {
-        this.serviceDiscovery = serviceDiscovery;
+    public ServiceInstanceChooserInterceptor(ServiceInstanceChooser serviceDiscovery) {
+        this.serviceInstanceChooser = serviceDiscovery;
     }
 
     @Override
@@ -38,7 +38,7 @@ public class ServiceDiscoveryInterceptor implements Interceptor {
         }
         // serviceId服务注册发现
         String serviceId = retrofitClient.serviceId();
-        URI uri = serviceDiscovery.getUri(serviceId);
+        URI uri = serviceInstanceChooser.choose(serviceId);
         HttpUrl url = request.url();
         HttpUrl newUrl = url.newBuilder()
                 .scheme(uri.getScheme())
