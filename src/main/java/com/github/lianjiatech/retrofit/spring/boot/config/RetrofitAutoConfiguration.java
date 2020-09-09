@@ -22,7 +22,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.util.CollectionUtils;
 import retrofit2.CallAdapter;
@@ -61,7 +60,7 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
     @Bean
     @ConditionalOnMissingBean
     @Autowired
-    public RetrofitConfigBean retrofitConfigBean(ObjectMapper objectMapper, ServiceInstanceChooser serviceInstanceChooser) throws IllegalAccessException, InstantiationException {
+    public RetrofitConfigBean retrofitConfigBean(ObjectMapper objectMapper) throws IllegalAccessException, InstantiationException {
         RetrofitConfigBean retrofitConfigBean = new RetrofitConfigBean(retrofitProperties);
         // Initialize the connection pool
         Map<String, ConnectionPool> poolRegistry = new ConcurrentHashMap<>(4);
@@ -112,6 +111,13 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
         retrofitConfigBean.setNetworkInterceptors(networkInterceptors);
 
         // add ServiceInstanceChooserInterceptor
+        ServiceInstanceChooser serviceInstanceChooser;
+        try {
+            serviceInstanceChooser = applicationContext.getBean(ServiceInstanceChooser.class);
+        } catch (Exception e) {
+            serviceInstanceChooser = new NoValidServiceInstanceChooser();
+        }
+
         ServiceInstanceChooserInterceptor serviceInstanceChooserInterceptor = new ServiceInstanceChooserInterceptor(serviceInstanceChooser);
         retrofitConfigBean.setServiceInstanceChooserInterceptor(serviceInstanceChooserInterceptor);
 
@@ -130,17 +136,10 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
     @ConditionalOnMissingBean
     @ConditionalOnClass(LoadBalancerClient.class)
     @ConditionalOnBean(LoadBalancerClient.class)
-    @Order(Ordered.LOWEST_PRECEDENCE - 1)
+    @Order
     public ServiceInstanceChooser serviceInstanceChooser() {
         LoadBalancerClient balancerClient = applicationContext.getBean(LoadBalancerClient.class);
         return new SpringCloudServiceInstanceChooser(balancerClient);
-    }
-
-
-    @Bean
-    @ConditionalOnMissingBean
-    public ServiceInstanceChooser noValidServiceInstanceChooser() {
-        return new NoValidServiceInstanceChooser();
     }
 
 
