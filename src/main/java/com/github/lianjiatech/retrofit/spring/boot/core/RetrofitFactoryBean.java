@@ -20,6 +20,7 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.env.Environment;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import retrofit2.CallAdapter;
 import retrofit2.Converter;
 import retrofit2.Retrofit;
@@ -68,8 +69,13 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         // check class type
         Assert.isTrue(retrofitInterface.isInterface(), "@RetrofitClient can only be marked on the interface type!");
         Method[] methods = retrofitInterface.getMethods();
-        for (Method method : methods) {
 
+        RetrofitClient retrofitClient = retrofitInterface.getAnnotation(RetrofitClient.class);
+
+        Assert.isTrue(StringUtils.hasText(retrofitClient.baseUrl()) || StringUtils.hasText(retrofitClient.path()),
+                "@RetrofitClient's baseUrl and serviceId must be configured with one！");
+
+        for (Method method : methods) {
             Class<?> returnType = method.getReturnType();
             if (method.isAnnotationPresent(OkHttpClientBuilder.class)) {
                 Assert.isTrue(returnType.equals(OkHttpClient.Builder.class), "For methods annotated by @OkHttpClientBuilder, the return value must be OkHttpClient.Builder！");
@@ -279,8 +285,16 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
     private synchronized Retrofit getRetrofit(Class<?> retrofitClientInterfaceClass) throws InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         RetrofitClient retrofitClient = retrofitClientInterfaceClass.getAnnotation(RetrofitClient.class);
         String baseUrl = retrofitClient.baseUrl();
-        // 解析baseUrl占位符
-        baseUrl = environment.resolveRequiredPlaceholders(baseUrl);
+
+        if (StringUtils.hasText(baseUrl)) {
+            // 解析baseUrl占位符
+            baseUrl = environment.resolveRequiredPlaceholders(baseUrl);
+        } else {
+            String serviceId = retrofitClient.serviceId();
+            String path = retrofitClient.path();
+            baseUrl = "http://" + (serviceId + "/" + path).replaceAll("/+", "/");
+        }
+
         OkHttpClient client = getOkHttpClient(retrofitClientInterfaceClass);
         Retrofit.Builder retrofitBuilder = new Retrofit.Builder()
                 .baseUrl(baseUrl)
