@@ -15,8 +15,7 @@
  */
 package com.github.lianjiatech.retrofit.spring.boot.core;
 
-import com.github.lianjiatech.retrofit.spring.boot.exception.InvalidResponseException;
-import com.github.lianjiatech.retrofit.spring.boot.exception.RetrofitExecuteIOException;
+import com.github.lianjiatech.retrofit.spring.boot.exception.RetrofitException;
 import okhttp3.Request;
 import retrofit2.Call;
 import retrofit2.CallAdapter;
@@ -26,12 +25,14 @@ import retrofit2.Retrofit;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 
 /**
- * 同步调用，如果返回的http状态码是是成功，返回responseBody 反序列化之后的对象 <br>
- * 否则，抛出异常！异常信息中包含请求和响应相关信息。
+ * 同步调用，如果返回的http状态码是是成功，返回responseBody 反序列化之后的对象。否则，抛出异常！异常信息中包含请求和响应相关信息。
+ * Synchronous call, if the returned http status code is successful, return the responseBody object after deserialization.
+ * Otherwise, throw an exception! The exception information includes request and response related information.
  *
  * @author 陈添明
  */
@@ -67,18 +68,16 @@ public final class BodyCallAdapterFactory extends CallAdapter.Factory {
         @Override
         public R adapt(Call<R> call) {
             Response<R> response;
+            Request request = call.request();
             try {
                 response = call.execute();
-
                 if (!response.isSuccessful()) {
-                    Request request = call.request();
-                    String message = "HTTP InvalidResponse！" + request.toString() +
-                            "; " + response.toString();
-                    throw new InvalidResponseException(message);
+                    throw Objects.requireNonNull(RetrofitException.errorStatus(request, response.raw()));
                 }
-
             } catch (IOException e) {
-                throw new RetrofitExecuteIOException(e);
+                throw Objects.requireNonNull(RetrofitException.errorExecuting(request, e));
+            } catch (Exception e) {
+                throw Objects.requireNonNull(RetrofitException.errorUnknown(request, e));
             }
             return response.body();
         }

@@ -15,26 +15,26 @@ import java.lang.annotation.*;
 public @interface RetrofitScan {
 
     /**
-     * <p>扫描包路径</p>
-     * 与basePackages含义相同
+     * Scan package path
+     * Same meaning as basePackages
      *
-     * @return 扫描包路径
+     * @return basePackages
      */
     String[] value() default {};
 
 
     /**
-     * <p>扫描包路径</p>
-     * 与value含义相同
+     * Scan package path
      *
-     * @return 扫描包路径
+     * @return basePackages
      */
     String[] basePackages() default {};
 
+
     /**
-     * 扫描的classes
+     * Scan package classes
      *
-     * @return 扫描的classes
+     * @return Scan package classes
      */
     Class<?>[] basePackageClasses() default {};
 }

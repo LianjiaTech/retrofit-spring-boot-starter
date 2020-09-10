@@ -66,22 +66,22 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
      */
     private void checkRetrofitInterface(Class<T> retrofitInterface) {
         // check class type
-        Assert.isTrue(retrofitInterface.isInterface(), "@RetrofitClient只能作用在接口类型上！");
+        Assert.isTrue(retrofitInterface.isInterface(), "@RetrofitClient can only be marked on the interface type!");
         Method[] methods = retrofitInterface.getMethods();
         for (Method method : methods) {
 
             Class<?> returnType = method.getReturnType();
             if (method.isAnnotationPresent(OkHttpClientBuilder.class)) {
-                Assert.isTrue(returnType.equals(OkHttpClient.Builder.class), "被@OkHttpClientBuilder注解标注的方法，返回值必须是OkHttpClient.Builder");
-                Assert.isTrue(Modifier.isStatic(method.getModifiers()), "被@OkHttpClientBuilder注解只能标注在静态方法上");
+                Assert.isTrue(returnType.equals(OkHttpClient.Builder.class), "For methods annotated by @OkHttpClientBuilder, the return value must be OkHttpClient.Builder！");
+                Assert.isTrue(Modifier.isStatic(method.getModifiers()), "only static method can annotated by @OkHttpClientBuilder!");
                 continue;
             }
 
             Assert.isTrue(!void.class.isAssignableFrom(returnType),
-                    "不支持使用void关键字做返回类型，请使用java.lang.Void! method=" + method);
+                    "The void keyword is not supported as the return type, please use java.lang.Void！ method=" + method);
             if (retrofitProperties.isDisableVoidReturnType()) {
                 Assert.isTrue(!Void.class.isAssignableFrom(returnType),
-                        "已配置禁用Void作为返回值，请指定其他返回类型！method=" + method);
+                        "Configured to disable Void as the return value, please specify another return type!method=" + method);
             }
         }
     }
@@ -100,29 +100,30 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
 
 
     /**
-     * 获取okhttp3连接池
+     * Get okhttp3 connection pool
      *
-     * @param retrofitClientInterfaceClass retrofitClient接口类
-     * @return okhttp3连接池
+     * @param retrofitClientInterfaceClass retrofitClientInterfaceClass
+     * @return okhttp3 connection pool
      */
     private synchronized okhttp3.ConnectionPool getConnectionPool(Class<?> retrofitClientInterfaceClass) {
         RetrofitClient retrofitClient = retrofitClientInterfaceClass.getAnnotation(RetrofitClient.class);
         String poolName = retrofitClient.poolName();
         Map<String, ConnectionPool> poolRegistry = retrofitConfigBean.getPoolRegistry();
-        Assert.notNull(poolRegistry, "poolRegistry不存在！请设置retrofitConfigBean.poolRegistry！");
+        Assert.notNull(poolRegistry, "poolRegistry does not exist! Please set retrofitConfigBean.poolRegistry!");
         ConnectionPool connectionPool = poolRegistry.get(poolName);
-        Assert.notNull(connectionPool, "当前poolName对应的连接池不存在！poolName = " + poolName);
+        Assert.notNull(connectionPool, "The connection pool corresponding to the current poolName does not exist! poolName = " + poolName);
         return connectionPool;
     }
 
 
     /**
-     * 获取OkHttpClient实例，一个接口接口对应一个OkHttpClient
+     * Get OkHttpClient instance, one interface corresponds to one OkHttpClient
      *
-     * @param retrofitClientInterfaceClass retrofitClient接口类
-     * @return OkHttpClient实例
+     * @param retrofitClientInterfaceClass retrofitClientInterfaceClass
+     * @return OkHttpClient instance
      */
-    private synchronized OkHttpClient getOkHttpClient(Class<?> retrofitClientInterfaceClass) throws IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
+    private synchronized OkHttpClient getOkHttpClient(Class<?> retrofitClientInterfaceClass)
+            throws IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
         RetrofitClient retrofitClient = retrofitClientInterfaceClass.getAnnotation(RetrofitClient.class);
         Method method = findOkHttpClientBuilderMethod(retrofitClientInterfaceClass);
         OkHttpClient.Builder okHttpClientBuilder;
@@ -130,7 +131,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
             okHttpClientBuilder = (OkHttpClient.Builder) method.invoke(null);
         } else {
             okhttp3.ConnectionPool connectionPool = getConnectionPool(retrofitClientInterfaceClass);
-            // 构建一个OkHttpClient对象
+            // Construct an OkHttpClient object
             okHttpClientBuilder = new OkHttpClient.Builder()
                     .connectTimeout(retrofitClient.connectTimeoutMs(), TimeUnit.MILLISECONDS)
                     .readTimeout(retrofitClient.readTimeoutMs(), TimeUnit.MILLISECONDS)
@@ -142,26 +143,30 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
                     .pingInterval(retrofitClient.pingIntervalMs(), TimeUnit.MILLISECONDS)
                     .connectionPool(connectionPool);
         }
-        // 添加接口上注解定义的拦截器
+
+        // add ErrorDecoderInterceptor
+        Class<? extends ErrorDecoder> errorDecoderClass = retrofitClient.errorDecoder();
+        ErrorDecoder decoder = getBean(errorDecoderClass);
+        if (decoder == null) {
+            decoder = errorDecoderClass.newInstance();
+        }
+        ErrorDecoderInterceptor decoderInterceptor = ErrorDecoderInterceptor.create(decoder);
+        okHttpClientBuilder.addInterceptor(decoderInterceptor);
+
+        // Add the interceptor defined by the annotation on the interface
         List<Interceptor> interceptors = new ArrayList<>(findInterceptorByAnnotation(retrofitClientInterfaceClass));
-        // 添加全局拦截器
+        // add global interceptor
         Collection<BaseGlobalInterceptor> globalInterceptors = retrofitConfigBean.getGlobalInterceptors();
         if (!CollectionUtils.isEmpty(globalInterceptors)) {
             interceptors.addAll(globalInterceptors);
         }
         interceptors.forEach(okHttpClientBuilder::addInterceptor);
 
-        //  http异常信息格式化
-        HttpExceptionMessageFormatterInterceptor httpExceptionMessageFormatterInterceptor = retrofitConfigBean.getHttpExceptionMessageFormatterInterceptor();
-        if (httpExceptionMessageFormatterInterceptor != null) {
-            okHttpClientBuilder.addInterceptor(httpExceptionMessageFormatterInterceptor);
-        }
-
-        // 请求重试拦截器
+        // add retry interceptor
         Interceptor retryInterceptor = retrofitConfigBean.getRetryInterceptor();
         okHttpClientBuilder.addInterceptor(retryInterceptor);
 
-        // 日志打印拦截器
+        // add log printing interceptor
         if (retrofitProperties.isEnableLog() && retrofitClient.enableLog()) {
             Class<? extends BaseLoggingInterceptor> loggingInterceptorClass = retrofitProperties.getLoggingInterceptor();
             Constructor<? extends BaseLoggingInterceptor> constructor = loggingInterceptorClass.getConstructor(Level.class, BaseLoggingInterceptor.LogStrategy.class);
@@ -179,6 +184,15 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         return okHttpClientBuilder.build();
     }
 
+    private <U> U getBean(Class<U> clz) {
+        try {
+            U bean = applicationContext.getBean(clz);
+            return bean;
+        } catch (BeansException e) {
+            return null;
+        }
+    }
+
     private Method findOkHttpClientBuilderMethod(Class<?> retrofitClientInterfaceClass) {
         Method[] methods = retrofitClientInterfaceClass.getMethods();
         for (Method method : methods) {
@@ -194,15 +208,16 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
 
     /**
      * 获取retrofitClient接口类上定义的拦截器集合
+     * Get the interceptor set defined on the retrofitClient interface class
      *
-     * @param retrofitClientInterfaceClass retrofitClient接口类
-     * @return 拦截器实例集合
+     * @param retrofitClientInterfaceClass retrofitClientInterfaceClass
+     * @return the interceptor list
      */
     @SuppressWarnings("unchecked")
     private List<Interceptor> findInterceptorByAnnotation(Class<?> retrofitClientInterfaceClass) throws InstantiationException, IllegalAccessException {
         Annotation[] classAnnotations = retrofitClientInterfaceClass.getAnnotations();
         List<Interceptor> interceptors = new ArrayList<>();
-        // 找出被@InterceptMark标记的注解
+        // 找出被@InterceptMark标记的注解。Find the annotation marked by @InterceptMark
         List<Annotation> interceptAnnotations = new ArrayList<>();
         for (Annotation classAnnotation : classAnnotations) {
             Class<? extends Annotation> annotationType = classAnnotation.annotationType();
@@ -211,16 +226,16 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
             }
         }
         for (Annotation interceptAnnotation : interceptAnnotations) {
-            // 获取注解属性数据
+            // 获取注解属性数据。Get annotation attribute data
             Map<String, Object> annotationAttributes = AnnotationUtils.getAnnotationAttributes(interceptAnnotation);
             Object handler = annotationAttributes.get("handler");
-            Assert.notNull(handler, "@InterceptMark标记的注解必须配置: Class<? extends BasePathMatchInterceptor> handler()");
-            Assert.notNull(annotationAttributes.get("include"), "@InterceptMark标记的注解必须配置: String[] include()");
-            Assert.notNull(annotationAttributes.get("exclude"), "@InterceptMark标记的注解必须配置: String[] exclude()");
+            Assert.notNull(handler, "@InterceptMark annotations must be configured: Class<? extends BasePathMatchInterceptor> handler()");
+            Assert.notNull(annotationAttributes.get("include"), "@InterceptMark annotations must be configured: String[] include()");
+            Assert.notNull(annotationAttributes.get("exclude"), "@InterceptMark annotations must be configured: String[] exclude()");
             Class<? extends BasePathMatchInterceptor> interceptorClass = (Class<? extends BasePathMatchInterceptor>) handler;
             BasePathMatchInterceptor interceptor = getInterceptorInstance(interceptorClass);
             Map<String, Object> annotationResolveAttributes = new HashMap<>(8);
-            // 占位符属性替换
+            // 占位符属性替换。Placeholder attribute replacement
             annotationAttributes.forEach((key, value) -> {
                 if (value instanceof String) {
                     String newValue = environment.resolvePlaceholders((String) value);
@@ -229,7 +244,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
                     annotationResolveAttributes.put(key, value);
                 }
             });
-            // 动态设置属性值
+            // 动态设置属性值。Set property value dynamically
             BeanExtendUtils.populate(interceptor, annotationResolveAttributes);
             interceptors.add(interceptor);
         }
@@ -237,10 +252,11 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
     }
 
     /**
-     * 获取路径拦截器实例，优先从spring容器中取。如果spring容器中不存在，则无参构造器实例化一个
+     * 获取路径拦截器实例，优先从spring容器中取。如果spring容器中不存在，则无参构造器实例化一个。
+     * Obtain the path interceptor instance, first from the spring container. If it does not exist in the spring container, the no-argument constructor will instantiate one.
      *
-     * @param interceptorClass 路径拦截器类的子类，参见@{@link BasePathMatchInterceptor}
-     * @return 路径拦截器实例
+     * @param interceptorClass A subclass of @{@link BasePathMatchInterceptor}
+     * @return @{@link BasePathMatchInterceptor} instance
      */
     private BasePathMatchInterceptor getInterceptorInstance(Class<? extends BasePathMatchInterceptor> interceptorClass) throws IllegalAccessException, InstantiationException {
         // spring bean
@@ -255,9 +271,10 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
 
     /**
      * 获取Retrofit实例，一个retrofitClient接口对应一个Retrofit实例
+     * Obtain a Retrofit instance, a retrofitClient interface corresponds to a Retrofit instance
      *
-     * @param retrofitClientInterfaceClass retrofitClient接口类
-     * @return Retrofit实例
+     * @param retrofitClientInterfaceClass retrofitClientInterfaceClass
+     * @return Retrofit instance
      */
     private synchronized Retrofit getRetrofit(Class<?> retrofitClientInterfaceClass) throws InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         RetrofitClient retrofitClient = retrofitClientInterfaceClass.getAnnotation(RetrofitClient.class);
