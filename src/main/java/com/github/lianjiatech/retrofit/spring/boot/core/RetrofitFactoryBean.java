@@ -38,6 +38,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware, ApplicationContextAware {
 
+    public static final String SUFFIX = "/";
+
     private Class<T> retrofitInterface;
 
     private Environment environment;
@@ -293,12 +295,19 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         String baseUrl = retrofitClient.baseUrl();
 
         if (StringUtils.hasText(baseUrl)) {
-            // 解析baseUrl占位符
             baseUrl = environment.resolveRequiredPlaceholders(baseUrl);
+            // 解析baseUrl占位符
+            if (!baseUrl.endsWith(SUFFIX)) {
+                baseUrl += SUFFIX;
+            }
         } else {
             String serviceId = retrofitClient.serviceId();
             String path = retrofitClient.path();
-            baseUrl = "http://" + (serviceId + "/" + path).replaceAll("/+", "/");
+            if (!path.endsWith(SUFFIX)) {
+                path += SUFFIX;
+            }
+            baseUrl = "http://" + (serviceId + SUFFIX + path).replaceAll("/+", SUFFIX);
+            baseUrl = environment.resolveRequiredPlaceholders(baseUrl);
         }
 
         OkHttpClient client = getOkHttpClient(retrofitClientInterfaceClass);

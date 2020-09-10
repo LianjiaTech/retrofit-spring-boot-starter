@@ -12,17 +12,13 @@ import okhttp3.ConnectionPool;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.util.CollectionUtils;
 import retrofit2.CallAdapter;
 import retrofit2.Converter;
@@ -60,7 +56,7 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
     @Bean
     @ConditionalOnMissingBean
     @Autowired
-    public RetrofitConfigBean retrofitConfigBean(ObjectMapper objectMapper) throws IllegalAccessException, InstantiationException {
+    public RetrofitConfigBean retrofitConfigBean(ObjectMapper objectMapper, ServiceInstanceChooser serviceInstanceChooser) throws IllegalAccessException, InstantiationException {
         RetrofitConfigBean retrofitConfigBean = new RetrofitConfigBean(retrofitProperties);
         // Initialize the connection pool
         Map<String, ConnectionPool> poolRegistry = new ConcurrentHashMap<>(4);
@@ -111,13 +107,6 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
         retrofitConfigBean.setNetworkInterceptors(networkInterceptors);
 
         // add ServiceInstanceChooserInterceptor
-        ServiceInstanceChooser serviceInstanceChooser;
-        try {
-            serviceInstanceChooser = applicationContext.getBean(ServiceInstanceChooser.class);
-        } catch (Exception e) {
-            serviceInstanceChooser = new NoValidServiceInstanceChooser();
-        }
-
         ServiceInstanceChooserInterceptor serviceInstanceChooserInterceptor = new ServiceInstanceChooserInterceptor(serviceInstanceChooser);
         retrofitConfigBean.setServiceInstanceChooserInterceptor(serviceInstanceChooserInterceptor);
 
@@ -134,14 +123,9 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
 
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnClass(LoadBalancerClient.class)
-    @ConditionalOnBean(LoadBalancerClient.class)
-    @Order
     public ServiceInstanceChooser serviceInstanceChooser() {
-        LoadBalancerClient balancerClient = applicationContext.getBean(LoadBalancerClient.class);
-        return new SpringCloudServiceInstanceChooser(balancerClient);
+        return new NoValidServiceInstanceChooser();
     }
-
 
 
     private <U> Collection<U> getBeans(Class<U> clz) {
