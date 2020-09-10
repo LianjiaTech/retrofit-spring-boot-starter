@@ -228,7 +228,7 @@ Sometimes, we need to dynamically pass in some parameters in the **intercept ann
 For example, we need to **dynamically add the signature information of `accesskeyid` and `accesskeysecret` in the request header to initiate HTTP requests normally**. In this case, we can **customize a signature interceptor Annotation `@sign` to implement**.The following is an example of the custom `@sign` intercept annotation.
 
 
-#### custom `@sign` intercept annotation
+#### Custom `@sign` intercept annotation
 
 ```java
 @Retention(RetentionPolicy.RUNTIME)
@@ -312,7 +312,7 @@ public class SignInterceptor extends BasePathMatchInterceptor {
 }
 ```
 
-**The above `accessKeyId` and `accessKeySecret` field value will be automatically injected according to the `accessKeyId()` and `accessKeySecret()` values of the `@sign` annotation.If `@Sign` specifies a string in the form of a placeholder, the configuration property value will be taken for injection**. In addition, **`accessKeyId` and `accessKeySecret` field value must provide `setter` method**.
+**The above `accessKeyId` and `accessKeySecret` value will be automatically injected according to the `accessKeyId()` and `accessKeySecret()` values of the `@sign` annotation.If `@Sign` specifies a string in the form of a placeholder, the configuration property value will be taken for injection**. In addition, **`accessKeyId` and `accessKeySecret` value must provide `setter` method**.
 
 #### Mark interface with `@Sign`
 
@@ -361,7 +361,7 @@ By default, all HTTP requests sent through `Retrofit` will use the default conne
 
 ### Log printing
 
-In many cases, we want to record the http request log. You can global control whether the log is enabled through `retrofit.enableLog` configuration. For each interface, you can control whether to enable it through the `enableLog` of `@RetrofitClient`. You can specify the log printing level and log printing strategy of each interface through `logLevel` and `logStrategy`. `Retrofit-spring-boot-starter` supports five log printing levels( `ERROR`, `WARN`, `INFO`, `DEBUG`, `TRACE`), default `INFO` and four log printing strategy( `NONE`, `BASIC`, `HEADERS`, `BODY`), default `BASIC`. The meanings of the 4 log printing strategies are as follows:
+In many cases, we want to record the http request log. You can global control whether the log is enabled through `retrofit.enableLog` configuration. For each interface, you can control whether to enable it through the `enableLog` of `@RetrofitClient`. You can specify the log printing level and log printing strategy of each interface through `logLevel` and `logStrategy`. `Retrofit-spring-boot-starter` supports five log printing levels( `ERROR`, `WARN`, `INFO`, `DEBUG`, `TRACE`) which default to `INFO` and four log printing strategy( `NONE`, `BASIC`, `HEADERS`, `BODY`) which default to `BASIC`. The meanings of the 4 log printing strategies are as follows:
 
 1. `NONE`：No logs.
 2. `BASIC`：Logs request and response lines.
@@ -386,13 +386,14 @@ retrofit:
 
 ### Request retry
 
-`Retrofit-spring-boot-starter` supports request retry feature by adding `@Retry` annotation to interface or method. **`@Retry` supports the configuration of `maxRetries`, `intervalMs` and `retryRules`**. The retry rule supports three configurations: 
+`Retrofit-spring-boot-starter` supports request retry feature by adding `@Retry` annotation to the interface or method. **`@Retry` supports the configuration of `maxRetries`, `intervalMs` and `retryRules`**. The retry rule supports three configurations: 
 
 1. `RESPONSE_STATUS_NOT_2XX`: Retry when the response status code is not `2xx`;
 2. `OCCUR_IO_EXCEPTION`: Retry when an IO exception occurs;
 3. `OCCUR_EXCEPTION`: Retry when any exception occurs;
 
-By default, when the response status code is not '2XX' or an IO exception occurs, the system will automatically try again. If necessary, you can also inherit `BaseRetryInterceptor` to implement your own request retry interceptor and then configure it.
+The default response status code is not `2xx` or automatically retry when an IO exception occurs. If necessary, you can also inherit `BaseRetryInterceptor` to implement your own request retry interceptor and then configure it.
+
 ```yaml
 retrofit:
   # request retry interceptor
@@ -401,7 +402,7 @@ retrofit:
 
 ### Error decoder
 
-When a request error occurs in `HTTP` (including an exception or the response data does not meet expectations), the error decoder can decode `HTTP` related information into a custom exception. You can specify the error decoder of the current interface in the `errorDecoder()` annotated by `@RetrofitClient`. The custom error decoder needs to implement the `ErrorDecoder` interface:
+When an error occurs in the `HTTP` request (including an exception or the response data does not meet expectations), the error decoder can decode `HTTP` related information into a custom exception. You can specify the error decoder of the current interface in the `errorDecoder()` annotated by `@RetrofitClient`. The custom error decoder needs to implement the `ErrorDecoder` interface:
 
 ```java
 /**
@@ -453,7 +454,9 @@ public interface ErrorDecoder {
 
 ```
 
-### Global interceptor
+## Global interceptor
+
+### Global application interceptor
 
 If we need to implement unified interception processing for HTTP requests of the whole system, we can customize the implementation of global interceptor `BaseGlobalInterceptor` and configure it as a `Bean` in `Spring`! For example, we need to carry source information for all http requests initiated in the entire system.
 
@@ -471,11 +474,15 @@ public class SourceInterceptor extends BaseGlobalInterceptor {
 }
 ```
 
+### Global network interceptor
+
 ## CallAdapter and Converter
+
+You only need to implement the `NetworkInterceptor` interface and configure it as a `bean` in the `spring` container to support automatic weaving into the global network interceptor.
 
 ### CallAdapter
 
-`Retrofit` can adapt the `Call<T>` object to the return value type if the interface method by calling `CallAdapterFactory`. `Retrofit-spring-boot-starter` extends two implementations of `CallAdapterFactory`:
+`Retrofit` can adapt the `Call<T>` object to the return value type of the interface method by calling the adapter `CallAdapterFactory`. `Retrofit-spring-boot-starter` extends two implementations of `CallAdapterFactory`:
 1. `BodyCallAdapterFactory`
     - Feature is enabled by default, and can be disabled by configuring `retrofit.enable-body-call-adapter=false`.
     - Execute the http request synchronously and adapt the response body to an instance of the return value type of the interface method.
@@ -485,7 +492,7 @@ public class SourceInterceptor extends BaseGlobalInterceptor {
     - Execute the http request synchronously, adapt the response body content to `Retrofit.Response<T>` and return.
     - If the return value type of the method is `Retrofit.Response<T>`, you can use this adapter.
 
-**Retrofit automatically selects the corresponding `CallAdapterFactory` to perform adaptation processing according to the method return value type! With the default `CallAdapterFactory` of  Retrofit, it can support various types of method return values:**
+**Retrofit automatically selects the corresponding `CallAdapterFactory` to perform adaptation processing according to the method return value type! With the default `CallAdapterFactory` of retrofit, it can support various types of method return values:**
 
 - `Call<T>`: Do not perform adaptation processing, directly return the `Call<T>` object.
 - `CompletableFuture<T>`: Adapt the response body content to a `CompletableFuture<T>` object and return.
