@@ -1,5 +1,5 @@
 
-## 简介
+## INTRODUCTION
 
 [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 [![Build Status](https://api.travis-ci.com/LianjiaTech/retrofit-spring-boot-starter.svg?branch=master)](https://travis-ci.com/github/LianjiaTech/retrofit-spring-boot-starter)
@@ -10,13 +10,25 @@
 [![Author](https://img.shields.io/badge/Author-chentianming-orange.svg?style=flat-square)](https://juejin.im/user/3562073404738584/posts)
 [![QQ-Group](https://img.shields.io/badge/QQ%E7%BE%A4-806714302-orange.svg?style=flat-square) ](https://img.ljcdn.com/hc-picture/HTTP-exception-information-formatter6302d742-ebc8-4649-95cf-62ccf57a1add)
 
-> As is known to us all, `Retrofit` is a type safe HTTP client for `Android` and `Java`. **Supporting HTTP requests through `interfaces`** is the strongest feature of `Retrofit`. `Spring-boot` is the most widely used java development framework, but there is no official `Retrofit` support for rapid integration with `spring-boot` framework, so we have developed `retrofit-spring-boot-starter`.
+> As is known to us all, `Retrofit` is a type safe HTTP client for `Android` and `Java`. **Supporting HTTP requests through `interfaces`** is the strongest feature of `Retrofit`. `Spring-boot` is the most widely used java development framework, but there is no official `retrofit` support for rapid integration with `spring-boot` framework, so we developed `retrofit-spring-boot-starter`.
 
 **`Retrofit-spring-boot-starter` realizes the rapid integration of `Retrofit` and `spring-boot`, supports many enhanced features and greatly simplifies development**.
 
-| [Quick start](#Quick-start) | [Annotation interceptor](#Annotation-interceptor) | [Connection pool management](#Connection-pool-management) | [Log printing](#Log-printing) | [Exception information formatter ](#HTTP-exception-message-formatter) | [请求重试](#请求重试) |[全局拦截器](#全局拦截器) | [调用适配器](#调用适配器) | [数据转换器](#数据转码器) |
+🚀The project is in continuous optimization iteration. We welcome everyone to mention ISSUE and PR! Your star✨ is our power for continuous updating! 
 
 <!--more-->
+
+## Features
+
+- [x] [Custom injection OkHttpClient](#Custom-injection-OkHttpClient)
+- [x] [Annotation interceptor](#Annotation-interceptor)
+- [x] [Connection pool management](#Connection-pool-management)
+- [x] [Log printing](#Log-printing)
+- [x] [Request retry](#Request-retry) 
+- [x] [Error decoder](#Error-decoder)
+- [x] [Global interceptor](#Global-interceptor) 
+- [x] [CallAdapter](#CallAdapter)
+- [x] [Converter](#Converter)
 
 ## Quick-start
 
@@ -26,13 +38,13 @@
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
     <artifactId>retrofit-spring-boot-starter</artifactId>
-    <version>2.1.0</version>
+    <version>2.1.3</version>
 </dependency>
 ```
 
 ### Configure `@RetrofitScan` annotation
 
-You can configure `@Configuration` for the class with `@RetrofitScan`, or directly configure it to the startup class of `spring-boot`, as follows:
+You can configure `@Configuration` for the class with `@RetrofitScan` or directly configure it to the startup class of `spring-boot`, as follows:
 
 ```java
 @SpringBootApplication
@@ -60,7 +72,7 @@ public interface HttpApi {
 
 ### Inject and use
 
-**Inject the interface into other Service to use!**
+**Inject the interface into other Service and use!**
 
 ```java
 @Service
@@ -70,7 +82,7 @@ public class TestService {
     private HttpApi httpApi;
 
     public void test() {
-        // HTTP request via HTTP Api
+        // Initiate HTTP request via HTTP Api
     }
 }
 ```
@@ -89,11 +101,11 @@ All of the related annotations of `HTTP` request use native annotations of `retr
 |File upload|`@Multipart` `@Part` `@PartMap`|
 |Url param|`@Url`|
 
-## Configuration description
+## Configuration item description
 
-`Retrofit-spring-boot-starter` supports multiple configurable properties to deal with different business scenarios. You can modify it as appropriate, the specific instructions are as follows:
+`Retrofit-spring-boot-starter` supports multiple configurable properties to deal with different business scenarios. You can modify it as appropriate. The specific instructions are as follows:
 
-| Configuration|Default value | description |
+| Configuration item|Default value | description |
 |------------|-----------|--------|
 | enable-body-call-adapter | true| Whether to enable the bodycalladapter |
 | enable-response-call-adapter | true| Whether to enable ResponseCallAdapter |
@@ -126,13 +138,35 @@ retrofit:
   disable-void-return-type: false
   # Log print interceptor
   logging-interceptor: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor
-  # HTTP exception message formatter
-  http-exception-message-formatter: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultHttpExceptionMessageFormatter
   # Retry Interceptor
   retry-interceptor: com.github.lianjiatech.retrofit.spring.boot.retry.DefaultRetryInterceptor
 ```
 
 ## Advanced feature
+
+### Custom-injection-OkHttpClient
+
+In general, dynamic creation of `OkHttpClient` object through the `@RetrofitClient` annotation can satisfy most usage scenarios. But in some cases, users may need to customize `OkHttpClient`. At this time, you can define a static method with the return type of `OkHttpClient.Builder` on the interface to achieve this. The code example is as follows:
+
+```java
+@RetrofitClient(baseUrl = "http://ke.com")
+public interface HttpApi3 {
+
+    @OkHttpClientBuilder
+    static OkHttpClient.Builder okhttpClientBuilder() {
+        return new OkHttpClient.Builder()
+                .connectTimeout(1, TimeUnit.SECONDS)
+                .readTimeout(1, TimeUnit.SECONDS)
+                .writeTimeout(1, TimeUnit.SECONDS);
+
+    }
+
+    @GET
+    Result<Person> getPerson(@Url String url, @Query("id") Long id);
+}
+```
+
+> The method must be marked with `@OkHttpClientBuilder` annotation!
 
 ### Annotation-interceptor
 
@@ -350,25 +384,78 @@ retrofit:
   http-exception-message-formatter: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultHttpExceptionMessageFormatter
 ```
 
-### 请求重试
+### Request-retry
 
-`retrofit-spring-boot-starter`支持请求重试功能，只需要在接口或者方法上加上`@Retry`注解即可。**`@Retry`支持重试次数`maxRetries`、重试时间间隔`intervalMs`以及重试规则`retryRules`配置**。重试规则支持三种配置：
+`Retrofit-spring-boot-starter` supports request retry feature by adding `@Retry` annotation to interface or method. **`@Retry` supports the configuration of `maxRetries`, `intervalMs` and `retryRules`**. The retry rule supports three configurations: 
 
-1. `RESPONSE_STATUS_NOT_2XX`：响应状态码不是`2xx`时执行重试；
-2. `OCCUR_IO_EXCEPTION`：发生IO异常时执行重试；
-3. `OCCUR_EXCEPTION`：发生任意异常时执行重试；
+1. `RESPONSE_STATUS_NOT_2XX`: Retry when the response status code is not `2xx`;
+2. `OCCUR_IO_EXCEPTION`: Retry when an IO exception occurs;
+3. `OCCUR_EXCEPTION`: Retry when any exception occurs;
 
-默认响应状态码不是`2xx`或者发生IO异常时自动进行重试。需要的话，你也可以继承`BaseRetryInterceptor`实现自己的请求重试拦截器，然后将其配置上去。
-
+By default, when the response status code is not '2XX' or an IO exception occurs, the system will automatically try again. If necessary, you can also inherit `BaseRetryInterceptor` to implement your own request retry interceptor and then configure it.
 ```yaml
 retrofit:
-  # 请求重试拦截器
+  # request retry interceptor
   retry-interceptor: com.github.lianjiatech.retrofit.spring.boot.retry.DefaultRetryInterceptor
 ```
 
-### 全局拦截器
+### Error-decoder
 
-如果我们需要对整个系统的的http请求执行统一的拦截处理，可以自定义实现全局拦截器`BaseGlobalInterceptor`, 并配置成`spring`中的`bean`！例如我们需要在整个系统发起的http请求，都带上来源信息。
+When a request error occurs in `HTTP` (including an exception or the response data does not meet expectations), the error decoder can decode `HTTP` related information into a custom exception. You can specify the error decoder of the current interface in the `errorDecoder()` annotated by `@RetrofitClient`. The custom error decoder needs to implement the `ErrorDecoder` interface:
+
+```java
+/**
+ * When an exception occurs in the request or an invalid response result is received, the HTTP related information is decoded into the exception,
+ * and the invalid response is determined by the business itself.
+ *
+ * @author Tianming Chen
+ */
+public interface ErrorDecoder {
+
+    /**
+     * When the response is invalid, decode the HTTP information into the exception, invalid response is determined by business.
+     *
+     * @param request  request
+     * @param response response
+     * @return If it returns null, the processing is ignored and the processing continues with the original response.
+     */
+    default RuntimeException invalidRespDecode(Request request, Response response) {
+        if (!response.isSuccessful()) {
+            throw RetrofitException.errorStatus(request, response);
+        }
+        return null;
+    }
+
+
+    /**
+     * When an IO exception occurs in the request, the HTTP information is decoded into the exception.
+     *
+     * @param request request
+     * @param cause   IOException
+     * @return RuntimeException
+     */
+    default RuntimeException ioExceptionDecode(Request request, IOException cause) {
+        return RetrofitException.errorExecuting(request, cause);
+    }
+
+    /**
+     * When the request has an exception other than the IO exception, the HTTP information is decoded into the exception.
+     *
+     * @param request request
+     * @param cause   Exception
+     * @return RuntimeException
+     */
+    default RuntimeException exceptionDecode(Request request, Exception cause) {
+        return RetrofitException.errorUnknown(request, cause);
+    }
+
+}
+
+```
+
+### Global-interceptor
+
+If we need to implement unified interception processing for HTTP requests of the whole system, we can customize the implementation of global interceptor `BaseGlobalInterceptor` and configure it as a `Bean` in `Spring`! For example, we need to carry source information for all http requests initiated in the entire system.
 
 ```java
 @Component
@@ -384,33 +471,32 @@ public class SourceInterceptor extends BaseGlobalInterceptor {
 }
 ```
 
-## 调用适配器和数据转码器
+## CallAdapter and Converter
 
-### 调用适配器
+### CallAdapter
 
-`Retrofit`可以通过调用适配器`CallAdapterFactory`将`Call<T>`对象适配成接口方法的返回值类型。`retrofit-spring-boot-starter`扩展2种`CallAdapterFactory`实现：
-
+`Retrofit` can adapt the `Call<T>` object to the return value type if the interface method by calling `CallAdapterFactory`. `Retrofit-spring-boot-starter` extends two implementations of `CallAdapterFactory`:
 1. `BodyCallAdapterFactory`
-    - 默认启用，可通过配置`retrofit.enable-body-call-adapter=false`关闭
-    - 同步执行http请求，将响应体内容适配成接口方法的返回值类型实例。
-    - 除了`Retrofit.Call<T>`、`Retrofit.Response<T>`、`java.util.concurrent.CompletableFuture<T>`之外，其它返回类型都可以使用该适配器。
+    - Feature is enabled by default, and can be disabled by configuring `retrofit.enable-body-call-adapter=false`.
+    - Execute the http request synchronously and adapt the response body to an instance of the return value type of the interface method.
+    - All return types can use this adapter except `Retrofit.Call<T>`, `Retrofit.Response<T>`, `java.util.concurrent.CompletableFuture<T>`.
 2. `ResponseCallAdapterFactory`
-    - 默认启用，可通过配置`retrofit.enable-response-call-adapter=false`关闭
-    - 同步执行http请求，将响应体内容适配成`Retrofit.Response<T>`返回。
-    - 如果方法的返回值类型为`Retrofit.Response<T>`，则可以使用该适配器。
+    - Feature is enabled by default, and can be disabled by configuring `retrofit.enable-response-call-adapter=false`.
+    - Execute the http request synchronously, adapt the response body content to `Retrofit.Response<T>` and return.
+    - If the return value type of the method is `Retrofit.Response<T>`, you can use this adapter.
 
-**Retrofit自动根据方法返回值类型选用对应的`CallAdapterFactory`执行适配处理！加上Retrofit默认的`CallAdapterFactory`，可支持多种形式的方法返回值类型：**
+**Retrofit automatically selects the corresponding `CallAdapterFactory` to perform adaptation processing according to the method return value type! With the default `CallAdapterFactory` of  Retrofit, it can support various types of method return values:**
 
-- `Call<T>`: 不执行适配处理，直接返回`Call<T>`对象
-- `CompletableFuture<T>`: 将响应体内容适配成`CompletableFuture<T>`对象返回
-- `Void`: 不关注返回类型可以使用`Void`。如果http状态码不是2xx，直接抛错！
-- `Response<T>`: 将响应内容适配成`Response<T>`对象返回
-- 其他任意Java类型： 将响应体内容适配成一个对应的Java类型对象返回，如果http状态码不是2xx，直接抛错！
+- `Call<T>`: Do not perform adaptation processing, directly return the `Call<T>` object.
+- `CompletableFuture<T>`: Adapt the response body content to a `CompletableFuture<T>` object and return.
+- `Void`: You can use `Void` regardless of the return type. If the http status code is not 2xx, just throw an error!
+- `Response<T>`: Adapt the response content to a `Response<T>` object and return.
+- Any other Java type: Adapt the response body content to a corresponding Java type object and return. If the http status code is not 2xx, just throw an error!
 
 ```java
     /**
      * Call<T>
-     * 不执行适配处理，直接返回Call<T>对象
+     * do not perform adaptation processing, directly return the Call<T> object.
      * @param id
      * @return
      */
@@ -419,7 +505,7 @@ public class SourceInterceptor extends BaseGlobalInterceptor {
 
     /**
      *  CompletableFuture<T>
-     *  将响应体内容适配成CompletableFuture<T>对象返回
+     *  Adapt the response body content to a CompletableFuture<T> object and return.
      * @param id
      * @return
      */
@@ -428,7 +514,7 @@ public class SourceInterceptor extends BaseGlobalInterceptor {
 
     /**
      * Void
-     * 不关注返回类型可以使用Void。如果http状态码不是2xx，直接抛错！
+     * You can use Void regardless of the return type. If the http status code is not 2xx, just throw an error!
      * @param id
      * @return
      */
@@ -437,7 +523,7 @@ public class SourceInterceptor extends BaseGlobalInterceptor {
 
     /**
      *  Response<T>
-     *  将响应内容适配成Response<T>对象返回
+     * Adapt the response content to a Response<T> object and return.
      * @param id
      * @return
      */
@@ -445,8 +531,8 @@ public class SourceInterceptor extends BaseGlobalInterceptor {
     Response<Result<Person>> getPersonResponse(@Query("id") Long id);
 
     /**
-     * 其他任意Java类型
-     * 将响应体内容适配成一个对应的Java类型对象返回，如果http状态码不是2xx，直接抛错！
+     * Any other Java type
+     * Adapt the response body content to a corresponding Java type object and return. If the http status code is not 2xx, just throw an error!
      * @param id
      * @return
      */
@@ -455,13 +541,13 @@ public class SourceInterceptor extends BaseGlobalInterceptor {
 
 ```
 
-**我们也可以通过继承`CallAdapter.Factory`扩展实现自己的`CallAdapter`**；然后将自定义的`CallAdapterFactory`配置成`spring`的`bean`！
+**We can also implement our own `CallAdapter`** by inheriting the `CallAdapter.Factory` extension and then configure the custom `CallAdapterFactory` as the `bean` of `spring`!
 
-> 自定义配置的`CallAdapter.Factory`优先级更高！
+> The custom configuration of `CallAdapter.Factory` has higher priority!
 
-### 数据转码器
+### Converter
 
-`Retrofit`使用`Converter`将`@Body`注解标注的对象转换成请求体，将响应体数据转换成一个`Java`对象，可以选用以下几种`Converter`：
+`Retrofit` uses `Converter` to convert the object annotated with `@Body` into the request body, and the response body data into a `Java` object. The following types of `Converter` can be used:
 
 - Gson: com.squareup.Retrofit:converter-gson
 - Jackson: com.squareup.Retrofit:converter-jackson
@@ -470,28 +556,28 @@ public class SourceInterceptor extends BaseGlobalInterceptor {
 - Wire: com.squareup.Retrofit:converter-wire
 - Simple XML: com.squareup.Retrofit:converter-simplexml
 
-`retrofit-spring-boot-starter`默认使用的是jackson进行序列化转换，你可以直接通过`spring.jackson.*`配置`jackson`序列化规则，配置可参考[Customize the Jackson ObjectMapper](https://docs.spring.io/spring-boot/docs/2.1.5.RELEASE/reference/htmlsingle/#howto-customize-the-jackson-objectmapper)！**如果需要使用其它序列化方式，在项目中引入对应的依赖，再把对应的`ConverterFactory`配置成spring的bean即可**。
+`Retrofit-spring-boot-starter` uses jackson to perform serialization conversion by default. You can directly configure `jackson` serialization rules through `spring.jackson.*`. For configuration, please refer to [Customize the Jackson ObjectMapper](https://docs.spring.io/spring-boot/docs/2.1.5.RELEASE/reference/htmlsingle/#howto-customize-the-jackson-objectmapper)! **If you need to use other serialization methods, introduce the corresponding dependency in the project, and then configure the corresponding `ConverterFactory` as a spring bean**.
 
-**我们也可以通过继承`Converter.Factory`扩展实现自己的`Converter`**；然后将自定义的`Converter.Factory`配置成`spring`的`bean`！
+**We can also implement our own `Converter` by extending the extension of `Converter.Factory`** and then configure the custom `Converter.Factory` as the `bean` of `spring`!
 
-> 自定义配置的`Converter.Factory`优先级更高！
+> The custom configuration of `Converter.Factory` has higher priority!
 
 
-## 其他功能示例
+## Other features
 
-### 上传文件示例
+### Upload file example
 
-#### 构建MultipartBody.Part
+#### Build MultipartBody.Part
 
 ```java
-// 对文件名使用URLEncoder进行编码
+// Encode file names with URLEncoder
 String fileName = URLEncoder.encode(Objects.requireNonNull(file.getOriginalFilename()), "utf-8");
 okhttp3.RequestBody requestBody = okhttp3.RequestBody.create(MediaType.parse("multipart/form-data"),file.getBytes());
 MultipartBody.Part file = MultipartBody.Part.createFormData("file", fileName, requestBody);
 apiService.upload(file);
 ```
 
-#### http上传接口
+#### Http upload interface
 
 ```java
 @POST("upload")
@@ -500,11 +586,11 @@ Void upload(@Part MultipartBody.Part file);
 
 ```
 
-### 动态URL示例
+### Dynamic URL example
 
-使用`@url`注解可实现动态URL。
+Realize dynamic URL through `@url` annotation
 
-**注意：`@url`必须放在方法参数的第一个位置。原有定义`@GET`、`@POST`等注解上，不需要定义端点路径**！
+**Note: `@url` must be placed in the first position of the method parameter. The original definition of `@GET`, `@POST` and other annotations do not need to define the endpoint path**!
 
 ```java
  @GET
@@ -512,11 +598,10 @@ Void upload(@Part MultipartBody.Part file);
 
 ```
 
-## 反馈建议
+## Feedback
 
-如有任何问题，欢迎提issue或者加QQ群反馈。
+If you have any questions, welcome to raise issue or add QQ group to feedback.
 
-群号：806714302
+QQ Group Number: 806714302
 
-![QQ群图片](https://github.com/LianjiaTech/retrofit-spring-boot-starter/blob/master/qun.png)
-
+![QQ Group](https://github.com/LianjiaTech/retrofit-spring-boot-starter/blob/master/qun.png)
