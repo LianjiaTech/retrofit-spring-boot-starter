@@ -6,15 +6,15 @@
 [![Maven central](https://maven-badges.herokuapp.com/maven-central/com.github.lianjiatech/retrofit-spring-boot-starter/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.lianjiatech/retrofit-spring-boot-starter)
 [![GitHub release](https://img.shields.io/github/v/release/lianjiatech/retrofit-spring-boot-starter.svg)](https://github.com/LianjiaTech/retrofit-spring-boot-starter/releases)
 [![License](https://img.shields.io/badge/JDK-1.8+-4EB1BA.svg)](https://docs.oracle.com/javase/8/docs/index.html)
-[![License](https://img.shields.io/badge/springboot-1.x+-green.svg)](https://docs.spring.io/spring-boot/docs/2.1.5.RELEASE/reference/htmlsingle/)
+[![License](https://img.shields.io/badge/SpringBoot-1.x+-green.svg)](https://docs.spring.io/spring-boot/docs/2.1.5.RELEASE/reference/htmlsingle/)
 [![Author](https://img.shields.io/badge/Author-chentianming-orange.svg?style=flat-square)](https://juejin.im/user/3562073404738584/posts)
 [![QQ-Group](https://img.shields.io/badge/QQ%E7%BE%A4-806714302-orange.svg?style=flat-square) ](https://img.ljcdn.com/hc-picture/6302d742-ebc8-4649-95cf-62ccf57a1add)
 
-> 众所周知，`Retrofit`是适用于`Android`和`Java`且类型安全的HTTP客户端，其最大的特性的是**支持通过`接口`的方式发起HTTP请求**。而`spring-boot`是使用最广泛的Java开发框架，但是`Retrofit`官方没有支持与`spring-boot`框架快速整合，因此我们开发了`retrofit-spring-boot-starter`。
+众所周知，`Retrofit`是适用于`Android`和`Java`且类型安全的HTTP客户端，其最大的特性的是**支持通过`接口`的方式发起HTTP请求**。而`spring-boot`是使用最广泛的Java开发框架，但是`Retrofit`官方没有支持与`spring-boot`框架快速整合，因此我们开发了`retrofit-spring-boot-starter`。
 
 **`retrofit-spring-boot-starter`实现了`Retrofit`与`spring-boot`框架快速整合，并且支持了诸多功能增强，极大简化开发**。
 
-🚀项目持续优化迭代，欢迎大家提ISSUE和PR！路过的朋友记得给一颗star✨，您的star是我们持续更新的动力！
+🚀项目持续优化迭代，欢迎大家提ISSUE和PR！麻烦大家能给一颗star✨，您的star是我们持续更新的动力！
 
 <!--more-->
 
@@ -24,8 +24,8 @@
 - [x] [注解式拦截器](#注解式拦截器)
 - [x] [连接池管理](#连接池管理)
 - [x] [日志打印](#日志打印)
-- [x] [异常信息格式化](#Http异常信息格式化器)
 - [x] [请求重试](#请求重试)
+- [x] [错误解码器](#错误解码器)
 - [x] [全局拦截器](#全局拦截器)
 - [x] [调用适配器](#调用适配器)
 - [x] [数据转换器](#数据转码器)
@@ -38,7 +38,7 @@
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
     <artifactId>retrofit-spring-boot-starter</artifactId>
-    <version>2.1.2</version>
+    <version>2.1.3</version>
 </dependency>
 ```
 
@@ -114,7 +114,6 @@ public class TestService {
 |logging-interceptor | DefaultLoggingInterceptor | 日志打印拦截器 |
 | pool | | 连接池配置 |
 | disable-void-return-type | false | 禁用java.lang.Void返回类型 |
-| http-exception-message-formatter | DefaultHttpExceptionMessageFormatter | Http异常信息格式化器 |
 | retry-interceptor | DefaultRetryInterceptor | 请求重试拦截器 |
 
 `yml`配置方式：
@@ -139,8 +138,6 @@ retrofit:
   disable-void-return-type: false
   # 日志打印拦截器
   logging-interceptor: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor
-  # Http异常信息格式化器
-  http-exception-message-formatter: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultHttpExceptionMessageFormatter
   # 请求重试拦截器
   retry-interceptor: com.github.lianjiatech.retrofit.spring.boot.retry.DefaultRetryInterceptor
 ```
@@ -404,6 +401,66 @@ retrofit:
 retrofit:
   # 请求重试拦截器
   retry-interceptor: com.github.lianjiatech.retrofit.spring.boot.retry.DefaultRetryInterceptor
+```
+
+### 错误解码器
+
+在`HTTP`发生请求错误(包括发生异常或者响应数据不符合预期)的时候，错误解码器可将`HTTP`相关信息解码到自定义异常中。你可以在`@RetrofitClient`注解的`errorDecoder()`指定当前接口的错误解码器，自定义错误解码器需要实现`ErrorDecoder`接口：
+
+```java
+/**
+ * 错误解码器。ErrorDecoder.
+ * 当请求发生异常或者收到无效响应结果的时候，将HTTP相关信息解码到异常中，无效响应由业务自己判断
+ *
+ * When an exception occurs in the request or an invalid response result is received, the HTTP related information is decoded into the exception,
+ * and the invalid response is determined by the business itself.
+ *
+ * @author 陈添明
+ */
+public interface ErrorDecoder {
+
+    /**
+     * 当无效响应的时候，将HTTP信息解码到异常中，无效响应由业务自行判断。
+     * When the response is invalid, decode the HTTP information into the exception, invalid response is determined by business.
+     *
+     * @param request  request
+     * @param response response
+     * @return If it returns null, the processing is ignored and the processing continues with the original response.
+     */
+    default RuntimeException invalidRespDecode(Request request, Response response) {
+        if (!response.isSuccessful()) {
+            throw RetrofitException.errorStatus(request, response);
+        }
+        return null;
+    }
+
+
+    /**
+     * 当请求发生IO异常时，将HTTP信息解码到异常中。
+     * When an IO exception occurs in the request, the HTTP information is decoded into the exception.
+     *
+     * @param request request
+     * @param cause   IOException
+     * @return RuntimeException
+     */
+    default RuntimeException ioExceptionDecode(Request request, IOException cause) {
+        return RetrofitException.errorExecuting(request, cause);
+    }
+
+    /**
+     * 当请求发生除IO异常之外的其它异常时，将HTTP信息解码到异常中。
+     * When the request has an exception other than the IO exception, the HTTP information is decoded into the exception.
+     *
+     * @param request request
+     * @param cause   Exception
+     * @return RuntimeException
+     */
+    default RuntimeException exceptionDecode(Request request, Exception cause) {
+        return RetrofitException.errorUnknown(request, cause);
+    }
+
+}
+
 ```
 
 ## 全局拦截器

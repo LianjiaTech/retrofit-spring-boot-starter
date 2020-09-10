@@ -1,5 +1,7 @@
 package com.github.lianjiatech.retrofit.spring.boot.annotation;
 
+import com.github.lianjiatech.retrofit.spring.boot.core.DefaultErrorDecoder;
+import com.github.lianjiatech.retrofit.spring.boot.core.ErrorDecoder;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseLoggingInterceptor;
 import org.slf4j.event.Level;
 import retrofit2.Retrofit;
@@ -15,10 +17,11 @@ import java.lang.annotation.*;
 public @interface RetrofitClient {
 
     /**
-     * 基础url, 支持占位符形式配置。<br>
-     * 例如：http://${baseUrl.test}
+     * 基础url, 支持占位符形式配置。
+     * baseUrl, Supports placeholder configuration.
+     * http://${baseUrl.test}
      *
-     * @return RetrofitClient的baseUrl
+     * @return baseUrl
      */
     String baseUrl();
 
@@ -31,10 +34,21 @@ public @interface RetrofitClient {
     boolean validateEagerly() default false;
 
     /**
-     * 使用的连接池名称<br>
-     * default连接池自动加载，也可以手动配置覆盖默认default连接池属性
+     * 当前接口采用的错误解码器，当请求发生异常或者收到无效响应结果的时候，将HTTP相关信息解码到异常中，无效响应由业务自己判断。
+     * 一般情况下，每个服务对应的无效响应各不相同，可以自定义对应的{@link ErrorDecoder}，然后配置在这里。
+     * <p>
+     * The error decoder used in the current interface will decode HTTP related information into the exception when an exception occurs in the request or an invalid response result is received.
+     * The invalid response is determined by the business itself.
+     * In general, the invalid response corresponding to each service is different, you can customize the corresponding {@link ErrorDecoder}, and then configure it here.
      *
-     * @return 使用的连接池名称
+     * @return ErrorDecoder
+     */
+    Class<? extends ErrorDecoder> errorDecoder() default DefaultErrorDecoder.class;
+
+    /**
+     * connection pool name
+     *
+     * @return connection pool name
      */
     String poolName() default "default";
 
@@ -42,7 +56,7 @@ public @interface RetrofitClient {
      * Sets the default connect timeout for new connections. A value of 0 means no timeout,
      * otherwise values must be between 1 and Integer.MAX_VALUE when converted to milliseconds.
      *
-     * @return 连接超时时间
+     * @return connectTimeoutMs
      */
     int connectTimeoutMs() default 10_000;
 
@@ -50,7 +64,7 @@ public @interface RetrofitClient {
      * Sets the default read timeout for new connections. A value of 0 means no timeout,
      * otherwise values must be between 1 and Integer.MAX_VALUE when converted to milliseconds.
      *
-     * @return 读取超时时间
+     * @return readTimeoutMs
      */
     int readTimeoutMs() default 10_000;
 
@@ -58,7 +72,7 @@ public @interface RetrofitClient {
      * Sets the default write timeout for new connections. A value of 0 means no timeout,
      * otherwise values must be between 1 and Integer.MAX_VALUE when converted to milliseconds
      *
-     * @return 写入超时时间
+     * @return writeTimeoutMs
      */
     int writeTimeoutMs() default 10_000;
 
@@ -107,6 +121,7 @@ public @interface RetrofitClient {
 
     /**
      * 针对当前接口是否启用日志打印
+     * Whether to enable log printing for the current interface
      *
      * @return
      */
@@ -114,15 +129,17 @@ public @interface RetrofitClient {
 
     /**
      * 日志打印级别，支持的日志级别参见{@link Level}
+     * Log printing level, see {@link Level} for supported log levels
      *
-     * @return 日志打印级别
+     * @return logLevel
      */
     Level logLevel() default Level.INFO;
 
     /**
      * 日志打印策略，支持的日志打印策略参见{@link BaseLoggingInterceptor.LogStrategy}
+     * Log printing strategy, see {@link BaseLoggingInterceptor.LogStrategy} for supported log printing strategies
      *
-     * @return 日志打印策略
+     * @return logStrategy
      */
     BaseLoggingInterceptor.LogStrategy logStrategy() default BaseLoggingInterceptor.LogStrategy.BASIC;
 }

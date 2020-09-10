@@ -1,7 +1,6 @@
 package com.github.lianjiatech.retrofit.spring.boot.config;
 
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseGlobalInterceptor;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.HttpExceptionMessageFormatterInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.NetworkInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.retry.BaseRetryInterceptor;
 import okhttp3.ConnectionPool;
@@ -19,8 +18,6 @@ public class RetrofitConfigBean {
 
     private final RetrofitProperties retrofitProperties;
 
-    private HttpExceptionMessageFormatterInterceptor httpExceptionMessageFormatterInterceptor;
-
     private List<CallAdapter.Factory> callAdapterFactories;
 
     private List<Converter.Factory> converterFactories;
@@ -37,17 +34,11 @@ public class RetrofitConfigBean {
         return retrofitProperties;
     }
 
-    public HttpExceptionMessageFormatterInterceptor getHttpExceptionMessageFormatterInterceptor() {
-        return httpExceptionMessageFormatterInterceptor;
-    }
 
     public RetrofitConfigBean(RetrofitProperties retrofitProperties) {
         this.retrofitProperties = retrofitProperties;
     }
 
-    public void setHttpExceptionMessageFormatterInterceptor(HttpExceptionMessageFormatterInterceptor httpExceptionMessageFormatterInterceptor) {
-        this.httpExceptionMessageFormatterInterceptor = httpExceptionMessageFormatterInterceptor;
-    }
 
     public List<CallAdapter.Factory> getCallAdapterFactories() {
         return callAdapterFactories;

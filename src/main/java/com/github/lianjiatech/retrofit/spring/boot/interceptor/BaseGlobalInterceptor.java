@@ -19,11 +19,11 @@ public abstract class BaseGlobalInterceptor implements PrototypeInterceptor {
     }
 
     /**
-     * 执行拦截
+     * do intercept
      *
-     * @param chain 拦截器链
+     * @param chain interceptor chain
      * @return http Response
-     * @throws IOException 可能因为网络IO问题，抛出IOException
+     * @throws IOException IOException
      */
     protected abstract Response doIntercept(Chain chain) throws IOException;
 }

@@ -4,10 +4,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory;
+import com.github.lianjiatech.retrofit.spring.boot.core.PrototypeInterceptorBdfProcessor;
 import com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseGlobalInterceptor;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseHttpExceptionMessageFormatter;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.HttpExceptionMessageFormatterInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.NetworkInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.retry.BaseRetryInterceptor;
 import okhttp3.ConnectionPool;
@@ -46,11 +45,20 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
 
     private ApplicationContext applicationContext;
 
+    @Configuration
+    public static class RetrofitProcessorAutoConfiguration {
+
+        @Bean
+        public static PrototypeInterceptorBdfProcessor prototypeInterceptorBdfProcessor() {
+            return new PrototypeInterceptorBdfProcessor();
+        }
+    }
+
     @Bean
     @ConditionalOnMissingBean
     public RetrofitConfigBean retrofitConfigBean(@Autowired ObjectMapper objectMapper) throws IllegalAccessException, InstantiationException {
         RetrofitConfigBean retrofitConfigBean = new RetrofitConfigBean(retrofitProperties);
-        // 初始化连接池
+        // Initialize the connection pool
         Map<String, ConnectionPool> poolRegistry = new ConcurrentHashMap<>(4);
         Map<String, PoolConfig> pool = retrofitProperties.getPool();
         if (pool != null) {
@@ -62,12 +70,6 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
             });
         }
         retrofitConfigBean.setPoolRegistry(poolRegistry);
-
-        // 设置Http异常信息格式化器
-        Class<? extends BaseHttpExceptionMessageFormatter> httpExceptionMessageFormatterClass = retrofitProperties.getHttpExceptionMessageFormatter();
-        BaseHttpExceptionMessageFormatter alarmFormatter = httpExceptionMessageFormatterClass.newInstance();
-        HttpExceptionMessageFormatterInterceptor httpExceptionMessageFormatterInterceptor = new HttpExceptionMessageFormatterInterceptor(alarmFormatter);
-        retrofitConfigBean.setHttpExceptionMessageFormatterInterceptor(httpExceptionMessageFormatterInterceptor);
 
         // callAdapterFactory
         List<CallAdapter.Factory> callAdapterFactories = new ArrayList<>();
