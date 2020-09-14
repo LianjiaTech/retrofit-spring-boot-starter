@@ -36,7 +36,7 @@ public class ServiceInstanceChooserInterceptor implements Interceptor {
         if (StringUtils.hasText(baseUrl)) {
             return chain.proceed(request);
         }
-        // serviceId服务注册发现
+        // serviceId服务发现
         String serviceId = retrofitClient.serviceId();
         URI uri = serviceInstanceChooser.choose(serviceId);
         HttpUrl url = request.url();
