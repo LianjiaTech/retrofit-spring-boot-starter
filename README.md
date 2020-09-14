@@ -13,7 +13,7 @@
 
 [中文文档](https://github.com/LianjiaTech/retrofit-spring-boot-starter/blob/master/README_CN.md)
 
-As is known to us all, `Retrofit` is a type safe HTTP client for `Android` and `Java`. **Supporting HTTP requests through `interfaces`** is the strongest feature of `Retrofit`. `Spring-boot` is the most widely used java development framework, but there is no official `retrofit` support for rapid integration with `spring-boot` framework, so we developed `retrofit-spring-boot-starter`.
+`Retrofit` is a type safe HTTP client for `Android` and `Java`. **Supporting HTTP requests through `interfaces`** is the strongest feature of `Retrofit`. `Spring-boot` is the most widely used java development framework, but there is no official `retrofit` support for rapid integration with `spring-boot` framework, so we developed `retrofit-spring-boot-starter`.
 
 **`Retrofit-spring-boot-starter` realizes the rapid integration of `Retrofit` and `spring-boot`, supports many enhanced features and greatly simplifies development**.
 
