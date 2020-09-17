@@ -59,8 +59,7 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
 
     @Bean
     @ConditionalOnMissingBean
-    @Autowired
-    public RetrofitConfigBean retrofitConfigBean(ObjectMapper objectMapper) throws IllegalAccessException, InstantiationException {
+    public RetrofitConfigBean retrofitConfigBean() throws IllegalAccessException, InstantiationException {
         RetrofitConfigBean retrofitConfigBean = new RetrofitConfigBean(retrofitProperties);
         // Initialize the connection pool
         Map<String, ConnectionPool> poolRegistry = new ConcurrentHashMap<>(4);
@@ -90,14 +89,9 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
         retrofitConfigBean.setCallAdapterFactories(callAdapterFactories);
 
         // converterFactory
-        List<Converter.Factory> converterFactories = new ArrayList<>();
-        Collection<Converter.Factory> converterFactoryBeans = getBeans(Converter.Factory.class);
-        if (!CollectionUtils.isEmpty(converterFactoryBeans)) {
-            converterFactories.addAll(converterFactoryBeans);
-        }
-        JacksonConverterFactory defaultJacksonConverterFactory = JacksonConverterFactory.create(objectMapper);
-        converterFactories.add(defaultJacksonConverterFactory);
-        retrofitConfigBean.setConverterFactories(converterFactories);
+        Class<? extends Converter.Factory>[] globalConverterFactories = retrofitProperties.getGlobalConverterFactories();
+        retrofitConfigBean.setGlobalConverterFactoryClasses(globalConverterFactories);
+
         // globalInterceptors
         Collection<BaseGlobalInterceptor> globalInterceptors = getBeans(BaseGlobalInterceptor.class);
         retrofitConfigBean.setGlobalInterceptors(globalInterceptors);
@@ -122,6 +116,14 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
         retrofitConfigBean.setServiceInstanceChooserInterceptor(serviceInstanceChooserInterceptor);
 
         return retrofitConfigBean;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnBean(ObjectMapper.class)
+    @Autowired
+    public JacksonConverterFactory jacksonConverterFactory(ObjectMapper objectMapper) {
+        return JacksonConverterFactory.create(objectMapper);
     }
 
     @Bean
@@ -151,7 +153,6 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
         }
         return null;
     }
-
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {

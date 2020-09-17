@@ -50,6 +50,8 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
 
     private ApplicationContext applicationContext;
 
+    private static final Map<Class<? extends Converter.Factory>, Converter.Factory> CONVERTER_FACTORIES_CACHE = new HashMap<>();
+
     public RetrofitFactoryBean(Class<T> retrofitInterface) {
         this.retrofitInterface = retrofitInterface;
     }
@@ -322,26 +324,42 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         }
         // 添加Converter.Factory
         Class<? extends Converter.Factory>[] converterFactoryClasses = retrofitClient.converterFactories();
-        List<Converter.Factory> converterFactories = getConverterFactories(converterFactoryClasses);
+        Class<? extends Converter.Factory>[] globalConverterFactoryClasses = retrofitConfigBean.getGlobalConverterFactoryClasses();
+
+        List<Converter.Factory> converterFactories = getConverterFactories(converterFactoryClasses, globalConverterFactoryClasses);
         if (!CollectionUtils.isEmpty(converterFactories)) {
             converterFactories.forEach(retrofitBuilder::addConverterFactory);
         }
         return retrofitBuilder.build();
     }
 
-    private List<Converter.Factory> getConverterFactories(Class<? extends Converter.Factory>[] converterFactoryClasses) throws IllegalAccessException, InstantiationException {
+    private List<Converter.Factory> getConverterFactories(Class<? extends Converter.Factory>[] converterFactoryClasses, Class<? extends Converter.Factory>[] globalConverterFactoryClasses) throws IllegalAccessException, InstantiationException {
+        List<Class<? extends Converter.Factory>> combineConverterFactoryClasses = new ArrayList<>();
 
-        if (converterFactoryClasses == null || converterFactoryClasses.length == 0) {
-            return null;
+        if (converterFactoryClasses != null && converterFactoryClasses.length != 0) {
+            combineConverterFactoryClasses.addAll(Arrays.asList(converterFactoryClasses));
         }
+
+        if (globalConverterFactoryClasses != null && globalConverterFactoryClasses.length != 0) {
+            combineConverterFactoryClasses.addAll(Arrays.asList(globalConverterFactoryClasses));
+        }
+
+        if (combineConverterFactoryClasses.isEmpty()) {
+            return Collections.emptyList();
+        }
+
         List<Converter.Factory> converterFactories = new ArrayList<>();
-        for (Class<? extends Converter.Factory> converterFactoryClass : converterFactoryClasses) {
-            // 优先从spring容器获取bean
-            Converter.Factory factory = getBean(converterFactoryClass);
-            if (factory == null) {
-                factory = converterFactoryClass.newInstance();
+
+        for (Class<? extends Converter.Factory> converterFactoryClass : combineConverterFactoryClasses) {
+            Converter.Factory converterFactory = CONVERTER_FACTORIES_CACHE.get(converterFactoryClass);
+            if (converterFactory == null) {
+                converterFactory = getBean(converterFactoryClass);
+                if (converterFactory == null) {
+                    converterFactory = converterFactoryClass.newInstance();
+                }
+                converterFactories.add(converterFactory);
+                CONVERTER_FACTORIES_CACHE.put(converterFactoryClass, converterFactory);
             }
-            converterFactories.add(factory);
         }
         return converterFactories;
     }
