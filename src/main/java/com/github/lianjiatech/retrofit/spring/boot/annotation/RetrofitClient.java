@@ -43,8 +43,9 @@ public @interface RetrofitClient {
     String path() default "";
 
     /**
-     * 适用于当前接口的转换器工厂，优先级比全局转换器工厂更高。
+     * 适用于当前接口的转换器工厂，优先级比全局转换器工厂更高。转换器实例优先从Spring容器获取，如果没有获取到，则反射创建。
      * Converter factory for the current interface, higher priority than global converter factory.
+     * The converter instance is first obtained from the Spring container. If it is not obtained, it is created by reflection.
      */
     Class<? extends Converter.Factory>[] converterFactories() default {};
 
