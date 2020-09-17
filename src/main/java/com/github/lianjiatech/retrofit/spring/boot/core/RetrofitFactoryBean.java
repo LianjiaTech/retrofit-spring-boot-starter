@@ -321,11 +321,29 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
             callAdapterFactories.forEach(retrofitBuilder::addCallAdapterFactory);
         }
         // 添加Converter.Factory
-        List<Converter.Factory> converterFactories = retrofitConfigBean.getConverterFactories();
+        Class<? extends Converter.Factory>[] converterFactoryClasses = retrofitClient.converterFactories();
+        List<Converter.Factory> converterFactories = getConverterFactories(converterFactoryClasses);
         if (!CollectionUtils.isEmpty(converterFactories)) {
             converterFactories.forEach(retrofitBuilder::addConverterFactory);
         }
         return retrofitBuilder.build();
+    }
+
+    private List<Converter.Factory> getConverterFactories(Class<? extends Converter.Factory>[] converterFactoryClasses) throws IllegalAccessException, InstantiationException {
+
+        if (converterFactoryClasses == null || converterFactoryClasses.length == 0) {
+            return null;
+        }
+        List<Converter.Factory> converterFactories = new ArrayList<>();
+        for (Class<? extends Converter.Factory> converterFactoryClass : converterFactoryClasses) {
+            // 优先从spring容器获取bean
+            Converter.Factory factory = getBean(converterFactoryClass);
+            if (factory == null) {
+                factory = converterFactoryClass.newInstance();
+            }
+            converterFactories.add(factory);
+        }
+        return converterFactories;
     }
 
 
