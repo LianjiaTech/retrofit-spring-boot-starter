@@ -4,6 +4,7 @@ import com.github.lianjiatech.retrofit.spring.boot.core.DefaultErrorDecoder;
 import com.github.lianjiatech.retrofit.spring.boot.core.ErrorDecoder;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.LogStrategy;
 import org.slf4j.event.Level;
+import retrofit2.Converter;
 import retrofit2.Retrofit;
 
 import java.lang.annotation.*;
@@ -40,6 +41,13 @@ public @interface RetrofitClient {
      * Path prefix to be used by all method-level mappings.
      */
     String path() default "";
+
+    /**
+     * 适用于当前接口的转换器工厂，优先级比全局转换器工厂更高。
+     * Converter factory for the current interface, higher priority than global converter factory.
+     */
+    Class<? extends Converter.Factory>[] converterFactories() default {};
+
 
     /**
      * When calling {@link Retrofit#create(Class)} on the resulting {@link Retrofit} instance, eagerly validate the
