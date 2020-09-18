@@ -172,7 +172,17 @@ public interface HttpApi3 {
 
 ### 微服务之间的HTTP调用
 
-**通过配置`@Retrofit`的`serviceId`和`path`属性，可以实现微服务之间的HTTP调用**。用户需要自行实现`ServiceInstanceChooser`接口，完成服务实例的选取逻辑，并将其配置成`Spring`容器的`Bean`。对于`Spring Cloud`应用，`retrofit-spring-boot-starter`提供了`SpringCloudServiceInstanceChooser`实现。
+**通过配置`@Retrofit`的`serviceId`和`path`属性，可以实现微服务之间的HTTP调用**。比如：
+
+```java
+@RetrofitClient(serviceId = "${jy-helicarrier-api.serviceId}", path = "/m/count", errorDecoder = HelicarrierErrorDecoder.class)
+@Retry
+public interface ApiCountService {
+
+}
+```
+
+用户需要自行实现`ServiceInstanceChooser`接口，完成服务实例的选取逻辑，并将其配置成`Spring`容器的`Bean`。对于`Spring Cloud`应用，`retrofit-spring-boot-starter`提供了`SpringCloudServiceInstanceChooser`实现。
 
 ```java
 public interface ServiceInstanceChooser {
