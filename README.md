@@ -577,11 +577,15 @@ You only need to implement the `NetworkInterceptor` interface and configure it a
 - Wire: com.squareup.Retrofit:converter-wire
 - Simple XML: com.squareup.Retrofit:converter-simplexml
 
-`Retrofit-spring-boot-starter` uses jackson to perform serialization conversion by default. You can directly configure `jackson` serialization rules through `spring.jackson.*`. For configuration, please refer to [Customize the Jackson ObjectMapper](https://docs.spring.io/spring-boot/docs/2.1.5.RELEASE/reference/htmlsingle/#howto-customize-the-jackson-objectmapper)! **If you need to use other serialization methods, introduce the corresponding dependency in the project, and then configure the corresponding `ConverterFactory` as a spring bean**.
+`retrofit-spring-boot-starter` supports configuring the global `converter factory` through `retrofit.global-converter-factories`. The converter factory instance is first obtained from the Spring container. If it is not obtained, it is created by reflection. The default global data converter factory is `retrofit2.converter.jackson.JacksonConverterFactory`, you can directly configure the `jackson` serialization rules through `spring.jackson.*`, please refer to [Customize the Jackson ObjectMapper](https:/ /docs.spring.io/spring-boot/docs/2.1.5.RELEASE/reference/htmlsingle/#howto-customize-the-jackson-objectmapper)!
 
-**We can also implement our own `Converter` by extending the extension of `Converter.Factory`** and then configure the custom `Converter.Factory` as the `bean` of `spring`!
+```yaml
+retrofit:
+  global-converter-factories:
+    - retrofit2.converter.jackson.JacksonConverterFactory
+```
 
-> The custom configuration of `Converter.Factory` has higher priority!
+For each Java interface, you can also specify the `Converter.Factory` used by the current interface through `converterFactories()` annotated by `@RetrofitClient`, and the specified converter factory instance is still preferentially obtained from the Spring container.
 
 
 ## Other features
