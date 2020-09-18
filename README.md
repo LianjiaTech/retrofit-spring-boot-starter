@@ -174,7 +174,17 @@ public interface HttpApi3 {
 
 ### HTTP calls between microservices
 
-**By configuring the `serviceId` and `path` properties of `@Retrofit`, HTTP calls between microservices can be realized. Users need to implement the `ServiceInstanceChooser` interface by themselves, complete the selection logic of the service instance, and configure it as the `Bean` of the `Spring` container**.
+**By configuring the `serviceId` and `path` properties of `@Retrofit`, HTTP calls between microservices can be realized**.
+
+```java
+@RetrofitClient(serviceId = "${jy-helicarrier-api.serviceId}", path = "/m/count", errorDecoder = HelicarrierErrorDecoder.class)
+@Retry
+public interface ApiCountService {
+
+}
+```
+
+Users need to implement the `ServiceInstanceChooser` interface by themselves, complete the selection logic of the service instance, and configure it as the `Bean` of the `Spring` container.
 For `Spring Cloud` applications, `retrofit-spring-boot-starter` provides the implementation of `SpringCloudServiceInstanceChooser`.
 
 ```java
