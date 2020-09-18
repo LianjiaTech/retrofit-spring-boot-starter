@@ -21,8 +21,8 @@ retrofit:
   # 请求重试拦截器
   retry-interceptor: com.github.lianjiatech.retrofit.spring.boot.retry.DefaultRetryInterceptor
   # 全局转换器工厂
-  global-converter-factories:
-    - retrofit2.converter.jackson.JacksonConverterFactory
+#  global-converter-factories:
+#    - retrofit2.converter.jackson.JacksonConverterFactory
 
 test:
   baseUrl: http://localhost:8080/api/test/

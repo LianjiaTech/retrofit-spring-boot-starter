@@ -118,13 +118,6 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
         return retrofitConfigBean;
     }
 
-    @Bean
-    @ConditionalOnMissingBean
-    @ConditionalOnBean(ObjectMapper.class)
-    @Autowired
-    public JacksonConverterFactory jacksonConverterFactory(ObjectMapper objectMapper) {
-        return JacksonConverterFactory.create(objectMapper);
-    }
 
     @Bean
     @ConditionalOnMissingBean
@@ -132,6 +125,13 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
         return new ObjectMapper()
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                 .setSerializationInclusion(JsonInclude.Include.NON_NULL);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    @Autowired
+    public JacksonConverterFactory jacksonConverterFactory(ObjectMapper objectMapper) {
+        return JacksonConverterFactory.create(objectMapper);
     }
 
     @Bean
