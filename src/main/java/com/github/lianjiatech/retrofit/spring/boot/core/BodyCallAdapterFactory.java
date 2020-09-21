@@ -71,13 +71,8 @@ public final class BodyCallAdapterFactory extends CallAdapter.Factory {
             Request request = call.request();
             try {
                 response = call.execute();
-                if (!response.isSuccessful()) {
-                    throw Objects.requireNonNull(RetrofitException.errorStatus(request, response.raw()));
-                }
             } catch (IOException e) {
                 throw Objects.requireNonNull(RetrofitException.errorExecuting(request, e));
-            } catch (Exception e) {
-                throw Objects.requireNonNull(RetrofitException.errorUnknown(request, e));
             }
             return response.body();
         }
