@@ -3,19 +3,22 @@ package com.github.lianjiatech.retrofit.spring.boot.config;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory;
-import com.github.lianjiatech.retrofit.spring.boot.core.PrototypeInterceptorBdfProcessor;
-import com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory;
+import com.github.lianjiatech.retrofit.spring.boot.core.*;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseGlobalInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.NetworkInterceptor;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.ServiceInstanceChooserInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.retry.BaseRetryInterceptor;
 import okhttp3.ConnectionPool;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
@@ -37,7 +40,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Configuration
 @EnableConfigurationProperties(RetrofitProperties.class)
-@AutoConfigureAfter(JacksonAutoConfiguration.class)
+@AutoConfigureAfter({JacksonAutoConfiguration.class, LoadBalancerAutoConfiguration.class})
 public class RetrofitAutoConfiguration implements ApplicationContextAware {
 
     @Autowired
@@ -56,7 +59,8 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
 
     @Bean
     @ConditionalOnMissingBean
-    public RetrofitConfigBean retrofitConfigBean(@Autowired ObjectMapper objectMapper) throws IllegalAccessException, InstantiationException {
+    @Autowired
+    public RetrofitConfigBean retrofitConfigBean(ObjectMapper objectMapper) throws IllegalAccessException, InstantiationException {
         RetrofitConfigBean retrofitConfigBean = new RetrofitConfigBean(retrofitProperties);
         // Initialize the connection pool
         Map<String, ConnectionPool> poolRegistry = new ConcurrentHashMap<>(4);
@@ -106,6 +110,17 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
         Collection<NetworkInterceptor> networkInterceptors = getBeans(NetworkInterceptor.class);
         retrofitConfigBean.setNetworkInterceptors(networkInterceptors);
 
+        // add ServiceInstanceChooserInterceptor
+        ServiceInstanceChooser serviceInstanceChooser;
+        try {
+            serviceInstanceChooser = applicationContext.getBean(ServiceInstanceChooser.class);
+        } catch (BeansException e) {
+            serviceInstanceChooser = new NoValidServiceInstanceChooser();
+        }
+
+        ServiceInstanceChooserInterceptor serviceInstanceChooserInterceptor = new ServiceInstanceChooserInterceptor(serviceInstanceChooser);
+        retrofitConfigBean.setServiceInstanceChooserInterceptor(serviceInstanceChooserInterceptor);
+
         return retrofitConfigBean;
     }
 
@@ -116,6 +131,16 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                 .setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
+
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnClass(LoadBalancerClient.class)
+    @ConditionalOnBean(LoadBalancerClient.class)
+    @Autowired
+    public ServiceInstanceChooser serviceInstanceChooser(LoadBalancerClient loadBalancerClient) {
+        return new SpringCloudServiceInstanceChooser(loadBalancerClient);
+    }
+
 
     private <U> Collection<U> getBeans(Class<U> clz) {
         try {

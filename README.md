@@ -6,7 +6,7 @@
 [![Maven central](https://maven-badges.herokuapp.com/maven-central/com.github.lianjiatech/retrofit-spring-boot-starter/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.lianjiatech/retrofit-spring-boot-starter)
 [![GitHub release](https://img.shields.io/github/v/release/lianjiatech/retrofit-spring-boot-starter.svg)](https://github.com/LianjiaTech/retrofit-spring-boot-starter/releases)
 [![License](https://img.shields.io/badge/JDK-1.8+-4EB1BA.svg)](https://docs.oracle.com/javase/8/docs/index.html)
-[![License](https://img.shields.io/badge/springboot-1.x+-green.svg)](https://docs.spring.io/spring-boot/docs/2.1.5.RELEASE/reference/htmlsingle/)
+[![License](https://img.shields.io/badge/SpringBoot-1.x+-green.svg)](https://docs.spring.io/spring-boot/docs/2.1.5.RELEASE/reference/htmlsingle/)
 [![Author](https://img.shields.io/badge/Author-chentianming-orange.svg?style=flat-square)](https://juejin.im/user/3562073404738584/posts)
 [![QQ-Group](https://img.shields.io/badge/QQ%E7%BE%A4-806714302-orange.svg?style=flat-square) ](https://img.ljcdn.com/hc-picture/HTTP-exception-information-formatter6302d742-ebc8-4649-95cf-62ccf57a1add)
 
@@ -24,6 +24,7 @@
 ## Features
 
 - [x] [Custom injection OkHttpClient](#Custom-injection-OkHttpClient)
+- [x] [HTTP calls between microservices](#HTTP-calls-between-microservices)
 - [x] [Annotation interceptor](#Annotation-interceptor)
 - [x] [Connection pool management](#Connection-pool-management)
 - [x] [Log printing](#Log-printing)
@@ -41,7 +42,7 @@
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
     <artifactId>retrofit-spring-boot-starter</artifactId>
-    <version>2.1.3</version>
+    <version>2.1.4</version>
 </dependency>
 ```
 
@@ -169,6 +170,36 @@ public interface HttpApi3 {
 ```
 
 > The method must be marked with `@OkHttpClientBuilder` annotation!
+
+
+### HTTP calls between microservices
+
+**By configuring the `serviceId` and `path` properties of `@Retrofit`, HTTP calls between microservices can be realized**.
+
+```java
+@RetrofitClient(serviceId = "${jy-helicarrier-api.serviceId}", path = "/m/count", errorDecoder = HelicarrierErrorDecoder.class)
+@Retry
+public interface ApiCountService {
+
+}
+```
+
+Users need to implement the `ServiceInstanceChooser` interface by themselves, complete the selection logic of the service instance, and configure it as the `Bean` of the `Spring` container.
+For `Spring Cloud` applications, `retrofit-spring-boot-starter` provides the implementation of `SpringCloudServiceInstanceChooser`.
+
+```java
+public interface ServiceInstanceChooser {
+
+    /**
+     * Chooses a ServiceInstance URI from the LoadBalancer for the specified service.
+     *
+     * @param serviceId The service ID to look up the LoadBalancer.
+     * @return Return the uri of ServiceInstance
+     */
+    URI choose(String serviceId);
+
+}
+```
 
 ### Annotation interceptor
 

@@ -23,6 +23,7 @@
 ## 功能特性
 
 - [x] [自定义注入OkHttpClient](#自定义注入OkHttpClient)
+- [x] [微服务之间的HTTP调用](#微服务之间的HTTP调用)
 - [x] [注解式拦截器](#注解式拦截器)
 - [x] [连接池管理](#连接池管理)
 - [x] [日志打印](#日志打印)
@@ -40,7 +41,7 @@
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
     <artifactId>retrofit-spring-boot-starter</artifactId>
-    <version>2.1.3</version>
+    <version>2.1.4</version>
 </dependency>
 ```
 
@@ -168,6 +169,35 @@ public interface HttpApi3 {
 ```
 
 > 方法必须使用`@OkHttpClientBuilder`注解标记！
+
+### 微服务之间的HTTP调用
+
+**通过配置`@Retrofit`的`serviceId`和`path`属性，可以实现微服务之间的HTTP调用**。比如：
+
+```java
+@RetrofitClient(serviceId = "${jy-helicarrier-api.serviceId}", path = "/m/count", errorDecoder = HelicarrierErrorDecoder.class)
+@Retry
+public interface ApiCountService {
+
+}
+```
+
+用户需要自行实现`ServiceInstanceChooser`接口，完成服务实例的选取逻辑，并将其配置成`Spring`容器的`Bean`。对于`Spring Cloud`应用，`retrofit-spring-boot-starter`提供了`SpringCloudServiceInstanceChooser`实现。
+
+```java
+public interface ServiceInstanceChooser {
+
+    /**
+     * Chooses a ServiceInstance URI from the LoadBalancer for the specified service.
+     *
+     * @param serviceId The service ID to look up the LoadBalancer.
+     * @return Return the uri of ServiceInstance
+     */
+    URI choose(String serviceId);
+
+}
+```
+
 
 ### 注解式拦截器
 

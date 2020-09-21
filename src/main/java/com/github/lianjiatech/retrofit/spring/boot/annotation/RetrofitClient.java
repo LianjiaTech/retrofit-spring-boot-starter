@@ -2,7 +2,7 @@ package com.github.lianjiatech.retrofit.spring.boot.annotation;
 
 import com.github.lianjiatech.retrofit.spring.boot.core.DefaultErrorDecoder;
 import com.github.lianjiatech.retrofit.spring.boot.core.ErrorDecoder;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseLoggingInterceptor;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.LogStrategy;
 import org.slf4j.event.Level;
 import retrofit2.Retrofit;
 
@@ -17,13 +17,29 @@ import java.lang.annotation.*;
 public @interface RetrofitClient {
 
     /**
-     * 基础url, 支持占位符形式配置。
-     * baseUrl, Supports placeholder configuration.
-     * http://${baseUrl.test}
+     * 绝对URL（协议是必需的）。
+     * 可以指定为属性键，例如：$ {propertyKey}。
+     * 如果baseUrl没有配置，则必须配置serviceId以及，path可选配置。
+     *
+     * An absolute URL (the protocol is necessary).
+     * Can be specified as property key, eg: ${propertyKey}.
+     * If baseUrl is not configured, you must configure serviceId and path optional configuration.
+     *
      *
      * @return baseUrl
      */
-    String baseUrl();
+    String baseUrl() default "";
+
+    /**
+     * The name of the service.
+     * Can be specified as property key, eg: ${propertyKey}.
+     */
+    String serviceId() default "";
+
+    /**
+     * Path prefix to be used by all method-level mappings.
+     */
+    String path() default "";
 
     /**
      * When calling {@link Retrofit#create(Class)} on the resulting {@link Retrofit} instance, eagerly validate the
@@ -136,10 +152,10 @@ public @interface RetrofitClient {
     Level logLevel() default Level.INFO;
 
     /**
-     * 日志打印策略，支持的日志打印策略参见{@link BaseLoggingInterceptor.LogStrategy}
-     * Log printing strategy, see {@link BaseLoggingInterceptor.LogStrategy} for supported log printing strategies
+     * 日志打印策略，支持的日志打印策略参见{@link LogStrategy}
+     * Log printing strategy, see {@link LogStrategy} for supported log printing strategies
      *
      * @return logStrategy
      */
-    BaseLoggingInterceptor.LogStrategy logStrategy() default BaseLoggingInterceptor.LogStrategy.BASIC;
+    LogStrategy logStrategy() default LogStrategy.BASIC;
 }
