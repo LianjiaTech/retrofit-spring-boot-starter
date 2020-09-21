@@ -12,13 +12,9 @@ import okhttp3.ConnectionPool;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration;
-import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
@@ -40,7 +36,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Configuration
 @EnableConfigurationProperties(RetrofitProperties.class)
-@AutoConfigureAfter({JacksonAutoConfiguration.class, LoadBalancerAutoConfiguration.class})
+@AutoConfigureAfter({JacksonAutoConfiguration.class})
 public class RetrofitAutoConfiguration implements ApplicationContextAware {
 
     @Autowired
@@ -130,15 +126,6 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
         return new ObjectMapper()
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                 .setSerializationInclusion(JsonInclude.Include.NON_NULL);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    @ConditionalOnClass(LoadBalancerClient.class)
-    @ConditionalOnBean(LoadBalancerClient.class)
-    @Autowired
-    public ServiceInstanceChooser serviceInstanceChooser(LoadBalancerClient loadBalancerClient) {
-        return new SpringCloudServiceInstanceChooser(loadBalancerClient);
     }
 
 
