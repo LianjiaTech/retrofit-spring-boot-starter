@@ -56,8 +56,8 @@ public class RetrofitExceptionTest {
     }
 
 
-    //    @Test(expected = Throwable.class)
-    @Test
+    @Test(expected = Throwable.class)
+//    @Test
     public void testHttpResponseFailure() throws IOException {
         // mock
         Map<String, Object> map = new HashMap<>(4);
@@ -80,8 +80,8 @@ public class RetrofitExceptionTest {
         System.out.println(error);
     }
 
-    //    @Test(expected = Throwable.class)
-    @Test
+    @Test(expected = Throwable.class)
+//    @Test
     public void testIOException() {
         Person person = new Person().setId(1L).setName("test").setAge(10);
         Person error = httpApi.error(person);
