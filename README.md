@@ -42,7 +42,7 @@
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
     <artifactId>retrofit-spring-boot-starter</artifactId>
-    <version>2.1.5</version>
+    <version>2.1.6</version>
 </dependency>
 ```
 
@@ -185,7 +185,7 @@ public interface ApiCountService {
 ```
 
 Users need to implement the `ServiceInstanceChooser` interface by themselves, complete the selection logic of the service instance, and configure it as the `Bean` of the `Spring` container.
-For `Spring Cloud` applications, `retrofit-spring-boot-starter` provides the implementation of `SpringCloudServiceInstanceChooser`.
+For `Spring Cloud` applications, `retrofit-spring-boot-starter` provides the implementation of `SpringCloudServiceInstanceChooser`, Users only need to configure it as the `Bean` of `Spring`.
 
 ```java
 public interface ServiceInstanceChooser {
@@ -198,6 +198,14 @@ public interface ServiceInstanceChooser {
      */
     URI choose(String serviceId);
 
+}
+```
+
+```java
+@Bean
+@Autowired
+public ServiceInstanceChooser serviceInstanceChooser(LoadBalancerClient loadBalancerClient) {
+    return new SpringCloudServiceInstanceChooser(loadBalancerClient);
 }
 ```
 
