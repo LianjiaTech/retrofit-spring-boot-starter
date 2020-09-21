@@ -20,6 +20,7 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.env.Environment;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import retrofit2.CallAdapter;
 import retrofit2.Converter;
 import retrofit2.Retrofit;
@@ -36,6 +37,8 @@ import java.util.concurrent.TimeUnit;
  * @author 陈添明
  */
 public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware, ApplicationContextAware {
+
+    public static final String SUFFIX = "/";
 
     private Class<T> retrofitInterface;
 
@@ -68,8 +71,13 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         // check class type
         Assert.isTrue(retrofitInterface.isInterface(), "@RetrofitClient can only be marked on the interface type!");
         Method[] methods = retrofitInterface.getMethods();
-        for (Method method : methods) {
 
+        RetrofitClient retrofitClient = retrofitInterface.getAnnotation(RetrofitClient.class);
+
+        Assert.isTrue(StringUtils.hasText(retrofitClient.baseUrl()) || StringUtils.hasText(retrofitClient.path()),
+                "@RetrofitClient's baseUrl and serviceId must be configured with one！");
+
+        for (Method method : methods) {
             Class<?> returnType = method.getReturnType();
             if (method.isAnnotationPresent(OkHttpClientBuilder.class)) {
                 Assert.isTrue(returnType.equals(OkHttpClient.Builder.class), "For methods annotated by @OkHttpClientBuilder, the return value must be OkHttpClient.Builder！");
@@ -144,6 +152,12 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
                     .connectionPool(connectionPool);
         }
 
+        // add ServiceInstanceChooserInterceptor
+        ServiceInstanceChooserInterceptor serviceInstanceChooserInterceptor = retrofitConfigBean.getServiceInstanceChooserInterceptor();
+        if (serviceInstanceChooserInterceptor != null) {
+            okHttpClientBuilder.addInterceptor(serviceInstanceChooserInterceptor);
+        }
+
         // add ErrorDecoderInterceptor
         Class<? extends ErrorDecoder> errorDecoderClass = retrofitClient.errorDecoder();
         ErrorDecoder decoder = getBean(errorDecoderClass);
@@ -169,7 +183,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         // add log printing interceptor
         if (retrofitProperties.isEnableLog() && retrofitClient.enableLog()) {
             Class<? extends BaseLoggingInterceptor> loggingInterceptorClass = retrofitProperties.getLoggingInterceptor();
-            Constructor<? extends BaseLoggingInterceptor> constructor = loggingInterceptorClass.getConstructor(Level.class, BaseLoggingInterceptor.LogStrategy.class);
+            Constructor<? extends BaseLoggingInterceptor> constructor = loggingInterceptorClass.getConstructor(Level.class, LogStrategy.class);
             BaseLoggingInterceptor loggingInterceptor = constructor.newInstance(retrofitClient.logLevel(), retrofitClient.logStrategy());
             okHttpClientBuilder.addNetworkInterceptor(loggingInterceptor);
         }
@@ -279,8 +293,23 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
     private synchronized Retrofit getRetrofit(Class<?> retrofitClientInterfaceClass) throws InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         RetrofitClient retrofitClient = retrofitClientInterfaceClass.getAnnotation(RetrofitClient.class);
         String baseUrl = retrofitClient.baseUrl();
-        // 解析baseUrl占位符
-        baseUrl = environment.resolveRequiredPlaceholders(baseUrl);
+
+        if (StringUtils.hasText(baseUrl)) {
+            baseUrl = environment.resolveRequiredPlaceholders(baseUrl);
+            // 解析baseUrl占位符
+            if (!baseUrl.endsWith(SUFFIX)) {
+                baseUrl += SUFFIX;
+            }
+        } else {
+            String serviceId = retrofitClient.serviceId();
+            String path = retrofitClient.path();
+            if (!path.endsWith(SUFFIX)) {
+                path += SUFFIX;
+            }
+            baseUrl = "http://" + (serviceId + SUFFIX + path).replaceAll("/+", SUFFIX);
+            baseUrl = environment.resolveRequiredPlaceholders(baseUrl);
+        }
+
         OkHttpClient client = getOkHttpClient(retrofitClientInterfaceClass);
         Retrofit.Builder retrofitBuilder = new Retrofit.Builder()
                 .baseUrl(baseUrl)
