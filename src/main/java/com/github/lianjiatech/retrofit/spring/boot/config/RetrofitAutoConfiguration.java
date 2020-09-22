@@ -130,15 +130,6 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
         return JacksonConverterFactory.create(objectMapper);
     }
 
-    @Bean
-    @ConditionalOnMissingBean
-    @ConditionalOnClass(LoadBalancerClient.class)
-    @ConditionalOnBean(LoadBalancerClient.class)
-    @Autowired
-    public ServiceInstanceChooser serviceInstanceChooser(LoadBalancerClient loadBalancerClient) {
-        return new SpringCloudServiceInstanceChooser(loadBalancerClient);
-    }
-
 
     private <U> Collection<U> getBeans(Class<U> clz) {
         try {

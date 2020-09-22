@@ -359,9 +359,9 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
                 if (converterFactory == null) {
                     converterFactory = converterFactoryClass.newInstance();
                 }
-                converterFactories.add(converterFactory);
                 CONVERTER_FACTORIES_CACHE.put(converterFactoryClass, converterFactory);
             }
+            converterFactories.add(converterFactory);
         }
         return converterFactories;
     }
