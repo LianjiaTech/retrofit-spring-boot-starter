@@ -72,8 +72,6 @@ public final class ResponseCallAdapterFactory extends CallAdapter.Factory {
                 return call.execute();
             } catch (IOException e) {
                 throw Objects.requireNonNull(RetrofitException.errorExecuting(request, e));
-            } catch (Exception e) {
-                throw Objects.requireNonNull(RetrofitException.errorUnknown(request, e));
             }
         }
     }
