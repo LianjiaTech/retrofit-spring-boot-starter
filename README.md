@@ -42,7 +42,7 @@
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
     <artifactId>retrofit-spring-boot-starter</artifactId>
-    <version>2.1.6</version>
+    <version>2.1.7</version>
 </dependency>
 ```
 
@@ -588,12 +588,13 @@ You only need to implement the `NetworkInterceptor` interface and configure it a
 
 `Retrofit` uses `Converter` to convert the object annotated with `@Body` into the request body, and the response body data into a `Java` object. The following types of `Converter` can be used:
 
-- Gson: com.squareup.Retrofit:converter-gson
-- Jackson: com.squareup.Retrofit:converter-jackson
-- Moshi: com.squareup.Retrofit:converter-moshi
-- Protobuf: com.squareup.Retrofit:converter-protobuf
-- Wire: com.squareup.Retrofit:converter-wire
-- Simple XML: com.squareup.Retrofit:converter-simplexml
+- [Gson](https://github.com/google/gson): com.squareup.Retrofit:converter-gson
+- [Jackson](https://github.com/FasterXML/jackson): com.squareup.Retrofit:converter-jackson
+- [Moshi](https://github.com/square/moshi/): com.squareup.Retrofit:converter-moshi
+- [Protobuf](https://developers.google.com/protocol-buffers/): com.squareup.Retrofit:converter-protobuf
+- [Wire](https://github.com/square/wire): com.squareup.Retrofit:converter-wire
+- [Simple XML](http://simple.sourceforge.net/): com.squareup.Retrofit:converter-simplexml
+- [JAXB](https://docs.oracle.com/javase/tutorial/jaxb/intro/index.html): com.squareup.retrofit2:converter-jaxb
 
 `retrofit-spring-boot-starter` supports configuring the global `converter factory` through `retrofit.global-converter-factories`. The converter factory instance is first obtained from the Spring container. If it is not obtained, it is created by reflection. The default global data converter factory is `retrofit2.converter.jackson.JacksonConverterFactory`, you can directly configure the `jackson` serialization rules through `spring.jackson.*`, please refer to [Customize the Jackson ObjectMapper](https:/ /docs.spring.io/spring-boot/docs/2.1.5.RELEASE/reference/htmlsingle/#howto-customize-the-jackson-objectmapper)!
 
