@@ -155,9 +155,11 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         }
 
         // add ServiceInstanceChooserInterceptor
-        ServiceInstanceChooserInterceptor serviceInstanceChooserInterceptor = retrofitConfigBean.getServiceInstanceChooserInterceptor();
-        if (serviceInstanceChooserInterceptor != null) {
-            okHttpClientBuilder.addInterceptor(serviceInstanceChooserInterceptor);
+        if (StringUtils.hasText(retrofitClient.serviceId())) {
+            ServiceInstanceChooserInterceptor serviceInstanceChooserInterceptor = retrofitConfigBean.getServiceInstanceChooserInterceptor();
+            if (serviceInstanceChooserInterceptor != null) {
+                okHttpClientBuilder.addInterceptor(serviceInstanceChooserInterceptor);
+            }
         }
 
         // add ErrorDecoderInterceptor

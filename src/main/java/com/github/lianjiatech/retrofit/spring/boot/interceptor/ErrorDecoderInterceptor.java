@@ -31,8 +31,8 @@ public class ErrorDecoderInterceptor implements Interceptor {
             if (errorDecoder == null) {
                 return response;
             }
-            Exception exception = errorDecoder.invalidRespDecode(request, response);
             decoded = true;
+            Exception exception = errorDecoder.invalidRespDecode(request, response);
             if (exception == null) {
                 return response;
             }
