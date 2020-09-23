@@ -596,7 +596,7 @@ You only need to implement the `NetworkInterceptor` interface and configure it a
 - [Simple XML](http://simple.sourceforge.net/): com.squareup.Retrofit:converter-simplexml
 - [JAXB](https://docs.oracle.com/javase/tutorial/jaxb/intro/index.html): com.squareup.retrofit2:converter-jaxb
 
-`retrofit-spring-boot-starter` supports configuring the global `converter factory` through `retrofit.global-converter-factories`. The converter factory instance is first obtained from the Spring container. If it is not obtained, it is created by reflection. The default global data converter factory is `retrofit2.converter.jackson.JacksonConverterFactory`, you can directly configure the `jackson` serialization rules through `spring.jackson.*`, please refer to [Customize the Jackson ObjectMapper](https:/ /docs.spring.io/spring-boot/docs/2.1.5.RELEASE/reference/htmlsingle/#howto-customize-the-jackson-objectmapper)!
+`retrofit-spring-boot-starter` supports configuring the global `converter factory` through `retrofit.global-converter-factories`. The converter factory instance is first obtained from the Spring container. If it is not obtained, it is created by reflection. The default global data converter factory is `retrofit2.converter.jackson.JacksonConverterFactory`, you can directly configure the `jackson` serialization rules through `spring.jackson.*`, please refer to [Customize the Jackson ObjectMapper](https://docs.spring.io/spring-boot/docs/2.1.5.RELEASE/reference/htmlsingle/#howto-customize-the-jackson-objectmapper)
 
 ```yaml
 retrofit:
