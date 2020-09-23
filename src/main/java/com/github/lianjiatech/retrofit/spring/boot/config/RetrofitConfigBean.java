@@ -21,8 +21,6 @@ public class RetrofitConfigBean {
 
     private List<CallAdapter.Factory> callAdapterFactories;
 
-    private List<Converter.Factory> converterFactories;
-
     private Map<String, ConnectionPool> poolRegistry;
 
     private Collection<BaseGlobalInterceptor> globalInterceptors;
@@ -32,6 +30,8 @@ public class RetrofitConfigBean {
     private BaseRetryInterceptor retryInterceptor;
 
     private ServiceInstanceChooserInterceptor serviceInstanceChooserInterceptor;
+
+    private Class<? extends Converter.Factory>[] globalConverterFactoryClasses;
 
     public RetrofitProperties getRetrofitProperties() {
         return retrofitProperties;
@@ -49,14 +49,6 @@ public class RetrofitConfigBean {
 
     public void setCallAdapterFactories(List<CallAdapter.Factory> callAdapterFactories) {
         this.callAdapterFactories = callAdapterFactories;
-    }
-
-    public List<Converter.Factory> getConverterFactories() {
-        return converterFactories;
-    }
-
-    public void setConverterFactories(List<Converter.Factory> converterFactories) {
-        this.converterFactories = converterFactories;
     }
 
     public Map<String, ConnectionPool> getPoolRegistry() {
@@ -97,5 +89,13 @@ public class RetrofitConfigBean {
 
     public void setServiceInstanceChooserInterceptor(ServiceInstanceChooserInterceptor serviceInstanceChooserInterceptor) {
         this.serviceInstanceChooserInterceptor = serviceInstanceChooserInterceptor;
+    }
+
+    public Class<? extends Converter.Factory>[] getGlobalConverterFactoryClasses() {
+        return globalConverterFactoryClasses;
+    }
+
+    public void setGlobalConverterFactoryClasses(Class<? extends Converter.Factory>[] globalConverterFactoryClasses) {
+        this.globalConverterFactoryClasses = globalConverterFactoryClasses;
     }
 }
