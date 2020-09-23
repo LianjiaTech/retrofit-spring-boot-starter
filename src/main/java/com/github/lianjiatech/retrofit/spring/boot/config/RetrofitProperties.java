@@ -8,6 +8,8 @@ import com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInt
 import com.github.lianjiatech.retrofit.spring.boot.retry.BaseRetryInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.retry.DefaultRetryInterceptor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import retrofit2.Converter;
+import retrofit2.converter.jackson.JacksonConverterFactory;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -47,7 +49,6 @@ public class RetrofitProperties {
     /**
      * 日志打印拦截器
      * Log print Interceptor
-     *
      */
     private Class<? extends BaseLoggingInterceptor> loggingInterceptor = DefaultLoggingInterceptor.class;
 
@@ -62,6 +63,13 @@ public class RetrofitProperties {
      * Disable Void return type
      */
     private boolean disableVoidReturnType = false;
+
+    /**
+     * 全局转换器工厂，转换器实例优先从Spring容器获取，如果没有获取到，则反射创建。
+     * global converter factories, The converter instance is first obtained from the Spring container. If it is not obtained, it is created by reflection.
+     */
+    @SuppressWarnings("unchecked")
+    private Class<? extends Converter.Factory>[] globalConverterFactories = (Class<? extends Converter.Factory>[]) new Class[]{JacksonConverterFactory.class};
 
 
     public Class<? extends BaseLoggingInterceptor> getLoggingInterceptor() {
@@ -122,5 +130,13 @@ public class RetrofitProperties {
 
     public void setRetryInterceptor(Class<? extends BaseRetryInterceptor> retryInterceptor) {
         this.retryInterceptor = retryInterceptor;
+    }
+
+    public Class<? extends Converter.Factory>[] getGlobalConverterFactories() {
+        return globalConverterFactories;
+    }
+
+    public void setGlobalConverterFactories(Class<? extends Converter.Factory>[] globalConverterFactories) {
+        this.globalConverterFactories = globalConverterFactories;
     }
 }
