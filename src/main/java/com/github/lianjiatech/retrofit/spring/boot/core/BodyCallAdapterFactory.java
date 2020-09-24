@@ -17,10 +17,8 @@ package com.github.lianjiatech.retrofit.spring.boot.core;
 
 import com.github.lianjiatech.retrofit.spring.boot.exception.RetrofitException;
 import okhttp3.Request;
-import retrofit2.Call;
-import retrofit2.CallAdapter;
-import retrofit2.Response;
-import retrofit2.Retrofit;
+import okhttp3.ResponseBody;
+import retrofit2.*;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
@@ -49,15 +47,21 @@ public final class BodyCallAdapterFactory extends CallAdapter.Factory {
         if (Response.class.isAssignableFrom(getRawType(returnType))) {
             return null;
         }
-        return new BodyCallAdapter(returnType);
+        return new BodyCallAdapter(returnType, annotations, retrofit);
     }
 
     final class BodyCallAdapter<R> implements CallAdapter<R, R> {
 
         private Type returnType;
 
-        BodyCallAdapter(Type returnType) {
+        private Retrofit retrofit;
+
+        private Annotation[] annotations;
+
+        BodyCallAdapter(Type returnType, Annotation[] annotations, Retrofit retrofit) {
             this.returnType = returnType;
+            this.retrofit = retrofit;
+            this.annotations = annotations;
         }
 
         @Override
@@ -74,7 +78,21 @@ public final class BodyCallAdapterFactory extends CallAdapter.Factory {
             } catch (IOException e) {
                 throw Objects.requireNonNull(RetrofitException.errorExecuting(request, e));
             }
-            return response.body();
+
+            if (response.isSuccessful()) {
+                return response.body();
+            }
+
+            ResponseBody errorBody = response.errorBody();
+            if (errorBody == null) {
+                return null;
+            }
+            Converter<ResponseBody, R> converter = retrofit.responseBodyConverter(responseType(), annotations);
+            try {
+                return converter.convert(Objects.requireNonNull(errorBody));
+            } catch (IOException e) {
+                throw Objects.requireNonNull(RetrofitException.errorExecuting(request, e));
+            }
         }
     }
 }
