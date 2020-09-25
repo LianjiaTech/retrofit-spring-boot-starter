@@ -624,6 +624,8 @@ retrofit:
 
 针对每个Java接口，还可以通过`@RetrofitClient`注解的`converterFactories()`指定当前接口采用的`Converter.Factory`，指定的转换器工厂实例依然优先从Spring容器获取。
 
+**注意：如果`Converter.Factory`没有`public`的无参构造器，请手动将其配置成`Spring`容器的`Bean`对象**！
+
 
 ## 其他功能示例
 
