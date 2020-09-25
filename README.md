@@ -606,6 +606,8 @@ retrofit:
 
 For each Java interface, you can also specify the `Converter.Factory` used by the current interface through `converterFactories()` annotated by `@RetrofitClient`, and the specified converter factory instance is still preferentially obtained from the Spring container.
 
+**Note: If `Converter.Factory` does not have a parameterless constructor of `public`, please manually configure it as the `Bean` object of the `Spring` container**!
+
 
 ## Other features
 
