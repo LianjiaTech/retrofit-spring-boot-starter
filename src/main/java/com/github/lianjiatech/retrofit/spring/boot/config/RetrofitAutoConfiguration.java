@@ -3,7 +3,9 @@ package com.github.lianjiatech.retrofit.spring.boot.config;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.lianjiatech.retrofit.spring.boot.core.*;
+import com.github.lianjiatech.retrofit.spring.boot.core.NoValidServiceInstanceChooser;
+import com.github.lianjiatech.retrofit.spring.boot.core.PrototypeInterceptorBdfProcessor;
+import com.github.lianjiatech.retrofit.spring.boot.core.ServiceInstanceChooser;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseGlobalInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.NetworkInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.ServiceInstanceChooserInterceptor;
@@ -19,14 +21,11 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.util.CollectionUtils;
 import retrofit2.CallAdapter;
 import retrofit2.Converter;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -71,18 +70,8 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
         retrofitConfigBean.setPoolRegistry(poolRegistry);
 
         // callAdapterFactory
-        List<CallAdapter.Factory> callAdapterFactories = new ArrayList<>();
-        Collection<CallAdapter.Factory> callAdapterFactoryBeans = getBeans(CallAdapter.Factory.class);
-        if (!CollectionUtils.isEmpty(callAdapterFactoryBeans)) {
-            callAdapterFactories.addAll(callAdapterFactoryBeans);
-        }
-        if (retrofitProperties.isEnableBodyCallAdapter()) {
-            callAdapterFactories.add(new BodyCallAdapterFactory());
-        }
-        if (retrofitProperties.isEnableResponseCallAdapter()) {
-            callAdapterFactories.add(new ResponseCallAdapterFactory());
-        }
-        retrofitConfigBean.setCallAdapterFactories(callAdapterFactories);
+        Class<? extends CallAdapter.Factory>[] globalCallAdapterFactories = retrofitProperties.getGlobalCallAdapterFactories();
+        retrofitConfigBean.setGlobalCallAdapterFactoryClasses(globalCallAdapterFactories);
 
         // converterFactory
         Class<? extends Converter.Factory>[] globalConverterFactories = retrofitProperties.getGlobalConverterFactories();

@@ -320,7 +320,9 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
                 .validateEagerly(retrofitClient.validateEagerly())
                 .client(client);
         // 添加CallAdapter.Factory
-        List<CallAdapter.Factory> callAdapterFactories = retrofitConfigBean.getCallAdapterFactories();
+        Class<? extends CallAdapter.Factory>[] callAdapterFactoryClasses = retrofitClient.callAdapterFactories();
+        Class<? extends CallAdapter.Factory>[] globalCallAdapterFactoryClasses = retrofitConfigBean.getGlobalCallAdapterFactoryClasses();
+        List<CallAdapter.Factory> callAdapterFactories = getCallAdapterFactories(callAdapterFactoryClasses, globalCallAdapterFactoryClasses);
         if (!CollectionUtils.isEmpty(callAdapterFactories)) {
             callAdapterFactories.forEach(retrofitBuilder::addCallAdapterFactory);
         }
@@ -333,6 +335,10 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
             converterFactories.forEach(retrofitBuilder::addConverterFactory);
         }
         return retrofitBuilder.build();
+    }
+
+    private List<CallAdapter.Factory> getCallAdapterFactories(Class<? extends CallAdapter.Factory>[] callAdapterFactoryClasses, Class<? extends CallAdapter.Factory>[] globalCallAdapterFactoryClasses) {
+        return null;
     }
 
     private List<Converter.Factory> getConverterFactories(Class<? extends Converter.Factory>[] converterFactoryClasses, Class<? extends Converter.Factory>[] globalConverterFactoryClasses) throws IllegalAccessException, InstantiationException {
