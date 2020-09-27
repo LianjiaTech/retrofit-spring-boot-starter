@@ -4,6 +4,7 @@ import com.github.lianjiatech.retrofit.spring.boot.core.DefaultErrorDecoder;
 import com.github.lianjiatech.retrofit.spring.boot.core.ErrorDecoder;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.LogStrategy;
 import org.slf4j.event.Level;
+import retrofit2.CallAdapter;
 import retrofit2.Converter;
 import retrofit2.Retrofit;
 
@@ -48,6 +49,13 @@ public @interface RetrofitClient {
      * The converter instance is first obtained from the Spring container. If it is not obtained, it is created by reflection.
      */
     Class<? extends Converter.Factory>[] converterFactories() default {};
+
+    /**
+     * 适用于当前接口的调用适配器工厂，优先级比全局调用适配器工厂更高。转换器实例优先从Spring容器获取，如果没有获取到，则反射创建。
+     * callAdapter factory for the current interface, higher priority than global callAdapter factory.
+     * The converter instance is first obtained from the Spring container. If it is not obtained, it is created by reflection.
+     */
+    Class<? extends CallAdapter.Factory>[] callAdapterFactories() default {};
 
 
     /**
