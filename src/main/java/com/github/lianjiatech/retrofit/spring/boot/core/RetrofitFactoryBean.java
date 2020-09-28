@@ -39,6 +39,7 @@ import java.util.concurrent.TimeUnit;
 public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware, ApplicationContextAware {
 
     public static final String SUFFIX = "/";
+    private static final Map<Class<? extends CallAdapter.Factory>, CallAdapter.Factory> CALL_ADAPTER_FACTORIES_CACHE = new HashMap<>(4);
 
     private Class<T> retrofitInterface;
 
@@ -50,7 +51,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
 
     private ApplicationContext applicationContext;
 
-    private static final Map<Class<? extends Converter.Factory>, Converter.Factory> CONVERTER_FACTORIES_CACHE = new HashMap<>();
+    private static final Map<Class<? extends Converter.Factory>, Converter.Factory> CONVERTER_FACTORIES_CACHE = new HashMap<>(4);
 
     public RetrofitFactoryBean(Class<T> retrofitInterface) {
         this.retrofitInterface = retrofitInterface;
@@ -319,6 +320,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
                 .baseUrl(baseUrl)
                 .validateEagerly(retrofitClient.validateEagerly())
                 .client(client);
+
         // 添加CallAdapter.Factory
         Class<? extends CallAdapter.Factory>[] callAdapterFactoryClasses = retrofitClient.callAdapterFactories();
         Class<? extends CallAdapter.Factory>[] globalCallAdapterFactoryClasses = retrofitConfigBean.getGlobalCallAdapterFactoryClasses();
@@ -337,8 +339,35 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         return retrofitBuilder.build();
     }
 
-    private List<CallAdapter.Factory> getCallAdapterFactories(Class<? extends CallAdapter.Factory>[] callAdapterFactoryClasses, Class<? extends CallAdapter.Factory>[] globalCallAdapterFactoryClasses) {
-        return null;
+    private List<CallAdapter.Factory> getCallAdapterFactories(Class<? extends CallAdapter.Factory>[] callAdapterFactoryClasses, Class<? extends CallAdapter.Factory>[] globalCallAdapterFactoryClasses) throws IllegalAccessException, InstantiationException {
+        List<Class<? extends CallAdapter.Factory>> combineCallAdapterFactoryClasses = new ArrayList<>();
+
+        if (callAdapterFactoryClasses != null && callAdapterFactoryClasses.length != 0) {
+            combineCallAdapterFactoryClasses.addAll(Arrays.asList(callAdapterFactoryClasses));
+        }
+
+        if (globalCallAdapterFactoryClasses != null && globalCallAdapterFactoryClasses.length != 0) {
+            combineCallAdapterFactoryClasses.addAll(Arrays.asList(globalCallAdapterFactoryClasses));
+        }
+
+        if (combineCallAdapterFactoryClasses.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<CallAdapter.Factory> callAdapterFactories = new ArrayList<>();
+
+        for (Class<? extends CallAdapter.Factory> callAdapterFactoryClass : combineCallAdapterFactoryClasses) {
+            CallAdapter.Factory callAdapterFactory = CALL_ADAPTER_FACTORIES_CACHE.get(callAdapterFactoryClass);
+            if (callAdapterFactory == null) {
+                callAdapterFactory = getBean(callAdapterFactoryClass);
+                if (callAdapterFactory == null) {
+                    callAdapterFactory = callAdapterFactoryClass.newInstance();
+                }
+                CALL_ADAPTER_FACTORIES_CACHE.put(callAdapterFactoryClass, callAdapterFactory);
+            }
+            callAdapterFactories.add(callAdapterFactory);
+        }
+        return callAdapterFactories;
     }
 
     private List<Converter.Factory> getConverterFactories(Class<? extends Converter.Factory>[] converterFactoryClasses, Class<? extends Converter.Factory>[] globalConverterFactoryClasses) throws IllegalAccessException, InstantiationException {

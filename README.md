@@ -42,7 +42,7 @@
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
     <artifactId>retrofit-spring-boot-starter</artifactId>
-    <version>2.1.8</version>
+    <version>2.1.9</version>
 </dependency>
 ```
 
@@ -110,23 +110,20 @@ All of the related annotations of `HTTP` request use native annotations of `retr
 `Retrofit-spring-boot-starter` supports multiple configurable properties to deal with different business scenarios. You can modify it as appropriate. The specific instructions are as follows:
 
 | Configuration item|Default value | description |
-|------------|-----------|--------|
-| enable-body-call-adapter | true| Whether to enable the bodycalladapter |
-| enable-response-call-adapter | true| Whether to enable ResponseCallAdapter |
+| ------------ | ----------- | -------- |
 | enable-log | true| Enable log printing |
 |logging-interceptor | DefaultLoggingInterceptor | Log print interceptor |
 | pool | | Connection pool configuration |
 | disable-void-return-type | false | disable java.lang.Void return type |
 | retry-interceptor | DefaultRetryInterceptor | Retry Interceptor |
+| retry-interceptor | DefaultRetryInterceptor | Retry Interceptor |
+| global-converter-factories | JacksonConverterFactory | global converter factories |
+| global-call-adapter-factories | BodyCallAdapterFactory,ResponseCallAdapterFactory | global call adapter factories |
 
 `yml` Configuration:
 
 ```yaml
 retrofit:
-  # Enable BodyCallAdapter
-  enable-body-call-adapter: true
-  # Enable ResponseCallAdapter
-  enable-response-call-adapter: true
   # Enable log printing
   enable-log: true
   # Connection pool configuration
@@ -143,6 +140,13 @@ retrofit:
   logging-interceptor: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor
   # Retry Interceptor
   retry-interceptor: com.github.lianjiatech.retrofit.spring.boot.retry.DefaultRetryInterceptor
+  # global converter factories
+  global-converter-factories:
+    - retrofit2.converter.jackson.JacksonConverterFactory
+  # global call adapter factories
+  global-call-adapter-factories:
+    - com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory
+    - com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory
 ```
 
 ## Advanced feature
@@ -580,9 +584,21 @@ You only need to implement the `NetworkInterceptor` interface and configure it a
 
 ```
 
-**We can also implement our own `CallAdapter`** by inheriting the `CallAdapter.Factory` extension and then configure the custom `CallAdapterFactory` as the `bean` of `spring`!
+**We can also implement our own `CallAdapter`** by inheriting the `CallAdapter.Factory`!
 
-> The custom configuration of `CallAdapter.Factory` has higher priority!
+`retrofit-spring-boot-starter` supports configuring the global `CallAdapter.Factory` through `retrofit.global-call-adapter-factories`. The call adapter factory instance is first obtained from the Spring container. If it is not obtained, it is created by reflection. The default global call adapter factory is `[BodyCallAdapterFactory, ResponseCallAdapterFactory]`.
+
+```yaml
+retrofit:
+  global-call-adapter-factories:
+    - com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory
+    - com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory
+```
+
+For each Java interface, you can also specify the `CallAdapter.Factory` used by the current interface through `callAdapterFactories()` annotated by `@RetrofitClient`, and the specified call adapter factory instance is still preferentially obtained from the Spring container.
+
+**Note: If `CallAdapter.Factory` does not have a parameterless constructor of `public`, please manually configure it as the `Bean` object of the `Spring` container**!
+
 
 ### Converter
 
