@@ -8,6 +8,7 @@ import com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInt
 import com.github.lianjiatech.retrofit.spring.boot.retry.BaseRetryInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.retry.DefaultRetryInterceptor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import retrofit2.CallAdapter;
 import retrofit2.Converter;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
@@ -27,18 +28,6 @@ public class RetrofitProperties {
      * Connection pool configuration
      */
     private Map<String, PoolConfig> pool = new LinkedHashMap<>();
-
-    /**
-     * 启用 #{@link BodyCallAdapterFactory} 调用适配器
-     * Enable #{@link BodyCallAdapterFactory} call adapter
-     */
-    private boolean enableBodyCallAdapter = true;
-
-    /**
-     * 启用 #{@link ResponseCallAdapterFactory} 调用适配器
-     * Enable #{@link ResponseCallAdapterFactory} call adapter
-     */
-    private boolean enableResponseCallAdapter = true;
 
     /**
      * 启用日志打印
@@ -71,6 +60,13 @@ public class RetrofitProperties {
     @SuppressWarnings("unchecked")
     private Class<? extends Converter.Factory>[] globalConverterFactories = (Class<? extends Converter.Factory>[]) new Class[]{JacksonConverterFactory.class};
 
+    /**
+     * 全局调用适配器工厂，转换器实例优先从Spring容器获取，如果没有获取到，则反射创建。
+     * global call adapter factories, The  callAdapter instance is first obtained from the Spring container. If it is not obtained, it is created by reflection.
+     */
+    @SuppressWarnings("unchecked")
+    private Class<? extends CallAdapter.Factory>[] globalCallAdapterFactories = (Class<? extends CallAdapter.Factory>[]) new Class[]{BodyCallAdapterFactory.class, ResponseCallAdapterFactory.class};
+
 
     public Class<? extends BaseLoggingInterceptor> getLoggingInterceptor() {
         return loggingInterceptor;
@@ -90,22 +86,6 @@ public class RetrofitProperties {
 
     public void setPool(Map<String, PoolConfig> pool) {
         this.pool = pool;
-    }
-
-    public boolean isEnableBodyCallAdapter() {
-        return enableBodyCallAdapter;
-    }
-
-    public void setEnableBodyCallAdapter(boolean enableBodyCallAdapter) {
-        this.enableBodyCallAdapter = enableBodyCallAdapter;
-    }
-
-    public boolean isEnableResponseCallAdapter() {
-        return enableResponseCallAdapter;
-    }
-
-    public void setEnableResponseCallAdapter(boolean enableResponseCallAdapter) {
-        this.enableResponseCallAdapter = enableResponseCallAdapter;
     }
 
     public boolean isEnableLog() {
@@ -138,5 +118,13 @@ public class RetrofitProperties {
 
     public void setGlobalConverterFactories(Class<? extends Converter.Factory>[] globalConverterFactories) {
         this.globalConverterFactories = globalConverterFactories;
+    }
+
+    public Class<? extends CallAdapter.Factory>[] getGlobalCallAdapterFactories() {
+        return globalCallAdapterFactories;
+    }
+
+    public void setGlobalCallAdapterFactories(Class<? extends CallAdapter.Factory>[] globalCallAdapterFactories) {
+        this.globalCallAdapterFactories = globalCallAdapterFactories;
     }
 }

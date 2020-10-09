@@ -9,7 +9,6 @@ import retrofit2.CallAdapter;
 import retrofit2.Converter;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,8 +17,6 @@ import java.util.Map;
 public class RetrofitConfigBean {
 
     private final RetrofitProperties retrofitProperties;
-
-    private List<CallAdapter.Factory> callAdapterFactories;
 
     private Map<String, ConnectionPool> poolRegistry;
 
@@ -33,6 +30,8 @@ public class RetrofitConfigBean {
 
     private Class<? extends Converter.Factory>[] globalConverterFactoryClasses;
 
+    private Class<? extends CallAdapter.Factory>[] globalCallAdapterFactoryClasses;
+
     public RetrofitProperties getRetrofitProperties() {
         return retrofitProperties;
     }
@@ -42,14 +41,6 @@ public class RetrofitConfigBean {
         this.retrofitProperties = retrofitProperties;
     }
 
-
-    public List<CallAdapter.Factory> getCallAdapterFactories() {
-        return callAdapterFactories;
-    }
-
-    public void setCallAdapterFactories(List<CallAdapter.Factory> callAdapterFactories) {
-        this.callAdapterFactories = callAdapterFactories;
-    }
 
     public Map<String, ConnectionPool> getPoolRegistry() {
         return poolRegistry;
@@ -97,5 +88,13 @@ public class RetrofitConfigBean {
 
     public void setGlobalConverterFactoryClasses(Class<? extends Converter.Factory>[] globalConverterFactoryClasses) {
         this.globalConverterFactoryClasses = globalConverterFactoryClasses;
+    }
+
+    public Class<? extends CallAdapter.Factory>[] getGlobalCallAdapterFactoryClasses() {
+        return globalCallAdapterFactoryClasses;
+    }
+
+    public void setGlobalCallAdapterFactoryClasses(Class<? extends CallAdapter.Factory>[] globalCallAdapterFactoryClasses) {
+        this.globalCallAdapterFactoryClasses = globalCallAdapterFactoryClasses;
     }
 }
