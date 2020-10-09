@@ -41,7 +41,7 @@
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
     <artifactId>retrofit-spring-boot-starter</artifactId>
-    <version>2.1.8</version>
+    <version>2.1.9</version>
 </dependency>
 ```
 
@@ -110,21 +110,19 @@ public class TestService {
 
 | 配置|默认值 | 说明 |
 |------------|-----------|--------|
-| enable-body-call-adapter | true| 是否启用 BodyCallAdapter适配器 |
-| enable-response-call-adapter | true| 是否启用 ResponseCallAdapter适配器 |
 | enable-log | true| 启用日志打印 |
 |logging-interceptor | DefaultLoggingInterceptor | 日志打印拦截器 |
 | pool | | 连接池配置 |
 | disable-void-return-type | false | 禁用java.lang.Void返回类型 |
 | retry-interceptor | DefaultRetryInterceptor | 请求重试拦截器 |
+| global-converter-factories | JacksonConverterFactory | 全局转换器工厂 |
+| global-call-adapter-factories | BodyCallAdapterFactory,ResponseCallAdapterFactory | 全局调用适配器工厂 |
+
 
 `yml`配置方式：
 
 ```yaml
 retrofit:
-  # 是否启用 BodyCallAdapter适配器
-  enable-body-call-adapter: true
-  # 是否启用 ResponseCallAdapter适配器
   enable-response-call-adapter: true
   # 启用日志打印
   enable-log: true
@@ -142,6 +140,13 @@ retrofit:
   logging-interceptor: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor
   # 请求重试拦截器
   retry-interceptor: com.github.lianjiatech.retrofit.spring.boot.retry.DefaultRetryInterceptor
+  # 全局转换器工厂
+  global-converter-factories:
+    - retrofit2.converter.jackson.JacksonConverterFactory
+  # 全局调用适配器工厂
+  global-call-adapter-factories:
+    - com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory
+    - com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory
 ```
 
 ## 高级功能
@@ -597,9 +602,22 @@ public class SourceInterceptor extends BaseGlobalInterceptor {
 
 ```
 
-**我们也可以通过继承`CallAdapter.Factory`扩展实现自己的`CallAdapter`**；然后将自定义的`CallAdapterFactory`配置成`spring`的`bean`！
+**我们也可以通过继承`CallAdapter.Factory`扩展实现自己的`CallAdapter`**！
 
-> 自定义配置的`CallAdapter.Factory`优先级更高！
+`retrofit-spring-boot-starter`支持通过`retrofit.global-call-adapter-factories`配置全局调用适配器工厂，工厂实例优先从Spring容器获取，如果没有获取到，则反射创建。默认的全局调用适配器工厂是`[BodyCallAdapterFactory, ResponseCallAdapterFactory]`！
+
+```yaml
+retrofit:
+  # 全局调用适配器工厂
+  global-call-adapter-factories:
+    - com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory
+    - com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory
+```
+
+针对每个Java接口，还可以通过`@RetrofitClient`注解的`callAdapterFactories()`指定当前接口采用的`CallAdapter.Factory`，指定的工厂实例依然优先从Spring容器获取。
+
+**注意：如果`CallAdapter.Factory`没有`public`的无参构造器，请手动将其配置成`Spring`容器的`Bean`对象**！
+
 
 ### 数据转码器
 
