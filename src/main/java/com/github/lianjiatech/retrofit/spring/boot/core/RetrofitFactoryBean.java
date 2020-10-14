@@ -38,7 +38,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware, ApplicationContextAware {
 
-    public static final String SUFFIX = "/";
+    private static final String SUFFIX = "/";
     private static final Map<Class<? extends CallAdapter.Factory>, CallAdapter.Factory> CALL_ADAPTER_FACTORIES_CACHE = new HashMap<>(4);
 
     private Class<T> retrofitInterface;

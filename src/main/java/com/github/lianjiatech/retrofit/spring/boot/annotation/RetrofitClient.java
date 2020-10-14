@@ -58,6 +58,9 @@ public @interface RetrofitClient {
     Class<? extends CallAdapter.Factory>[] callAdapterFactories() default {};
 
 
+    Class<?> fallback() default void.class;
+
+
     /**
      * When calling {@link Retrofit#create(Class)} on the resulting {@link Retrofit} instance, eagerly validate the
      * configuration of all methods in the supplied interface.
