@@ -394,7 +394,7 @@ By default, all HTTP requests sent through `Retrofit` will use the default conne
             keep-alive-second: 50
     ```
 
-2. Use the `poolName` property of `@retrofitclient` to specify the connection pool to be used.
+2. Use the `poolName` property of `@Retrofitclient` to specify the connection pool to be used.
     ```java
     @RetrofitClient(baseUrl = "${test.baseUrl}", poolName="test1")
     public interface HttpApi {
