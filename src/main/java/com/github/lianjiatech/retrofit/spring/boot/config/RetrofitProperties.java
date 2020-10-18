@@ -3,6 +3,7 @@ package com.github.lianjiatech.retrofit.spring.boot.config;
 
 import com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory;
 import com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeType;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseLoggingInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.retry.BaseRetryInterceptor;
@@ -34,6 +35,10 @@ public class RetrofitProperties {
      * Enable log printing
      */
     private boolean enableLog = true;
+
+    private boolean degrade = false;
+
+    private DegradeType degradeType = DegradeType.SENTINEL;
 
     /**
      * 日志打印拦截器
