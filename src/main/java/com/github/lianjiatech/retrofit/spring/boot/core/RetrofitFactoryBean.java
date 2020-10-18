@@ -77,7 +77,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
 
         RetrofitClient retrofitClient = retrofitInterface.getAnnotation(RetrofitClient.class);
 
-        Assert.isTrue(StringUtils.hasText(retrofitClient.baseUrl()) || StringUtils.hasText(retrofitClient.path()),
+        Assert.isTrue(StringUtils.hasText(retrofitClient.baseUrl()) || StringUtils.hasText(retrofitClient.serviceId()),
                 "@RetrofitClient's baseUrl and serviceId must be configured with one！");
 
         for (Method method : methods) {
