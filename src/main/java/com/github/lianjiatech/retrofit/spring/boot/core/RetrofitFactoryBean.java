@@ -8,6 +8,7 @@ import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitProperties;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitBlockException;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.*;
 import com.github.lianjiatech.retrofit.spring.boot.util.BeanExtendUtils;
+import com.github.lianjiatech.retrofit.spring.boot.util.RetrofitUtils;
 import okhttp3.ConnectionPool;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -37,7 +38,6 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware, ApplicationContextAware {
 
-    private static final String SUFFIX = "/";
     private static final Map<Class<? extends CallAdapter.Factory>, CallAdapter.Factory> CALL_ADAPTER_FACTORIES_CACHE = new HashMap<>(4);
 
     private Class<T> retrofitInterface;
@@ -53,8 +53,6 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
     private RetrofitClient retrofitClient;
 
     private static final Map<Class<? extends Converter.Factory>, Converter.Factory> CONVERTER_FACTORIES_CACHE = new HashMap<>(4);
-
-    private final Object[] emptyArgs = new Object[0];
 
     public RetrofitFactoryBean(Class<T> retrofitInterface) {
         this.retrofitInterface = retrofitInterface;
@@ -343,21 +341,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         RetrofitClient retrofitClient = retrofitClientInterfaceClass.getAnnotation(RetrofitClient.class);
         String baseUrl = retrofitClient.baseUrl();
 
-        if (StringUtils.hasText(baseUrl)) {
-            baseUrl = environment.resolveRequiredPlaceholders(baseUrl);
-            // 解析baseUrl占位符
-            if (!baseUrl.endsWith(SUFFIX)) {
-                baseUrl += SUFFIX;
-            }
-        } else {
-            String serviceId = retrofitClient.serviceId();
-            String path = retrofitClient.path();
-            if (!path.endsWith(SUFFIX)) {
-                path += SUFFIX;
-            }
-            baseUrl = "http://" + (serviceId + SUFFIX + path).replaceAll("/+", SUFFIX);
-            baseUrl = environment.resolveRequiredPlaceholders(baseUrl);
-        }
+        baseUrl = RetrofitUtils.convertBaseUrl(retrofitClient, baseUrl, environment);
 
         OkHttpClient client = getOkHttpClient(retrofitClientInterfaceClass);
         Retrofit.Builder retrofitBuilder = new Retrofit.Builder()
@@ -382,6 +366,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         }
         return retrofitBuilder.build();
     }
+
 
     private List<CallAdapter.Factory> getCallAdapterFactories(Class<? extends CallAdapter.Factory>[] callAdapterFactoryClasses, Class<? extends CallAdapter.Factory>[] globalCallAdapterFactoryClasses) throws IllegalAccessException, InstantiationException {
         List<Class<? extends CallAdapter.Factory>> combineCallAdapterFactoryClasses = new ArrayList<>();

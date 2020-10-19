@@ -1,5 +1,6 @@
 package com.github.lianjiatech.retrofit.spring.boot.util;
 
+import com.github.lianjiatech.retrofit.spring.boot.annotation.RetrofitClient;
 import com.github.lianjiatech.retrofit.spring.boot.exception.ReadResponseBodyException;
 import okhttp3.Headers;
 import okhttp3.MediaType;
@@ -8,6 +9,8 @@ import okhttp3.ResponseBody;
 import okio.Buffer;
 import okio.BufferedSource;
 import okio.GzipSource;
+import org.springframework.core.env.Environment;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -21,6 +24,8 @@ public final class RetrofitUtils {
     public static final String GZIP = "gzip";
     public static final String CONTENT_ENCODING = "Content-Encoding";
     public static final String IDENTITY = "identity";
+
+    private static final String SUFFIX = "/";
 
     private RetrofitUtils() {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
@@ -79,6 +84,26 @@ public final class RetrofitUtils {
         return contentEncoding != null
                 && !IDENTITY.equalsIgnoreCase(contentEncoding)
                 && !GZIP.equalsIgnoreCase(contentEncoding);
+    }
+
+
+    public static String convertBaseUrl(RetrofitClient retrofitClient, String baseUrl, Environment environment) {
+        if (StringUtils.hasText(baseUrl)) {
+            baseUrl = environment.resolveRequiredPlaceholders(baseUrl);
+            // 解析baseUrl占位符
+            if (!baseUrl.endsWith(SUFFIX)) {
+                baseUrl += SUFFIX;
+            }
+        } else {
+            String serviceId = retrofitClient.serviceId();
+            String path = retrofitClient.path();
+            if (!path.endsWith(SUFFIX)) {
+                path += SUFFIX;
+            }
+            baseUrl = "http://" + (serviceId + SUFFIX + path).replaceAll("/+", SUFFIX);
+            baseUrl = environment.resolveRequiredPlaceholders(baseUrl);
+        }
+        return baseUrl;
     }
 }
 
