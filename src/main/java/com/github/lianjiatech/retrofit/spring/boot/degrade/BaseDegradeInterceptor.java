@@ -1,11 +1,11 @@
 package com.github.lianjiatech.retrofit.spring.boot.degrade;
 
 import com.github.lianjiatech.retrofit.spring.boot.annotation.RetrofitClient;
+import com.github.lianjiatech.retrofit.spring.boot.util.RetrofitUtils;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.springframework.core.env.Environment;
-import org.springframework.util.StringUtils;
 import retrofit2.Invocation;
 import retrofit2.http.*;
 
@@ -18,8 +18,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author 陈添明
  */
 public abstract class BaseDegradeInterceptor implements Interceptor {
-
-    private static final String SUFFIX = "/";
 
     private Environment environment;
 
@@ -44,20 +42,7 @@ public abstract class BaseDegradeInterceptor implements Interceptor {
         Class<?> declaringClass = method.getDeclaringClass();
         RetrofitClient retrofitClient = declaringClass.getAnnotation(RetrofitClient.class);
         String baseUrl = retrofitClient.baseUrl();
-        if (StringUtils.hasText(baseUrl)) {
-            baseUrl = environment.resolveRequiredPlaceholders(baseUrl);
-            if (!baseUrl.endsWith(SUFFIX)) {
-                baseUrl += SUFFIX;
-            }
-        } else {
-            String serviceId = retrofitClient.serviceId();
-            String path = retrofitClient.path();
-            if (!path.endsWith(SUFFIX)) {
-                path += SUFFIX;
-            }
-            baseUrl = "http://" + (serviceId + SUFFIX + path).replaceAll("/+", SUFFIX);
-            baseUrl = environment.resolveRequiredPlaceholders(baseUrl);
-        }
+        baseUrl = RetrofitUtils.convertBaseUrl(retrofitClient, baseUrl, environment);
         String methodPath = parseMethodPath(method, request);
         url = baseUrl + methodPath;
         METHOD_URL_MAPPING.put(method, url);
