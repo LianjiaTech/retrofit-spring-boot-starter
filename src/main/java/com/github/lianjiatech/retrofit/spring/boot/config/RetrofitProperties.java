@@ -36,8 +36,16 @@ public class RetrofitProperties {
      */
     private boolean enableLog = true;
 
-    private boolean degrade = false;
+    /**
+     * 启用熔断
+     * enable degrade
+     */
+    private boolean enableDegrade = false;
 
+    /**
+     * 熔断类型，暂时只支持SENTINEL
+     * degrade type, Only SENTINEL is currently supported
+     */
     private DegradeType degradeType = DegradeType.SENTINEL;
 
     /**
@@ -131,5 +139,21 @@ public class RetrofitProperties {
 
     public void setGlobalCallAdapterFactories(Class<? extends CallAdapter.Factory>[] globalCallAdapterFactories) {
         this.globalCallAdapterFactories = globalCallAdapterFactories;
+    }
+
+    public boolean isEnableDegrade() {
+        return enableDegrade;
+    }
+
+    public void setEnableDegrade(boolean enableDegrade) {
+        this.enableDegrade = enableDegrade;
+    }
+
+    public DegradeType getDegradeType() {
+        return degradeType;
+    }
+
+    public void setDegradeType(DegradeType degradeType) {
+        this.degradeType = degradeType;
     }
 }
