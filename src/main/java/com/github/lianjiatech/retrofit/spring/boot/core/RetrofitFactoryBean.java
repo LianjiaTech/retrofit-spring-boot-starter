@@ -5,6 +5,7 @@ import com.github.lianjiatech.retrofit.spring.boot.annotation.OkHttpClientBuilde
 import com.github.lianjiatech.retrofit.spring.boot.annotation.RetrofitClient;
 import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitConfigBean;
 import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitProperties;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitBlockException;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.*;
 import com.github.lianjiatech.retrofit.spring.boot.util.BeanExtendUtils;
 import okhttp3.ConnectionPool;
@@ -26,12 +27,10 @@ import retrofit2.Converter;
 import retrofit2.Retrofit;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author 陈添明
@@ -51,10 +50,15 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
 
     private ApplicationContext applicationContext;
 
+    private RetrofitClient retrofitClient;
+
     private static final Map<Class<? extends Converter.Factory>, Converter.Factory> CONVERTER_FACTORIES_CACHE = new HashMap<>(4);
+
+    private final Object[] emptyArgs = new Object[0];
 
     public RetrofitFactoryBean(Class<T> retrofitInterface) {
         this.retrofitInterface = retrofitInterface;
+        retrofitClient = retrofitInterface.getAnnotation(RetrofitClient.class);
     }
 
     @Override
@@ -62,7 +66,44 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
     public T getObject() throws Exception {
         checkRetrofitInterface(retrofitInterface);
         Retrofit retrofit = getRetrofit(retrofitInterface);
-        return retrofit.create(retrofitInterface);
+        // source
+        T source = retrofit.create(retrofitInterface);
+
+        RetrofitProperties retrofitProperties = retrofitConfigBean.getRetrofitProperties();
+        boolean enableDegrade = retrofitProperties.isEnableDegrade();
+
+        Class<?> fallback = retrofitClient.fallback();
+
+        boolean degrade = isDegrade(fallback, enableDegrade);
+        AtomicReference atomicReference = new AtomicReference();
+        if (degrade) {
+            Object fallbackInstance = fallback.newInstance();
+            atomicReference.set(fallbackInstance);
+        }
+
+        // proxy
+        return (T) Proxy.newProxyInstance(retrofitInterface.getClassLoader(),
+                new Class<?>[]{retrofitInterface},
+                (proxy, method, args) -> {
+                    try {
+                        return method.invoke(source, args);
+                    } catch (Throwable e) {
+                        // 熔断逻辑
+                        if (degrade) {
+                            if (e instanceof RetrofitBlockException) {
+                                return method.invoke(atomicReference.get(), args);
+                            }
+                        }
+                        throw e;
+                    }
+                });
+    }
+
+    private boolean isDegrade(Class<?> fallback, boolean enableDegrade) {
+        if (void.class.isAssignableFrom(fallback)) {
+            return false;
+        }
+        return enableDegrade;
     }
 
     /**
@@ -74,8 +115,6 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         // check class type
         Assert.isTrue(retrofitInterface.isInterface(), "@RetrofitClient can only be marked on the interface type!");
         Method[] methods = retrofitInterface.getMethods();
-
-        RetrofitClient retrofitClient = retrofitInterface.getAnnotation(RetrofitClient.class);
 
         Assert.isTrue(StringUtils.hasText(retrofitClient.baseUrl()) || StringUtils.hasText(retrofitClient.serviceId()),
                 "@RetrofitClient's baseUrl and serviceId must be configured with one！");
@@ -94,6 +133,11 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
                 Assert.isTrue(!Void.class.isAssignableFrom(returnType),
                         "Configured to disable Void as the return value, please specify another return type!method=" + method);
             }
+        }
+
+        Class<?> fallback = retrofitClient.fallback();
+        if (!void.class.isAssignableFrom(fallback)) {
+            Assert.isTrue(retrofitInterface.isAssignableFrom(fallback), "The fallback type must implement the current interface！retrofitInterface=" + retrofitInterface);
         }
     }
 
