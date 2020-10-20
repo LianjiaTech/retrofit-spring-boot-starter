@@ -5,13 +5,16 @@ import com.github.lianjiatech.retrofit.spring.boot.annotation.OkHttpClientBuilde
 import com.github.lianjiatech.retrofit.spring.boot.annotation.RetrofitClient;
 import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitConfigBean;
 import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitProperties;
-import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitBlockException;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeType;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.SentinelDegradeInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.*;
 import com.github.lianjiatech.retrofit.spring.boot.util.BeanExtendUtils;
 import com.github.lianjiatech.retrofit.spring.boot.util.RetrofitUtils;
 import okhttp3.ConnectionPool;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
@@ -31,12 +34,14 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author 陈添明
  */
 public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware, ApplicationContextAware {
+
+    private final static Logger logger = LoggerFactory.getLogger(RetrofitFactoryBean.class);
+
 
     private static final Map<Class<? extends CallAdapter.Factory>, CallAdapter.Factory> CALL_ADAPTER_FACTORIES_CACHE = new HashMap<>(4);
 
@@ -68,40 +73,14 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         T source = retrofit.create(retrofitInterface);
 
         RetrofitProperties retrofitProperties = retrofitConfigBean.getRetrofitProperties();
-        boolean enableDegrade = retrofitProperties.isEnableDegrade();
-
         Class<?> fallback = retrofitClient.fallback();
-
-        boolean degrade = isDegrade(fallback, enableDegrade);
-        AtomicReference atomicReference = new AtomicReference();
-        if (degrade) {
-            Object fallbackInstance = fallback.newInstance();
-            atomicReference.set(fallbackInstance);
-        }
 
         // proxy
         return (T) Proxy.newProxyInstance(retrofitInterface.getClassLoader(),
                 new Class<?>[]{retrofitInterface},
-                (proxy, method, args) -> {
-                    try {
-                        return method.invoke(source, args);
-                    } catch (Throwable e) {
-                        // 熔断逻辑
-                        if (degrade) {
-                            if (e instanceof RetrofitBlockException) {
-                                return method.invoke(atomicReference.get(), args);
-                            }
-                        }
-                        throw e;
-                    }
-                });
-    }
+                new RetrofitInvocationHandler(source, fallback, retrofitProperties)
 
-    private boolean isDegrade(Class<?> fallback, boolean enableDegrade) {
-        if (void.class.isAssignableFrom(fallback)) {
-            return false;
-        }
-        return enableDegrade;
+        );
     }
 
     /**
@@ -195,6 +174,27 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
                     .followSslRedirects(retrofitClient.followSslRedirects())
                     .pingInterval(retrofitClient.pingIntervalMs(), TimeUnit.MILLISECONDS)
                     .connectionPool(connectionPool);
+        }
+
+        // add DegradeInterceptor
+        if (retrofitProperties.isEnableDegrade()) {
+            DegradeType degradeType = retrofitProperties.getDegradeType();
+            switch (degradeType) {
+                case SENTINEL: {
+                    try {
+                        Class.forName("com.alibaba.csp.sentinel.SphU");
+                        SentinelDegradeInterceptor sentinelDegradeInterceptor = new SentinelDegradeInterceptor();
+                        sentinelDegradeInterceptor.setEnvironment(environment);
+                        okHttpClientBuilder.addInterceptor(sentinelDegradeInterceptor);
+                    } catch (ClassNotFoundException e) {
+                        logger.warn("com.alibaba.csp.sentinel not found! No SentinelDegradeInterceptor is set.");
+                    }
+                    break;
+                }
+                default: {
+                    throw new IllegalArgumentException("Not currently supported! degradeType=" + degradeType);
+                }
+            }
         }
 
         // add ServiceInstanceChooserInterceptor
