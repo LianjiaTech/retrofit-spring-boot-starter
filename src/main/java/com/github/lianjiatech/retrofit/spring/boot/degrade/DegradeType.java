@@ -7,5 +7,4 @@ public enum DegradeType {
 
     SENTINEL,
 
-    HYSTRIX
 }
