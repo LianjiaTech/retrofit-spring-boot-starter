@@ -12,23 +12,19 @@ import java.io.IOException;
  */
 public class SentinelDegradeInterceptor extends BaseDegradeInterceptor {
 
-    private static volatile String PREFIX = "HTTP_OUT:";
-
     /**
      * 熔断拦截处理
      *
-     * @param url   请求url，支持RESTFul风格接口
      * @param chain 请求执行链
      * @return 请求响应
      * @throws RetrofitBlockException 如果触发熔断，抛出RetrofitBlockException异常！
      */
     @Override
-    protected Response degradeIntercept(String url, Chain chain) throws RetrofitBlockException, IOException {
+    protected Response degradeIntercept(String resourceName, Chain chain) throws RetrofitBlockException, IOException {
         Request request = chain.request();
-        String name = PREFIX + request.method() + ":" + url;
         Entry entry = null;
         try {
-            entry = SphU.entry(name, ResourceTypeConstants.COMMON_WEB, EntryType.OUT);
+            entry = SphU.entry(resourceName, ResourceTypeConstants.COMMON_WEB, EntryType.OUT);
             return chain.proceed(request);
         } catch (BlockException e) {
             throw new RetrofitBlockException(e);

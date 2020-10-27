@@ -1,12 +1,13 @@
 package com.github.lianjiatech.retrofit.spring.boot.core;
 
+import com.alibaba.csp.sentinel.slots.block.degrade.DegradeRule;
+import com.alibaba.csp.sentinel.slots.block.degrade.DegradeRuleManager;
 import com.github.lianjiatech.retrofit.spring.boot.annotation.InterceptMark;
 import com.github.lianjiatech.retrofit.spring.boot.annotation.OkHttpClientBuilder;
 import com.github.lianjiatech.retrofit.spring.boot.annotation.RetrofitClient;
 import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitConfigBean;
 import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitProperties;
-import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeType;
-import com.github.lianjiatech.retrofit.spring.boot.degrade.SentinelDegradeInterceptor;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.*;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.*;
 import com.github.lianjiatech.retrofit.spring.boot.util.BeanExtendUtils;
 import com.github.lianjiatech.retrofit.spring.boot.util.RetrofitUtils;
@@ -75,12 +76,84 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         RetrofitProperties retrofitProperties = retrofitConfigBean.getRetrofitProperties();
         Class<?> fallback = retrofitClient.fallback();
 
+        initDegradeRules();
+
         // proxy
         return (T) Proxy.newProxyInstance(retrofitInterface.getClassLoader(),
                 new Class<?>[]{retrofitInterface},
                 new RetrofitInvocationHandler(source, fallback, retrofitProperties)
 
         );
+    }
+
+    private void initDegradeRules() {
+
+        if (!retrofitProperties.isEnableDegrade()) {
+            return;
+        }
+
+        BaseResourceNameParser resourceNameParser = retrofitConfigBean.getResourceNameParser();
+
+        DegradeType degradeType = retrofitProperties.getDegradeType();
+        switch (degradeType) {
+            case SENTINEL: {
+                try {
+                    Class.forName("com.alibaba.csp.sentinel.SphU");
+                    List<DegradeRule> rules = new ArrayList<>();
+                    // 获取熔断配置
+                    Method[] methods = retrofitInterface.getMethods();
+                    for (Method method : methods) {
+                        if (method.isDefault()) {
+                            continue;
+                        }
+                        int modifiers = method.getModifiers();
+                        if (Modifier.isStatic(modifiers)) {
+                            continue;
+                        }
+                        // 获取熔断配置
+                        Degrade degrade;
+                        if (method.isAnnotationPresent(Degrade.class)) {
+                            degrade = method.getAnnotation(Degrade.class);
+                        } else {
+                            degrade = retrofitInterface.getAnnotation(Degrade.class);
+                        }
+
+                        DegradeStrategy degradeStrategy = degrade.degradeStrategy();
+                        int grade;
+                        switch (degradeStrategy) {
+                            case AVERAGE_RT: {
+                                grade = 0;
+                                break;
+                            }
+                            case EXCEPTION_RATIO: {
+                                grade = 1;
+                                break;
+                            }
+                            default: {
+                                throw new IllegalArgumentException("Not currently supported! degradeStrategy=" + degradeStrategy);
+                            }
+                        }
+                        String resourceName = resourceNameParser.parseResourceName(method, environment);
+                        // add degrade rule
+                        DegradeRule rule = new DegradeRule()
+                                .setGrade(grade)
+                                // Max allowed response time
+                                .setCount(degrade.count())
+                                // Retry timeout (in second)
+                                .setTimeWindow(degrade.timeWindow());
+                        rule.setResource(resourceName);
+                        rules.add(rule);
+                    }
+                    DegradeRuleManager.loadRules(rules);
+                } catch (ClassNotFoundException e) {
+                    logger.warn("com.alibaba.csp.sentinel not found! No SentinelDegradeInterceptor is set.");
+                }
+                break;
+            }
+            default: {
+                throw new IllegalArgumentException("Not currently supported! degradeType=" + degradeType);
+            }
+        }
     }
 
     /**

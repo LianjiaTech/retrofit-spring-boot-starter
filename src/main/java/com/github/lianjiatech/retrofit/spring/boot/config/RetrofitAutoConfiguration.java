@@ -11,6 +11,8 @@ import com.github.lianjiatech.retrofit.spring.boot.interceptor.NetworkIntercepto
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.ServiceInstanceChooserInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.retry.BaseRetryInterceptor;
 import okhttp3.ConnectionPool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -37,6 +39,8 @@ import java.util.concurrent.TimeUnit;
 @EnableConfigurationProperties(RetrofitProperties.class)
 @AutoConfigureAfter({JacksonAutoConfiguration.class})
 public class RetrofitAutoConfiguration implements ApplicationContextAware {
+
+    private final static Logger logger = LoggerFactory.getLogger(RetrofitAutoConfiguration.class);
 
     @Autowired
     private RetrofitProperties retrofitProperties;

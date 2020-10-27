@@ -1,5 +1,6 @@
 package com.github.lianjiatech.retrofit.spring.boot.config;
 
+import com.github.lianjiatech.retrofit.spring.boot.degrade.BaseResourceNameParser;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseGlobalInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.NetworkInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.ServiceInstanceChooserInterceptor;
@@ -31,6 +32,8 @@ public class RetrofitConfigBean {
     private Class<? extends Converter.Factory>[] globalConverterFactoryClasses;
 
     private Class<? extends CallAdapter.Factory>[] globalCallAdapterFactoryClasses;
+
+    private BaseResourceNameParser resourceNameParser;
 
     public RetrofitProperties getRetrofitProperties() {
         return retrofitProperties;
@@ -96,5 +99,13 @@ public class RetrofitConfigBean {
 
     public void setGlobalCallAdapterFactoryClasses(Class<? extends CallAdapter.Factory>[] globalCallAdapterFactoryClasses) {
         this.globalCallAdapterFactoryClasses = globalCallAdapterFactoryClasses;
+    }
+
+    public BaseResourceNameParser getResourceNameParser() {
+        return resourceNameParser;
+    }
+
+    public void setResourceNameParser(BaseResourceNameParser resourceNameParser) {
+        this.resourceNameParser = resourceNameParser;
     }
 }
