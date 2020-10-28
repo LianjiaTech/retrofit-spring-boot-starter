@@ -23,6 +23,9 @@ retrofit:
   global-call-adapter-factories:
     - com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory
     - com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory
+  enable-degrade: true
+  degrade-type: sentinel
+  resource-name-parser: com.github.lianjiatech.retrofit.spring.boot.degrade.DefaultResourceNameParser
 
 test:
   baseUrl: http://localhost:8080/api/test/

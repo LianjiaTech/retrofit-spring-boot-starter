@@ -43,7 +43,7 @@ public abstract class BaseResourceNameParser {
     protected abstract String defineResourceName(String baseUrl, HttpMethodPath httpMethodPath);
 
 
-    private HttpMethodPath parseHttpMethodPath(Method method) {
+    protected HttpMethodPath parseHttpMethodPath(Method method) {
 
         if (method.isAnnotationPresent(HTTP.class)) {
             HTTP http = method.getAnnotation(HTTP.class);
