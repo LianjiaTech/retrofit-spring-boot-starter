@@ -118,6 +118,10 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
                             degrade = retrofitInterface.getAnnotation(Degrade.class);
                         }
 
+                        if (degrade == null) {
+                            continue;
+                        }
+
                         DegradeStrategy degradeStrategy = degrade.degradeStrategy();
                         int grade;
                         switch (degradeStrategy) {
@@ -258,6 +262,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
                         Class.forName("com.alibaba.csp.sentinel.SphU");
                         SentinelDegradeInterceptor sentinelDegradeInterceptor = new SentinelDegradeInterceptor();
                         sentinelDegradeInterceptor.setEnvironment(environment);
+                        sentinelDegradeInterceptor.setResourceNameParser(retrofitConfigBean.getResourceNameParser());
                         okHttpClientBuilder.addInterceptor(sentinelDegradeInterceptor);
                     } catch (ClassNotFoundException e) {
                         logger.warn("com.alibaba.csp.sentinel not found! No SentinelDegradeInterceptor is set.");

@@ -3,7 +3,7 @@ package com.github.lianjiatech.retrofit.spring.boot.degrade;
 /**
  * @author 陈添明
  */
-public class ResourceNameDefiner extends BaseResourceNameParser {
+public class DefaultResourceNameParser extends BaseResourceNameParser {
 
     private static volatile String PREFIX = "HTTP_OUT";
 

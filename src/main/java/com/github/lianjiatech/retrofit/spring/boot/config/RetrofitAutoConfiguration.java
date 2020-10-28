@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.lianjiatech.retrofit.spring.boot.core.NoValidServiceInstanceChooser;
 import com.github.lianjiatech.retrofit.spring.boot.core.PrototypeInterceptorBdfProcessor;
 import com.github.lianjiatech.retrofit.spring.boot.core.ServiceInstanceChooser;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.BaseResourceNameParser;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseGlobalInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.NetworkInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.ServiceInstanceChooserInterceptor;
@@ -103,6 +104,10 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
 
         ServiceInstanceChooserInterceptor serviceInstanceChooserInterceptor = new ServiceInstanceChooserInterceptor(serviceInstanceChooser);
         retrofitConfigBean.setServiceInstanceChooserInterceptor(serviceInstanceChooserInterceptor);
+
+        // resource name parser
+        Class<? extends BaseResourceNameParser> resourceNameParser = retrofitProperties.getResourceNameParser();
+        retrofitConfigBean.setResourceNameParser(resourceNameParser.newInstance());
 
         return retrofitConfigBean;
     }

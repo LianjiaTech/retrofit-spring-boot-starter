@@ -3,6 +3,8 @@ package com.github.lianjiatech.retrofit.spring.boot.config;
 
 import com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory;
 import com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.BaseResourceNameParser;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.DefaultResourceNameParser;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeType;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseLoggingInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor;
@@ -47,6 +49,12 @@ public class RetrofitProperties {
      * degrade type, Only SENTINEL is currently supported
      */
     private DegradeType degradeType = DegradeType.SENTINEL;
+
+    /**
+     * 资源名称解析器
+     * resource name parser
+     */
+    private Class<? extends BaseResourceNameParser> resourceNameParser = DefaultResourceNameParser.class;
 
     /**
      * 日志打印拦截器
@@ -155,5 +163,13 @@ public class RetrofitProperties {
 
     public void setDegradeType(DegradeType degradeType) {
         this.degradeType = degradeType;
+    }
+
+    public Class<? extends BaseResourceNameParser> getResourceNameParser() {
+        return resourceNameParser;
+    }
+
+    public void setResourceNameParser(Class<? extends BaseResourceNameParser> resourceNameParser) {
+        this.resourceNameParser = resourceNameParser;
     }
 }
