@@ -18,7 +18,7 @@ public @interface Degrade {
     /**
      * Degrade recover timeout (in seconds) when degradation occurs.
      */
-    int timeWindow();
+    int timeWindow() default 5;
 
     /**
      * Degrade strategy (0: average RT, 1: exception ratio).
