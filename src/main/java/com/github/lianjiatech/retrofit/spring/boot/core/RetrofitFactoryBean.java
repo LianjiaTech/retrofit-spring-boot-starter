@@ -7,6 +7,7 @@ import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitConfigBean;
 import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitProperties;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.*;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.*;
+import com.github.lianjiatech.retrofit.spring.boot.util.ApplicationContextUtils;
 import com.github.lianjiatech.retrofit.spring.boot.util.BeanExtendUtils;
 import com.github.lianjiatech.retrofit.spring.boot.util.RetrofitUtils;
 import okhttp3.ConnectionPool;
@@ -73,18 +74,18 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
 
         RetrofitProperties retrofitProperties = retrofitConfigBean.getRetrofitProperties();
         Class<?> fallback = retrofitClient.fallback();
+        Class<?> fallbackFactory = retrofitClient.fallbackFactory();
 
-        initDegradeRules();
-
+        loadDegradeRules();
         // proxy
         return (T) Proxy.newProxyInstance(retrofitInterface.getClassLoader(),
                 new Class<?>[]{retrofitInterface},
-                new RetrofitInvocationHandler(source, fallback, retrofitProperties)
+                new RetrofitInvocationHandler(source, fallback, fallbackFactory, retrofitProperties, applicationContext)
 
         );
     }
 
-    private void initDegradeRules() {
+    private void loadDegradeRules() {
         // 读取熔断配置
         Method[] methods = retrofitInterface.getMethods();
         for (Method method : methods) {
@@ -245,7 +246,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
 
         // add ErrorDecoderInterceptor
         Class<? extends ErrorDecoder> errorDecoderClass = retrofitClient.errorDecoder();
-        ErrorDecoder decoder = getBean(errorDecoderClass);
+        ErrorDecoder decoder = ApplicationContextUtils.getBean(applicationContext, errorDecoderClass);
         if (decoder == null) {
             decoder = errorDecoderClass.newInstance();
         }
@@ -283,14 +284,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         return okHttpClientBuilder.build();
     }
 
-    private <U> U getBean(Class<U> clz) {
-        try {
-            U bean = applicationContext.getBean(clz);
-            return bean;
-        } catch (BeansException e) {
-            return null;
-        }
-    }
+
 
     private Method findOkHttpClientBuilderMethod(Class<?> retrofitClientInterfaceClass) {
         Method[] methods = retrofitClientInterfaceClass.getMethods();
@@ -426,7 +420,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         for (Class<? extends CallAdapter.Factory> callAdapterFactoryClass : combineCallAdapterFactoryClasses) {
             CallAdapter.Factory callAdapterFactory = CALL_ADAPTER_FACTORIES_CACHE.get(callAdapterFactoryClass);
             if (callAdapterFactory == null) {
-                callAdapterFactory = getBean(callAdapterFactoryClass);
+                callAdapterFactory = ApplicationContextUtils.getBean(applicationContext, callAdapterFactoryClass);
                 if (callAdapterFactory == null) {
                     callAdapterFactory = callAdapterFactoryClass.newInstance();
                 }
@@ -457,7 +451,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         for (Class<? extends Converter.Factory> converterFactoryClass : combineConverterFactoryClasses) {
             Converter.Factory converterFactory = CONVERTER_FACTORIES_CACHE.get(converterFactoryClass);
             if (converterFactory == null) {
-                converterFactory = getBean(converterFactoryClass);
+                converterFactory = ApplicationContextUtils.getBean(applicationContext, converterFactoryClass);
                 if (converterFactory == null) {
                     converterFactory = converterFactoryClass.newInstance();
                 }
