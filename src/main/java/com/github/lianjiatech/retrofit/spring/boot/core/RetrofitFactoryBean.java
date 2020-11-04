@@ -73,14 +73,21 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         T source = retrofit.create(retrofitInterface);
 
         RetrofitProperties retrofitProperties = retrofitConfigBean.getRetrofitProperties();
-        Class<?> fallback = retrofitClient.fallback();
-        Class<?> fallbackFactory = retrofitClient.fallbackFactory();
-
+        Class<?> fallbackClass = retrofitClient.fallback();
+        Object fallback = null;
+        if (!void.class.isAssignableFrom(fallbackClass)) {
+            fallback = ApplicationContextUtils.getBean(applicationContext, fallbackClass);
+        }
+        Class<?> fallbackFactoryClass = retrofitClient.fallbackFactory();
+        FallbackFactory<?> fallbackFactory = null;
+        if (!void.class.isAssignableFrom(fallbackFactoryClass)) {
+            fallbackFactory = (FallbackFactory) ApplicationContextUtils.getBean(applicationContext, fallbackFactoryClass);
+        }
         loadDegradeRules();
         // proxy
         return (T) Proxy.newProxyInstance(retrofitInterface.getClassLoader(),
                 new Class<?>[]{retrofitInterface},
-                new RetrofitInvocationHandler(source, fallback, fallbackFactory, retrofitProperties, applicationContext)
+                new RetrofitInvocationHandler(source, fallback, fallbackFactory, retrofitProperties)
 
         );
     }
@@ -150,9 +157,18 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
             }
         }
 
-        Class<?> fallback = retrofitClient.fallback();
-        if (!void.class.isAssignableFrom(fallback)) {
-            Assert.isTrue(retrofitInterface.isAssignableFrom(fallback), "The fallback type must implement the current interface！retrofitInterface=" + retrofitInterface);
+        Class<?> fallbackClass = retrofitClient.fallback();
+        if (!void.class.isAssignableFrom(fallbackClass)) {
+            Assert.isTrue(retrofitInterface.isAssignableFrom(fallbackClass), "The fallback type must implement the current interface！the fallback type is " + fallbackClass);
+            Object fallback = ApplicationContextUtils.getBean(applicationContext, fallbackClass);
+            Assert.notNull(fallback, "fallback  must be a valid spring bean! the fallback class is " + fallbackClass);
+        }
+
+        Class<?> fallbackFactoryClass = retrofitClient.fallbackFactory();
+        if (!void.class.isAssignableFrom(fallbackFactoryClass)) {
+            Assert.isTrue(FallbackFactory.class.isAssignableFrom(fallbackFactoryClass), "The fallback factory type must implement FallbackFactory！the fallback factory is " + fallbackFactoryClass);
+            Object fallbackFactory = ApplicationContextUtils.getBean(applicationContext, fallbackFactoryClass);
+            Assert.notNull(fallbackFactory, "fallback factory  must be a valid spring bean! the fallback factory class is " + fallbackFactoryClass);
         }
     }
 
@@ -283,7 +299,6 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
 
         return okHttpClientBuilder.build();
     }
-
 
 
     private Method findOkHttpClientBuilderMethod(Class<?> retrofitClientInterfaceClass) {

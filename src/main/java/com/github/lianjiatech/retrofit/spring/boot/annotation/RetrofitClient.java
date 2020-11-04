@@ -59,8 +59,7 @@ public @interface RetrofitClient {
 
     /**
      * Fallback class for the specified retrofit client interface. The fallback class must
-     * implement the interface annotated by this annotation. The fallback instance is first obtained from the Spring container.
-     * If it is not obtained, it is created by reflection.
+     * implement the interface annotated by this annotation and be a valid spring bean.
      */
     Class<?> fallback() default void.class;
 
@@ -68,8 +67,7 @@ public @interface RetrofitClient {
     /**
      * Define a fallback factory for the specified Feign client interface. The fallback
      * factory must produce instances of fallback classes that implement the interface
-     * annotated by {@link RetrofitClient}.The fallback instance is first obtained from the Spring container.
-     * If it is not obtained, it is created by reflection.
+     * annotated by {@link RetrofitClient}.The fallback factory must be a valid spring bean.
      * bean.
      */
     Class<?> fallbackFactory() default void.class;
