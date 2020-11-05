@@ -557,11 +557,11 @@ public @interface Degrade {
 
 > **如果应用项目已支持通过配置中心配置降级规则，可忽略注解式配置方式**。
 
-#### 3. @RetrofitClient设置fallback或者fallbackFactory<T> (可选)
+#### 3. @RetrofitClient设置fallback或者fallbackFactory (可选)
 
-如果`@RetrofitClient`不设置`fallback`或者`fallbackFactory<T>`，当触发熔断时，会直接抛出`RetrofitBlockException`异常。**用户可以通过设置`fallback`或者`fallbackFactory<T>`来定制熔断时的方法返回值**。`fallback`类必须是当前接口的实现类，`fallbackFactory<T>`泛型参数类型必须为当前接口类型。另外，`fallback`和`fallbackFactory<T>`实例必须配置成`Spring`容器的`Bean`。
+如果`@RetrofitClient`不设置`fallback`或者`fallbackFactory`，当触发熔断时，会直接抛出`RetrofitBlockException`异常。**用户可以通过设置`fallback`或者`fallbackFactory`来定制熔断时的方法返回值**。`fallback`类必须是当前接口的实现类，`fallbackFactory`必须是`FallbackFactory<T>`实现类，泛型参数类型为当前接口类型。另外，`fallback`和`fallbackFactory`实例必须配置成`Spring`容器的`Bean`。
 
-**`fallbackFactory<T>`相对于`fallback`，主要差别在于能够感知每次熔断的异常原因(cause)**。参考示例如下：
+**`fallbackFactory`相对于`fallback`，主要差别在于能够感知每次熔断的异常原因(cause)**。参考示例如下：
 
 ```java
 @Slf4j

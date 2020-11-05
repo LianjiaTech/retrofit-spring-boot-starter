@@ -550,11 +550,11 @@ public @interface Degrade {
 
 > **If the application project already supports the configuration of downgrade rules through the configuration center, you can ignore the annotation configuration method**。
 
-#### 3. @RetrofitClient set fallback or fallbackFactory<T> (optional)
+#### 3. @RetrofitClient set fallback or fallbackFactory (optional)
 
-**If `@RetrofitClient` does not set `fallback` or `fallbackFactory<T>`, when the fuse is triggered, RetrofitBlockException will be thrown directly. The user can customize the return value of the method when fusing by setting `fallback` or `fallbackFactory<T>`**. The `fallback` class must be the implementation class of the current interface, and the `fallbackFactory<T>` generic parameter type must be the current interface type. In addition, `fallback` and `fallbackFactory<T>` instances must be configured as Beans of the Spring container.
+**If `@RetrofitClient` does not set `fallback` or `fallbackFactory`, when the fuse is triggered, `RetrofitBlockException` will be thrown directly. The user can customize the return value of the method when fusing by setting `fallback` or `fallbackFactory`**. The `fallback` class must be the implementation class of the current interface, `fallbackFactory` must be the `FallbackFactory<T>` implementation class, and the generic parameter type is the current interface type. In addition, fallback and fallbackFactory instances must be configured as Spring container beans.
 
-**The main difference between `fallbackFactory<T>` and `fallback` is that it can sense the cause of each fusing**. The reference example is as follows:
+**The main difference between `fallbackFactory` and `fallback` is that it can sense the cause of each fusing**. The reference example is as follows:
 
 ```java
 @Slf4j
