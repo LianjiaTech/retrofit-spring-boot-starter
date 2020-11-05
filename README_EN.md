@@ -493,7 +493,7 @@ You only need to implement the NetworkInterceptor interface and configure it as 
 
 In the distributed service architecture, fuse downgrade of unstable external services is one of the important measures to ensure high service availability. Since the stability of external services cannot be guaranteed, when external services are unstable, the response time will become longer. Correspondingly, the caller's response time will become longer, threads will accumulate, and eventually the caller's thread pool may be exhausted, causing the entire service to be unavailable. Therefore, we need to fuse and downgrade unstable weakly dependent service calls, temporarily cut off unstable calls, and avoid local instability leading to an overall service avalanche.
 
-retrofit-spring-boot-starter supports the fuse downgrade function, and the bottom layer is based on Sentinel. Specifically, it supports self-discovery of fusing resources and annotated degrade rule configuration. If you need to use the fuse to downgrade, you only need to do the following:
+retrofit-spring-boot-starter supports the fuse downgrade function, and the bottom layer is based on [Sentinel](https://sentinelguard.io/zh-cn/docs/introduction.html). Specifically, it supports self-discovery of fusing resources and annotated degrade rule configuration. If you need to use the fuse to downgrade, you only need to do the following:
 
 #### 1. Enable fuse degrade
 
@@ -520,7 +520,7 @@ The resource name resolver is used to implement user-defined resource names. The
 </dependency>
 ```
 
-### Configure degade rules (optional)
+### Configure degrade rules (optional)
 
 **`retrofit-spring-boot-starter` supports annotation-based configuration of downgrade rules, and you can configure downgrade rules through @Degrade annotations**. The @Degrade annotation can be configured on the interface or method, and the priority of the configuration on the method is higher.
 

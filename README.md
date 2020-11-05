@@ -500,7 +500,7 @@ public class SourceInterceptor extends BaseGlobalInterceptor {
 
 在分布式服务架构中，对不稳定的外部服务进行熔断降级是保证服务高可用的重要措施之一。由于外部服务的稳定性是不能保证的，当外部服务不稳定时，响应时间会变长。相应地，调用方的响应时间也会变长，线程会产生堆积，最终可能耗尽调用方的线程池，导致整个服务不可用。因此我们需要对不稳定的弱依赖服务调用进行熔断降级，暂时切断不稳定调用，避免局部不稳定导致整体服务雪崩。
 
-`retrofit-spring-boot-starter`支持熔断降级功能，底层基于*[Sentinel](https://sentinelguard.io/zh-cn/docs/introduction.html)*实现。具体来说，支持了**熔断资源自发现**和**注解式降级规则配置**。如需使用熔断降级，只需要进行以下操作即可：
+`retrofit-spring-boot-starter`支持熔断降级功能，底层基于[Sentinel](https://sentinelguard.io/zh-cn/docs/introduction.html)实现。具体来说，支持了**熔断资源自发现**和**注解式降级规则配置**。如需使用熔断降级，只需要进行以下操作即可：
 
 #### 1. 开启熔断降级功能
 	
