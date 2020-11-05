@@ -23,8 +23,11 @@ retrofit:
   global-call-adapter-factories:
     - com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory
     - com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory
+  # 是否启用熔断降级
   enable-degrade: true
+  # 熔断降级实现方式
   degrade-type: sentinel
+  # 熔断资源名称解析器
   resource-name-parser: com.github.lianjiatech.retrofit.spring.boot.degrade.DefaultResourceNameParser
 
 test:
