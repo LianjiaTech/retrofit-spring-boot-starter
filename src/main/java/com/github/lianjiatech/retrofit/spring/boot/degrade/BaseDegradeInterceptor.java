@@ -44,6 +44,7 @@ public abstract class BaseDegradeInterceptor implements Interceptor {
      * @param chain 请求执行链
      * @return 请求响应
      * @throws RetrofitBlockException 如果触发熔断，抛出RetrofitBlockException异常！
+     * @throws IOException IOException
      *
      */
     protected abstract Response degradeIntercept(String resourceName, Chain chain) throws RetrofitBlockException, IOException;
