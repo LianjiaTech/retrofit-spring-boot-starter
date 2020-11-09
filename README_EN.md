@@ -24,7 +24,6 @@
 ## Features
 
 - [x] [Custom injection OkHttpClient](#Custom-injection-OkHttpClient)
-
 - [x] [Annotation interceptor](#Annotation-interceptor)
 - [x] [Connection pool management](#Connection-pool-management)
 - [x] [Log printing](#Log-printing)
