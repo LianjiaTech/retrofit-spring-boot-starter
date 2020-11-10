@@ -6,11 +6,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.lianjiatech.retrofit.spring.boot.core.NoValidServiceInstanceChooser;
 import com.github.lianjiatech.retrofit.spring.boot.core.PrototypeInterceptorBdfProcessor;
 import com.github.lianjiatech.retrofit.spring.boot.core.ServiceInstanceChooser;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.BaseResourceNameParser;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitDegradeRuleInitializer;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseGlobalInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.NetworkInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.ServiceInstanceChooserInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.retry.BaseRetryInterceptor;
+import com.github.lianjiatech.retrofit.spring.boot.util.ApplicationContextUtils;
 import okhttp3.ConnectionPool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -37,6 +42,8 @@ import java.util.concurrent.TimeUnit;
 @EnableConfigurationProperties(RetrofitProperties.class)
 @AutoConfigureAfter({JacksonAutoConfiguration.class})
 public class RetrofitAutoConfiguration implements ApplicationContextAware {
+
+    private final static Logger logger = LoggerFactory.getLogger(RetrofitAutoConfiguration.class);
 
     @Autowired
     private RetrofitProperties retrofitProperties;
@@ -78,7 +85,7 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
         retrofitConfigBean.setGlobalConverterFactoryClasses(globalConverterFactories);
 
         // globalInterceptors
-        Collection<BaseGlobalInterceptor> globalInterceptors = getBeans(BaseGlobalInterceptor.class);
+        Collection<BaseGlobalInterceptor> globalInterceptors = ApplicationContextUtils.getBeans(applicationContext, BaseGlobalInterceptor.class);
         retrofitConfigBean.setGlobalInterceptors(globalInterceptors);
 
         // retryInterceptor
@@ -86,7 +93,7 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
         retrofitConfigBean.setRetryInterceptor(retryInterceptor.newInstance());
 
         // add networkInterceptor
-        Collection<NetworkInterceptor> networkInterceptors = getBeans(NetworkInterceptor.class);
+        Collection<NetworkInterceptor> networkInterceptors = ApplicationContextUtils.getBeans(applicationContext, NetworkInterceptor.class);
         retrofitConfigBean.setNetworkInterceptors(networkInterceptors);
 
         // add ServiceInstanceChooserInterceptor
@@ -99,6 +106,10 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
 
         ServiceInstanceChooserInterceptor serviceInstanceChooserInterceptor = new ServiceInstanceChooserInterceptor(serviceInstanceChooser);
         retrofitConfigBean.setServiceInstanceChooserInterceptor(serviceInstanceChooserInterceptor);
+
+        // resource name parser
+        Class<? extends BaseResourceNameParser> resourceNameParser = retrofitProperties.getResourceNameParser();
+        retrofitConfigBean.setResourceNameParser(resourceNameParser.newInstance());
 
         return retrofitConfigBean;
     }
@@ -119,19 +130,13 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
         return JacksonConverterFactory.create(objectMapper);
     }
 
-
-    private <U> Collection<U> getBeans(Class<U> clz) {
-        try {
-            Map<String, U> beanMap = applicationContext.getBeansOfType(clz);
-            return beanMap.values();
-        } catch (BeansException e) {
-            // do nothing
-        }
-        return null;
-    }
-
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
+    }
+
+    @Bean
+    public RetrofitDegradeRuleInitializer retrofitDegradeRuleInitializer() {
+        return new RetrofitDegradeRuleInitializer(retrofitProperties);
     }
 }
