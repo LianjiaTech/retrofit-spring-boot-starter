@@ -5,11 +5,16 @@ import com.github.lianjiatech.retrofit.spring.boot.annotation.OkHttpClientBuilde
 import com.github.lianjiatech.retrofit.spring.boot.annotation.RetrofitClient;
 import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitConfigBean;
 import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitProperties;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.*;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.*;
+import com.github.lianjiatech.retrofit.spring.boot.util.ApplicationContextUtils;
 import com.github.lianjiatech.retrofit.spring.boot.util.BeanExtendUtils;
+import com.github.lianjiatech.retrofit.spring.boot.util.RetrofitUtils;
 import okhttp3.ConnectionPool;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
@@ -26,10 +31,7 @@ import retrofit2.Converter;
 import retrofit2.Retrofit;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -38,7 +40,9 @@ import java.util.concurrent.TimeUnit;
  */
 public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware, ApplicationContextAware {
 
-    public static final String SUFFIX = "/";
+    private final static Logger logger = LoggerFactory.getLogger(RetrofitFactoryBean.class);
+
+
     private static final Map<Class<? extends CallAdapter.Factory>, CallAdapter.Factory> CALL_ADAPTER_FACTORIES_CACHE = new HashMap<>(4);
 
     private Class<T> retrofitInterface;
@@ -51,10 +55,13 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
 
     private ApplicationContext applicationContext;
 
+    private RetrofitClient retrofitClient;
+
     private static final Map<Class<? extends Converter.Factory>, Converter.Factory> CONVERTER_FACTORIES_CACHE = new HashMap<>(4);
 
     public RetrofitFactoryBean(Class<T> retrofitInterface) {
         this.retrofitInterface = retrofitInterface;
+        retrofitClient = retrofitInterface.getAnnotation(RetrofitClient.class);
     }
 
     @Override
@@ -62,7 +69,63 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
     public T getObject() throws Exception {
         checkRetrofitInterface(retrofitInterface);
         Retrofit retrofit = getRetrofit(retrofitInterface);
-        return retrofit.create(retrofitInterface);
+        // source
+        T source = retrofit.create(retrofitInterface);
+
+        RetrofitProperties retrofitProperties = retrofitConfigBean.getRetrofitProperties();
+        Class<?> fallbackClass = retrofitClient.fallback();
+        Object fallback = null;
+        if (!void.class.isAssignableFrom(fallbackClass)) {
+            fallback = ApplicationContextUtils.getBean(applicationContext, fallbackClass);
+        }
+        Class<?> fallbackFactoryClass = retrofitClient.fallbackFactory();
+        FallbackFactory<?> fallbackFactory = null;
+        if (!void.class.isAssignableFrom(fallbackFactoryClass)) {
+            fallbackFactory = (FallbackFactory) ApplicationContextUtils.getBean(applicationContext, fallbackFactoryClass);
+        }
+        loadDegradeRules();
+        // proxy
+        return (T) Proxy.newProxyInstance(retrofitInterface.getClassLoader(),
+                new Class<?>[]{retrofitInterface},
+                new RetrofitInvocationHandler(source, fallback, fallbackFactory, retrofitProperties)
+
+        );
+    }
+
+    private void loadDegradeRules() {
+        // 读取熔断配置
+        Method[] methods = retrofitInterface.getMethods();
+        for (Method method : methods) {
+            if (method.isDefault()) {
+                continue;
+            }
+            int modifiers = method.getModifiers();
+            if (Modifier.isStatic(modifiers)) {
+                continue;
+            }
+            // 获取熔断配置
+            Degrade degrade;
+            if (method.isAnnotationPresent(Degrade.class)) {
+                degrade = method.getAnnotation(Degrade.class);
+            } else {
+                degrade = retrofitInterface.getAnnotation(Degrade.class);
+            }
+
+            if (degrade == null) {
+                continue;
+            }
+
+            DegradeStrategy degradeStrategy = degrade.degradeStrategy();
+            BaseResourceNameParser resourceNameParser = retrofitConfigBean.getResourceNameParser();
+            String resourceName = resourceNameParser.parseResourceName(method, environment);
+
+            RetrofitDegradeRule degradeRule = new RetrofitDegradeRule();
+            degradeRule.setCount(degrade.count());
+            degradeRule.setDegradeStrategy(degradeStrategy);
+            degradeRule.setTimeWindow(degrade.timeWindow());
+            degradeRule.setResourceName(resourceName);
+            RetrofitDegradeRuleInitializer.addRetrofitDegradeRule(degradeRule);
+        }
     }
 
     /**
@@ -74,8 +137,6 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         // check class type
         Assert.isTrue(retrofitInterface.isInterface(), "@RetrofitClient can only be marked on the interface type!");
         Method[] methods = retrofitInterface.getMethods();
-
-        RetrofitClient retrofitClient = retrofitInterface.getAnnotation(RetrofitClient.class);
 
         Assert.isTrue(StringUtils.hasText(retrofitClient.baseUrl()) || StringUtils.hasText(retrofitClient.serviceId()),
                 "@RetrofitClient's baseUrl and serviceId must be configured with one！");
@@ -94,6 +155,20 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
                 Assert.isTrue(!Void.class.isAssignableFrom(returnType),
                         "Configured to disable Void as the return value, please specify another return type!method=" + method);
             }
+        }
+
+        Class<?> fallbackClass = retrofitClient.fallback();
+        if (!void.class.isAssignableFrom(fallbackClass)) {
+            Assert.isTrue(retrofitInterface.isAssignableFrom(fallbackClass), "The fallback type must implement the current interface！the fallback type is " + fallbackClass);
+            Object fallback = ApplicationContextUtils.getBean(applicationContext, fallbackClass);
+            Assert.notNull(fallback, "fallback  must be a valid spring bean! the fallback class is " + fallbackClass);
+        }
+
+        Class<?> fallbackFactoryClass = retrofitClient.fallbackFactory();
+        if (!void.class.isAssignableFrom(fallbackFactoryClass)) {
+            Assert.isTrue(FallbackFactory.class.isAssignableFrom(fallbackFactoryClass), "The fallback factory type must implement FallbackFactory！the fallback factory is " + fallbackFactoryClass);
+            Object fallbackFactory = ApplicationContextUtils.getBean(applicationContext, fallbackFactoryClass);
+            Assert.notNull(fallbackFactory, "fallback factory  must be a valid spring bean! the fallback factory class is " + fallbackFactoryClass);
         }
     }
 
@@ -155,6 +230,28 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
                     .connectionPool(connectionPool);
         }
 
+        // add DegradeInterceptor
+        if (retrofitProperties.isEnableDegrade()) {
+            DegradeType degradeType = retrofitProperties.getDegradeType();
+            switch (degradeType) {
+                case SENTINEL: {
+                    try {
+                        Class.forName("com.alibaba.csp.sentinel.SphU");
+                        SentinelDegradeInterceptor sentinelDegradeInterceptor = new SentinelDegradeInterceptor();
+                        sentinelDegradeInterceptor.setEnvironment(environment);
+                        sentinelDegradeInterceptor.setResourceNameParser(retrofitConfigBean.getResourceNameParser());
+                        okHttpClientBuilder.addInterceptor(sentinelDegradeInterceptor);
+                    } catch (ClassNotFoundException e) {
+                        logger.warn("com.alibaba.csp.sentinel not found! No SentinelDegradeInterceptor is set.");
+                    }
+                    break;
+                }
+                default: {
+                    throw new IllegalArgumentException("Not currently supported! degradeType=" + degradeType);
+                }
+            }
+        }
+
         // add ServiceInstanceChooserInterceptor
         if (StringUtils.hasText(retrofitClient.serviceId())) {
             ServiceInstanceChooserInterceptor serviceInstanceChooserInterceptor = retrofitConfigBean.getServiceInstanceChooserInterceptor();
@@ -165,7 +262,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
 
         // add ErrorDecoderInterceptor
         Class<? extends ErrorDecoder> errorDecoderClass = retrofitClient.errorDecoder();
-        ErrorDecoder decoder = getBean(errorDecoderClass);
+        ErrorDecoder decoder = ApplicationContextUtils.getBean(applicationContext, errorDecoderClass);
         if (decoder == null) {
             decoder = errorDecoderClass.newInstance();
         }
@@ -203,14 +300,6 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         return okHttpClientBuilder.build();
     }
 
-    private <U> U getBean(Class<U> clz) {
-        try {
-            U bean = applicationContext.getBean(clz);
-            return bean;
-        } catch (BeansException e) {
-            return null;
-        }
-    }
 
     private Method findOkHttpClientBuilderMethod(Class<?> retrofitClientInterfaceClass) {
         Method[] methods = retrofitClientInterfaceClass.getMethods();
@@ -299,21 +388,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         RetrofitClient retrofitClient = retrofitClientInterfaceClass.getAnnotation(RetrofitClient.class);
         String baseUrl = retrofitClient.baseUrl();
 
-        if (StringUtils.hasText(baseUrl)) {
-            baseUrl = environment.resolveRequiredPlaceholders(baseUrl);
-            // 解析baseUrl占位符
-            if (!baseUrl.endsWith(SUFFIX)) {
-                baseUrl += SUFFIX;
-            }
-        } else {
-            String serviceId = retrofitClient.serviceId();
-            String path = retrofitClient.path();
-            if (!path.endsWith(SUFFIX)) {
-                path += SUFFIX;
-            }
-            baseUrl = "http://" + (serviceId + SUFFIX + path).replaceAll("/+", SUFFIX);
-            baseUrl = environment.resolveRequiredPlaceholders(baseUrl);
-        }
+        baseUrl = RetrofitUtils.convertBaseUrl(retrofitClient, baseUrl, environment);
 
         OkHttpClient client = getOkHttpClient(retrofitClientInterfaceClass);
         Retrofit.Builder retrofitBuilder = new Retrofit.Builder()
@@ -339,6 +414,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         return retrofitBuilder.build();
     }
 
+
     private List<CallAdapter.Factory> getCallAdapterFactories(Class<? extends CallAdapter.Factory>[] callAdapterFactoryClasses, Class<? extends CallAdapter.Factory>[] globalCallAdapterFactoryClasses) throws IllegalAccessException, InstantiationException {
         List<Class<? extends CallAdapter.Factory>> combineCallAdapterFactoryClasses = new ArrayList<>();
 
@@ -359,7 +435,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         for (Class<? extends CallAdapter.Factory> callAdapterFactoryClass : combineCallAdapterFactoryClasses) {
             CallAdapter.Factory callAdapterFactory = CALL_ADAPTER_FACTORIES_CACHE.get(callAdapterFactoryClass);
             if (callAdapterFactory == null) {
-                callAdapterFactory = getBean(callAdapterFactoryClass);
+                callAdapterFactory = ApplicationContextUtils.getBean(applicationContext, callAdapterFactoryClass);
                 if (callAdapterFactory == null) {
                     callAdapterFactory = callAdapterFactoryClass.newInstance();
                 }
@@ -390,7 +466,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         for (Class<? extends Converter.Factory> converterFactoryClass : combineConverterFactoryClasses) {
             Converter.Factory converterFactory = CONVERTER_FACTORIES_CACHE.get(converterFactoryClass);
             if (converterFactory == null) {
-                converterFactory = getBean(converterFactoryClass);
+                converterFactory = ApplicationContextUtils.getBean(applicationContext, converterFactoryClass);
                 if (converterFactory == null) {
                     converterFactory = converterFactoryClass.newInstance();
                 }

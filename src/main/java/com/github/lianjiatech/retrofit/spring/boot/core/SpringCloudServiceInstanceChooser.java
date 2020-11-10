@@ -2,6 +2,7 @@ package com.github.lianjiatech.retrofit.spring.boot.core;
 
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
+import org.springframework.util.Assert;
 
 import java.net.URI;
 
@@ -25,6 +26,7 @@ public class SpringCloudServiceInstanceChooser implements ServiceInstanceChooser
     @Override
     public URI choose(String serviceId) {
         ServiceInstance serviceInstance = loadBalancerClient.choose(serviceId);
+        Assert.notNull(serviceInstance, "can not found service instance! serviceId=" + serviceId);
         return serviceInstance.getUri();
     }
 }
