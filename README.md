@@ -609,37 +609,28 @@ public class HttpDegradeFallbackFactory implements FallbackFactory<HttpDegradeAp
 
 ### 微服务之间的HTTP调用
 
-**通过配置`@Retrofit`的`serviceId`和`path`属性，可以实现微服务之间的HTTP调用**。比如：
+为了能够使用微服务调用，需要进行如下配置：
 
-```java
-@RetrofitClient(serviceId = "${jy-helicarrier-api.serviceId}", path = "/m/count", errorDecoder = HelicarrierErrorDecoder.class)
-@Retry
-public interface ApiCountService {
+#### 配置`ServiceInstanceChooser`为`Spring`容器`Bean`
 
-}
-```
-
-用户需要自行实现`ServiceInstanceChooser`接口，完成服务实例的选取逻辑，并将其配置成`Spring`容器的`Bean`。对于`Spring Cloud`应用，`retrofit-spring-boot-starter`提供了`SpringCloudServiceInstanceChooser`实现，用户只需将其配置成`Spring`的`Bean`即可。
-
-```java
-public interface ServiceInstanceChooser {
-
-    /**
-     * Chooses a ServiceInstance URI from the LoadBalancer for the specified service.
-     *
-     * @param serviceId The service ID to look up the LoadBalancer.
-     * @return Return the uri of ServiceInstance
-     */
-    URI choose(String serviceId);
-
-}
-```
+用户可以自行实现`ServiceInstanceChooser`接口，完成服务实例的选取逻辑，并将其配置成`Spring`容器的`Bean`。对于`Spring Cloud`应用，`retrofit-spring-boot-starter`提供了`SpringCloudServiceInstanceChooser`实现，用户只需将其配置成`Spring`的`Bean`即可。
 
 ```java
 @Bean
 @Autowired
 public ServiceInstanceChooser serviceInstanceChooser(LoadBalancerClient loadBalancerClient) {
     return new SpringCloudServiceInstanceChooser(loadBalancerClient);
+}
+```
+
+#### 使用`@Retrofit`的`serviceId`和`path`属性，可以实现微服务之间的HTTP调用
+
+
+```java
+@RetrofitClient(serviceId = "${jy-helicarrier-api.serviceId}", path = "/m/count", errorDecoder = HelicarrierErrorDecoder.class)
+@Retry
+public interface ApiCountService {
+
 }
 ```
 
