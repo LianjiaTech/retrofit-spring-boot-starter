@@ -74,6 +74,8 @@ public interface HttpApi {
 }
 ```
 
+注意：**方法请求路径慎用`/`开头**。对于`Retrofit`而言，如果`baseUrl=http://localhost:8080/api/test/`，方法请求路径如果是`person`，则该方法完整的请求路径是：`http://localhost:8080/api/test/person`。而方法请求路径如果是`/person`，则该方法完整的请求路径是：`http://localhost:8080/person`。
+
 ### 注入使用
 
 **将接口注入到其它Service中即可使用！**
