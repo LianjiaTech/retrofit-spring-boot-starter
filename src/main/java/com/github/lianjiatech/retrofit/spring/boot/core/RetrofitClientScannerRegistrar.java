@@ -19,7 +19,7 @@ import java.util.Set;
 /**
  * @author 陈添明
  */
-public class RetrofitClientRegistrar implements ImportBeanDefinitionRegistrar, ResourceLoaderAware, BeanClassLoaderAware {
+public class RetrofitClientScannerRegistrar implements ImportBeanDefinitionRegistrar, ResourceLoaderAware, BeanClassLoaderAware {
 
     private ResourceLoader resourceLoader;
 
@@ -29,6 +29,9 @@ public class RetrofitClientRegistrar implements ImportBeanDefinitionRegistrar, R
     public void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
         AnnotationAttributes attributes = AnnotationAttributes
                 .fromMap(metadata.getAnnotationAttributes(RetrofitScan.class.getName()));
+        if (attributes == null) {
+            return;
+        }
         // Scan the @RetrofitClient annotated interface under the specified path and register it to the BeanDefinitionRegistry
         ClassPathRetrofitClientScanner scanner = new ClassPathRetrofitClientScanner(registry, classLoader);
         if (resourceLoader != null) {
