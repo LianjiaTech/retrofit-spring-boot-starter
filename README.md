@@ -46,21 +46,6 @@
 </dependency>
 ```
 
-### 配置`@RetrofitScan`注解
-
-你可以给带有 `@Configuration` 的类配置`@RetrofitScan`，或者直接配置到`spring-boot`的启动类上，如下：
-
-```java
-@SpringBootApplication
-@RetrofitScan("com.github.lianjiatech.retrofit.spring.boot.test")
-public class RetrofitTestApplication {
-
-    public static void main(String[] args) {
-        SpringApplication.run(RetrofitTestApplication.class, args);
-    }
-}
-```
-
 ### 定义http接口
 
 **接口必须使用`@RetrofitClient`注解标记**！http相关注解可参考官方文档：[retrofit官方文档](https://square.github.io/retrofit/)。
@@ -92,6 +77,9 @@ public class TestService {
     }
 }
 ```
+
+**默认情况下，自动使用`SpringBoot`扫描路径进行`retrofitClient`注册**。你也可以在配置类加上`@RetrofitScan`手工指定扫描路径。
+
 
 ## HTTP请求相关注解
 
