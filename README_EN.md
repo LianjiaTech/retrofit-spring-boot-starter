@@ -43,23 +43,8 @@
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
     <artifactId>retrofit-spring-boot-starter</artifactId>
-    <version>2.2.0</version>
+    <version>2.2.1</version>
 </dependency>
-```
-
-### Configure `@RetrofitScan` annotation
-
-You can configure `@Configuration` for the class with `@RetrofitScan` or directly configure it to the startup class of `spring-boot`, as follows:
-
-```java
-@SpringBootApplication
-@RetrofitScan("com.github.lianjiatech.retrofit.spring.boot.test")
-public class RetrofitTestApplication {
-
-    public static void main(String[] args) {
-        SpringApplication.run(RetrofitTestApplication.class, args);
-    }
-}
 ```
 
 ### Define HTTP interface
@@ -91,6 +76,8 @@ public class TestService {
     }
 }
 ```
+
+**By default, the SpringBoot scan path is automatically used for retrofitClient registration**. You can also add `@RetrofitScan` to the configuration class to manually specify the scan path.
 
 ## Related annotations of HTTP request
 

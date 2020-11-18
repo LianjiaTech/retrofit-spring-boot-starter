@@ -1,6 +1,6 @@
 package com.github.lianjiatech.retrofit.spring.boot.annotation;
 
-import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClientRegistrar;
+import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClientScannerRegistrar;
 import org.springframework.context.annotation.Import;
 
 import java.lang.annotation.*;
@@ -11,7 +11,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@Import(RetrofitClientRegistrar.class)
+@Import(RetrofitClientScannerRegistrar.class)
 public @interface RetrofitScan {
 
     /**
