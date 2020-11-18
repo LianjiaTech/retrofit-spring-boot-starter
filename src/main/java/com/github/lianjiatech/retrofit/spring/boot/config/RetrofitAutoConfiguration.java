@@ -3,9 +3,7 @@ package com.github.lianjiatech.retrofit.spring.boot.config;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.lianjiatech.retrofit.spring.boot.core.NoValidServiceInstanceChooser;
-import com.github.lianjiatech.retrofit.spring.boot.core.PrototypeInterceptorBdfProcessor;
-import com.github.lianjiatech.retrofit.spring.boot.core.ServiceInstanceChooser;
+import com.github.lianjiatech.retrofit.spring.boot.core.*;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.BaseResourceNameParser;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitDegradeRuleInitializer;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseGlobalInterceptor;
@@ -17,6 +15,7 @@ import okhttp3.ConnectionPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -26,6 +25,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import retrofit2.CallAdapter;
 import retrofit2.Converter;
 import retrofit2.converter.jackson.JacksonConverterFactory;
@@ -43,7 +43,7 @@ import java.util.concurrent.TimeUnit;
 @AutoConfigureAfter({JacksonAutoConfiguration.class})
 public class RetrofitAutoConfiguration implements ApplicationContextAware {
 
-    private final static Logger logger = LoggerFactory.getLogger(RetrofitAutoConfiguration.class);
+    private static final Logger logger = LoggerFactory.getLogger(RetrofitAutoConfiguration.class);
 
     @Autowired
     private RetrofitProperties retrofitProperties;
@@ -139,4 +139,15 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
     public RetrofitDegradeRuleInitializer retrofitDegradeRuleInitializer() {
         return new RetrofitDegradeRuleInitializer(retrofitProperties);
     }
+
+    @Configuration
+    @Import({AutoConfiguredRetrofitScannerRegistrar.class})
+    @ConditionalOnMissingBean(RetrofitFactoryBean.class)
+    public static class RetrofitScannerRegistrarNotFoundConfiguration implements InitializingBean {
+        @Override
+        public void afterPropertiesSet() {
+            logger.debug("No {} found.", RetrofitFactoryBean.class.getName());
+        }
+    }
+
 }
