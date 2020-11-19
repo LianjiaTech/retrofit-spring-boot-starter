@@ -15,6 +15,7 @@ import java.lang.annotation.*;
 @Target(ElementType.TYPE)
 @Documented
 @InterceptMark
+@Repeatable(Intercepts.class)
 public @interface Intercept {
     /**
      * 拦截器匹配路径pattern
