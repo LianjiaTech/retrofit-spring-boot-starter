@@ -43,7 +43,7 @@
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
     <artifactId>retrofit-spring-boot-starter</artifactId>
-    <version>2.2.1</version>
+    <version>2.2.2</version>
 </dependency>
 ```
 
@@ -180,6 +180,8 @@ In many cases, we hope that certain http requests in a certain interface execute
 
 1. Inherit `BasePathMatchInterceptor` and write interceptor processor;
 2. Mark the interface with `@Intercept`.
+
+> To configure multiple interceptors, just mark multiple `@Intercept` annotations on the interface!
 
 The following is an example of how to use annotation interceptors *by splicing timestamp after the URL of a specified request*.
 
