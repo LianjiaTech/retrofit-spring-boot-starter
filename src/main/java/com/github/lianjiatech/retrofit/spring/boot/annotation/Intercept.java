@@ -13,7 +13,6 @@ import java.lang.annotation.*;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-@Documented
 @InterceptMark
 @Repeatable(Intercepts.class)
 public @interface Intercept {
