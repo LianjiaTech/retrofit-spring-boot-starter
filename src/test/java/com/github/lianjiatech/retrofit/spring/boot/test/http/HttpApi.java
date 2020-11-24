@@ -6,6 +6,7 @@ import com.github.lianjiatech.retrofit.spring.boot.test.entity.Person;
 import com.github.lianjiatech.retrofit.spring.boot.test.entity.Result;
 import com.github.lianjiatech.retrofit.spring.boot.test.ex.TestErrorDecoder;
 import com.github.lianjiatech.retrofit.spring.boot.test.interceptor.Sign;
+import com.github.lianjiatech.retrofit.spring.boot.test.interceptor.TimeStamp2Interceptor;
 import com.github.lianjiatech.retrofit.spring.boot.test.interceptor.TimeStampInterceptor;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -22,6 +23,7 @@ import java.util.concurrent.CompletableFuture;
 @RetrofitClient(baseUrl = "${test.baseUrl}", poolName = "test1", errorDecoder = TestErrorDecoder.class)
 @Sign(accessKeyId = "${test.accessKeyId}", accessKeySecret = "${test.accessKeySecret}", exclude = {"/api/test/query"})
 @Intercept(handler = TimeStampInterceptor.class)
+@Intercept(handler = TimeStamp2Interceptor.class)
 public interface HttpApi {
 
     /**
