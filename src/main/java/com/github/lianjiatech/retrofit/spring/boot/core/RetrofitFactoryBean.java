@@ -1,8 +1,6 @@
 package com.github.lianjiatech.retrofit.spring.boot.core;
 
-import com.github.lianjiatech.retrofit.spring.boot.annotation.InterceptMark;
-import com.github.lianjiatech.retrofit.spring.boot.annotation.OkHttpClientBuilder;
-import com.github.lianjiatech.retrofit.spring.boot.annotation.RetrofitClient;
+import com.github.lianjiatech.retrofit.spring.boot.annotation.*;
 import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitConfigBean;
 import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitProperties;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.*;
@@ -331,6 +329,12 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
             Class<? extends Annotation> annotationType = classAnnotation.annotationType();
             if (annotationType.isAnnotationPresent(InterceptMark.class)) {
                 interceptAnnotations.add(classAnnotation);
+            }
+            if (classAnnotation instanceof Intercepts) {
+                Intercept[] value = ((Intercepts) classAnnotation).value();
+                for (Intercept intercept : value) {
+                    interceptAnnotations.add(intercept);
+                }
             }
         }
         for (Annotation interceptAnnotation : interceptAnnotations) {

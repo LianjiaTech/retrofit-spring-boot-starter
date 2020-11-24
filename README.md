@@ -42,7 +42,7 @@
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
     <artifactId>retrofit-spring-boot-starter</artifactId>
-    <version>2.2.1</version>
+    <version>2.2.2</version>
 </dependency>
 ```
 
@@ -179,12 +179,14 @@ public interface HttpApi3 {
 
 ### 注解式拦截器
 
-很多时候，我们希望某个接口下的某些http请求执行统一的拦截处理逻辑。为了支持这个功能，`retrofit-spring-boot-starter`提供了**注解式拦截器**，同时做到了**基于url路径的匹配拦截**。使用的步骤主要分为2步：
+很多时候，我们希望某个接口下的某些http请求执行统一的拦截处理逻辑。为了支持这个功能，`retrofit-spring-boot-starter`提供了**注解式拦截器**，做到了**基于url路径的匹配拦截**。使用的步骤主要分为2步：
 
 1. 继承`BasePathMatchInterceptor`编写拦截处理器；
 2. 接口上使用`@Intercept`进行标注。
 
 下面以*给指定请求的url后面拼接timestamp时间戳*为例，介绍下如何使用注解式拦截器。
+
+> 如需配置多个拦截器，在接口上标注多个`@Intercept`注解即可！
 
 #### 继承`BasePathMatchInterceptor`编写拦截处理器
 
