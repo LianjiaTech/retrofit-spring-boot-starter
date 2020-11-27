@@ -5,6 +5,8 @@ import com.github.lianjiatech.retrofit.spring.boot.annotation.RetrofitClient;
 import com.github.lianjiatech.retrofit.spring.boot.retry.Retry;
 import com.github.lianjiatech.retrofit.spring.boot.test.entity.Person;
 import com.github.lianjiatech.retrofit.spring.boot.test.entity.Result;
+import com.github.lianjiatech.retrofit.spring.boot.test.interceptor.EnumIntercept;
+import com.github.lianjiatech.retrofit.spring.boot.test.interceptor.EnvEnum;
 import com.github.lianjiatech.retrofit.spring.boot.test.interceptor.TimeStampInterceptor;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
@@ -14,6 +16,7 @@ import retrofit2.http.Query;
  */
 @RetrofitClient(baseUrl = "${test.baseUrl}", enableLog = false)
 @Intercept(handler = TimeStampInterceptor.class, include = "/a/b", exclude = "/c/d")
+@EnumIntercept(envEnum = EnvEnum.test)
 public interface HttpApi2 {
 
     /**
