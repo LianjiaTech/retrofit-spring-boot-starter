@@ -85,11 +85,12 @@ All of the related annotations of `HTTP` request use native annotations of `retr
 
 | Annotation classification|Supported annotations |
 |------------|-----------|
-|Request method|`@GET` `@HEAD` `@POST` `@PUT` `@DELETE` `@OPTIONS`|
+|Request method|`@GET` `@HEAD` `@POST` `@PUT` `@DELETE` `@OPTIONS` `@HTTP`|
 |Request header|`@Header` `@HeaderMap` `@Headers`|
 |Query param|`@Query` `@QueryMap` `@QueryName`|
 |Path param|`@Path`|
 |Form-encoded param|`@Field` `@FieldMap` `@FormUrlEncoded`|
+| Request body |`@Body`|
 |File upload|`@Multipart` `@Part` `@PartMap`|
 |Url param|`@Url`|
 
