@@ -84,6 +84,8 @@ public class TestService {
 
 **默认情况下，自动使用`SpringBoot`扫描路径进行`retrofitClient`注册**。你也可以在配置类加上`@RetrofitScan`手工指定扫描路径。
 
+可以使用任意Java类作为方法返回值，示例中`Result<T>`类实现如下：
+
 ```java
 public class Result<T> implements Serializable {
 
