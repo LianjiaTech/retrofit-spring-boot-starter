@@ -151,11 +151,12 @@ public class Result<T> implements Serializable {
 
 | 注解分类|支持的注解 |
 |------------|-----------|
-|请求方式|`@GET` `@HEAD` `@POST` `@PUT` `@DELETE` `@OPTIONS`|
+|请求方式|`@GET` `@HEAD` `@POST` `@PUT` `@DELETE` `@OPTIONS` `@HTTP`|
 |请求头|`@Header` `@HeaderMap` `@Headers`|
 |Query参数|`@Query` `@QueryMap` `@QueryName`|
 |path参数|`@Path`|
 |form-encoded参数|`@Field` `@FieldMap` `@FormUrlEncoded`|
+| 请求体 |`@Body`|
 |文件上传|`@Multipart` `@Part` `@PartMap`|
 |url参数|`@Url`|
 
