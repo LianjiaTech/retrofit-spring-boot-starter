@@ -22,6 +22,8 @@ github项目地址：[https://github.com/LianjiaTech/retrofit-spring-boot-starte
 
 gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter](https://gitee.com/lianjiatech/retrofit-spring-boot-starter)
 
+示例demo：[https://github.com/JVMAK/retrofit-spring-boot-demo](https://github.com/JVMAK/retrofit-spring-boot-demo)
+
 <!--more-->
 
 ## 功能特性
