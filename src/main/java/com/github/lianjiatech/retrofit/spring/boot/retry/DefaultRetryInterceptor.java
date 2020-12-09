@@ -2,6 +2,8 @@ package com.github.lianjiatech.retrofit.spring.boot.retry;
 
 import okhttp3.Request;
 import okhttp3.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -9,6 +11,8 @@ import java.io.IOException;
  * @author 陈添明
  */
 public class DefaultRetryInterceptor extends BaseRetryInterceptor {
+
+    private final static Logger logger = LoggerFactory.getLogger(DefaultRetryInterceptor.class);
 
     @Override
     protected Response retryIntercept(int maxRetries, int intervalMs, RetryRule[] retryRules, Chain chain) throws IOException, InterruptedException {
@@ -22,6 +26,7 @@ public class DefaultRetryInterceptor extends BaseRetryInterceptor {
                     }
                     // 执行重试
                     maxRetries--;
+                    logger.debug("The response fails, retry is performed! The response code is " + response.code());
                     if (maxRetries < 0) {
                         // 最后一次还没成功，返回最后一次response
                         return response;
@@ -38,6 +43,7 @@ public class DefaultRetryInterceptor extends BaseRetryInterceptor {
                 }
                 try {
                     maxRetries--;
+                    logger.debug("The response fails, retry is performed！The cause is " + e.getMessage());
                     if (maxRetries < 0) {
                         // 最后一次还没成功，抛出最后一次访问的异常
                         throw e;
