@@ -22,6 +22,10 @@ github项目地址：[https://github.com/LianjiaTech/retrofit-spring-boot-starte
 
 gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter](https://gitee.com/lianjiatech/retrofit-spring-boot-starter)
 
+示例demo：[https://github.com/JVMAK/retrofit-spring-boot-demo](https://github.com/JVMAK/retrofit-spring-boot-demo)
+
+> 感谢`@JVMAK`为本项目写的示例demo
+
 <!--more-->
 
 ## 功能特性
@@ -46,7 +50,7 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
     <artifactId>retrofit-spring-boot-starter</artifactId>
-    <version>2.2.2</version>
+    <version>2.2.3</version>
 </dependency>
 ```
 
@@ -83,67 +87,6 @@ public class TestService {
 ```
 
 **默认情况下，自动使用`SpringBoot`扫描路径进行`retrofitClient`注册**。你也可以在配置类加上`@RetrofitScan`手工指定扫描路径。
-
-可以使用任意Java类作为方法返回值，示例中`Result<T>`类实现如下：
-
-```java
-public class Result<T> implements Serializable {
-
-    private static final long serialVersionUID = -504027247149928390L;
-
-    private int code;
-    private String msg;
-    private String exceptionMsg;
-    private T data;
-
-    public int getCode() {
-        return code;
-    }
-
-    public Result<T> setCode(int code) {
-        this.code = code;
-        return this;
-    }
-
-    public String getMsg() {
-        return msg;
-    }
-
-    public Result<T> setMsg(String msg) {
-        this.msg = msg;
-        return this;
-    }
-
-    public String getExceptionMsg() {
-        return exceptionMsg;
-    }
-
-    public Result<T> setExceptionMsg(String exceptionMsg) {
-        this.exceptionMsg = exceptionMsg;
-        return this;
-    }
-
-    public T getData() {
-        return data;
-    }
-
-    public Result<T> setData(T data) {
-        this.data = data;
-        return this;
-    }
-
-    @Override
-    public String toString() {
-        return "Result{" +
-                "code=" + code +
-                ", msg='" + msg + '\'' +
-                ", exceptionMsg='" + exceptionMsg + '\'' +
-                ", data=" + data +
-                '}';
-    }
-}
-
-```
 
 ## HTTP请求相关注解
 

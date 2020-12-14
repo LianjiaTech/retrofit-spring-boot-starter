@@ -74,6 +74,31 @@ public @interface RetrofitClient {
 
 
     /**
+     * 针对当前接口是否启用日志打印
+     * Whether to enable log printing for the current interface
+     *
+     * @return
+     */
+    boolean enableLog() default true;
+
+    /**
+     * 日志打印级别，支持的日志级别参见{@link Level}
+     * Log printing level, see {@link Level} for supported log levels
+     *
+     * @return logLevel
+     */
+    Level logLevel() default Level.INFO;
+
+    /**
+     * 日志打印策略，支持的日志打印策略参见{@link LogStrategy}
+     * Log printing strategy, see {@link LogStrategy} for supported log printing strategies
+     *
+     * @return logStrategy
+     */
+    LogStrategy logStrategy() default LogStrategy.BASIC;
+
+
+    /**
      * When calling {@link Retrofit#create(Class)} on the resulting {@link Retrofit} instance, eagerly validate the
      * configuration of all methods in the supplied interface.
      *
@@ -166,28 +191,4 @@ public @interface RetrofitClient {
      */
     boolean retryOnConnectionFailure() default true;
 
-
-    /**
-     * 针对当前接口是否启用日志打印
-     * Whether to enable log printing for the current interface
-     *
-     * @return
-     */
-    boolean enableLog() default true;
-
-    /**
-     * 日志打印级别，支持的日志级别参见{@link Level}
-     * Log printing level, see {@link Level} for supported log levels
-     *
-     * @return logLevel
-     */
-    Level logLevel() default Level.INFO;
-
-    /**
-     * 日志打印策略，支持的日志打印策略参见{@link LogStrategy}
-     * Log printing strategy, see {@link LogStrategy} for supported log printing strategies
-     *
-     * @return logStrategy
-     */
-    LogStrategy logStrategy() default LogStrategy.BASIC;
 }
