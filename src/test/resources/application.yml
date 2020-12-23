@@ -29,6 +29,17 @@ retrofit:
   degrade-type: sentinel
   # 熔断资源名称解析器
   resource-name-parser: com.github.lianjiatech.retrofit.spring.boot.degrade.DefaultResourceNameParser
+  # 全局重试配置
+  global-retry:
+    # 启用全局重试
+    enable: true
+    # 重试时间间隔
+    interval-ms: 20
+    # 重试规则
+    retry-rules:
+      - response_status_not_2xx
+    # 最大重试次数
+    max-retries: 10
 
 test:
   baseUrl: http://localhost:8080/api/test/

@@ -16,8 +16,15 @@ import java.lang.reflect.Method;
  */
 public abstract class BaseRetryInterceptor implements Interceptor {
 
+    private boolean enableGlobalRetry;
 
-    private static final int LIMIT_RETRIES = 10;
+    private int globalMaxRetries;
+
+    private int globalIntervalMs;
+
+    private RetryRule[] globalRetryRules;
+
+    private static final int LIMIT_RETRIES = 100;
 
     @Override
     public Response intercept(Chain chain) throws IOException {
@@ -33,14 +40,15 @@ public abstract class BaseRetryInterceptor implements Interceptor {
             Class<?> declaringClass = method.getDeclaringClass();
             retry = declaringClass.getAnnotation(Retry.class);
         }
-        if (retry == null) {
-            // 不用重试
+
+        // 没有@Retry 且未开启全局重试
+        if (retry == null && !enableGlobalRetry) {
             return chain.proceed(request);
         }
         // 重试
-        int maxRetries = retry.maxRetries();
-        int intervalMs = retry.intervalMs();
-        RetryRule[] retryRules = retry.retryRules();
+        int maxRetries = retry == null ? globalMaxRetries : retry.maxRetries();
+        int intervalMs = retry == null ? globalIntervalMs : retry.intervalMs();
+        RetryRule[] retryRules = retry == null ? globalRetryRules : retry.retryRules();
         // 最多重试10次
         maxRetries = maxRetries > LIMIT_RETRIES ? LIMIT_RETRIES : maxRetries;
         try {
@@ -61,9 +69,25 @@ public abstract class BaseRetryInterceptor implements Interceptor {
      * @param retryRules 重试规则。Retry rules
      * @param chain      执行链。Execution chain
      * @return 请求响应。Response
-     * @throws IOException IOException
+     * @throws IOException          IOException
      * @throws InterruptedException InterruptedException
      */
     protected abstract Response retryIntercept(int maxRetries, int intervalMs, RetryRule[] retryRules, Chain chain) throws IOException, InterruptedException;
 
+
+    public void setEnableGlobalRetry(boolean enableGlobalRetry) {
+        this.enableGlobalRetry = enableGlobalRetry;
+    }
+
+    public void setGlobalMaxRetries(int globalMaxRetries) {
+        this.globalMaxRetries = globalMaxRetries;
+    }
+
+    public void setGlobalIntervalMs(int globalIntervalMs) {
+        this.globalIntervalMs = globalIntervalMs;
+    }
+
+    public void setGlobalRetryRules(RetryRule[] globalRetryRules) {
+        this.globalRetryRules = globalRetryRules;
+    }
 }
