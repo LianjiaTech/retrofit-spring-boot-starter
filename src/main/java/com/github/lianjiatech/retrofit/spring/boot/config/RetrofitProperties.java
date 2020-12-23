@@ -11,6 +11,7 @@ import com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInt
 import com.github.lianjiatech.retrofit.spring.boot.retry.BaseRetryInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.retry.DefaultRetryInterceptor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import retrofit2.CallAdapter;
 import retrofit2.Converter;
 import retrofit2.converter.jackson.JacksonConverterFactory;
@@ -37,6 +38,13 @@ public class RetrofitProperties {
      * Enable log printing
      */
     private boolean enableLog = true;
+
+    /**
+     * 全局重试配置
+     * global retry config
+     */
+    @NestedConfigurationProperty
+    private GlobalRetryProperties globalRetry = new GlobalRetryProperties();
 
     /**
      * 启用熔断
@@ -171,5 +179,14 @@ public class RetrofitProperties {
 
     public void setResourceNameParser(Class<? extends BaseResourceNameParser> resourceNameParser) {
         this.resourceNameParser = resourceNameParser;
+    }
+
+
+    public GlobalRetryProperties getGlobalRetry() {
+        return globalRetry;
+    }
+
+    public void setGlobalRetry(GlobalRetryProperties globalRetry) {
+        this.globalRetry = globalRetry;
     }
 }
