@@ -3,13 +3,8 @@ package com.github.lianjiatech.retrofit.spring.boot.config;
 
 import com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory;
 import com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory;
-import com.github.lianjiatech.retrofit.spring.boot.degrade.BaseResourceNameParser;
-import com.github.lianjiatech.retrofit.spring.boot.degrade.DefaultResourceNameParser;
-import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeType;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseLoggingInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor;
-import com.github.lianjiatech.retrofit.spring.boot.retry.BaseRetryInterceptor;
-import com.github.lianjiatech.retrofit.spring.boot.retry.DefaultRetryInterceptor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import retrofit2.CallAdapter;
@@ -40,29 +35,15 @@ public class RetrofitProperties {
     private boolean enableLog = true;
 
     /**
-     * 全局重试配置
-     * global retry config
+     * 重试配置
+     * retry config
      */
     @NestedConfigurationProperty
-    private GlobalRetryProperties globalRetry = new GlobalRetryProperties();
+    private RetryProperty retry = new RetryProperty();
 
-    /**
-     * 启用熔断
-     * enable degrade
-     */
-    private boolean enableDegrade = false;
+    @NestedConfigurationProperty
+    private DegradeProperty degrade = new DegradeProperty();
 
-    /**
-     * 熔断类型，暂时只支持SENTINEL
-     * degrade type, Only SENTINEL is currently supported
-     */
-    private DegradeType degradeType = DegradeType.SENTINEL;
-
-    /**
-     * 资源名称解析器
-     * resource name parser
-     */
-    private Class<? extends BaseResourceNameParser> resourceNameParser = DefaultResourceNameParser.class;
 
     /**
      * 日志打印拦截器
@@ -71,10 +52,6 @@ public class RetrofitProperties {
     private Class<? extends BaseLoggingInterceptor> loggingInterceptor = DefaultLoggingInterceptor.class;
 
 
-    /**
-     * retry interceptor
-     */
-    private Class<? extends BaseRetryInterceptor> retryInterceptor = DefaultRetryInterceptor.class;
 
 
     /**
@@ -133,14 +110,6 @@ public class RetrofitProperties {
         this.disableVoidReturnType = disableVoidReturnType;
     }
 
-    public Class<? extends BaseRetryInterceptor> getRetryInterceptor() {
-        return retryInterceptor;
-    }
-
-    public void setRetryInterceptor(Class<? extends BaseRetryInterceptor> retryInterceptor) {
-        this.retryInterceptor = retryInterceptor;
-    }
-
     public Class<? extends Converter.Factory>[] getGlobalConverterFactories() {
         return globalConverterFactories;
     }
@@ -157,36 +126,19 @@ public class RetrofitProperties {
         this.globalCallAdapterFactories = globalCallAdapterFactories;
     }
 
-    public boolean isEnableDegrade() {
-        return enableDegrade;
+    public RetryProperty getRetry() {
+        return retry;
     }
 
-    public void setEnableDegrade(boolean enableDegrade) {
-        this.enableDegrade = enableDegrade;
+    public void setRetry(RetryProperty retry) {
+        this.retry = retry;
     }
 
-    public DegradeType getDegradeType() {
-        return degradeType;
+    public DegradeProperty getDegrade() {
+        return degrade;
     }
 
-    public void setDegradeType(DegradeType degradeType) {
-        this.degradeType = degradeType;
-    }
-
-    public Class<? extends BaseResourceNameParser> getResourceNameParser() {
-        return resourceNameParser;
-    }
-
-    public void setResourceNameParser(Class<? extends BaseResourceNameParser> resourceNameParser) {
-        this.resourceNameParser = resourceNameParser;
-    }
-
-
-    public GlobalRetryProperties getGlobalRetry() {
-        return globalRetry;
-    }
-
-    public void setGlobalRetry(GlobalRetryProperties globalRetry) {
-        this.globalRetry = globalRetry;
+    public void setDegrade(DegradeProperty degrade) {
+        this.degrade = degrade;
     }
 }

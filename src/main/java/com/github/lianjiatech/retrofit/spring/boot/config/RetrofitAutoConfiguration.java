@@ -14,6 +14,7 @@ import com.github.lianjiatech.retrofit.spring.boot.util.ApplicationContextUtils;
 import okhttp3.ConnectionPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,13 +90,10 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
         retrofitConfigBean.setGlobalInterceptors(globalInterceptors);
 
         // retryInterceptor
-        Class<? extends BaseRetryInterceptor> retryInterceptor = retrofitProperties.getRetryInterceptor();
+        RetryProperty retry = retrofitProperties.getRetry();
+        Class<? extends BaseRetryInterceptor> retryInterceptor = retry.getRetryInterceptor();
         BaseRetryInterceptor retryInterceptorInstance = retryInterceptor.newInstance();
-        GlobalRetryProperties globalRetry = retrofitProperties.getGlobalRetry();
-        retryInterceptorInstance.setEnableGlobalRetry(globalRetry.isEnable());
-        retryInterceptorInstance.setGlobalIntervalMs(globalRetry.getIntervalMs());
-        retryInterceptorInstance.setGlobalMaxRetries(globalRetry.getMaxRetries());
-        retryInterceptorInstance.setGlobalRetryRules(globalRetry.getRetryRules());
+        BeanUtils.copyProperties(retry, retryInterceptorInstance);
         retrofitConfigBean.setRetryInterceptor(retryInterceptorInstance);
 
         // add networkInterceptor
