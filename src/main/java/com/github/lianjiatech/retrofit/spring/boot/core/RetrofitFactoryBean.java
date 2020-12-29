@@ -1,6 +1,7 @@
 package com.github.lianjiatech.retrofit.spring.boot.core;
 
 import com.github.lianjiatech.retrofit.spring.boot.annotation.*;
+import com.github.lianjiatech.retrofit.spring.boot.config.DegradeProperty;
 import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitConfigBean;
 import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitProperties;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.*;
@@ -229,8 +230,9 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         }
 
         // add DegradeInterceptor
-        if (retrofitProperties.isEnableDegrade()) {
-            DegradeType degradeType = retrofitProperties.getDegradeType();
+        DegradeProperty degradeProperty = retrofitProperties.getDegrade();
+        if (degradeProperty.isEnable()) {
+            DegradeType degradeType = degradeProperty.getDegradeType();
             switch (degradeType) {
                 case SENTINEL: {
                     try {

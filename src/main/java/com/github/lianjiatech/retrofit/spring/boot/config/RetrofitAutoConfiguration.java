@@ -112,7 +112,8 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
         retrofitConfigBean.setServiceInstanceChooserInterceptor(serviceInstanceChooserInterceptor);
 
         // resource name parser
-        Class<? extends BaseResourceNameParser> resourceNameParser = retrofitProperties.getResourceNameParser();
+        DegradeProperty degrade = retrofitProperties.getDegrade();
+        Class<? extends BaseResourceNameParser> resourceNameParser = degrade.getResourceNameParser();
         retrofitConfigBean.setResourceNameParser(resourceNameParser.newInstance());
 
         return retrofitConfigBean;
@@ -141,7 +142,7 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
 
     @Bean
     public RetrofitDegradeRuleInitializer retrofitDegradeRuleInitializer() {
-        return new RetrofitDegradeRuleInitializer(retrofitProperties);
+        return new RetrofitDegradeRuleInitializer(retrofitProperties.getDegrade());
     }
 
     @Configuration
