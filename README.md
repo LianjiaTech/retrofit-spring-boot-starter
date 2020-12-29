@@ -107,57 +107,7 @@ public class TestService {
 
 ## 配置项说明
 
-`retrofit-spring-boot-starter`支持了多个可配置的属性，用来应对不同的业务场景。您可以视情况进行修改，具体说明如下：
-
-| 配置|默认值 | 说明 |
-|------------|-----------|--------|
-| enable-log | true| 启用日志打印 |
-|logging-interceptor | DefaultLoggingInterceptor | 日志打印拦截器 |
-| pool | | 连接池配置 |
-| disable-void-return-type | false | 禁用java.lang.Void返回类型 |
-| retry-interceptor | DefaultRetryInterceptor | 请求重试拦截器 |
-| global-converter-factories | JacksonConverterFactory | 全局转换器工厂 |
-| global-call-adapter-factories | BodyCallAdapterFactory,ResponseCallAdapterFactory | 全局调用适配器工厂 |
-| enable-degrade | false | 是否启用熔断降级 |
-| degrade-type | sentinel | 熔断降级实现方式(目前仅支持Sentinel) |
-| resource-name-parser | DefaultResourceNameParser | 熔断资源名称解析器，用于解析资源名称 |
-
-
-`yml`配置方式：
-
-```yaml
-retrofit:
-  enable-response-call-adapter: true
-  # 启用日志打印
-  enable-log: true
-  # 连接池配置
-  pool:
-    test1:
-      max-idle-connections: 3
-      keep-alive-second: 100
-    test2:
-      max-idle-connections: 5
-      keep-alive-second: 50
-  # 禁用void返回值类型
-  disable-void-return-type: false
-  # 日志打印拦截器
-  logging-interceptor: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor
-  # 请求重试拦截器
-  retry-interceptor: com.github.lianjiatech.retrofit.spring.boot.retry.DefaultRetryInterceptor
-  # 全局转换器工厂
-  global-converter-factories:
-    - retrofit2.converter.jackson.JacksonConverterFactory
-  # 全局调用适配器工厂
-  global-call-adapter-factories:
-    - com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory
-    - com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory
-  # 是否启用熔断降级
-  enable-degrade: true
-  # 熔断降级实现方式
-  degrade-type: sentinel
-  # 熔断资源名称解析器
-  resource-name-parser: com.github.lianjiatech.retrofit.spring.boot.degrade.DefaultResourceNameParser
-```
+`retrofit-spring-boot-starter`支持了多个可配置的属性，用来应对不同的业务场景。详细信息可参考[配置项示例](https://github.com/LianjiaTech/retrofit-spring-boot-starter/blob/master/src/test/resources/application.yml)。
 
 ## 高级功能
 
@@ -381,7 +331,7 @@ public interface HttpApi {
 
 ### 日志打印
 
-很多情况下，我们希望将http请求日志记录下来。通过`retrofit.enableLog`配置可以全局控制日志是否开启。
+很多情况下，我们希望将http请求日志记录下来。通过`retrofit.log.enable`配置可以全局控制日志是否开启。
 针对每个接口，可以通过`@RetrofitClient`的`enableLog`控制是否开启，通过`logLevel`和`logStrategy`，可以指定每个接口的日志打印级别以及日志打印策略。`retrofit-spring-boot-starter`支持了5种日志打印级别(`ERROR`, `WARN`, `INFO`, `DEBUG`, `TRACE`)，默认`INFO`；支持了4种日志打印策略（`NONE`, `BASIC`, `HEADERS`, `BODY`），默认`BASIC`。4种日志打印策略含义如下：
 
 1. `NONE`：No logs.
@@ -393,25 +343,48 @@ public interface HttpApi {
 
 ```yaml
 retrofit:
-  # 日志打印拦截器
-  logging-interceptor: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor
+  # 日志打印配置
+  log:
+    # 启用日志打印
+    enable: true
+    # 日志打印拦截器
+    logging-interceptor: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor
 ```
 
 ### 请求重试
 
-`retrofit-spring-boot-starter`支持请求重试功能，只需要在接口或者方法上加上`@Retry`注解即可。**`@Retry`支持重试次数`maxRetries`、重试时间间隔`intervalMs`以及重试规则`retryRules`配置**。重试规则支持三种配置：
+`retrofit-spring-boot-starter`支持支持全局重试和声明式重试。
+
+#### 全局重试
+
+全局重试默认关闭，可以通过配置`retrofit.retry.enable-global-retry=true`开启全局重试。开启之后，所有`HTTP`请求都会按照配置参数自动重试，详细配置项如下：
+
+```yaml
+retrofit:
+  # 重试配置
+  retry:
+    # 是否启用全局重试
+    enable-global-retry: true
+    # 全局重试间隔时间
+    global-interval-ms: 20
+    # 全局最大重试次数
+    global-max-retries: 10
+    # 全局重试规则
+    global-retry-rules:
+      - response_status_not_2xx
+    # 重试拦截器
+    retry-interceptor: com.github.lianjiatech.retrofit.spring.boot.retry.DefaultRetryInterceptor
+```
+
+**重试规则支持三种配置**：
 
 1. `RESPONSE_STATUS_NOT_2XX`：响应状态码不是`2xx`时执行重试；
 2. `OCCUR_IO_EXCEPTION`：发生IO异常时执行重试；
 3. `OCCUR_EXCEPTION`：发生任意异常时执行重试；
 
-默认响应状态码不是`2xx`或者发生IO异常时自动进行重试。需要的话，你也可以继承`BaseRetryInterceptor`实现自己的请求重试拦截器，然后将其配置上去。
+#### 声明式重试
 
-```yaml
-retrofit:
-  # 请求重试拦截器
-  retry-interceptor: com.github.lianjiatech.retrofit.spring.boot.retry.DefaultRetryInterceptor
-```
+如果只需要在指定某些请求才执行重试，可以使用声明式重试！具体就是在接口或者方法上声明`@Retry`注解。
 
 ### 错误解码器
 
@@ -499,8 +472,6 @@ public class SourceInterceptor extends BaseGlobalInterceptor {
 
 ### 熔断降级
 
-在分布式服务架构中，对不稳定的外部服务进行熔断降级是保证服务高可用的重要措施之一。由于外部服务的稳定性是不能保证的，当外部服务不稳定时，响应时间会变长。相应地，调用方的响应时间也会变长，线程会产生堆积，最终可能耗尽调用方的线程池，导致整个服务不可用。因此我们需要对不稳定的弱依赖服务调用进行熔断降级，暂时切断不稳定调用，避免局部不稳定导致整体服务雪崩。
-
 `retrofit-spring-boot-starter`支持熔断降级功能，底层基于[Sentinel](https://sentinelguard.io/zh-cn/docs/introduction.html)实现。具体来说，支持了**熔断资源自发现**和**注解式降级规则配置**。如需使用熔断降级，只需要进行以下操作即可：
 
 #### 1. 开启熔断降级功能
@@ -509,12 +480,14 @@ public class SourceInterceptor extends BaseGlobalInterceptor {
 
 ```yaml
 retrofit:
-  # 是否启用熔断降级
-  enable-degrade: true
-  # 熔断降级实现方式(目前仅支持Sentinel)
-  degrade-type: sentinel
-  # 资源名称解析器
-  resource-name-parser: com.github.lianjiatech.retrofit.spring.boot.degrade.DefaultResourceNameParser
+  # 熔断降级配置
+  degrade:
+    # 是否启用熔断降级
+    enable: true
+    # 熔断降级实现方式
+    degrade-type: sentinel
+    # 熔断资源名称解析器
+    resource-name-parser: com.github.lianjiatech.retrofit.spring.boot.degrade.DefaultResourceNameParser
 ```
 
 资源名称解析器用于实现用户自定义资源名称，默认配置是`DefaultResourceNameParser`，对应的资源名称格式为`HTTP_OUT:GET:http://localhost:8080/api/degrade/test`。用户可以继承`BaseResourceNameParser`类实现自己的资源名称解析器。

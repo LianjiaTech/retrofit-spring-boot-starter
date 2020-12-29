@@ -3,8 +3,6 @@ package com.github.lianjiatech.retrofit.spring.boot.config;
 
 import com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory;
 import com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseLoggingInterceptor;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import retrofit2.CallAdapter;
@@ -26,13 +24,8 @@ public class RetrofitProperties {
      * 连接池配置
      * Connection pool configuration
      */
+    @NestedConfigurationProperty
     private Map<String, PoolConfig> pool = new LinkedHashMap<>();
-
-    /**
-     * 启用日志打印
-     * Enable log printing
-     */
-    private boolean enableLog = true;
 
     /**
      * 重试配置
@@ -41,17 +34,20 @@ public class RetrofitProperties {
     @NestedConfigurationProperty
     private RetryProperty retry = new RetryProperty();
 
+    /**
+     * 熔断降级配置
+     * degrade config
+     */
     @NestedConfigurationProperty
     private DegradeProperty degrade = new DegradeProperty();
 
 
     /**
-     * 日志打印拦截器
-     * Log print Interceptor
+     * 日志配置
+     * log config
      */
-    private Class<? extends BaseLoggingInterceptor> loggingInterceptor = DefaultLoggingInterceptor.class;
-
-
+    @NestedConfigurationProperty
+    private LogProperty log = new LogProperty();
 
 
     /**
@@ -74,14 +70,6 @@ public class RetrofitProperties {
     private Class<? extends CallAdapter.Factory>[] globalCallAdapterFactories = (Class<? extends CallAdapter.Factory>[]) new Class[]{BodyCallAdapterFactory.class, ResponseCallAdapterFactory.class};
 
 
-    public Class<? extends BaseLoggingInterceptor> getLoggingInterceptor() {
-        return loggingInterceptor;
-    }
-
-    public void setLoggingInterceptor(Class<? extends BaseLoggingInterceptor> loggingInterceptor) {
-        this.loggingInterceptor = loggingInterceptor;
-    }
-
     public Map<String, PoolConfig> getPool() {
         if (!pool.isEmpty()) {
             return pool;
@@ -92,14 +80,6 @@ public class RetrofitProperties {
 
     public void setPool(Map<String, PoolConfig> pool) {
         this.pool = pool;
-    }
-
-    public boolean isEnableLog() {
-        return enableLog;
-    }
-
-    public void setEnableLog(boolean enableLog) {
-        this.enableLog = enableLog;
     }
 
     public boolean isDisableVoidReturnType() {
@@ -140,5 +120,13 @@ public class RetrofitProperties {
 
     public void setDegrade(DegradeProperty degrade) {
         this.degrade = degrade;
+    }
+
+    public LogProperty getLog() {
+        return log;
+    }
+
+    public void setLog(LogProperty log) {
+        this.log = log;
     }
 }

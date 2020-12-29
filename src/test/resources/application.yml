@@ -1,19 +1,17 @@
 
 retrofit:
-  # 启用日志打印
-  enable-log: true
   # 连接池配置
   pool:
+    # test1连接池配置
     test1:
+      # 最大空闲连接数
       max-idle-connections: 3
+      # 连接保活时间(秒)
       keep-alive-second: 100
-    test2:
-      max-idle-connections: 5
-      keep-alive-second: 50
-  # 禁用void返回值类型
+
+  # 是否禁用void返回值类型
   disable-void-return-type: false
-  # 日志打印拦截器
-  logging-interceptor: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor
+
   # 全局转换器工厂
   global-converter-factories:
     - retrofit2.converter.jackson.JacksonConverterFactory
@@ -21,6 +19,13 @@ retrofit:
   global-call-adapter-factories:
     - com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory
     - com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory
+
+  # 日志打印配置
+  log:
+    # 启用日志打印
+    enable: true
+    # 日志打印拦截器
+    logging-interceptor: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor
 
   # 重试配置
   retry:

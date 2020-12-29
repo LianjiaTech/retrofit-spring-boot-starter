@@ -2,6 +2,7 @@ package com.github.lianjiatech.retrofit.spring.boot.core;
 
 import com.github.lianjiatech.retrofit.spring.boot.annotation.*;
 import com.github.lianjiatech.retrofit.spring.boot.config.DegradeProperty;
+import com.github.lianjiatech.retrofit.spring.boot.config.LogProperty;
 import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitConfigBean;
 import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitProperties;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.*;
@@ -283,8 +284,9 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         okHttpClientBuilder.addInterceptor(retryInterceptor);
 
         // add log printing interceptor
-        if (retrofitProperties.isEnableLog() && retrofitClient.enableLog()) {
-            Class<? extends BaseLoggingInterceptor> loggingInterceptorClass = retrofitProperties.getLoggingInterceptor();
+        LogProperty logProperty = retrofitProperties.getLog();
+        if (logProperty.isEnable() && retrofitClient.enableLog()) {
+            Class<? extends BaseLoggingInterceptor> loggingInterceptorClass = logProperty.getLoggingInterceptor();
             Constructor<? extends BaseLoggingInterceptor> constructor = loggingInterceptorClass.getConstructor(Level.class, LogStrategy.class);
             BaseLoggingInterceptor loggingInterceptor = constructor.newInstance(retrofitClient.logLevel(), retrofitClient.logStrategy());
             okHttpClientBuilder.addNetworkInterceptor(loggingInterceptor);
