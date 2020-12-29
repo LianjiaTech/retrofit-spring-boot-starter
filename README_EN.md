@@ -342,7 +342,7 @@ retrofit:
 
 #### global retry
 
-Global retry is disabled by default, and global retry can be enabled by configuring `retrofit.retry.enable-global-retry=true`. After enabling, all `HTTP` requests will be retried automatically according to the configuration parameters. The detailed configuration items are as follows:
+Global retry is enabled by default and can be disabled by configuring `retrofit.retry.enable-global-retry=false`. After enabling, all `HTTP` requests will be retried automatically according to the configuration parameters. The detailed configuration items are as follows:
 
 ```yaml
 retrofit:

@@ -357,7 +357,7 @@ retrofit:
 
 #### 全局重试
 
-全局重试默认关闭，可以通过配置`retrofit.retry.enable-global-retry=true`开启全局重试。开启之后，所有`HTTP`请求都会按照配置参数自动重试，详细配置项如下：
+全局重试默认开启，可以通过配置`retrofit.retry.enable-global-retry=false`关闭。开启之后，所有`HTTP`请求都会按照配置参数自动重试，详细配置项如下：
 
 ```yaml
 retrofit:
