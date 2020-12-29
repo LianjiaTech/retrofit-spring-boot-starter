@@ -96,56 +96,7 @@ All of the related annotations of `HTTP` request use native annotations of `retr
 
 ## Configuration item description
 
-`Retrofit-spring-boot-starter` supports multiple configurable properties to deal with different business scenarios. You can modify it as appropriate. The specific instructions are as follows:
-
-| Configuration item|Default value | description |
-| ------------ | ----------- | -------- |
-| enable-log | true| Enable log printing |
-|logging-interceptor | DefaultLoggingInterceptor | Log print interceptor |
-| pool | | Connection pool configuration |
-| disable-void-return-type | false | disable java.lang.Void return type |
-| retry-interceptor | DefaultRetryInterceptor | Retry Interceptor |
-| retry-interceptor | DefaultRetryInterceptor | Retry Interceptor |
-| global-converter-factories | JacksonConverterFactory | global converter factories |
-| global-call-adapter-factories | BodyCallAdapterFactory,ResponseCallAdapterFactory | global call adapter factories |
-| enable-degrade | false | enable degrade |
-| degrade-type | sentinel | the degade type(Currently only Sentinel is supported) |
-| resource-name-parser | DefaultResourceNameParser | the resource name parser，Used to resolve resource name |
-
-`yml` Configuration:
-
-```yaml
-retrofit:
-  # Enable log printing
-  enable-log: true
-  # Connection pool configuration
-  pool:
-    test1:
-      max-idle-connections: 3
-      keep-alive-second: 100
-    test2:
-      max-idle-connections: 5
-      keep-alive-second: 50
-  # Disable java.lang.Void return type
-  disable-void-return-type: false
-  # Log print interceptor
-  logging-interceptor: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor
-  # Retry Interceptor
-  retry-interceptor: com.github.lianjiatech.retrofit.spring.boot.retry.DefaultRetryInterceptor
-  # global converter factories
-  global-converter-factories:
-    - retrofit2.converter.jackson.JacksonConverterFactory
-  # global call adapter factories
-  global-call-adapter-factories:
-    - com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory
-    - com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory
-  # enable degrade
-  enable-degrade: true
-  # the degade type(Currently only Sentinel is supported)
-  degrade-type: sentinel
-  # the resource name parser
-  resource-name-parser: com.github.lianjiatech.retrofit.spring.boot.degrade.DefaultResourceNameParser
-```
+`Retrofit-spring-boot-starter` supports multiple configurable properties to deal with different business scenarios.For more information, please refer to the [configuration example](https://github.com/LianjiaTech/retrofit-spring-boot-starter/blob/master/src/test/resources/application.yml)
 
 ## Advanced feature
 
@@ -370,7 +321,7 @@ By default, all HTTP requests sent through `Retrofit` will use the default conne
 
 ### Log printing
 
-In many cases, we want to record the http request log. You can global control whether the log is enabled through `retrofit.enableLog` configuration. For each interface, you can control whether to enable it through the `enableLog` of `@RetrofitClient`. You can specify the log printing level and log printing strategy of each interface through `logLevel` and `logStrategy`. `Retrofit-spring-boot-starter` supports five log printing levels( `ERROR`, `WARN`, `INFO`, `DEBUG`, `TRACE`) which default to `INFO` and four log printing strategy( `NONE`, `BASIC`, `HEADERS`, `BODY`) which default to `BASIC`. The meanings of the 4 log printing strategies are as follows:
+In many cases, we want to record the http request log. You can global control whether the log is enabled through `retrofit.log.enable` configuration. For each interface, you can control whether to enable it through the `enableLog` of `@RetrofitClient`. You can specify the log printing level and log printing strategy of each interface through `logLevel` and `logStrategy`. `Retrofit-spring-boot-starter` supports five log printing levels( `ERROR`, `WARN`, `INFO`, `DEBUG`, `TRACE`) which default to `INFO` and four log printing strategy( `NONE`, `BASIC`, `HEADERS`, `BODY`) which default to `BASIC`. The meanings of the 4 log printing strategies are as follows:
 
 1. `NONE`：No logs.
 2. `BASIC`：Logs request and response lines.
@@ -380,25 +331,40 @@ In many cases, we want to record the http request log. You can global control wh
 By default, `retrofit-spring-boot-starter` uses `DefaultLoggingInterceptor` to perform the real log printing function. The bottom is `okhttp` native `HttpLoggingInterceptor`. Of course, you can also customize and implement your own log printing interceptor by simply inheriting the `baselogginginterceptor`( For details, please refer to the implementation of `defaultlogginginterceptor`), and then configure it in the configuration file.
 ```yaml
 retrofit:
-  # log printing interceptor
-  logging-interceptor: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor
+  log:
+    enable: true
+    logging-interceptor: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor
 ```
 
 ### Request retry
 
-`Retrofit-spring-boot-starter` supports request retry feature by adding `@Retry` annotation to the interface or method. **`@Retry` supports the configuration of `maxRetries`, `intervalMs` and `retryRules`**. The retry rule supports three configurations:
+`retrofit-spring-boot-starter` supports global retry and declarative retry.
 
-1. `RESPONSE_STATUS_NOT_2XX`: Retry when the response status code is not `2xx`;
-2. `OCCUR_IO_EXCEPTION`: Retry when an IO exception occurs;
-3. `OCCUR_EXCEPTION`: Retry when any exception occurs;
+#### global retry
 
-The default response status code is not `2xx` or automatically retry when an IO exception occurs. If necessary, you can also inherit `BaseRetryInterceptor` to implement your own request retry interceptor and then configure it.
+Global retry is disabled by default, and global retry can be enabled by configuring `retrofit.retry.enable-global-retry=true`. After enabling, all `HTTP` requests will be retried automatically according to the configuration parameters. The detailed configuration items are as follows:
 
 ```yaml
 retrofit:
-  # request retry interceptor
-  retry-interceptor: com.github.lianjiatech.retrofit.spring.boot.retry.DefaultRetryInterceptor
+  # 重试配置
+  retry:
+    # 是否启用全局重试
+    enable-global-retry: true
+    # 全局重试间隔时间
+    global-interval-ms: 20
+    # 全局最大重试次数
+    global-max-retries: 10
+    # 全局重试规则
+    global-retry-rules:
+      - response_status_not_2xx
+    # 重试拦截器
+    retry-interceptor: com.github.lianjiatech.retrofit.spring.boot.retry.DefaultRetryInterceptor
 ```
+
+#### declarative retry
+
+If you only need to specify certain requests before retrying, you can use declarative retry! Specifically, declare the `@Retry` annotation on the interface or method.
+
 
 ### Error decoder
 
