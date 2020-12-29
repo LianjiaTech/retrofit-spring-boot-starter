@@ -56,7 +56,7 @@ public class ErrorDecoderTest {
     }
 
 
-    @Test
+    @Test(expected = Throwable.class)
     public void test() throws JsonProcessingException {
         // mock
         Person mockPerson = new Person().setId(1L)
