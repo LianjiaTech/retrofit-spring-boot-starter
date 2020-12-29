@@ -21,13 +21,8 @@ retrofit:
   global-call-adapter-factories:
     - com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory
     - com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory
-  # 是否启用熔断降级
-  enable-degrade: true
-  # 熔断降级实现方式
-  degrade-type: sentinel
-  # 熔断资源名称解析器
-  resource-name-parser: com.github.lianjiatech.retrofit.spring.boot.degrade.DefaultResourceNameParser
-  # 全局重试配置
+
+  # 重试配置
   retry:
     # 是否启用全局重试
     enable-global-retry: true
@@ -40,6 +35,15 @@ retrofit:
       - response_status_not_2xx
     # 重试拦截器
     retry-interceptor: com.github.lianjiatech.retrofit.spring.boot.retry.DefaultRetryInterceptor
+
+  # 熔断降级配置
+  degrade:
+    # 是否启用熔断降级
+    enable: true
+    # 熔断降级实现方式
+    degrade-type: sentinel
+    # 熔断资源名称解析器
+    resource-name-parser: com.github.lianjiatech.retrofit.spring.boot.degrade.DefaultResourceNameParser
 
 test:
   baseUrl: http://localhost:8080/api/test/
