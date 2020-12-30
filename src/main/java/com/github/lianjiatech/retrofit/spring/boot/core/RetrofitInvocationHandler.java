@@ -1,5 +1,6 @@
 package com.github.lianjiatech.retrofit.spring.boot.core;
 
+import com.github.lianjiatech.retrofit.spring.boot.config.DegradeProperty;
 import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitProperties;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.FallbackFactory;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitBlockException;
@@ -14,7 +15,7 @@ public class RetrofitInvocationHandler implements InvocationHandler {
 
     private final Object source;
 
-    private final RetrofitProperties retrofitProperties;
+    private final DegradeProperty degradeProperty;
 
     private Object fallback;
 
@@ -23,7 +24,7 @@ public class RetrofitInvocationHandler implements InvocationHandler {
 
     public RetrofitInvocationHandler(Object source, Object fallback, FallbackFactory<?> fallbackFactory, RetrofitProperties retrofitProperties) {
         this.source = source;
-        this.retrofitProperties = retrofitProperties;
+        this.degradeProperty = retrofitProperties.getDegrade();
         this.fallback = fallback;
         this.fallbackFactory = fallbackFactory;
     }
@@ -36,7 +37,7 @@ public class RetrofitInvocationHandler implements InvocationHandler {
             Throwable cause = e.getCause();
             Object fallbackObject = getFallbackObject(cause);
             // 熔断逻辑
-            if (cause instanceof RetrofitBlockException && retrofitProperties.isEnableDegrade() && fallbackObject != null) {
+            if (cause instanceof RetrofitBlockException && degradeProperty.isEnable() && fallbackObject != null) {
                 return method.invoke(fallbackObject, args);
             }
             throw cause;

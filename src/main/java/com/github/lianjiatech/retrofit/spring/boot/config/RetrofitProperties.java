@@ -3,14 +3,8 @@ package com.github.lianjiatech.retrofit.spring.boot.config;
 
 import com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory;
 import com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory;
-import com.github.lianjiatech.retrofit.spring.boot.degrade.BaseResourceNameParser;
-import com.github.lianjiatech.retrofit.spring.boot.degrade.DefaultResourceNameParser;
-import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeType;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseLoggingInterceptor;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor;
-import com.github.lianjiatech.retrofit.spring.boot.retry.BaseRetryInterceptor;
-import com.github.lianjiatech.retrofit.spring.boot.retry.DefaultRetryInterceptor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import retrofit2.CallAdapter;
 import retrofit2.Converter;
 import retrofit2.converter.jackson.JacksonConverterFactory;
@@ -30,43 +24,30 @@ public class RetrofitProperties {
      * 连接池配置
      * Connection pool configuration
      */
+    @NestedConfigurationProperty
     private Map<String, PoolConfig> pool = new LinkedHashMap<>();
 
     /**
-     * 启用日志打印
-     * Enable log printing
+     * 重试配置
+     * retry config
      */
-    private boolean enableLog = true;
+    @NestedConfigurationProperty
+    private RetryProperty retry = new RetryProperty();
 
     /**
-     * 启用熔断
-     * enable degrade
+     * 熔断降级配置
+     * degrade config
      */
-    private boolean enableDegrade = false;
-
-    /**
-     * 熔断类型，暂时只支持SENTINEL
-     * degrade type, Only SENTINEL is currently supported
-     */
-    private DegradeType degradeType = DegradeType.SENTINEL;
-
-    /**
-     * 资源名称解析器
-     * resource name parser
-     */
-    private Class<? extends BaseResourceNameParser> resourceNameParser = DefaultResourceNameParser.class;
-
-    /**
-     * 日志打印拦截器
-     * Log print Interceptor
-     */
-    private Class<? extends BaseLoggingInterceptor> loggingInterceptor = DefaultLoggingInterceptor.class;
+    @NestedConfigurationProperty
+    private DegradeProperty degrade = new DegradeProperty();
 
 
     /**
-     * retry interceptor
+     * 日志配置
+     * log config
      */
-    private Class<? extends BaseRetryInterceptor> retryInterceptor = DefaultRetryInterceptor.class;
+    @NestedConfigurationProperty
+    private LogProperty log = new LogProperty();
 
 
     /**
@@ -89,14 +70,6 @@ public class RetrofitProperties {
     private Class<? extends CallAdapter.Factory>[] globalCallAdapterFactories = (Class<? extends CallAdapter.Factory>[]) new Class[]{BodyCallAdapterFactory.class, ResponseCallAdapterFactory.class};
 
 
-    public Class<? extends BaseLoggingInterceptor> getLoggingInterceptor() {
-        return loggingInterceptor;
-    }
-
-    public void setLoggingInterceptor(Class<? extends BaseLoggingInterceptor> loggingInterceptor) {
-        this.loggingInterceptor = loggingInterceptor;
-    }
-
     public Map<String, PoolConfig> getPool() {
         if (!pool.isEmpty()) {
             return pool;
@@ -109,28 +82,12 @@ public class RetrofitProperties {
         this.pool = pool;
     }
 
-    public boolean isEnableLog() {
-        return enableLog;
-    }
-
-    public void setEnableLog(boolean enableLog) {
-        this.enableLog = enableLog;
-    }
-
     public boolean isDisableVoidReturnType() {
         return disableVoidReturnType;
     }
 
     public void setDisableVoidReturnType(boolean disableVoidReturnType) {
         this.disableVoidReturnType = disableVoidReturnType;
-    }
-
-    public Class<? extends BaseRetryInterceptor> getRetryInterceptor() {
-        return retryInterceptor;
-    }
-
-    public void setRetryInterceptor(Class<? extends BaseRetryInterceptor> retryInterceptor) {
-        this.retryInterceptor = retryInterceptor;
     }
 
     public Class<? extends Converter.Factory>[] getGlobalConverterFactories() {
@@ -149,27 +106,27 @@ public class RetrofitProperties {
         this.globalCallAdapterFactories = globalCallAdapterFactories;
     }
 
-    public boolean isEnableDegrade() {
-        return enableDegrade;
+    public RetryProperty getRetry() {
+        return retry;
     }
 
-    public void setEnableDegrade(boolean enableDegrade) {
-        this.enableDegrade = enableDegrade;
+    public void setRetry(RetryProperty retry) {
+        this.retry = retry;
     }
 
-    public DegradeType getDegradeType() {
-        return degradeType;
+    public DegradeProperty getDegrade() {
+        return degrade;
     }
 
-    public void setDegradeType(DegradeType degradeType) {
-        this.degradeType = degradeType;
+    public void setDegrade(DegradeProperty degrade) {
+        this.degrade = degrade;
     }
 
-    public Class<? extends BaseResourceNameParser> getResourceNameParser() {
-        return resourceNameParser;
+    public LogProperty getLog() {
+        return log;
     }
 
-    public void setResourceNameParser(Class<? extends BaseResourceNameParser> resourceNameParser) {
-        this.resourceNameParser = resourceNameParser;
+    public void setLog(LogProperty log) {
+        this.log = log;
     }
 }

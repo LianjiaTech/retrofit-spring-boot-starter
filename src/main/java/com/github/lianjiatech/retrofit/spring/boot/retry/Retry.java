@@ -11,8 +11,8 @@ import java.lang.annotation.*;
 public @interface Retry {
 
     /**
-     * 最大重试次数，最大可设置为10
-     * The maximum number of retries, the maximum can be set to 10
+     * 最大重试次数，最大可设置为100
+     * The maximum number of retries, the maximum can be set to 100
      *
      * @return 最大重试次数；The maximum number of retries
      */
