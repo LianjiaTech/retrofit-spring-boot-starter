@@ -1,6 +1,7 @@
 package com.github.lianjiatech.retrofit.spring.boot.test;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.lianjiatech.retrofit.spring.boot.test.entity.Person;
@@ -302,6 +303,26 @@ public class RetrofitStarterTest {
         Assert.assertEquals("test", data.getName());
         Assert.assertEquals(10, data.getAge().intValue());
 
+    }
+
+    @Test
+    public void testMap() throws IOException {
+
+        Map<String, Map<String, String>> map = new HashMap<>(4);
+        Map<String, String> test = new HashMap<>(4);
+        test.put("a", "aa");
+        test.put("b", "bb");
+        map.put("test", test);
+
+        MockResponse response = new MockResponse()
+                .setResponseCode(200)
+                .addHeader("Content-Type", "application/json; charset=utf-8")
+                .addHeader("Cache-Control", "no-cache")
+                .setBody(objectMapper.writeValueAsString(map));
+        server.enqueue(response);
+
+        Map<String, Map<String, String>> stringMapMap = httpApi2.testMap();
+        System.out.println(stringMapMap);
     }
 
 
