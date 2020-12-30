@@ -2,7 +2,6 @@ package com.github.lianjiatech.retrofit.spring.boot.test.http;
 
 import com.github.lianjiatech.retrofit.spring.boot.annotation.RetrofitClient;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.LogStrategy;
-import com.github.lianjiatech.retrofit.spring.boot.retry.Retry;
 import com.github.lianjiatech.retrofit.spring.boot.test.entity.Person;
 import com.github.lianjiatech.retrofit.spring.boot.test.entity.Result;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -17,6 +16,5 @@ import retrofit2.http.Query;
 public interface ConvertFactoriesTestApi {
 
     @GET("person")
-    @Retry
     Result<Person> getPerson(@Query("id") Long id);
 }

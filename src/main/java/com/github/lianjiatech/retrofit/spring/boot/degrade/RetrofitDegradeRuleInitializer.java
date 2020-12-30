@@ -2,7 +2,7 @@ package com.github.lianjiatech.retrofit.spring.boot.degrade;
 
 import com.alibaba.csp.sentinel.slots.block.degrade.DegradeRule;
 import com.alibaba.csp.sentinel.slots.block.degrade.DegradeRuleManager;
-import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitProperties;
+import com.github.lianjiatech.retrofit.spring.boot.config.DegradeProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -19,13 +19,13 @@ public class RetrofitDegradeRuleInitializer implements ApplicationListener<Appli
 
     private final static Logger logger = LoggerFactory.getLogger(RetrofitDegradeRuleInitializer.class);
 
-    private final RetrofitProperties retrofitProperties;
+    private final DegradeProperty degradeProperty;
 
 
     private static List<RetrofitDegradeRule> LIST = new CopyOnWriteArrayList<>();
 
-    public RetrofitDegradeRuleInitializer(RetrofitProperties retrofitProperties) {
-        this.retrofitProperties = retrofitProperties;
+    public RetrofitDegradeRuleInitializer(DegradeProperty degradeProperty) {
+        this.degradeProperty = degradeProperty;
     }
 
 
@@ -44,11 +44,11 @@ public class RetrofitDegradeRuleInitializer implements ApplicationListener<Appli
      */
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
-        if (!retrofitProperties.isEnableDegrade()) {
+        if (!degradeProperty.isEnable()) {
             return;
         }
 
-        DegradeType degradeType = retrofitProperties.getDegradeType();
+        DegradeType degradeType = degradeProperty.getDegradeType();
         switch (degradeType) {
             case SENTINEL: {
                 try {

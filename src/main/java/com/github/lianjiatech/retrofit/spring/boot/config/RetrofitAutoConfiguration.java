@@ -14,6 +14,7 @@ import com.github.lianjiatech.retrofit.spring.boot.util.ApplicationContextUtils;
 import okhttp3.ConnectionPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,8 +90,11 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
         retrofitConfigBean.setGlobalInterceptors(globalInterceptors);
 
         // retryInterceptor
-        Class<? extends BaseRetryInterceptor> retryInterceptor = retrofitProperties.getRetryInterceptor();
-        retrofitConfigBean.setRetryInterceptor(retryInterceptor.newInstance());
+        RetryProperty retry = retrofitProperties.getRetry();
+        Class<? extends BaseRetryInterceptor> retryInterceptor = retry.getRetryInterceptor();
+        BaseRetryInterceptor retryInterceptorInstance = retryInterceptor.newInstance();
+        BeanUtils.copyProperties(retry, retryInterceptorInstance);
+        retrofitConfigBean.setRetryInterceptor(retryInterceptorInstance);
 
         // add networkInterceptor
         Collection<NetworkInterceptor> networkInterceptors = ApplicationContextUtils.getBeans(applicationContext, NetworkInterceptor.class);
@@ -108,7 +112,8 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
         retrofitConfigBean.setServiceInstanceChooserInterceptor(serviceInstanceChooserInterceptor);
 
         // resource name parser
-        Class<? extends BaseResourceNameParser> resourceNameParser = retrofitProperties.getResourceNameParser();
+        DegradeProperty degrade = retrofitProperties.getDegrade();
+        Class<? extends BaseResourceNameParser> resourceNameParser = degrade.getResourceNameParser();
         retrofitConfigBean.setResourceNameParser(resourceNameParser.newInstance());
 
         return retrofitConfigBean;
@@ -137,7 +142,7 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
 
     @Bean
     public RetrofitDegradeRuleInitializer retrofitDegradeRuleInitializer() {
-        return new RetrofitDegradeRuleInitializer(retrofitProperties);
+        return new RetrofitDegradeRuleInitializer(retrofitProperties.getDegrade());
     }
 
     @Configuration

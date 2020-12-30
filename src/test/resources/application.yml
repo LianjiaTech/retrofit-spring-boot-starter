@@ -1,21 +1,17 @@
 
 retrofit:
-  # 启用日志打印
-  enable-log: true
   # 连接池配置
   pool:
+    # test1连接池配置
     test1:
+      # 最大空闲连接数
       max-idle-connections: 3
+      # 连接保活时间(秒)
       keep-alive-second: 100
-    test2:
-      max-idle-connections: 5
-      keep-alive-second: 50
-  # 禁用void返回值类型
+
+  # 是否禁用void返回值类型
   disable-void-return-type: false
-  # 日志打印拦截器
-  logging-interceptor: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor
-  # 请求重试拦截器
-  retry-interceptor: com.github.lianjiatech.retrofit.spring.boot.retry.DefaultRetryInterceptor
+
   # 全局转换器工厂
   global-converter-factories:
     - retrofit2.converter.jackson.JacksonConverterFactory
@@ -23,12 +19,37 @@ retrofit:
   global-call-adapter-factories:
     - com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory
     - com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory
-  # 是否启用熔断降级
-  enable-degrade: true
-  # 熔断降级实现方式
-  degrade-type: sentinel
-  # 熔断资源名称解析器
-  resource-name-parser: com.github.lianjiatech.retrofit.spring.boot.degrade.DefaultResourceNameParser
+
+  # 日志打印配置
+  log:
+    # 启用日志打印
+    enable: true
+    # 日志打印拦截器
+    logging-interceptor: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor
+
+  # 重试配置
+  retry:
+    # 是否启用全局重试
+    enable-global-retry: true
+    # 全局重试间隔时间
+    global-interval-ms: 100
+    # 全局最大重试次数
+    global-max-retries: 1
+    # 全局重试规则
+    global-retry-rules:
+      - response_status_not_2xx
+      - occur_io_exception
+    # 重试拦截器
+    retry-interceptor: com.github.lianjiatech.retrofit.spring.boot.retry.DefaultRetryInterceptor
+
+  # 熔断降级配置
+  degrade:
+    # 是否启用熔断降级
+    enable: true
+    # 熔断降级实现方式
+    degrade-type: sentinel
+    # 熔断资源名称解析器
+    resource-name-parser: com.github.lianjiatech.retrofit.spring.boot.degrade.DefaultResourceNameParser
 
 test:
   baseUrl: http://localhost:8080/api/test/
