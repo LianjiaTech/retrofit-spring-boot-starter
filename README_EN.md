@@ -696,6 +696,7 @@ For each Java interface, you can also specify the `CallAdapter.Factory` used by 
 - [Wire](https://github.com/square/wire): com.squareup.Retrofit:converter-wire
 - [Simple XML](http://simple.sourceforge.net/): com.squareup.Retrofit:converter-simplexml
 - [JAXB](https://docs.oracle.com/javase/tutorial/jaxb/intro/index.html): com.squareup.retrofit2:converter-jaxb
+- fastJson：com.alibaba.fastjson.support.retrofit.Retrofit2ConverterFactory
 
 `retrofit-spring-boot-starter` supports configuring the global `converter factory` through `retrofit.global-converter-factories`. The converter factory instance is first obtained from the Spring container. If it is not obtained, it is created by reflection. The default global data converter factory is `retrofit2.converter.jackson.JacksonConverterFactory`, you can directly configure the `jackson` serialization rules through `spring.jackson.*`, please refer to [Customize the Jackson ObjectMapper](https://docs.spring.io/spring-boot/docs/2.1.5.RELEASE/reference/htmlsingle/#howto-customize-the-jackson-objectmapper)
 
