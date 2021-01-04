@@ -708,6 +708,7 @@ retrofit:
 - [Wire](https://github.com/square/wire): com.squareup.Retrofit:converter-wire
 - [Simple XML](http://simple.sourceforge.net/): com.squareup.Retrofit:converter-simplexml
 - [JAXB](https://docs.oracle.com/javase/tutorial/jaxb/intro/index.html): com.squareup.retrofit2:converter-jaxb
+- fastJson：com.alibaba.fastjson.support.retrofit.Retrofit2ConverterFactory
 
 `retrofit-spring-boot-starter`支持通过`retrofit.global-converter-factories`配置全局数据转换器工厂，转换器工厂实例优先从Spring容器获取，如果没有获取到，则反射创建。默认的全局数据转换器工厂是`retrofit2.converter.jackson.JacksonConverterFactory`，你可以直接通过`spring.jackson.*`配置`jackson`序列化规则，配置可参考[Customize the Jackson ObjectMapper](https://docs.spring.io/spring-boot/docs/2.1.5.RELEASE/reference/htmlsingle/#howto-customize-the-jackson-objectmapper)！
 

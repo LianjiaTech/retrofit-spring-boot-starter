@@ -10,6 +10,8 @@ import com.github.lianjiatech.retrofit.spring.boot.test.interceptor.TimeStampInt
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 
+import java.util.Map;
+
 /**
  * @author 陈添明
  */
@@ -26,4 +28,8 @@ public interface HttpApi2 {
      */
     @GET("person")
     Result<Person> getPerson(@Query("id") Long id);
+
+
+    @GET("testMap")
+    Map<String, Map<String, String>> testMap();
 }
