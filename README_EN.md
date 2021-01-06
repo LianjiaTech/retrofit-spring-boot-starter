@@ -334,14 +334,14 @@ By default, all HTTP requests sent through `Retrofit` will use the default conne
 
     ```yaml
     retrofit:
-        # Connection pool configuration
-        pool:
-            test1:
-            max-idle-connections: 3
-            keep-alive-second: 100
-            test2:
-            max-idle-connections: 5
-            keep-alive-second: 50
+      # 连接池配置
+      pool:
+        # test1连接池配置
+        test1:
+          # 最大空闲连接数
+          max-idle-connections: 3
+          # 连接保活时间(秒)
+          keep-alive-second: 100
     ```
 
 2. Use the `poolName` property of `@Retrofitclient` to specify the connection pool to be used.
