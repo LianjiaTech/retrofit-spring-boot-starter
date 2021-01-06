@@ -47,6 +47,41 @@
 </dependency>
 ```
 
+This project depends on Retrofit-2.9.0, okhttp-3.14.9, and okio-1.17.5 versions. If there is a conflict, please manually import related jar packages. The complete dependencies are as follows:
+
+```xml
+<dependency>
+    <groupId>com.github.lianjiatech</groupId>
+    <artifactId>retrofit-spring-boot-starter</artifactId>
+    <version>2.2.5</version>
+</dependency>
+ <dependency>
+    <groupId>com.squareup.okhttp3</groupId>
+    <artifactId>logging-interceptor</artifactId>
+    <version>3.14.9</version>
+</dependency>
+<dependency>
+    <groupId>com.squareup.okhttp3</groupId>
+    <artifactId>okhttp</artifactId>
+    <version>3.14.9</version>
+</dependency>
+<dependency>
+    <groupId>com.squareup.okio</groupId>
+    <artifactId>okio</artifactId>
+    <version>1.17.5</version>
+</dependency>
+<dependency>
+    <groupId>com.squareup.retrofit2</groupId>
+    <artifactId>retrofit</artifactId>
+    <version>2.9.0</version>
+</dependency>
+<dependency>
+    <groupId>com.squareup.retrofit2</groupId>
+    <artifactId>converter-jackson</artifactId>
+    <version>2.9.0</version>
+</dependency>
+```
+
 ### Define HTTP interface
 
 **The interface must be marked with `@RetrofitClient` annotation**! Related annotations of HTTP can refer to the official documents: [Retrofit official documents](https://square.github.io/retrofit/).
