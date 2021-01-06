@@ -54,7 +54,41 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 </dependency>
 ```
 
-> **友情提示：本项目依赖Retrofit-2.9.0，okhttp-3.14.9，okio-1.17.5版本，如果冲突，烦请手动引入相关jar包**。
+**本项目依赖Retrofit-2.9.0，okhttp-3.14.9，okio-1.17.5版本，如果冲突，烦请手动引入相关jar包**。完整依赖如下：
+
+
+```xml
+<dependency>
+    <groupId>com.github.lianjiatech</groupId>
+    <artifactId>retrofit-spring-boot-starter</artifactId>
+    <version>2.2.5</version>
+</dependency>
+ <dependency>
+    <groupId>com.squareup.okhttp3</groupId>
+    <artifactId>logging-interceptor</artifactId>
+    <version>3.14.9</version>
+</dependency>
+<dependency>
+    <groupId>com.squareup.okhttp3</groupId>
+    <artifactId>okhttp</artifactId>
+    <version>3.14.9</version>
+</dependency>
+<dependency>
+    <groupId>com.squareup.okio</groupId>
+    <artifactId>okio</artifactId>
+    <version>1.17.5</version>
+</dependency>
+<dependency>
+    <groupId>com.squareup.retrofit2</groupId>
+    <artifactId>retrofit</artifactId>
+    <version>2.9.0</version>
+</dependency>
+<dependency>
+    <groupId>com.squareup.retrofit2</groupId>
+    <artifactId>converter-jackson</artifactId>
+    <version>2.9.0</version>
+</dependency>
+```
 
 ### 定义http接口
 
