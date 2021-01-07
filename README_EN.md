@@ -769,6 +769,59 @@ Void upload(@Part MultipartBody.Part file);
 
 ```
 
+### download file
+
+#### http download interface
+
+```java
+@RetrofitClient(baseUrl = "https://img.ljcdn.com/hc-picture/")
+public interface DownloadApi {
+
+    @GET("{fileKey}")
+    Response<ResponseBody> download(@Path("fileKey") String fileKey);
+}
+
+```
+
+#### http download usage
+
+```java
+@SpringBootTest(classes = RetrofitTestApplication.class)
+@RunWith(SpringRunner.class)
+public class DownloadTest {
+
+    @Autowired
+    DownloadApi downLoadApi;
+
+    @Test
+    public void download() throws Exception {
+        String fileKey = "6302d742-ebc8-4649-95cf-62ccf57a1add";
+        Response<ResponseBody> response = downLoadApi.download(fileKey);
+        ResponseBody responseBody = response.body();
+        // InputStream
+        InputStream is = responseBody.byteStream();
+
+        // The specific handling of binary streams is controlled by the business itself. Here is an example of writing a file.
+        File tempDirectory = new File("temp");
+        if (!tempDirectory.exists()) {
+            tempDirectory.mkdir();
+        }
+        File file = new File(tempDirectory, UUID.randomUUID().toString());
+        if (!file.exists()) {
+            file.createNewFile();
+        }
+        FileOutputStream fos = new FileOutputStream(file);
+        byte[] b = new byte[1024];
+        int length;
+        while ((length = is.read(b)) > 0) {
+            fos.write(b, 0, length);
+        }
+        is.close();
+        fos.close();
+    }
+}
+```
+
 ### Dynamic URL example
 
 Realize dynamic URL through `@url` annotation
