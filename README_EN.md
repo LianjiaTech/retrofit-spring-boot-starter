@@ -785,6 +785,7 @@ public interface DownloadApi {
 
 #### http download usage
 
+```java
 @SpringBootTest(classes = RetrofitTestApplication.class)
 @RunWith(SpringRunner.class)
 public class DownloadTest {
@@ -819,6 +820,7 @@ public class DownloadTest {
         fos.close();
     }
 }
+```
 
 ### Dynamic URL example
 

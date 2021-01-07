@@ -797,10 +797,10 @@ public interface DownloadApi {
 
 #### http下载使用
 
+```java
 @SpringBootTest(classes = RetrofitTestApplication.class)
 @RunWith(SpringRunner.class)
 public class DownloadTest {
-
     @Autowired
     DownloadApi downLoadApi;
 
@@ -831,6 +831,7 @@ public class DownloadTest {
         fos.close();
     }
 }
+```
 
 ### 动态URL
 
