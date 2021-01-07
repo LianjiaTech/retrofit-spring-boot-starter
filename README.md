@@ -760,7 +760,7 @@ retrofit:
 
 ## 其他功能示例
 
-### 上传文件示例
+### 上传文件
 
 #### 构建MultipartBody.Part
 
@@ -781,7 +781,58 @@ Void upload(@Part MultipartBody.Part file);
 
 ```
 
-### 动态URL示例
+### 下载文件
+
+#### http下载接口
+
+```java
+@RetrofitClient(baseUrl = "https://img.ljcdn.com/hc-picture/")
+public interface DownloadApi {
+
+    @GET("{fileKey}")
+    Response<ResponseBody> download(@Path("fileKey") String fileKey);
+}
+
+```
+
+#### http下载使用
+
+@SpringBootTest(classes = RetrofitTestApplication.class)
+@RunWith(SpringRunner.class)
+public class DownloadTest {
+
+    @Autowired
+    DownloadApi downLoadApi;
+
+    @Test
+    public void download() throws Exception {
+        String fileKey = "6302d742-ebc8-4649-95cf-62ccf57a1add";
+        Response<ResponseBody> response = downLoadApi.download(fileKey);
+        ResponseBody responseBody = response.body();
+        // 二进制流
+        InputStream is = responseBody.byteStream();
+
+        // 具体如何处理二进制流，由业务自行控制。这里以写入文件为例
+        File tempDirectory = new File("temp");
+        if (!tempDirectory.exists()) {
+            tempDirectory.mkdir();
+        }
+        File file = new File(tempDirectory, UUID.randomUUID().toString());
+        if (!file.exists()) {
+            file.createNewFile();
+        }
+        FileOutputStream fos = new FileOutputStream(file);
+        byte[] b = new byte[1024];
+        int length;
+        while ((length = is.read(b)) > 0) {
+            fos.write(b, 0, length);
+        }
+        is.close();
+        fos.close();
+    }
+}
+
+### 动态URL
 
 使用`@url`注解可实现动态URL。
 
