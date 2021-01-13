@@ -660,21 +660,22 @@ public interface ApiCountService {
 
 **Retrofit自动根据方法返回值类型选用对应的`CallAdapterFactory`执行适配处理！加上Retrofit默认的`CallAdapterFactory`，可支持多种形式的方法返回值类型：**
 
-- `Call<T>`: 不执行适配处理，直接返回`Call<T>`对象
-- `CompletableFuture<T>`: 将响应体内容适配成`CompletableFuture<T>`对象返回
-- `Void`: 不关注返回类型可以使用`Void`。如果http状态码不是2xx，直接抛错！
-- `Response<T>`: 将响应内容适配成`Response<T>`对象返回
-- 其他任意Java类型： 将响应体内容适配成一个对应的Java类型对象返回，如果http状态码不是2xx，直接抛错！
+- 其他任意Java类型： 将响应体内容适配成一个对应的Java类型对象返回，如果http状态码不是2xx，直接抛错！（推荐）
+- `CompletableFuture<T>`: 将响应体内容适配成`CompletableFuture<T>`对象返回！（异步调用推荐）
+- `Void`: 不关注返回类型可以使用`Void`。如果http状态码不是2xx，直接抛错！（不关注返回值）
+- `Response<T>`: 将响应内容适配成`Response<T>`对象返回！（不推荐）
+- `Call<T>`: 不执行适配处理，直接返回`Call<T>`对象！（不推荐）
 
 ```java
+
     /**
-     * Call<T>
-     * 不执行适配处理，直接返回Call<T>对象
+     * 其他任意Java类型
+     * 将响应体内容适配成一个对应的Java类型对象返回，如果http状态码不是2xx，直接抛错！
      * @param id
      * @return
      */
     @GET("person")
-    Call<Result<Person>> getPersonCall(@Query("id") Long id);
+    Result<Person> getPerson(@Query("id") Long id);
 
     /**
      *  CompletableFuture<T>
@@ -704,13 +705,13 @@ public interface ApiCountService {
     Response<Result<Person>> getPersonResponse(@Query("id") Long id);
 
     /**
-     * 其他任意Java类型
-     * 将响应体内容适配成一个对应的Java类型对象返回，如果http状态码不是2xx，直接抛错！
+     * Call<T>
+     * 不执行适配处理，直接返回Call<T>对象
      * @param id
      * @return
      */
     @GET("person")
-    Result<Person> getPerson(@Query("id") Long id);
+    Call<Result<Person>> getPersonCall(@Query("id") Long id);
 
 ```
 
