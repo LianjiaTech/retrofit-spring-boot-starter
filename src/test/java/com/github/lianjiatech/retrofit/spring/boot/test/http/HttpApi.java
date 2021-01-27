@@ -15,6 +15,7 @@ import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Query;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -104,4 +105,13 @@ public interface HttpApi {
      */
     @POST("error")
     Person error(@Body Person person);
+
+    /**
+     * .
+     *
+     * @param personList .
+     * @return .
+     */
+    @POST("savePersonList")
+    Result<Void> savePersonList(@Body List<Person> personList);
 }

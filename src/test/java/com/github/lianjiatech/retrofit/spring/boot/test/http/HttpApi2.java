@@ -32,4 +32,6 @@ public interface HttpApi2 {
 
     @GET("testMap")
     Map<String, Map<String, String>> testMap();
+
+
 }

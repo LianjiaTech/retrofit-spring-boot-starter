@@ -28,7 +28,9 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
@@ -325,5 +327,32 @@ public class RetrofitStarterTest {
         System.out.println(stringMapMap);
     }
 
+
+    @Test
+    public void savePersonList() throws IOException {
+
+        // mock
+        Result mockResult = new Result<>()
+                .setCode(0)
+                .setMsg("ok");
+
+        MockResponse response = new MockResponse()
+                .setResponseCode(200)
+                .addHeader("Content-Type", "application/json; charset=utf-8")
+                .addHeader("Cache-Control", "no-cache")
+                .setBody(objectMapper.writeValueAsString(mockResult));
+        server.enqueue(response);
+
+        Person person = new Person().setId(1L).setName("test").setAge(10);
+        Person person2 = new Person().setId(10L).setName("test333").setAge(100);
+
+        List<Person> list = new ArrayList<>();
+        list.add(person);
+        list.add(person2);
+
+        Result<Void> voidResult = httpApi.savePersonList(list);
+        int code = voidResult.getCode();
+        Assert.assertEquals(code, 0);
+    }
 
 }
