@@ -27,6 +27,7 @@ retrofit:
     # 日志打印拦截器
     logging-interceptor: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor
 
+
   # 重试配置
   retry:
     # 是否启用全局重试

@@ -15,7 +15,6 @@ import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.event.Level;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.ApplicationContext;
@@ -287,8 +286,20 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         LogProperty logProperty = retrofitProperties.getLog();
         if (logProperty.isEnable() && retrofitClient.enableLog()) {
             Class<? extends BaseLoggingInterceptor> loggingInterceptorClass = logProperty.getLoggingInterceptor();
-            Constructor<? extends BaseLoggingInterceptor> constructor = loggingInterceptorClass.getConstructor(Level.class, LogStrategy.class);
-            BaseLoggingInterceptor loggingInterceptor = constructor.newInstance(retrofitClient.logLevel(), retrofitClient.logStrategy());
+            Constructor<? extends BaseLoggingInterceptor> constructor = loggingInterceptorClass.getConstructor(LogLevel.class, LogStrategy.class);
+            LogLevel logLevel = retrofitClient.logLevel();
+            LogStrategy logStrategy = retrofitClient.logStrategy();
+            if (logLevel.equals(LogLevel.NULL)) {
+                logLevel = logProperty.getGlobalLogLevel();
+            }
+            if (logStrategy.equals(LogStrategy.NULL)) {
+                logStrategy = logProperty.getGlobalLogStrategy();
+            }
+
+            Assert.isTrue(!logLevel.equals(LogLevel.NULL), "LogLevel cannot all be configured as LogLevel.NULL!");
+            Assert.isTrue(!logStrategy.equals(LogStrategy.NULL), "logStrategy cannot all be configured as LogStrategy.NULL!");
+
+            BaseLoggingInterceptor loggingInterceptor = constructor.newInstance(logLevel, logStrategy);
             okHttpClientBuilder.addNetworkInterceptor(loggingInterceptor);
         }
 

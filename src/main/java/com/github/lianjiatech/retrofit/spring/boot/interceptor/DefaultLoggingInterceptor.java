@@ -4,7 +4,6 @@ import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.event.Level;
 
 import java.io.IOException;
 
@@ -17,7 +16,7 @@ public class DefaultLoggingInterceptor extends BaseLoggingInterceptor {
 
     private final HttpLoggingInterceptor httpLoggingInterceptor;
 
-    public DefaultLoggingInterceptor(Level logLevel, LogStrategy logStrategy) {
+    public DefaultLoggingInterceptor(LogLevel logLevel, LogStrategy logStrategy) {
         super(logLevel, logStrategy);
         HttpLoggingInterceptor.Logger logger = httpLoggingInterceptorLogger(logLevel);
         httpLoggingInterceptor = new HttpLoggingInterceptor(logger);
@@ -32,16 +31,14 @@ public class DefaultLoggingInterceptor extends BaseLoggingInterceptor {
     }
 
 
-    public HttpLoggingInterceptor.Logger httpLoggingInterceptorLogger(Level level) {
-        if (level == Level.DEBUG) {
+    public HttpLoggingInterceptor.Logger httpLoggingInterceptorLogger(LogLevel level) {
+        if (level == LogLevel.DEBUG) {
             return logger::debug;
-        } else if (level == Level.ERROR) {
+        } else if (level == LogLevel.ERROR) {
             return logger::error;
-        } else if (level == Level.INFO) {
+        } else if (level == LogLevel.INFO) {
             return logger::info;
-        } else if (level == Level.TRACE) {
-            return logger::trace;
-        } else if (level == Level.WARN) {
+        } else if (level == LogLevel.WARN) {
             return logger::warn;
         }
         throw new UnsupportedOperationException("We don't support this log level currently.");
