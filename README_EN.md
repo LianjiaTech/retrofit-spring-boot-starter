@@ -356,20 +356,31 @@ By default, all HTTP requests sent through `Retrofit` will use the default conne
 
 ### Log printing
 
-In many cases, we want to record the http request log. You can global control whether the log is enabled through `retrofit.log.enable` configuration. For each interface, you can control whether to enable it through the `enableLog` of `@RetrofitClient`. You can specify the log printing level and log printing strategy of each interface through `logLevel` and `logStrategy`. `Retrofit-spring-boot-starter` supports five log printing levels( `ERROR`, `WARN`, `INFO`, `DEBUG`, `TRACE`) which default to `INFO` and four log printing strategy( `NONE`, `BASIC`, `HEADERS`, `BODY`) which default to `BASIC`. The meanings of the 4 log printing strategies are as follows:
+In many cases, we want to log HTTP requests. The framework supports the following global log printing configurations:
+
+```yaml
+retrofit:
+  # 日志打印配置
+  log:
+    # 启用日志打印
+    enable: true
+    # 日志打印拦截器
+    logging-interceptor: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor
+    # 全局日志打印级别
+    global-log-level: info
+    # 全局日志打印策略
+    global-log-strategy: body
+
+```
+
+The meanings of the 4 log printing strategies are as follows:
 
 1. `NONE`：No logs.
 2. `BASIC`：Logs request and response lines.
 3. `HEADERS`：Logs request and response lines and their respective headers.
 4. `BODY`：Logs request and response lines and their respective headers and bodies (if present).
 
-By default, `retrofit-spring-boot-starter` uses `DefaultLoggingInterceptor` to perform the real log printing function. The bottom is `okhttp` native `HttpLoggingInterceptor`. Of course, you can also customize and implement your own log printing interceptor by simply inheriting the `baselogginginterceptor`( For details, please refer to the implementation of `defaultlogginginterceptor`), and then configure it in the configuration file.
-```yaml
-retrofit:
-  log:
-    enable: true
-    logging-interceptor: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor
-```
+For each interface, if you need to customize it separately, you can set the `enableLog`, `logLevel` and `logStrategy` of `@RetrofitClient`.
 
 ### Request retry
 
@@ -589,8 +600,6 @@ public class HttpDegradeFallbackFactory implements FallbackFactory<HttpDegradeAp
 }
 ```
 
-
-####  
 
 
 

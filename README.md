@@ -365,15 +365,7 @@ public interface HttpApi {
 
 ### 日志打印
 
-很多情况下，我们希望将http请求日志记录下来。通过`retrofit.log.enable`配置可以全局控制日志是否开启。
-针对每个接口，可以通过`@RetrofitClient`的`enableLog`控制是否开启，通过`logLevel`和`logStrategy`，可以指定每个接口的日志打印级别以及日志打印策略。`retrofit-spring-boot-starter`支持了5种日志打印级别(`ERROR`, `WARN`, `INFO`, `DEBUG`, `TRACE`)，默认`INFO`；支持了4种日志打印策略（`NONE`, `BASIC`, `HEADERS`, `BODY`），默认`BASIC`。4种日志打印策略含义如下：
-
-1. `NONE`：No logs.
-2. `BASIC`：Logs request and response lines.
-3. `HEADERS`：Logs request and response lines and their respective headers.
-4. `BODY`：Logs request and response lines and their respective headers and bodies (if present).
-
-`retrofit-spring-boot-starter`默认使用了`DefaultLoggingInterceptor`执行真正的日志打印功能，其底层就是`okhttp`原生的`HttpLoggingInterceptor`。当然，你也可以自定义实现自己的日志打印拦截器，只需要继承`BaseLoggingInterceptor`（具体可以参考`DefaultLoggingInterceptor`的实现），然后在配置文件中进行相关配置即可。
+很多情况下，我们希望将http请求日志记录下来。本框架支持以下全局日志打印配置：
 
 ```yaml
 retrofit:
@@ -383,7 +375,21 @@ retrofit:
     enable: true
     # 日志打印拦截器
     logging-interceptor: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor
+    # 全局日志打印级别
+    global-log-level: info
+    # 全局日志打印策略
+    global-log-strategy: body
+
 ```
+
+**4种日志打印策略含义如下**：
+
+1. `NONE`：No logs.
+2. `BASIC`：Logs request and response lines.
+3. `HEADERS`：Logs request and response lines and their respective headers.
+4. `BODY`：Logs request and response lines and their respective headers and bodies (if present).
+
+针对每个接口，如果需要单独定制的话，可以设置`@RetrofitClient`的`enableLog`、`logLevel`和`logStrategy`。
 
 ### 请求重试
 
