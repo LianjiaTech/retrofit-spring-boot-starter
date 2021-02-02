@@ -36,21 +36,12 @@ public class LogProperty {
      */
     private Class<? extends BaseLoggingInterceptor> loggingInterceptor = DefaultLoggingInterceptor.class;
 
-
     public boolean isEnable() {
         return enable;
     }
 
     public void setEnable(boolean enable) {
         this.enable = enable;
-    }
-
-    public Class<? extends BaseLoggingInterceptor> getLoggingInterceptor() {
-        return loggingInterceptor;
-    }
-
-    public void setLoggingInterceptor(Class<? extends BaseLoggingInterceptor> loggingInterceptor) {
-        this.loggingInterceptor = loggingInterceptor;
     }
 
     public LogLevel getGlobalLogLevel() {
@@ -67,5 +58,13 @@ public class LogProperty {
 
     public void setGlobalLogStrategy(LogStrategy globalLogStrategy) {
         this.globalLogStrategy = globalLogStrategy;
+    }
+
+    public Class<? extends BaseLoggingInterceptor> getLoggingInterceptor() {
+        return loggingInterceptor;
+    }
+
+    public void setLoggingInterceptor(Class<? extends BaseLoggingInterceptor> loggingInterceptor) {
+        this.loggingInterceptor = loggingInterceptor;
     }
 }
