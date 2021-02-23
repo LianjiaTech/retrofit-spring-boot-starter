@@ -4,6 +4,7 @@ import com.github.lianjiatech.retrofit.spring.boot.core.DefaultErrorDecoder;
 import com.github.lianjiatech.retrofit.spring.boot.core.ErrorDecoder;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.LogLevel;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.LogStrategy;
+import org.springframework.stereotype.Service;
 import retrofit2.CallAdapter;
 import retrofit2.Converter;
 import retrofit2.Retrofit;
@@ -16,6 +17,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
+@Service
 public @interface RetrofitClient {
 
     /**
