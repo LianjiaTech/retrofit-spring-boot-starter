@@ -33,13 +33,7 @@ public abstract class BaseRetryInterceptor implements Interceptor {
         assert invocation != null;
         Method method = invocation.method();
         // 获取重试配置
-        Retry retry;
-        if (method.isAnnotationPresent(Retry.class)) {
-            retry = method.getAnnotation(Retry.class);
-        } else {
-            Class<?> declaringClass = method.getDeclaringClass();
-            retry = declaringClass.getAnnotation(Retry.class);
-        }
+        Retry retry = getRetry(method);
 
         // 没有@Retry 且未开启全局重试
         if (retry == null && !enableGlobalRetry) {
@@ -50,12 +44,20 @@ public abstract class BaseRetryInterceptor implements Interceptor {
         int intervalMs = retry == null ? globalIntervalMs : retry.intervalMs();
         RetryRule[] retryRules = retry == null ? globalRetryRules : retry.retryRules();
         // 最多重试10次
-        maxRetries = maxRetries > LIMIT_RETRIES ? LIMIT_RETRIES : maxRetries;
-        try {
-            return retryIntercept(maxRetries, intervalMs, retryRules, chain);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+        maxRetries = Math.min(maxRetries, LIMIT_RETRIES);
+        return retryIntercept(maxRetries, intervalMs, retryRules, chain);
+
+    }
+
+    private Retry getRetry(Method method) {
+        Retry retry;
+        if (method.isAnnotationPresent(Retry.class)) {
+            retry = method.getAnnotation(Retry.class);
+        } else {
+            Class<?> declaringClass = method.getDeclaringClass();
+            retry = declaringClass.getAnnotation(Retry.class);
         }
+        return retry;
     }
 
 
@@ -69,10 +71,8 @@ public abstract class BaseRetryInterceptor implements Interceptor {
      * @param retryRules 重试规则。Retry rules
      * @param chain      执行链。Execution chain
      * @return 请求响应。Response
-     * @throws IOException          IOException
-     * @throws InterruptedException InterruptedException
      */
-    protected abstract Response retryIntercept(int maxRetries, int intervalMs, RetryRule[] retryRules, Chain chain) throws IOException, InterruptedException;
+    protected abstract Response retryIntercept(int maxRetries, int intervalMs, RetryRule[] retryRules, Chain chain);
 
 
     public void setEnableGlobalRetry(boolean enableGlobalRetry) {
