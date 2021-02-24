@@ -1,7 +1,6 @@
 package com.github.lianjiatech.retrofit.spring.boot.test;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.lianjiatech.retrofit.spring.boot.test.entity.Person;
@@ -73,6 +72,32 @@ public class RetrofitStarterTest {
     public void after() throws IOException {
         System.out.println("=========关闭MockWebServer===========");
         server.close();
+    }
+
+
+    @Test
+    public void testGetPersonBody() throws Exception {
+        // mock
+        Person mockPerson = new Person().setId(1L)
+                .setName("test")
+                .setAge(10);
+        Result mockResult = new Result<>()
+                .setCode(0)
+                .setMsg("ok")
+                .setData(mockPerson);
+        MockResponse response = new MockResponse()
+                .setResponseCode(200)
+                .addHeader("Content-Type", "application/json; charset=utf-8")
+                .addHeader("Cache-Control", "no-cache")
+                .setBody(objectMapper.writeValueAsString(mockResult));
+        server.enqueue(response);
+
+        Person person = new Person();
+        person.setId(100L)
+                .setAge(10)
+                .setName("xx");
+        Result<Person> personBody = httpApi2.getPersonBody(person);
+        System.out.println(personBody);
     }
 
     @Test

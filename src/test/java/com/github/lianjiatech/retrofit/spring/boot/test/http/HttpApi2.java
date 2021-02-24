@@ -7,7 +7,9 @@ import com.github.lianjiatech.retrofit.spring.boot.test.entity.Result;
 import com.github.lianjiatech.retrofit.spring.boot.test.interceptor.EnumIntercept;
 import com.github.lianjiatech.retrofit.spring.boot.test.interceptor.EnvEnum;
 import com.github.lianjiatech.retrofit.spring.boot.test.interceptor.TimeStampInterceptor;
+import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.HTTP;
 import retrofit2.http.Query;
 
 import java.util.Map;
@@ -32,6 +34,10 @@ public interface HttpApi2 {
 
     @GET("testMap")
     Map<String, Map<String, String>> testMap();
+
+
+    @HTTP(method = "get", path = "/getPersonBody", hasBody = true)
+    Result<Person> getPersonBody(@Body Person person);
 
 
 }

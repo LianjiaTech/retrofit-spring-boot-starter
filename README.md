@@ -852,12 +852,23 @@ public class DownloadTest {
 
 ```
 
-### GET/DELETE请求传请求体
+### DELETE请求传请求体
 
 ```java
-@HTTP(method = "GET", path = "/user/get", hasBody = true)
 @HTTP(method = "DELETE", path = "/user/delete", hasBody = true)
 ```
+
+### GET请求传请求体
+
+**okhttp3自身不支持`GET`请求带请求体**。源码如下：
+
+![image](https://user-images.githubusercontent.com/30620547/108949806-0a9f7780-76a0-11eb-9eb4-326d5d546e98.png)
+
+![image](https://user-images.githubusercontent.com/30620547/108949831-1ab75700-76a0-11eb-955c-95d324084580.png)
+
+作者给出了具体原因，可以参考这个issue：https://github.com/square/okhttp/issues/3154
+
+but，如果实在需要这么干，可以使用`@HTTP(method = "get", path = "/user/get", hasBody = true)`。使用小写`get`绕过上述限制。
 
 
 ## 反馈建议
