@@ -852,6 +852,14 @@ public class DownloadTest {
 
 ```
 
+### GET/DELETE请求方式传请求体
+
+```
+@HTTP(method = "GET", path = "/user/get", hasBody = true)
+@HTTP(method = "DELETE", path = "/user/delete", hasBody = true)
+```
+
+
 ## 反馈建议
 
 如有任何问题，欢迎提issue或者加QQ群反馈。
