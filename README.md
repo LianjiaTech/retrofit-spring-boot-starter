@@ -854,7 +854,7 @@ public class DownloadTest {
 
 ### GET/DELETE请求方式传请求体
 
-```
+```java
 @HTTP(method = "GET", path = "/user/get", hasBody = true)
 @HTTP(method = "DELETE", path = "/user/delete", hasBody = true)
 ```
