@@ -37,9 +37,9 @@ retrofit:
     # 是否启用全局重试
     enable-global-retry: true
     # 全局重试间隔时间
-    global-interval-ms: 100
+    global-interval-ms: 1
     # 全局最大重试次数
-    global-max-retries: 1
+    global-max-retries: 5
     # 全局重试规则
     global-retry-rules:
       - response_status_not_2xx
