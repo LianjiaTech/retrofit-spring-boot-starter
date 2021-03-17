@@ -17,7 +17,7 @@ import java.util.Map;
 /**
  * @author 陈添明
  */
-@RetrofitClient(baseUrl = "${test.baseUrl}", enableLog = false)
+@RetrofitClient(baseUrl = "${test.baseUrl}")
 @Intercept(handler = TimeStampInterceptor.class, include = "/a/b", exclude = "/c/d")
 @EnumIntercept(envEnum = EnvEnum.test)
 public interface HttpApi2 {
