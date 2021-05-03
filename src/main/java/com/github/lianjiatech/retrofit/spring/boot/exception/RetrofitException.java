@@ -31,6 +31,8 @@ public class RetrofitException extends RuntimeException {
             }
         } catch (ReadResponseBodyException e) {
             throw new RetrofitException(String.format("read ResponseBody error! request=%s, response=%s", request, response), e);
+        } finally {
+            response.close();
         }
         return new RetrofitException(msg);
     }
