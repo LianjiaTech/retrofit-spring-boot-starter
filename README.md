@@ -49,8 +49,8 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 ```xml
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
-    <artifactId>retrofit-spring-boot-starter</artifactId>
-    <version>2.2.9</version>
+   <artifactId>retrofit-spring-boot-starter</artifactId>
+   <version>2.2.10</version>
 </dependency>
 ```
 
@@ -60,8 +60,8 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 ```xml
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
-    <artifactId>retrofit-spring-boot-starter</artifactId>
-    <version>2.2.9</version>
+   <artifactId>retrofit-spring-boot-starter</artifactId>
+   <version>2.2.10</version>
 </dependency>
  <dependency>
     <groupId>com.squareup.okhttp3</groupId>
@@ -666,7 +666,8 @@ public interface ApiCountService {
 
 **Retrofit自动根据方法返回值类型选用对应的`CallAdapterFactory`执行适配处理！加上Retrofit默认的`CallAdapterFactory`，可支持多种形式的方法返回值类型：**
 
-- 任意POJO类型： 将响应体内容适配成一个对应的POJO类型对象返回，如果http状态码不是2xx，直接抛错！（推荐）
+- 基础类型(`String`/`Long`/`Integer`/`Boolean`/`Float`/`Double`)：直接将响应内容转换为上述基础类型。
+- 其它任意POJO类型： 将响应体内容适配成一个对应的POJO类型对象返回，如果http状态码不是2xx，直接抛错！（推荐）
 - `CompletableFuture<T>`: 将响应体内容适配成`CompletableFuture<T>`对象返回！（异步调用推荐）
 - `Void`: 不关注返回类型可以使用`Void`。如果http状态码不是2xx，直接抛错！（不关注返回值）
 - `Response<T>`: 将响应内容适配成`Response<T>`对象返回！（不推荐）
