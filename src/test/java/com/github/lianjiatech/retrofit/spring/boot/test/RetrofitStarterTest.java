@@ -380,4 +380,38 @@ public class RetrofitStarterTest {
         Assert.assertEquals(code, 0);
     }
 
+
+    @Test
+    public void testString() {
+
+        MockResponse response = new MockResponse()
+                .setResponseCode(200)
+                .addHeader("Content-Type", "application/text; charset=utf-8")
+                .addHeader("Cache-Control", "no-cache")
+                .setBody("text");
+        server.enqueue(response);
+        Person mockPerson = new Person().setId(1L)
+                .setName("testString")
+                .setAge(10);
+        String string = httpApi.getString(mockPerson);
+        System.out.println(string);
+    }
+
+    @Test
+    public void testBoolean() {
+
+        MockResponse response = new MockResponse()
+                .setResponseCode(200)
+                .addHeader("Content-Type", "application/text; charset=utf-8")
+                .addHeader("Cache-Control", "no-cache")
+                .setBody("false");
+        server.enqueue(response);
+
+        Person mockPerson = new Person().setId(1L)
+                .setName("testBoolean")
+                .setAge(10);
+        Boolean apiBoolean = httpApi.getBoolean(mockPerson);
+        System.out.println(apiBoolean);
+    }
+
 }

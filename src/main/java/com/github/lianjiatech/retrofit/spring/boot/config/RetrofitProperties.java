@@ -3,6 +3,7 @@ package com.github.lianjiatech.retrofit.spring.boot.config;
 
 import com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory;
 import com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory;
+import com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import retrofit2.CallAdapter;
@@ -60,7 +61,7 @@ public class RetrofitProperties {
      * global converter factories, The converter instance is first obtained from the Spring container. If it is not obtained, it is created by reflection.
      */
     @SuppressWarnings("unchecked")
-    private Class<? extends Converter.Factory>[] globalConverterFactories = (Class<? extends Converter.Factory>[]) new Class[]{JacksonConverterFactory.class};
+    private Class<? extends Converter.Factory>[] globalConverterFactories = (Class<? extends Converter.Factory>[]) new Class[]{BasicTypeConverterFactory.class, JacksonConverterFactory.class};
 
     /**
      * 全局调用适配器工厂，转换器实例优先从Spring容器获取，如果没有获取到，则反射创建。

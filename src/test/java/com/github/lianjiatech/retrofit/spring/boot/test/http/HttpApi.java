@@ -114,4 +114,11 @@ public interface HttpApi {
      */
     @POST("savePersonList")
     Result<Void> savePersonList(@Body List<Person> personList);
+
+
+    @POST("getString")
+    String getString(@Body Person person);
+
+    @POST("getBoolean")
+    Boolean getBoolean(@Body Person person);
 }
