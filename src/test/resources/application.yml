@@ -12,6 +12,7 @@ retrofit:
   # 是否禁用void返回值类型
   disable-void-return-type: false
 
+
   # 全局转换器工厂
   global-converter-factories:
     - com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory
@@ -56,6 +57,14 @@ retrofit:
     degrade-type: sentinel
     # 熔断资源名称解析器
     resource-name-parser: com.github.lianjiatech.retrofit.spring.boot.degrade.DefaultResourceNameParser
+  # 全局连接超时时间
+  global-connect-timeout-ms: 5000
+  # 全局读取超时时间
+  global-read-timeout-ms: 5000
+  # 全局写入超时时间
+  global-write-timeout-ms: 5000
+  # 全局完整调用超时时间
+  global-call-timeout-ms: 0
 
 test:
   baseUrl: http://localhost:8080/api/test/

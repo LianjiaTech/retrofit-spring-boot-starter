@@ -216,12 +216,19 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
             okHttpClientBuilder = (OkHttpClient.Builder) method.invoke(null);
         } else {
             okhttp3.ConnectionPool connectionPool = getConnectionPool(retrofitClientInterfaceClass);
+
+            final int connectTimeoutMs = retrofitClient.connectTimeoutMs() == -1 ? retrofitProperties.getGlobalConnectTimeoutMs() : retrofitClient.connectTimeoutMs();
+            final int readTimeoutMs = retrofitClient.readTimeoutMs() == -1 ? retrofitProperties.getGlobalReadTimeoutMs() : retrofitClient.readTimeoutMs();
+            final int writeTimeoutMs = retrofitClient.writeTimeoutMs() == -1 ? retrofitProperties.getGlobalWriteTimeoutMs() : retrofitClient.writeTimeoutMs();
+            final int callTimeoutMs = retrofitClient.callTimeoutMs() == -1 ? retrofitProperties.getGlobalCallTimeoutMs() : retrofitClient.callTimeoutMs();
+
+
             // Construct an OkHttpClient object
             okHttpClientBuilder = new OkHttpClient.Builder()
-                    .connectTimeout(retrofitClient.connectTimeoutMs(), TimeUnit.MILLISECONDS)
-                    .readTimeout(retrofitClient.readTimeoutMs(), TimeUnit.MILLISECONDS)
-                    .writeTimeout(retrofitClient.writeTimeoutMs(), TimeUnit.MILLISECONDS)
-                    .callTimeout(retrofitClient.callTimeoutMs(), TimeUnit.MILLISECONDS)
+                    .connectTimeout(connectTimeoutMs, TimeUnit.MILLISECONDS)
+                    .readTimeout(readTimeoutMs, TimeUnit.MILLISECONDS)
+                    .writeTimeout(writeTimeoutMs, TimeUnit.MILLISECONDS)
+                    .callTimeout(callTimeoutMs, TimeUnit.MILLISECONDS)
                     .retryOnConnectionFailure(retrofitClient.retryOnConnectionFailure())
                     .followRedirects(retrofitClient.followRedirects())
                     .followSslRedirects(retrofitClient.followSslRedirects())
