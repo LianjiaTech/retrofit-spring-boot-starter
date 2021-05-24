@@ -132,26 +132,29 @@ public @interface RetrofitClient {
     /**
      * Sets the default connect timeout for new connections. A value of 0 means no timeout,
      * otherwise values must be between 1 and Integer.MAX_VALUE when converted to milliseconds.
+     * If it is configured as -1, the global default configuration is used.
      *
      * @return connectTimeoutMs
      */
-    int connectTimeoutMs() default 10_000;
+    int connectTimeoutMs() default -1;
 
     /**
      * Sets the default read timeout for new connections. A value of 0 means no timeout,
      * otherwise values must be between 1 and Integer.MAX_VALUE when converted to milliseconds.
+     * If it is configured as -1, the global default configuration is used.
      *
      * @return readTimeoutMs
      */
-    int readTimeoutMs() default 10_000;
+    int readTimeoutMs() default -1;
 
     /**
      * Sets the default write timeout for new connections. A value of 0 means no timeout,
-     * otherwise values must be between 1 and Integer.MAX_VALUE when converted to milliseconds
+     * otherwise values must be between 1 and Integer.MAX_VALUE when converted to milliseconds.
+     * If it is configured as -1, the global default configuration is used.
      *
      * @return writeTimeoutMs
      */
-    int writeTimeoutMs() default 10_000;
+    int writeTimeoutMs() default -1;
 
 
     /**
@@ -160,7 +163,7 @@ public @interface RetrofitClient {
      *
      * @return callTimeout
      */
-    int callTimeoutMs() default 0;
+    int callTimeoutMs() default -1;
 
     /**
      * Sets the interval between HTTP/2 and web socket pings initiated by this client.

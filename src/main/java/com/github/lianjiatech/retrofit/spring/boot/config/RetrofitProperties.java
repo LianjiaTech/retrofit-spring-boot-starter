@@ -57,6 +57,27 @@ public class RetrofitProperties {
     private boolean disableVoidReturnType = false;
 
     /**
+     * 全局连接超时时间
+     */
+    private int globalConnectTimeoutMs = 10_000;
+
+    /**
+     * 全局读取超时时间
+     */
+    private int globalReadTimeoutMs = 10_000;
+
+    /**
+     * 全局写入超时时间
+     */
+    private int globalWriteTimeoutMs = 10_000;
+
+    /**
+     * 全局完整调用超时时间
+     */
+    private int globalCallTimeoutMs = 0;
+
+
+    /**
      * 全局转换器工厂，转换器实例优先从Spring容器获取，如果没有获取到，则反射创建。
      * global converter factories, The converter instance is first obtained from the Spring container. If it is not obtained, it is created by reflection.
      */
@@ -129,5 +150,37 @@ public class RetrofitProperties {
 
     public void setLog(LogProperty log) {
         this.log = log;
+    }
+
+    public int getGlobalConnectTimeoutMs() {
+        return globalConnectTimeoutMs;
+    }
+
+    public void setGlobalConnectTimeoutMs(int globalConnectTimeoutMs) {
+        this.globalConnectTimeoutMs = globalConnectTimeoutMs;
+    }
+
+    public int getGlobalReadTimeoutMs() {
+        return globalReadTimeoutMs;
+    }
+
+    public void setGlobalReadTimeoutMs(int globalReadTimeoutMs) {
+        this.globalReadTimeoutMs = globalReadTimeoutMs;
+    }
+
+    public int getGlobalWriteTimeoutMs() {
+        return globalWriteTimeoutMs;
+    }
+
+    public void setGlobalWriteTimeoutMs(int globalWriteTimeoutMs) {
+        this.globalWriteTimeoutMs = globalWriteTimeoutMs;
+    }
+
+    public int getGlobalCallTimeoutMs() {
+        return globalCallTimeoutMs;
+    }
+
+    public void setGlobalCallTimeoutMs(int globalCallTimeoutMs) {
+        this.globalCallTimeoutMs = globalCallTimeoutMs;
     }
 }
