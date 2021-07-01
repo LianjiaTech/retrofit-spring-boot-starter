@@ -30,7 +30,7 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 
 ## 功能特性
 
-- [x] [自定义注入OkHttpClient](#自定义注入OkHttpClient)
+
 - [x] [注解式拦截器](#注解式拦截器)
 - [x] [连接池管理](#连接池管理)
 - [x] [日志打印](#日志打印)
@@ -39,6 +39,7 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 - [x] [全局拦截器](#全局拦截器)
 - [x] [熔断降级](#熔断降级)
 - [x] [微服务之间的HTTP调用](#微服务之间的HTTP调用)
+- [x] [自定义注入OkHttpClient](#自定义注入OkHttpClient)
 - [x] [调用适配器](#调用适配器)
 - [x] [数据转换器](#数据转码器)
 
@@ -50,7 +51,7 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-   <version>2.2.11</version>
+   <version>2.2.12</version>
 </dependency>
 ```
 
@@ -61,7 +62,7 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-   <version>2.2.11</version>
+   <version>2.2.12</version>
 </dependency>
  <dependency>
     <groupId>com.squareup.okhttp3</groupId>
@@ -141,35 +142,11 @@ public class TestService {
 
 ## 配置项说明
 
-`retrofit-spring-boot-starter`支持了多个可配置的属性，用来应对不同的业务场景。详细信息可参考[配置项示例](https://github.com/LianjiaTech/retrofit-spring-boot-starter/blob/master/src/test/resources/application.yml)。
+`retrofit-spring-boot-starter`支持了多个可配置的属性，用来应对不同的业务场景。**
+详细信息可参考** [配置项示例](https://github.com/LianjiaTech/retrofit-spring-boot-starter/blob/master/src/test/resources/application.yml)
+。
 
 ## 高级功能
-
-### 自定义注入OkHttpClient
-
-通常情况下，通过`@RetrofitClient`注解属性动态创建`OkHttpClient`对象能够满足大部分使用场景。但是在某些情况下，用户可能需要自定义`OkHttpClient`，这个时候，可以在接口上定义返回类型是`OkHttpClient.Builder`的静态方法来实现。代码示例如下：
-
-```java
-@RetrofitClient(baseUrl = "http://ke.com")
-public interface HttpApi3 {
-
-    @OkHttpClientBuilder
-    static OkHttpClient.Builder okhttpClientBuilder() {
-        return new OkHttpClient.Builder()
-                .connectTimeout(1, TimeUnit.SECONDS)
-                .readTimeout(1, TimeUnit.SECONDS)
-                .writeTimeout(1, TimeUnit.SECONDS);
-
-    }
-
-    @GET
-    Result<Person> getPerson(@Url String url, @Query("id") Long id);
-}
-```
-
-> 方法必须使用`@OkHttpClientBuilder`注解标记！
-
-
 
 ### 注解式拦截器
 
@@ -639,8 +616,8 @@ public ServiceInstanceChooser serviceInstanceChooser(LoadBalancerClient loadBala
 
 #### 使用`@Retrofit`的`serviceId`和`path`属性，可以实现微服务之间的HTTP调用
 
-
 ```java
+
 @RetrofitClient(serviceId = "${jy-helicarrier-api.serviceId}", path = "/m/count", errorDecoder = HelicarrierErrorDecoder.class)
 @Retry
 public interface ApiCountService {
@@ -648,16 +625,42 @@ public interface ApiCountService {
 }
 ```
 
+### 自定义注入OkHttpClient
+
+通常情况下，通过`@RetrofitClient`注解属性动态创建`OkHttpClient`对象能够满足大部分使用场景。但是在某些情况下，用户可能需要自定义`OkHttpClient`
+，这个时候，可以在接口上定义返回类型是`OkHttpClient.Builder`的静态方法来实现。代码示例如下：
+
+```java
+
+@RetrofitClient(baseUrl = "http://ke.com")
+public interface HttpApi3 {
+
+   @OkHttpClientBuilder
+   static OkHttpClient.Builder okhttpClientBuilder() {
+      return new OkHttpClient.Builder()
+              .connectTimeout(1, TimeUnit.SECONDS)
+              .readTimeout(1, TimeUnit.SECONDS)
+              .writeTimeout(1, TimeUnit.SECONDS);
+
+   }
+
+   @GET
+   Result<Person> getPerson(@Url String url, @Query("id") Long id);
+}
+```
+
+> 方法必须使用`@OkHttpClientBuilder`注解标记！
 
 ## 调用适配器和数据转码器
 
 ### 调用适配器
 
-`Retrofit`可以通过调用适配器`CallAdapterFactory`将`Call<T>`对象适配成接口方法的返回值类型。`retrofit-spring-boot-starter`扩展2种`CallAdapterFactory`实现：
+`Retrofit`可以通过调用适配器`CallAdapterFactory`将`Call<T>`对象适配成接口方法的返回值类型。`retrofit-spring-boot-starter`扩展2种`CallAdapterFactory`
+实现：
 
 1. `BodyCallAdapterFactory`
-    - 默认启用，可通过配置`retrofit.enable-body-call-adapter=false`关闭
-    - 同步执行http请求，将响应体内容适配成接口方法的返回值类型实例。
+   - 默认启用，可通过配置`retrofit.enable-body-call-adapter=false`关闭
+   - 同步执行http请求，将响应体内容适配成接口方法的返回值类型实例。
     - 除了`Retrofit.Call<T>`、`Retrofit.Response<T>`、`java.util.concurrent.CompletableFuture<T>`之外，其它返回类型都可以使用该适配器。
 2. `ResponseCallAdapterFactory`
     - 默认启用，可通过配置`retrofit.enable-response-call-adapter=false`关闭
