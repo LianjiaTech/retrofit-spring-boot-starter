@@ -75,6 +75,11 @@ public abstract class BaseResourceNameParser {
             return new HttpMethodPath("HEAD", head.value());
         }
 
+        if (method.isAnnotationPresent(PATCH.class)) {
+            PATCH patch = method.getAnnotation(PATCH.class);
+            return new HttpMethodPath("PATCH", patch.value());
+        }
+
         return null;
     }
 
