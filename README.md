@@ -42,6 +42,7 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 - [x] [自定义注入OkHttpClient](#自定义注入OkHttpClient)
 - [x] [调用适配器](#调用适配器)
 - [x] [数据转换器](#数据转码器)
+- [x] [其他功能示例](#其他功能示例)
 
 ## 快速使用
 
@@ -760,16 +761,28 @@ retrofit:
 ```yaml
 retrofit:
   # 全局转换器工厂
-  global-converter-factories:
-    - retrofit2.converter.jackson.JacksonConverterFactory
+   global-converter-factories:
+      - retrofit2.converter.jackson.JacksonConverterFactory
 ```
 
 针对每个Java接口，还可以通过`@RetrofitClient`注解的`converterFactories()`指定当前接口采用的`Converter.Factory`，指定的转换器工厂实例依然优先从Spring容器获取。
 
 **注意：如果`Converter.Factory`没有`public`的无参构造器，请手动将其配置成`Spring`容器的`Bean`对象**！
 
-
 ## 其他功能示例
+
+### form参数接口调用
+
+```java
+ @FormUrlEncoded
+@POST("token/verify")
+ Object tokenVerify(@Field("source") String source,@Field("signature") String signature,@Field("token") String token);
+
+
+@FormUrlEncoded
+@POST("message")
+CompletableFuture<Object> sendMessage(@FieldMap Map<String, Object> param);
+```
 
 ### 上传文件
 
@@ -777,10 +790,13 @@ retrofit:
 
 ```java
 // 对文件名使用URLEncoder进行编码
-String fileName = URLEncoder.encode(Objects.requireNonNull(file.getOriginalFilename()), "utf-8");
-okhttp3.RequestBody requestBody = okhttp3.RequestBody.create(MediaType.parse("multipart/form-data"),file.getBytes());
-MultipartBody.Part file = MultipartBody.Part.createFormData("file", fileName, requestBody);
-apiService.upload(file);
+public ResponseEntity importTerminology(MultipartFile file){
+        String fileName=URLEncoder.encode(Objects.requireNonNull(file.getOriginalFilename()),"utf-8");
+        okhttp3.RequestBody requestBody=okhttp3.RequestBody.create(MediaType.parse("multipart/form-data"),file.getBytes());
+        MultipartBody.Part part=MultipartBody.Part.createFormData("file",fileName,requestBody);
+        apiService.upload(part);
+        return ok().build();
+        }
 ```
 
 #### http上传接口
