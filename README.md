@@ -30,7 +30,7 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 
 ## 功能特性
 
-
+- [x] [超时时间设置](#超时时间设置)
 - [x] [注解式拦截器](#注解式拦截器)
 - [x] [连接池管理](#连接池管理)
 - [x] [日志打印](#日志打印)
@@ -144,10 +144,101 @@ public class TestService {
 ## 配置项说明
 
 `retrofit-spring-boot-starter`支持了多个可配置的属性，用来应对不同的业务场景。**
-详细信息可参考** [配置项示例](https://github.com/LianjiaTech/retrofit-spring-boot-starter/blob/master/src/test/resources/application.yml)
-。
+
+```yaml
+retrofit:
+   # 连接池配置
+   pool:
+      # test1连接池配置
+      test1:
+         # 最大空闲连接数
+         max-idle-connections: 3
+         # 连接保活时间(秒)
+         keep-alive-second: 100
+
+   # 是否禁用void返回值类型
+   disable-void-return-type: false
+
+
+   # 全局转换器工厂
+   global-converter-factories:
+      - com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory
+      - retrofit2.converter.jackson.JacksonConverterFactory
+   # 全局调用适配器工厂
+   global-call-adapter-factories:
+      - com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory
+      - com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory
+
+   # 日志打印配置
+   log:
+      # 启用日志打印
+      enable: true
+      # 日志打印拦截器
+      logging-interceptor: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor
+      # 全局日志打印级别
+      global-log-level: info
+      # 全局日志打印策略
+      global-log-strategy: body
+
+
+   # 重试配置
+   retry:
+      # 是否启用全局重试
+      enable-global-retry: true
+      # 全局重试间隔时间
+      global-interval-ms: 1
+      # 全局最大重试次数
+      global-max-retries: 1
+      # 全局重试规则
+      global-retry-rules:
+         - response_status_not_2xx
+         - occur_io_exception
+      # 重试拦截器
+      retry-interceptor: com.github.lianjiatech.retrofit.spring.boot.retry.DefaultRetryInterceptor
+
+   # 熔断降级配置
+   degrade:
+      # 是否启用熔断降级
+      enable: true
+      # 熔断降级实现方式
+      degrade-type: sentinel
+      # 熔断资源名称解析器
+      resource-name-parser: com.github.lianjiatech.retrofit.spring.boot.degrade.DefaultResourceNameParser
+   # 全局连接超时时间
+   global-connect-timeout-ms: 5000
+   # 全局读取超时时间
+   global-read-timeout-ms: 5000
+   # 全局写入超时时间
+   global-write-timeout-ms: 5000
+   # 全局完整调用超时时间
+   global-call-timeout-ms: 0
+```
 
 ## 高级功能
+
+### 超时时间设置
+
+`retrofit-spring-boot-starter`支持两种方式设置超时时间，一种是全局超时时间设置，另一种是注解超时时间设置。
+
+#### 全局超时时间设置
+
+**在yaml文件中可配置全局超时时间，对所有接口生效**。
+
+```yaml
+retrofit:
+   # 全局连接超时时间
+   global-connect-timeout-ms: 5000
+   # 全局读取超时时间
+   global-read-timeout-ms: 5000
+   # 全局写入超时时间
+   global-write-timeout-ms: 5000
+   # 全局完整调用超时时间
+   global-call-timeout-ms: 0
+```
+
+#### 注解式超时时间设置
+
+在`@RetrofitClient`注解上可以设置超时时间，针对当前接口生效，优先级更高。具体字段有`connectTimeoutMs`、`readTimeoutMs`、`writeTimeoutMs`、`callTimeoutMs`等。
 
 ### 注解式拦截器
 
@@ -157,7 +248,6 @@ public class TestService {
 2. 接口上使用`@Intercept`进行标注。如需配置多个拦截器，在接口上标注多个`@Intercept`注解即可！
 
 下面以*给指定请求的url后面拼接timestamp时间戳*为例，介绍下如何使用注解式拦截器。
-
 
 #### 继承`BasePathMatchInterceptor`编写拦截处理器
 
