@@ -59,7 +59,7 @@ public class ClassPathRetrofitClientScanner extends ClassPathBeanDefinitionScann
                         beanDefinition.getMetadata().getClassName(),
                         classLoader);
 
-                return !target.isAnnotation() && legalBaseUrl(target);
+                return !target.isAnnotation() && (legalBaseUrl(target) || legalServiceId(target));
             } catch (Exception ex) {
                 logger.error("load class exception:", ex);
             }
@@ -79,6 +79,23 @@ public class ClassPathRetrofitClientScanner extends ClassPathBeanDefinitionScann
             environment.resolveRequiredPlaceholders(baseUrl);
         } catch (Exception e) {
             logger.warn("No config baseUrl! interface={}", target);
+            return false;
+        }
+        return true;
+    }
+
+    private boolean legalServiceId(Class<?> target) {
+        final RetrofitClient retrofitClient = target.getAnnotation(RetrofitClient.class);
+        final String serviceId = retrofitClient.serviceId();
+        if (StringUtils.isEmpty(serviceId)) {
+            logger.warn("No config serviceId! interface={}", target);
+            return false;
+        }
+
+        try {
+            environment.resolveRequiredPlaceholders(serviceId);
+        } catch (Exception e) {
+            logger.warn("No config serviceId! interface={}", target);
             return false;
         }
         return true;

@@ -52,7 +52,7 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-   <version>2.2.13</version>
+   <version>2.2.14</version>
 </dependency>
 ```
 
@@ -63,7 +63,7 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-   <version>2.2.13</version>
+   <version>2.2.14</version>
 </dependency>
  <dependency>
     <groupId>com.squareup.okhttp3</groupId>
