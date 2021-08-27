@@ -8,8 +8,10 @@ import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
+import org.springframework.core.env.Environment;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.util.ClassUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -23,10 +25,12 @@ public class ClassPathRetrofitClientScanner extends ClassPathBeanDefinitionScann
     private final ClassLoader classLoader;
 
     private final static Logger logger = LoggerFactory.getLogger(ClassPathRetrofitClientScanner.class);
+    private final Environment environment;
 
-    public ClassPathRetrofitClientScanner(BeanDefinitionRegistry registry, ClassLoader classLoader) {
+    public ClassPathRetrofitClientScanner(BeanDefinitionRegistry registry, ClassLoader classLoader, Environment environment) {
         super(registry, false);
         this.classLoader = classLoader;
+        this.environment = environment;
     }
 
     public void registerFilters() {
@@ -54,12 +58,47 @@ public class ClassPathRetrofitClientScanner extends ClassPathBeanDefinitionScann
                 Class<?> target = ClassUtils.forName(
                         beanDefinition.getMetadata().getClassName(),
                         classLoader);
-                return !target.isAnnotation();
+
+                return !target.isAnnotation() && (legalBaseUrl(target) || legalServiceId(target));
             } catch (Exception ex) {
                 logger.error("load class exception:", ex);
             }
         }
         return false;
+    }
+
+    private boolean legalBaseUrl(Class<?> target) {
+        final RetrofitClient retrofitClient = target.getAnnotation(RetrofitClient.class);
+        final String baseUrl = retrofitClient.baseUrl();
+        if (StringUtils.isEmpty(baseUrl)) {
+            logger.warn("No config baseUrl! interface={}", target);
+            return false;
+        }
+
+        try {
+            environment.resolveRequiredPlaceholders(baseUrl);
+        } catch (Exception e) {
+            logger.warn("No config baseUrl! interface={}", target);
+            return false;
+        }
+        return true;
+    }
+
+    private boolean legalServiceId(Class<?> target) {
+        final RetrofitClient retrofitClient = target.getAnnotation(RetrofitClient.class);
+        final String serviceId = retrofitClient.serviceId();
+        if (StringUtils.isEmpty(serviceId)) {
+            logger.warn("No config serviceId! interface={}", target);
+            return false;
+        }
+
+        try {
+            environment.resolveRequiredPlaceholders(serviceId);
+        } catch (Exception e) {
+            logger.warn("No config serviceId! interface={}", target);
+            return false;
+        }
+        return true;
     }
 
 
