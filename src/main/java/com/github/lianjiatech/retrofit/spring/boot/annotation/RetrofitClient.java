@@ -79,7 +79,7 @@ public @interface RetrofitClient {
      * 针对当前接口是否启用日志打印
      * Whether to enable log printing for the current interface
      *
-     * @return
+     * @return enableLog
      */
     boolean enableLog() default true;
 
