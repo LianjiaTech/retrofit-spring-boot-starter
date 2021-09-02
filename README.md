@@ -52,7 +52,7 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-   <version>2.2.15</version>
+   <version>2.2.16</version>
 </dependency>
 ```
 
@@ -63,7 +63,7 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-   <version>2.2.15</version>
+   <version>2.2.16</version>
 </dependency>
  <dependency>
     <groupId>com.squareup.okhttp3</groupId>
@@ -465,7 +465,7 @@ retrofit:
 
 #### 全局重试
 
-全局重试默认开启，可以通过配置`retrofit.retry.enable-global-retry=false`关闭。开启之后，所有`HTTP`请求都会按照配置参数自动重试，详细配置项如下：
+全局重试默认关闭，可以通过配置`retrofit.retry.enable-global-retry=ture`开启。开启之后，所有`HTTP`请求都会按照配置参数自动重试，详细配置项如下：
 
 ```yaml
 retrofit:
