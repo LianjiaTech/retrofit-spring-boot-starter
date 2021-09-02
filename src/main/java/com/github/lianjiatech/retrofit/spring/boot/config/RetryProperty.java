@@ -14,7 +14,7 @@ public class RetryProperty {
      * 否则的话，只有被 {@link com.github.lianjiatech.retrofit.spring.boot.retry.Retry}标注的接口才会执行重试。
      * 接口上Retry注解属性优先于全局配置。
      */
-    private boolean enableGlobalRetry = true;
+    private boolean enableGlobalRetry = false;
 
     /**
      * 全局最大重试次数，最大可设置为100
