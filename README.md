@@ -56,6 +56,10 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 </dependency>
 ```
 
+> **强烈建议使用最新版本，稳定无bug！**
+
+> **`2.2.14`和`2.2.15`对配置中心有兼容性bug，请勿使用！！！**
+
 **本项目依赖Retrofit-2.9.0，okhttp-3.14.9，okio-1.17.5版本，如果冲突，烦请手动引入相关jar包**。完整依赖如下：
 
 
