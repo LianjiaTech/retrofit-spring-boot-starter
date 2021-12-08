@@ -42,13 +42,14 @@ public class DownloadTest {
         if (!file.exists()) {
             file.createNewFile();
         }
-        FileOutputStream fos = new FileOutputStream(file);
-        byte[] b = new byte[1024];
-        int length;
-        while ((length = is.read(b)) > 0) {
-            fos.write(b, 0, length);
+        try (FileOutputStream fos = new FileOutputStream(file)) {
+            byte[] b = new byte[1024];
+            int length;
+            while ((length = is.read(b)) > 0) {
+                fos.write(b, 0, length);
+            } 
+            is.close();
+            fos.close();
         }
-        is.close();
-        fos.close();
     }
 }
