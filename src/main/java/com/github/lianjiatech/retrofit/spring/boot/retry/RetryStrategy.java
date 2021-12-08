@@ -25,6 +25,7 @@ class RetryStrategy {
         try {
             Thread.sleep(intervalMs);
         } catch (InterruptedException ignored) {
+            Thread.currentThread().interrupt();
         }
     }
 }
