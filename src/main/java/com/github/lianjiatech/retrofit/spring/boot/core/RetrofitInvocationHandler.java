@@ -35,10 +35,12 @@ public class RetrofitInvocationHandler implements InvocationHandler {
             return method.invoke(source, args);
         } catch (Throwable e) {
             Throwable cause = e.getCause();
-            Object fallbackObject = getFallbackObject(cause);
             // 熔断逻辑
-            if (cause instanceof RetrofitBlockException && degradeProperty.isEnable() && fallbackObject != null) {
-                return method.invoke(fallbackObject, args);
+            if (cause instanceof RetrofitBlockException && degradeProperty.isEnable()) {
+                Object fallbackObject = getFallbackObject(cause);
+                if (fallbackObject != null) {
+                    return method.invoke(fallbackObject, args);
+                }
             }
             throw cause;
         }
