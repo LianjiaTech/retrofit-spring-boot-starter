@@ -11,6 +11,13 @@ import java.lang.annotation.*;
 public @interface Retry {
 
     /**
+     * 是否启用重试
+     *
+     * @return 是否启用重试
+     */
+    boolean enable() default true;
+
+    /**
      * 最大重试次数，最大可设置为100
      * The maximum number of retries, the maximum can be set to 100
      *

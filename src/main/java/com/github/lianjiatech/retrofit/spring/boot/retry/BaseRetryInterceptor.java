@@ -35,18 +35,40 @@ public abstract class BaseRetryInterceptor implements Interceptor {
         // 获取重试配置
         Retry retry = getRetry(method);
 
-        // 没有@Retry 且未开启全局重试
-        if (retry == null && !enableGlobalRetry) {
+        if (!needRetry(retry)) {
             return chain.proceed(request);
         }
+
         // 重试
         int maxRetries = retry == null ? globalMaxRetries : retry.maxRetries();
         int intervalMs = retry == null ? globalIntervalMs : retry.intervalMs();
         RetryRule[] retryRules = retry == null ? globalRetryRules : retry.retryRules();
-        // 最多重试10次
+        // 最多重试100次
         maxRetries = Math.min(maxRetries, LIMIT_RETRIES);
         return retryIntercept(maxRetries, intervalMs, retryRules, chain);
 
+    }
+
+    private boolean needRetry(Retry retry) {
+
+        if (enableGlobalRetry) {
+            // 开启全局重试的情况下
+            // 没配置@Retry，需要重试
+            if (retry == null) {
+                return true;
+            }
+            // 配置了@Retry，enable==true，需要重试
+            if (retry.enable()) {
+                return true;
+            }
+        } else {
+            // 未开启全局重试
+            // 配置了@Retry，enable==true，需要重试
+            if (retry != null && retry.enable()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private Retry getRetry(Method method) {
