@@ -92,7 +92,10 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
         // retryInterceptor
         RetryProperty retry = retrofitProperties.getRetry();
         Class<? extends BaseRetryInterceptor> retryInterceptor = retry.getRetryInterceptor();
-        BaseRetryInterceptor retryInterceptorInstance = retryInterceptor.newInstance();
+        BaseRetryInterceptor retryInterceptorInstance = ApplicationContextUtils.getBean(applicationContext, retryInterceptor);
+        if (retryInterceptorInstance == null) {
+            retryInterceptorInstance = retryInterceptor.newInstance();
+        }
         BeanUtils.copyProperties(retry, retryInterceptorInstance);
         retrofitConfigBean.setRetryInterceptor(retryInterceptorInstance);
 
