@@ -105,7 +105,6 @@ public interface HttpApi {
      * @return .
      */
     @POST("error")
-    @Retry(enable = false)
     Person error(@Body Person person);
 
     /**
