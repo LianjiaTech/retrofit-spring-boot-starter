@@ -3,9 +3,6 @@ package com.github.lianjiatech.retrofit.spring.boot.util;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 
-import java.util.Collection;
-import java.util.Map;
-
 /**
  * @author 陈添明
  */
@@ -23,15 +20,5 @@ public final class ApplicationContextUtils {
         } catch (BeansException e) {
             return null;
         }
-    }
-
-    public static <U> Collection<U> getBeans(ApplicationContext context, Class<U> clz) {
-        try {
-            Map<String, U> beanMap = context.getBeansOfType(clz);
-            return beanMap.values();
-        } catch (BeansException e) {
-            // do nothing
-        }
-        return null;
     }
 }

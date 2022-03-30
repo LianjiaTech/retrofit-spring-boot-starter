@@ -1,17 +1,9 @@
 package com.github.lianjiatech.retrofit.spring.boot.config;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.lianjiatech.retrofit.spring.boot.core.*;
-import com.github.lianjiatech.retrofit.spring.boot.degrade.BaseResourceNameParser;
-import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitDegradeRuleInitializer;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseGlobalInterceptor;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.NetworkInterceptor;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.ServiceInstanceChooserInterceptor;
-import com.github.lianjiatech.retrofit.spring.boot.retry.BaseRetryInterceptor;
-import com.github.lianjiatech.retrofit.spring.boot.util.ApplicationContextUtils;
-import okhttp3.ConnectionPool;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -27,14 +19,26 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.lianjiatech.retrofit.spring.boot.core.AutoConfiguredRetrofitScannerRegistrar;
+import com.github.lianjiatech.retrofit.spring.boot.core.NoValidServiceInstanceChooser;
+import com.github.lianjiatech.retrofit.spring.boot.core.PrototypeInterceptorBdfProcessor;
+import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitFactoryBean;
+import com.github.lianjiatech.retrofit.spring.boot.core.ServiceInstanceChooser;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.BaseResourceNameParser;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitDegradeRuleInitializer;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.GlobalAndNetworkInterceptorFinder;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.ServiceInstanceChooserInterceptor;
+import com.github.lianjiatech.retrofit.spring.boot.retry.BaseRetryInterceptor;
+import com.github.lianjiatech.retrofit.spring.boot.util.ApplicationContextUtils;
+
+import okhttp3.ConnectionPool;
 import retrofit2.CallAdapter;
 import retrofit2.Converter;
 import retrofit2.converter.jackson.JacksonConverterFactory;
-
-import java.util.Collection;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author 陈添明
@@ -61,9 +65,15 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
     }
 
     @Bean
+    public GlobalAndNetworkInterceptorFinder globalAndNetworkInterceptorFinder() {
+        return new GlobalAndNetworkInterceptorFinder();
+    }
+
+    @Bean
     @ConditionalOnMissingBean
     public RetrofitConfigBean retrofitConfigBean() throws IllegalAccessException, InstantiationException {
-        RetrofitConfigBean retrofitConfigBean = new RetrofitConfigBean(retrofitProperties);
+        RetrofitConfigBean retrofitConfigBean =
+                new RetrofitConfigBean(retrofitProperties, globalAndNetworkInterceptorFinder());
         // Initialize the connection pool
         Map<String, ConnectionPool> poolRegistry = new ConcurrentHashMap<>(4);
         Map<String, PoolConfig> pool = retrofitProperties.getPool();
@@ -85,10 +95,6 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
         Class<? extends Converter.Factory>[] globalConverterFactories = retrofitProperties.getGlobalConverterFactories();
         retrofitConfigBean.setGlobalConverterFactoryClasses(globalConverterFactories);
 
-        // globalInterceptors
-        Collection<BaseGlobalInterceptor> globalInterceptors = ApplicationContextUtils.getBeans(applicationContext, BaseGlobalInterceptor.class);
-        retrofitConfigBean.setGlobalInterceptors(globalInterceptors);
-
         // retryInterceptor
         RetryProperty retry = retrofitProperties.getRetry();
         Class<? extends BaseRetryInterceptor> retryInterceptor = retry.getRetryInterceptor();
@@ -98,10 +104,6 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
         }
         BeanUtils.copyProperties(retry, retryInterceptorInstance);
         retrofitConfigBean.setRetryInterceptor(retryInterceptorInstance);
-
-        // add networkInterceptor
-        Collection<NetworkInterceptor> networkInterceptors = ApplicationContextUtils.getBeans(applicationContext, NetworkInterceptor.class);
-        retrofitConfigBean.setNetworkInterceptors(networkInterceptors);
 
         // add ServiceInstanceChooserInterceptor
         ServiceInstanceChooser serviceInstanceChooser;

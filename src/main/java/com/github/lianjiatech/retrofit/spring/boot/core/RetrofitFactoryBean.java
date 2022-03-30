@@ -1,18 +1,19 @@
 package com.github.lianjiatech.retrofit.spring.boot.core;
 
-import com.github.lianjiatech.retrofit.spring.boot.annotation.*;
-import com.github.lianjiatech.retrofit.spring.boot.config.DegradeProperty;
-import com.github.lianjiatech.retrofit.spring.boot.config.LogProperty;
-import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitConfigBean;
-import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitProperties;
-import com.github.lianjiatech.retrofit.spring.boot.degrade.*;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.*;
-import com.github.lianjiatech.retrofit.spring.boot.util.ApplicationContextUtils;
-import com.github.lianjiatech.retrofit.spring.boot.util.BeanExtendUtils;
-import com.github.lianjiatech.retrofit.spring.boot.util.RetrofitUtils;
-import okhttp3.ConnectionPool;
-import okhttp3.Interceptor;
-import okhttp3.OkHttpClient;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Proxy;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -25,14 +26,42 @@ import org.springframework.core.env.Environment;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+
+import com.github.lianjiatech.retrofit.spring.boot.annotation.Intercept;
+import com.github.lianjiatech.retrofit.spring.boot.annotation.InterceptMark;
+import com.github.lianjiatech.retrofit.spring.boot.annotation.Intercepts;
+import com.github.lianjiatech.retrofit.spring.boot.annotation.OkHttpClientBuilder;
+import com.github.lianjiatech.retrofit.spring.boot.annotation.RetrofitClient;
+import com.github.lianjiatech.retrofit.spring.boot.config.DegradeProperty;
+import com.github.lianjiatech.retrofit.spring.boot.config.LogProperty;
+import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitConfigBean;
+import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitProperties;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.BaseResourceNameParser;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.Degrade;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeStrategy;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeType;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.FallbackFactory;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitDegradeRule;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitDegradeRuleInitializer;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.SentinelDegradeInterceptor;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseLoggingInterceptor;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.BasePathMatchInterceptor;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.ErrorDecoderInterceptor;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.GlobalInterceptor;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.LogLevel;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.LogStrategy;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.NetworkInterceptor;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.ServiceInstanceChooserInterceptor;
+import com.github.lianjiatech.retrofit.spring.boot.util.ApplicationContextUtils;
+import com.github.lianjiatech.retrofit.spring.boot.util.BeanExtendUtils;
+import com.github.lianjiatech.retrofit.spring.boot.util.RetrofitUtils;
+
+import okhttp3.ConnectionPool;
+import okhttp3.Interceptor;
+import okhttp3.OkHttpClient;
 import retrofit2.CallAdapter;
 import retrofit2.Converter;
 import retrofit2.Retrofit;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.*;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author 陈添明
@@ -279,7 +308,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         // Add the interceptor defined by the annotation on the interface
         List<Interceptor> interceptors = new ArrayList<>(findInterceptorByAnnotation(retrofitClientInterfaceClass));
         // add global interceptor
-        Collection<BaseGlobalInterceptor> globalInterceptors = retrofitConfigBean.getGlobalInterceptors();
+        List<GlobalInterceptor> globalInterceptors = retrofitConfigBean.getGlobalInterceptors();
         if (!CollectionUtils.isEmpty(globalInterceptors)) {
             interceptors.addAll(globalInterceptors);
         }
@@ -310,7 +339,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
             okHttpClientBuilder.addNetworkInterceptor(loggingInterceptor);
         }
 
-        Collection<NetworkInterceptor> networkInterceptors = retrofitConfigBean.getNetworkInterceptors();
+        List<NetworkInterceptor> networkInterceptors = retrofitConfigBean.getNetworkInterceptors();
         if (!CollectionUtils.isEmpty(networkInterceptors)) {
             for (NetworkInterceptor networkInterceptor : networkInterceptors) {
                 okHttpClientBuilder.addNetworkInterceptor(networkInterceptor);

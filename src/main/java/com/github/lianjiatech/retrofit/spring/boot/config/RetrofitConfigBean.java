@@ -1,16 +1,18 @@
 package com.github.lianjiatech.retrofit.spring.boot.config;
 
+import java.util.List;
+import java.util.Map;
+
 import com.github.lianjiatech.retrofit.spring.boot.degrade.BaseResourceNameParser;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseGlobalInterceptor;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.GlobalAndNetworkInterceptorFinder;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.GlobalInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.NetworkInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.ServiceInstanceChooserInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.retry.BaseRetryInterceptor;
+
 import okhttp3.ConnectionPool;
 import retrofit2.CallAdapter;
 import retrofit2.Converter;
-
-import java.util.Collection;
-import java.util.Map;
 
 /**
  * @author 陈添明
@@ -21,9 +23,9 @@ public class RetrofitConfigBean {
 
     private Map<String, ConnectionPool> poolRegistry;
 
-    private Collection<BaseGlobalInterceptor> globalInterceptors;
+    private final List<GlobalInterceptor> globalInterceptors;
 
-    private Collection<NetworkInterceptor> networkInterceptors;
+    private final List<NetworkInterceptor> networkInterceptors;
 
     private BaseRetryInterceptor retryInterceptor;
 
@@ -40,8 +42,11 @@ public class RetrofitConfigBean {
     }
 
 
-    public RetrofitConfigBean(RetrofitProperties retrofitProperties) {
+    public RetrofitConfigBean(RetrofitProperties retrofitProperties,
+            GlobalAndNetworkInterceptorFinder globalAndNetworkInterceptorFinder) {
         this.retrofitProperties = retrofitProperties;
+        this.globalInterceptors = globalAndNetworkInterceptorFinder.getGlobalInterceptors();
+        this.networkInterceptors = globalAndNetworkInterceptorFinder.getNetworkInterceptors();
     }
 
 
@@ -53,12 +58,8 @@ public class RetrofitConfigBean {
         this.poolRegistry = poolRegistry;
     }
 
-    public Collection<BaseGlobalInterceptor> getGlobalInterceptors() {
+    public List<GlobalInterceptor> getGlobalInterceptors() {
         return globalInterceptors;
-    }
-
-    public void setGlobalInterceptors(Collection<BaseGlobalInterceptor> globalInterceptors) {
-        this.globalInterceptors = globalInterceptors;
     }
 
     public BaseRetryInterceptor getRetryInterceptor() {
@@ -69,12 +70,8 @@ public class RetrofitConfigBean {
         this.retryInterceptor = retryInterceptor;
     }
 
-    public Collection<NetworkInterceptor> getNetworkInterceptors() {
+    public List<NetworkInterceptor> getNetworkInterceptors() {
         return networkInterceptors;
-    }
-
-    public void setNetworkInterceptors(Collection<NetworkInterceptor> networkInterceptors) {
-        this.networkInterceptors = networkInterceptors;
     }
 
     public ServiceInstanceChooserInterceptor getServiceInstanceChooserInterceptor() {

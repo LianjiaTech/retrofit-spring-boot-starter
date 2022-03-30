@@ -42,8 +42,8 @@
 ```xml
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
-    <artifactId>retrofit-spring-boot-starter</artifactId>
-    <version>2.2.21</version>
+   <artifactId>retrofit-spring-boot-starter</artifactId>
+   <version>2.2.22</version>
 </dependency>
 ```
 
@@ -52,8 +52,8 @@ This project depends on Retrofit-2.9.0, okhttp-3.14.9, and okio-1.17.5 versions.
 ```xml
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
-    <artifactId>retrofit-spring-boot-starter</artifactId>
-    <version>2.2.21</version>
+   <artifactId>retrofit-spring-boot-starter</artifactId>
+   <version>2.2.22</version>
 </dependency>
  <dependency>
     <groupId>com.squareup.okhttp3</groupId>
