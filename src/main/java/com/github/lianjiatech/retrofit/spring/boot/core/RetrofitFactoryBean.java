@@ -16,8 +16,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.aop.framework.Advised;
-import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.ApplicationContext;
@@ -72,8 +70,8 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
 
     private final static Logger logger = LoggerFactory.getLogger(RetrofitFactoryBean.class);
 
-
-    private static final Map<Class<? extends CallAdapter.Factory>, CallAdapter.Factory> CALL_ADAPTER_FACTORIES_CACHE = new HashMap<>(4);
+    private static final Map<Class<? extends CallAdapter.Factory>, CallAdapter.Factory> CALL_ADAPTER_FACTORIES_CACHE =
+            new HashMap<>(4);
 
     private Class<T> retrofitInterface;
 
@@ -87,7 +85,8 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
 
     private RetrofitClient retrofitClient;
 
-    private static final Map<Class<? extends Converter.Factory>, Converter.Factory> CONVERTER_FACTORIES_CACHE = new HashMap<>(4);
+    private static final Map<Class<? extends Converter.Factory>, Converter.Factory> CONVERTER_FACTORIES_CACHE =
+            new HashMap<>(4);
 
     public RetrofitFactoryBean(Class<T> retrofitInterface) {
         this.retrofitInterface = retrofitInterface;
@@ -111,12 +110,13 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         Class<?> fallbackFactoryClass = retrofitClient.fallbackFactory();
         FallbackFactory<?> fallbackFactory = null;
         if (!void.class.isAssignableFrom(fallbackFactoryClass)) {
-            fallbackFactory = (FallbackFactory) ApplicationContextUtils.getBean(applicationContext, fallbackFactoryClass);
+            fallbackFactory =
+                    (FallbackFactory)ApplicationContextUtils.getBean(applicationContext, fallbackFactoryClass);
         }
         loadDegradeRules();
         // proxy
-        return (T) Proxy.newProxyInstance(retrofitInterface.getClassLoader(),
-                new Class<?>[]{retrofitInterface},
+        return (T)Proxy.newProxyInstance(retrofitInterface.getClassLoader(),
+                new Class<?>[] {retrofitInterface},
                 new RetrofitInvocationHandler(source, fallback, fallbackFactory, retrofitProperties)
 
         );
@@ -174,46 +174,52 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         for (Method method : methods) {
             Class<?> returnType = method.getReturnType();
             if (method.isAnnotationPresent(OkHttpClientBuilder.class)) {
-                Assert.isTrue(returnType.equals(OkHttpClient.Builder.class), "For methods annotated by @OkHttpClientBuilder, the return value must be OkHttpClient.Builder！");
-                Assert.isTrue(Modifier.isStatic(method.getModifiers()), "only static method can annotated by @OkHttpClientBuilder!");
+                Assert.isTrue(returnType.equals(OkHttpClient.Builder.class),
+                        "For methods annotated by @OkHttpClientBuilder, the return value must be OkHttpClient.Builder！");
+                Assert.isTrue(Modifier.isStatic(method.getModifiers()),
+                        "only static method can annotated by @OkHttpClientBuilder!");
                 continue;
             }
 
             Assert.isTrue(!void.class.isAssignableFrom(returnType),
-                    "The void keyword is not supported as the return type, please use java.lang.Void！ method=" + method);
+                    "The void keyword is not supported as the return type, please use java.lang.Void！ method="
+                            + method);
             if (retrofitProperties.isDisableVoidReturnType()) {
                 Assert.isTrue(!Void.class.isAssignableFrom(returnType),
-                        "Configured to disable Void as the return value, please specify another return type!method=" + method);
+                        "Configured to disable Void as the return value, please specify another return type!method="
+                                + method);
             }
         }
 
         Class<?> fallbackClass = retrofitClient.fallback();
         if (!void.class.isAssignableFrom(fallbackClass)) {
-            Assert.isTrue(retrofitInterface.isAssignableFrom(fallbackClass), "The fallback type must implement the current interface！the fallback type is " + fallbackClass);
+            Assert.isTrue(retrofitInterface.isAssignableFrom(fallbackClass),
+                    "The fallback type must implement the current interface！the fallback type is " + fallbackClass);
             Object fallback = ApplicationContextUtils.getBean(applicationContext, fallbackClass);
             Assert.notNull(fallback, "fallback  must be a valid spring bean! the fallback class is " + fallbackClass);
         }
 
         Class<?> fallbackFactoryClass = retrofitClient.fallbackFactory();
         if (!void.class.isAssignableFrom(fallbackFactoryClass)) {
-            Assert.isTrue(FallbackFactory.class.isAssignableFrom(fallbackFactoryClass), "The fallback factory type must implement FallbackFactory！the fallback factory is " + fallbackFactoryClass);
+            Assert.isTrue(FallbackFactory.class.isAssignableFrom(fallbackFactoryClass),
+                    "The fallback factory type must implement FallbackFactory！the fallback factory is "
+                            + fallbackFactoryClass);
             Object fallbackFactory = ApplicationContextUtils.getBean(applicationContext, fallbackFactoryClass);
-            Assert.notNull(fallbackFactory, "fallback factory  must be a valid spring bean! the fallback factory class is " + fallbackFactoryClass);
+            Assert.notNull(fallbackFactory,
+                    "fallback factory  must be a valid spring bean! the fallback factory class is "
+                            + fallbackFactoryClass);
         }
     }
-
 
     @Override
     public Class<T> getObjectType() {
         return this.retrofitInterface;
     }
 
-
     @Override
     public boolean isSingleton() {
         return true;
     }
-
 
     /**
      * Get okhttp3 connection pool
@@ -227,10 +233,10 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         Map<String, ConnectionPool> poolRegistry = retrofitConfigBean.getPoolRegistry();
         Assert.notNull(poolRegistry, "poolRegistry does not exist! Please set retrofitConfigBean.poolRegistry!");
         ConnectionPool connectionPool = poolRegistry.get(poolName);
-        Assert.notNull(connectionPool, "The connection pool corresponding to the current poolName does not exist! poolName = " + poolName);
+        Assert.notNull(connectionPool,
+                "The connection pool corresponding to the current poolName does not exist! poolName = " + poolName);
         return connectionPool;
     }
-
 
     /**
      * Get OkHttpClient instance, one interface corresponds to one OkHttpClient
@@ -244,15 +250,18 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         Method method = findOkHttpClientBuilderMethod(retrofitClientInterfaceClass);
         OkHttpClient.Builder okHttpClientBuilder;
         if (method != null) {
-            okHttpClientBuilder = (OkHttpClient.Builder) method.invoke(null);
+            okHttpClientBuilder = (OkHttpClient.Builder)method.invoke(null);
         } else {
             okhttp3.ConnectionPool connectionPool = getConnectionPool(retrofitClientInterfaceClass);
 
-            final int connectTimeoutMs = retrofitClient.connectTimeoutMs() == -1 ? retrofitProperties.getGlobalConnectTimeoutMs() : retrofitClient.connectTimeoutMs();
-            final int readTimeoutMs = retrofitClient.readTimeoutMs() == -1 ? retrofitProperties.getGlobalReadTimeoutMs() : retrofitClient.readTimeoutMs();
-            final int writeTimeoutMs = retrofitClient.writeTimeoutMs() == -1 ? retrofitProperties.getGlobalWriteTimeoutMs() : retrofitClient.writeTimeoutMs();
-            final int callTimeoutMs = retrofitClient.callTimeoutMs() == -1 ? retrofitProperties.getGlobalCallTimeoutMs() : retrofitClient.callTimeoutMs();
-
+            final int connectTimeoutMs = retrofitClient.connectTimeoutMs() == -1
+                    ? retrofitProperties.getGlobalConnectTimeoutMs() : retrofitClient.connectTimeoutMs();
+            final int readTimeoutMs = retrofitClient.readTimeoutMs() == -1 ? retrofitProperties.getGlobalReadTimeoutMs()
+                    : retrofitClient.readTimeoutMs();
+            final int writeTimeoutMs = retrofitClient.writeTimeoutMs() == -1
+                    ? retrofitProperties.getGlobalWriteTimeoutMs() : retrofitClient.writeTimeoutMs();
+            final int callTimeoutMs = retrofitClient.callTimeoutMs() == -1 ? retrofitProperties.getGlobalCallTimeoutMs()
+                    : retrofitClient.callTimeoutMs();
 
             // Construct an OkHttpClient object
             okHttpClientBuilder = new OkHttpClient.Builder()
@@ -292,7 +301,8 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
 
         // add ServiceInstanceChooserInterceptor
         if (StringUtils.hasText(retrofitClient.serviceId())) {
-            ServiceInstanceChooserInterceptor serviceInstanceChooserInterceptor = retrofitConfigBean.getServiceInstanceChooserInterceptor();
+            ServiceInstanceChooserInterceptor serviceInstanceChooserInterceptor =
+                    retrofitConfigBean.getServiceInstanceChooserInterceptor();
             if (serviceInstanceChooserInterceptor != null) {
                 okHttpClientBuilder.addInterceptor(serviceInstanceChooserInterceptor);
             }
@@ -324,7 +334,8 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         LogProperty logProperty = retrofitProperties.getLog();
         if (logProperty.isEnable() && retrofitClient.enableLog()) {
             Class<? extends BaseLoggingInterceptor> loggingInterceptorClass = logProperty.getLoggingInterceptor();
-            Constructor<? extends BaseLoggingInterceptor> constructor = loggingInterceptorClass.getConstructor(LogLevel.class, LogStrategy.class);
+            Constructor<? extends BaseLoggingInterceptor> constructor =
+                    loggingInterceptorClass.getConstructor(LogLevel.class, LogStrategy.class);
             LogLevel logLevel = retrofitClient.logLevel();
             LogStrategy logStrategy = retrofitClient.logStrategy();
             if (logLevel.equals(LogLevel.NULL)) {
@@ -335,7 +346,8 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
             }
 
             Assert.isTrue(!logLevel.equals(LogLevel.NULL), "LogLevel cannot all be configured as LogLevel.NULL!");
-            Assert.isTrue(!logStrategy.equals(LogStrategy.NULL), "logStrategy cannot all be configured as LogStrategy.NULL!");
+            Assert.isTrue(!logStrategy.equals(LogStrategy.NULL),
+                    "logStrategy cannot all be configured as LogStrategy.NULL!");
 
             BaseLoggingInterceptor loggingInterceptor = constructor.newInstance(logLevel, logStrategy);
             okHttpClientBuilder.addNetworkInterceptor(loggingInterceptor);
@@ -351,7 +363,6 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         return okHttpClientBuilder.build();
     }
 
-
     private Method findOkHttpClientBuilderMethod(Class<?> retrofitClientInterfaceClass) {
         Method[] methods = retrofitClientInterfaceClass.getMethods();
         for (Method method : methods) {
@@ -364,7 +375,6 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         return null;
     }
 
-
     /**
      * 获取retrofitClient接口类上定义的拦截器集合
      * Get the interceptor set defined on the retrofitClient interface class
@@ -373,7 +383,8 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
      * @return the interceptor list
      */
     @SuppressWarnings("unchecked")
-    private List<Interceptor> findInterceptorByAnnotation(Class<?> retrofitClientInterfaceClass) throws InstantiationException, IllegalAccessException {
+    private List<Interceptor> findInterceptorByAnnotation(Class<?> retrofitClientInterfaceClass)
+            throws InstantiationException, IllegalAccessException {
         Annotation[] classAnnotations = retrofitClientInterfaceClass.getAnnotations();
         List<Interceptor> interceptors = new ArrayList<>();
         // 找出被@InterceptMark标记的注解。Find the annotation marked by @InterceptMark
@@ -384,7 +395,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
                 interceptAnnotations.add(classAnnotation);
             }
             if (classAnnotation instanceof Intercepts) {
-                Intercept[] value = ((Intercepts) classAnnotation).value();
+                Intercept[] value = ((Intercepts)classAnnotation).value();
                 for (Intercept intercept : value) {
                     interceptAnnotations.add(intercept);
                 }
@@ -394,29 +405,32 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
             // 获取注解属性数据。Get annotation attribute data
             Map<String, Object> annotationAttributes = AnnotationUtils.getAnnotationAttributes(interceptAnnotation);
             Object handler = annotationAttributes.get("handler");
-            Assert.notNull(handler, "@InterceptMark annotations must be configured: Class<? extends BasePathMatchInterceptor> handler()");
-            Assert.notNull(annotationAttributes.get("include"), "@InterceptMark annotations must be configured: String[] include()");
-            Assert.notNull(annotationAttributes.get("exclude"), "@InterceptMark annotations must be configured: String[] exclude()");
-            Class<? extends BasePathMatchInterceptor> interceptorClass = (Class<? extends BasePathMatchInterceptor>) handler;
-            BasePathMatchInterceptor interceptor = getInterceptorInstance(interceptorClass);
+            Assert.notNull(handler,
+                    "@InterceptMark annotations must be configured: Class<? extends BasePathMatchInterceptor> handler()");
+            Assert.notNull(annotationAttributes.get("include"),
+                    "@InterceptMark annotations must be configured: String[] include()");
+            Assert.notNull(annotationAttributes.get("exclude"),
+                    "@InterceptMark annotations must be configured: String[] exclude()");
+            Class<? extends BasePathMatchInterceptor> interceptorClass =
+                    (Class<? extends BasePathMatchInterceptor>)handler;
+            BasePathMatchInterceptor interceptor =
+                    ApplicationContextUtils.getTargetInstanceIfNecessary(getInterceptorInstance(interceptorClass));
             Map<String, Object> annotationResolveAttributes = new HashMap<>(8);
             // 占位符属性替换。Placeholder attribute replacement
             annotationAttributes.forEach((key, value) -> {
                 if (value instanceof String) {
-                    String newValue = environment.resolvePlaceholders((String) value);
+                    String newValue = environment.resolvePlaceholders((String)value);
                     annotationResolveAttributes.put(key, newValue);
                 } else {
                     annotationResolveAttributes.put(key, value);
                 }
             });
-            BasePathMatchInterceptor targetInterceptor = getTargetBean(interceptor);
             // 动态设置属性值。Set property value dynamically
-            BeanExtendUtils.populate(targetInterceptor, annotationResolveAttributes);
-            interceptors.add(targetInterceptor);
+            BeanExtendUtils.populate(interceptor, annotationResolveAttributes);
+            interceptors.add(interceptor);
         }
         return interceptors;
     }
-
 
     /**
      * 获取路径拦截器实例，优先从spring容器中取。如果spring容器中不存在，则无参构造器实例化一个。
@@ -425,7 +439,8 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
      * @param interceptorClass A subclass of @{@link BasePathMatchInterceptor}
      * @return @{@link BasePathMatchInterceptor} instance
      */
-    private BasePathMatchInterceptor getInterceptorInstance(Class<? extends BasePathMatchInterceptor> interceptorClass) throws IllegalAccessException, InstantiationException {
+    private BasePathMatchInterceptor getInterceptorInstance(Class<? extends BasePathMatchInterceptor> interceptorClass)
+            throws IllegalAccessException, InstantiationException {
         // spring bean
         try {
             return applicationContext.getBean(interceptorClass);
@@ -435,19 +450,6 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         }
     }
 
-    private static <T> T getTargetBean(T bean) {
-        Object object = bean;
-        if (AopUtils.isAopProxy(object)) {
-            try {
-                object = ((Advised) object).getTargetSource().getTarget();
-            } catch (Exception e) {
-                throw new RuntimeException("get target bean failed", e);
-            }
-        }
-        return (T) object;
-    }
-
-
     /**
      * 获取Retrofit实例，一个retrofitClient接口对应一个Retrofit实例
      * Obtain a Retrofit instance, a retrofitClient interface corresponds to a Retrofit instance
@@ -455,7 +457,8 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
      * @param retrofitClientInterfaceClass retrofitClientInterfaceClass
      * @return Retrofit instance
      */
-    private synchronized Retrofit getRetrofit(Class<?> retrofitClientInterfaceClass) throws InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+    private synchronized Retrofit getRetrofit(Class<?> retrofitClientInterfaceClass)
+            throws InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         RetrofitClient retrofitClient = retrofitClientInterfaceClass.getAnnotation(RetrofitClient.class);
         String baseUrl = retrofitClient.baseUrl();
 
@@ -469,24 +472,30 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
 
         // 添加CallAdapter.Factory
         Class<? extends CallAdapter.Factory>[] callAdapterFactoryClasses = retrofitClient.callAdapterFactories();
-        Class<? extends CallAdapter.Factory>[] globalCallAdapterFactoryClasses = retrofitConfigBean.getGlobalCallAdapterFactoryClasses();
-        List<CallAdapter.Factory> callAdapterFactories = getCallAdapterFactories(callAdapterFactoryClasses, globalCallAdapterFactoryClasses);
+        Class<? extends CallAdapter.Factory>[] globalCallAdapterFactoryClasses =
+                retrofitConfigBean.getGlobalCallAdapterFactoryClasses();
+        List<CallAdapter.Factory> callAdapterFactories =
+                getCallAdapterFactories(callAdapterFactoryClasses, globalCallAdapterFactoryClasses);
         if (!CollectionUtils.isEmpty(callAdapterFactories)) {
             callAdapterFactories.forEach(retrofitBuilder::addCallAdapterFactory);
         }
         // 添加Converter.Factory
         Class<? extends Converter.Factory>[] converterFactoryClasses = retrofitClient.converterFactories();
-        Class<? extends Converter.Factory>[] globalConverterFactoryClasses = retrofitConfigBean.getGlobalConverterFactoryClasses();
+        Class<? extends Converter.Factory>[] globalConverterFactoryClasses =
+                retrofitConfigBean.getGlobalConverterFactoryClasses();
 
-        List<Converter.Factory> converterFactories = getConverterFactories(converterFactoryClasses, globalConverterFactoryClasses);
+        List<Converter.Factory> converterFactories =
+                getConverterFactories(converterFactoryClasses, globalConverterFactoryClasses);
         if (!CollectionUtils.isEmpty(converterFactories)) {
             converterFactories.forEach(retrofitBuilder::addConverterFactory);
         }
         return retrofitBuilder.build();
     }
 
-
-    private List<CallAdapter.Factory> getCallAdapterFactories(Class<? extends CallAdapter.Factory>[] callAdapterFactoryClasses, Class<? extends CallAdapter.Factory>[] globalCallAdapterFactoryClasses) throws IllegalAccessException, InstantiationException {
+    private List<CallAdapter.Factory> getCallAdapterFactories(
+            Class<? extends CallAdapter.Factory>[] callAdapterFactoryClasses,
+            Class<? extends CallAdapter.Factory>[] globalCallAdapterFactoryClasses)
+            throws IllegalAccessException, InstantiationException {
         List<Class<? extends CallAdapter.Factory>> combineCallAdapterFactoryClasses = new ArrayList<>();
 
         if (callAdapterFactoryClasses != null && callAdapterFactoryClasses.length != 0) {
@@ -517,7 +526,9 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         return callAdapterFactories;
     }
 
-    private List<Converter.Factory> getConverterFactories(Class<? extends Converter.Factory>[] converterFactoryClasses, Class<? extends Converter.Factory>[] globalConverterFactoryClasses) throws IllegalAccessException, InstantiationException {
+    private List<Converter.Factory> getConverterFactories(Class<? extends Converter.Factory>[] converterFactoryClasses,
+            Class<? extends Converter.Factory>[] globalConverterFactoryClasses)
+            throws IllegalAccessException, InstantiationException {
         List<Class<? extends Converter.Factory>> combineConverterFactoryClasses = new ArrayList<>();
 
         if (converterFactoryClasses != null && converterFactoryClasses.length != 0) {
@@ -547,7 +558,6 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         }
         return converterFactories;
     }
-
 
     @Override
     public void setEnvironment(Environment environment) {

@@ -1,5 +1,7 @@
 package com.github.lianjiatech.retrofit.spring.boot.util;
 
+import org.springframework.aop.framework.Advised;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 
@@ -13,12 +15,24 @@ public final class ApplicationContextUtils {
     }
 
 
-    public static <U> U getBean(ApplicationContext context, Class<U> clz) {
+    public static <T> T getBean(ApplicationContext context, Class<T> clz) {
         try {
-            U bean = context.getBean(clz);
+            T bean = context.getBean(clz);
             return bean;
         } catch (BeansException e) {
             return null;
         }
+    }
+
+    public static <T> T getTargetInstanceIfNecessary(T bean) {
+        Object object = bean;
+        while (AopUtils.isAopProxy(object)) {
+            try {
+                object = ((Advised)object).getTargetSource().getTarget();
+            } catch (Exception e) {
+                throw new RuntimeException("get target bean failed", e);
+            }
+        }
+        return (T)object;
     }
 }
