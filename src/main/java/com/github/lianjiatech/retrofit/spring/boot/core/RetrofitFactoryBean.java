@@ -15,6 +15,8 @@ import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.aop.framework.Advised;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.ApplicationContext;
@@ -395,11 +397,24 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
     private BasePathMatchInterceptor getInterceptorInstance(Class<? extends BasePathMatchInterceptor> interceptorClass) throws IllegalAccessException, InstantiationException {
         // spring bean
         try {
-            return applicationContext.getBean(interceptorClass);
+            return getTargetBean(applicationContext.getBean(interceptorClass));
         } catch (BeansException e) {
             // spring容器获取失败，反射创建
             return interceptorClass.newInstance();
         }
+    }
+
+
+    private <T> T getTargetBean(Object bean) {
+        Object object = bean;
+        while (AopUtils.isAopProxy(object)) {
+            try {
+                object = ((Advised) object).getTargetSource().getTarget();
+            } catch (Exception e) {
+                throw new RuntimeException("get target bean failed", e);
+            }
+        }
+        return (T) object;
     }
 
 
