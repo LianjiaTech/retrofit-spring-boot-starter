@@ -1,12 +1,14 @@
 package com.github.lianjiatech.retrofit.spring.boot.test.interceptor;
 
+import java.io.IOException;
+
+import org.springframework.stereotype.Component;
+
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.BasePathMatchInterceptor;
+
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.Response;
-import org.springframework.stereotype.Component;
-
-import java.io.IOException;
 
 /**
  * @author 陈添明

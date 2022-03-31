@@ -1,18 +1,27 @@
 package com.github.lianjiatech.retrofit.spring.boot.test.interceptor;
 
+import java.io.IOException;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.stereotype.Component;
+
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.BasePathMatchInterceptor;
+
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.Response;
-import org.springframework.stereotype.Component;
-
-import java.io.IOException;
 
 /**
  * @author 陈添明
  */
 @Component
+@Scope(proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class TimeStampInterceptor extends BasePathMatchInterceptor {
+
+    @Value("${test.baseUrl}")
+    private String baseUrl;
 
     @Override
     public Response doIntercept(Chain chain) throws IOException {
