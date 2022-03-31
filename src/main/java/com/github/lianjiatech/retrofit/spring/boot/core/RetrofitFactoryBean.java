@@ -16,6 +16,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.aop.framework.Advised;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.ApplicationContext;
@@ -407,12 +409,14 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
                     annotationResolveAttributes.put(key, value);
                 }
             });
+            BasePathMatchInterceptor targetInterceptor = getTargetBean(interceptor);
             // 动态设置属性值。Set property value dynamically
-            BeanExtendUtils.populate(interceptor, annotationResolveAttributes);
-            interceptors.add(interceptor);
+            BeanExtendUtils.populate(targetInterceptor, annotationResolveAttributes);
+            interceptors.add(targetInterceptor);
         }
         return interceptors;
     }
+
 
     /**
      * 获取路径拦截器实例，优先从spring容器中取。如果spring容器中不存在，则无参构造器实例化一个。
@@ -429,6 +433,18 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
             // spring容器获取失败，反射创建
             return interceptorClass.newInstance();
         }
+    }
+
+    private static <T> T getTargetBean(T bean) {
+        Object object = bean;
+        if (AopUtils.isAopProxy(object)) {
+            try {
+                object = ((Advised) object).getTargetSource().getTarget();
+            } catch (Exception e) {
+                throw new RuntimeException("get target bean failed", e);
+            }
+        }
+        return (T) object;
     }
 
 
