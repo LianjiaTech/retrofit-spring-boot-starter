@@ -380,12 +380,14 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
                     annotationResolveAttributes.put(key, value);
                 }
             });
+            BasePathMatchInterceptor targetInterceptor = getTargetBean(interceptor);
             // 动态设置属性值。Set property value dynamically
-            BeanExtendUtils.populate(interceptor, annotationResolveAttributes);
-            interceptors.add(interceptor);
+            BeanExtendUtils.populate(targetInterceptor, annotationResolveAttributes);
+            interceptors.add(targetInterceptor);
         }
         return interceptors;
     }
+
 
     /**
      * 获取路径拦截器实例，优先从spring容器中取。如果spring容器中不存在，则无参构造器实例化一个。
@@ -397,17 +399,16 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
     private BasePathMatchInterceptor getInterceptorInstance(Class<? extends BasePathMatchInterceptor> interceptorClass) throws IllegalAccessException, InstantiationException {
         // spring bean
         try {
-            return getTargetBean(applicationContext.getBean(interceptorClass));
+            return applicationContext.getBean(interceptorClass);
         } catch (BeansException e) {
             // spring容器获取失败，反射创建
             return interceptorClass.newInstance();
         }
     }
 
-
-    private <T> T getTargetBean(Object bean) {
+    private static <T> T getTargetBean(T bean) {
         Object object = bean;
-        while (AopUtils.isAopProxy(object)) {
+        if (AopUtils.isAopProxy(object)) {
             try {
                 object = ((Advised) object).getTargetSource().getTarget();
             } catch (Exception e) {
