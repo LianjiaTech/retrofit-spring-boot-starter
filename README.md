@@ -562,19 +562,26 @@ public interface ErrorDecoder {
 
 ### 全局应用拦截器
 
-如果我们需要对整个系统的的http请求执行统一的拦截处理，可以自定义实现全局拦截器`BaseGlobalInterceptor`, 并配置成`spring`容器中的`bean`！例如我们需要在整个系统发起的http请求，都带上来源信息。
+如果我们需要对整个系统的的http请求执行统一的拦截处理，可以自定义实现全局拦截器`GlobalInterceptor`, 并配置成`spring`容器中的`bean`！例如我们需要在整个系统发起的http请求，都带上来源信息。
 
 ```java
 @Component
-public class SourceInterceptor extends BaseGlobalInterceptor {
-    @Override
-    public Response doIntercept(Chain chain) throws IOException {
-        Request request = chain.request();
-        Request newReq = request.newBuilder()
-                .addHeader("source", "test")
-                .build();
-        return chain.proceed(newReq);
-    }
+@Order(2)
+public class SourceGlobalInterceptor implements GlobalInterceptor {
+
+   @Autowired
+   private TestService testService;
+
+   @Override
+   public Response intercept(Chain chain) throws IOException {
+      Request request = chain.request();
+      Request newReq = request.newBuilder()
+              .addHeader("source", "test")
+              .build();
+      System.out.println("===========执行全局重试===========");
+      testService.test();
+      return chain.proceed(newReq);
+   }
 }
 ```
 
