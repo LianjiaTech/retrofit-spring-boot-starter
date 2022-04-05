@@ -12,11 +12,17 @@ import java.lang.reflect.Method;
 /**
  * @author 陈添明
  */
-public abstract class BaseDegradeInterceptor implements Interceptor {
+public class DegradeInterceptor implements Interceptor {
 
     private Environment environment;
 
     private BaseResourceNameParser resourceNameParser;
+
+    protected DegradeRuleRegister degradeRuleRegister;
+
+    public void setDegradeRuleRegister(DegradeRuleRegister degradeRuleRegister) {
+        this.degradeRuleRegister = degradeRuleRegister;
+    }
 
     public void setEnvironment(Environment environment) {
         this.environment = environment;
@@ -47,5 +53,8 @@ public abstract class BaseDegradeInterceptor implements Interceptor {
      * @throws IOException IOException
      *
      */
-    protected abstract Response degradeIntercept(String resourceName, Chain chain) throws RetrofitBlockException, IOException;
+    protected Response degradeIntercept(String resourceName, Chain chain) throws RetrofitBlockException, IOException {
+        Request request = chain.request();
+        return this.degradeRuleRegister.exec(resourceName, () -> chain.proceed(request));
+    }
 }
