@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeRuleRegister;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.SentinelDegradeRuleRegister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -126,6 +128,13 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
         retrofitConfigBean.setDegradeRuleRegister(degradeRuleRegisterObjectProvider.getIfAvailable());
 
         return retrofitConfigBean;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnClass(com.alibaba.csp.sentinel.SphU.class)
+    public DegradeRuleRegister sentinelDegradeRuleRegister(){
+        return new SentinelDegradeRuleRegister(retrofitProperties.getDegrade());
     }
 
 

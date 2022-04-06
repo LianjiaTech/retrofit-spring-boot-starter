@@ -46,6 +46,7 @@
         <okio.version>1.17.5</okio.version>
         <sentinel.version>1.6.3</sentinel.version>
         <jackson.version>2.12.6.1</jackson.version>
+        <resilience4j-spring.version>1.7.1</resilience4j-spring.version>
     </properties>
 
     <dependencies>
@@ -163,7 +164,7 @@
         <dependency>
             <groupId>io.github.resilience4j</groupId>
             <artifactId>resilience4j-spring</artifactId>
-            <version>1.7.1</version>
+            <version>${resilience4j-spring.version}</version>
             <scope>provided</scope>
         </dependency>
 
