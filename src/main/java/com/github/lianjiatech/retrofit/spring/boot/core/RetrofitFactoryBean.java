@@ -300,6 +300,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         }
 
         // add DegradeInterceptor
+        // TODO 这里稍微有点问题，开启熔断则所有实例都会加熔断拦截器，但是拦截器升不生效则取决于是否配置了@Degrade注解，可不可以把这里做成有一个全局默认配置，有@Degrade则走单独配置？
         DegradeProperty degradeProperty = retrofitProperties.getDegrade();
         if (degradeProperty.isEnable()) {
             DegradeType degradeType = degradeProperty.getDegradeType();

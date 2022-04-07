@@ -24,7 +24,7 @@ public interface HttpApi4 {
      * @param id .
      * @return .
      */
-    @GET("person")
+    @GET("/degrade/person")
     Result<Person> getPerson(@Query("id") Long id);
 
     @Service
