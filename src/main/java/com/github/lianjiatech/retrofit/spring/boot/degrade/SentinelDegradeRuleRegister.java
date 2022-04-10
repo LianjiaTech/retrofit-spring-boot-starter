@@ -2,6 +2,8 @@ package com.github.lianjiatech.retrofit.spring.boot.degrade;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.alibaba.csp.sentinel.Entry;
@@ -9,31 +11,16 @@ import com.alibaba.csp.sentinel.EntryType;
 import com.alibaba.csp.sentinel.ResourceTypeConstants;
 import com.alibaba.csp.sentinel.SphU;
 import com.alibaba.csp.sentinel.slots.block.BlockException;
+import com.alibaba.csp.sentinel.slots.block.RuleConstant;
 import com.alibaba.csp.sentinel.slots.block.degrade.DegradeRule;
 import com.alibaba.csp.sentinel.slots.block.degrade.DegradeRuleManager;
-import com.github.lianjiatech.retrofit.spring.boot.config.DegradeProperty;
-import com.github.lianjiatech.retrofit.spring.boot.exception.RetrofitException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import okhttp3.Response;
 import org.springframework.util.CollectionUtils;
 
 /**
  * @author yukdawn@gmail.com 2022/4/5 23:15
  */
 public class SentinelDegradeRuleRegister implements DegradeRuleRegister{
-
-    private final static Logger logger = LoggerFactory.getLogger(SentinelDegradeRuleRegister.class);
-
-    private final DegradeProperty degradeProperty;
-
-    public SentinelDegradeRuleRegister(DegradeProperty degradeProperty) {
-        this.degradeProperty = degradeProperty;
-    }
-
-    @Override
-    public void register(RetrofitDegradeRule retrofitDegradeRule) {
-        throw new RetrofitException("sentinel not supported simple register");
-    }
 
     @Override
     public void batchRegister(List<RetrofitDegradeRule> retrofitDegradeRuleList) {
@@ -44,7 +31,7 @@ public class SentinelDegradeRuleRegister implements DegradeRuleRegister{
     }
 
     @Override
-    public <T> T exec(String resourceName, DegradeProxyMethod<T> func) throws IOException {
+    public Response exec(String resourceName, DegradeProxyMethod<Response> func) throws IOException {
         Entry entry = null;
         try {
             entry = SphU.entry(resourceName, ResourceTypeConstants.COMMON_WEB, EntryType.OUT);
@@ -59,30 +46,24 @@ public class SentinelDegradeRuleRegister implements DegradeRuleRegister{
     }
 
     private DegradeRule convert(RetrofitDegradeRule retrofitDegradeRule){
-        DegradeStrategy degradeStrategy = retrofitDegradeRule.getDegradeStrategy();
-        int grade;
-        switch (degradeStrategy) {
-            case AVERAGE_RT: {
-                grade = 0;
-                break;
-            }
-            case EXCEPTION_RATIO: {
-                grade = 1;
-                break;
-            }
-            default: {
-                throw new IllegalArgumentException("Not currently supported! degradeStrategy=" + degradeStrategy);
-            }
-        }
-        String resourceName = retrofitDegradeRule.getResourceName();
         // add degrade rule
-        DegradeRule rule = new DegradeRule()
-                .setGrade(grade)
-                // Max allowed response time
-                .setCount(retrofitDegradeRule.getCount())
-                // Retry timeout (in second)
-                .setTimeWindow(retrofitDegradeRule.getTimeWindow());
-        rule.setResource(resourceName);
+        DegradeRule rule = defaultRuleNewInstance();
+        if (Objects.nonNull(retrofitDegradeRule.getTimeWindow())){
+            rule.setTimeWindow(retrofitDegradeRule.getTimeWindow());
+        }
+        rule.setCount(rule.getTimeWindow() *
+                Optional.ofNullable(retrofitDegradeRule.getCount()).orElse(0.6F));
+        rule.setResource(retrofitDegradeRule.getResourceName());
         return rule;
+    }
+
+    public DegradeRule defaultRuleNewInstance(){
+        return new DegradeRule()
+                // 使用异常数量策略，做个中转实现异常比例，异常比例策略在sentinel的实现为每秒检测，不是根据时间窗口来
+                .setGrade(RuleConstant.DEGRADE_GRADE_EXCEPTION_COUNT)
+                // 异常比例
+                .setCount(60*0.6)
+                // 时间窗口
+                .setTimeWindow(60);
     }
 }

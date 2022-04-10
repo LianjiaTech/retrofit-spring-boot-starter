@@ -15,7 +15,7 @@ import retrofit2.http.Query;
  * @author 陈添明
  */
 @RetrofitClient(baseUrl = "${test.baseUrl}", fallbackFactory = HttpApi4.HttpDegradeFallbackFactory.class)
-@Degrade(count = 0.5)
+@Degrade(count = 0.5F)
 public interface HttpApi4 {
 
     /**
@@ -24,7 +24,7 @@ public interface HttpApi4 {
      * @param id .
      * @return .
      */
-    @GET("/degrade/person")
+    @GET("degrade/person")
     Result<Person> getPerson(@Query("id") Long id);
 
     @Service

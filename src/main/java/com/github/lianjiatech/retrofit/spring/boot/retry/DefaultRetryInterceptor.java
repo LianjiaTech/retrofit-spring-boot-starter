@@ -42,6 +42,7 @@ public class DefaultRetryInterceptor extends BaseRetryInterceptor {
                 if (shouldThrowEx(retryRuleSet, e)) {
                     throw new RuntimeException(e);
                 } else {
+                    // TODO 这里应该还把最后一次的原始错误也要抛出来
                     if (!retryStrategy.shouldRetry()) {
                         // 最后一次还没成功，抛出异常
                         throw new RuntimeException("Retry Failed: Total " + maxRetries

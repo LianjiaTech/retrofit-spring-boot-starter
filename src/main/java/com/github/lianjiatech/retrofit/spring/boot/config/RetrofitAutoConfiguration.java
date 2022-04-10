@@ -4,8 +4,12 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
+import com.alibaba.csp.sentinel.SphU;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeRuleRegister;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.Resilience4jDegradeRuleRegister;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.SentinelDegradeRuleRegister;
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -16,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
@@ -132,9 +137,18 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
 
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnClass(com.alibaba.csp.sentinel.SphU.class)
+    @ConditionalOnClass(SphU.class)
+    @ConditionalOnProperty(name = "retrofit.degrade.degrade-type", havingValue = "sentinel")
     public DegradeRuleRegister sentinelDegradeRuleRegister(){
-        return new SentinelDegradeRuleRegister(retrofitProperties.getDegrade());
+        return new SentinelDegradeRuleRegister();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnClass(CircuitBreaker.class)
+    @ConditionalOnProperty(name = "retrofit.degrade.degrade-type", havingValue = "resilience4j")
+    public DegradeRuleRegister resilience4JDegradeRuleRegister(CircuitBreakerRegistry circuitBreakerRegistry){
+        return new Resilience4jDegradeRuleRegister(circuitBreakerRegistry);
     }
 
 
