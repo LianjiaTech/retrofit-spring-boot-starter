@@ -54,7 +54,7 @@ retrofit:
     # 是否启用熔断降级
     enable: true
     # 熔断降级实现方式
-    degrade-type: sentinel
+    degrade-type: resilience4j
     # 熔断资源名称解析器
     resource-name-parser: com.github.lianjiatech.retrofit.spring.boot.degrade.DefaultResourceNameParser
   # 全局连接超时时间

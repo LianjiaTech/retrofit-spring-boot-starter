@@ -122,30 +122,16 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
             return;
         }
         Assert.notNull(degradeRuleRegister, "[DegradeRuleRegister] not found bean instance");
-        DegradeType degradeType = degradeProperty.getDegradeType();
-        switch (degradeType) {
-            case SENTINEL: {
-                Method[] methods = retrofitInterface.getMethods();
-                List<RetrofitDegradeRule> retrofitDegradeRuleList =
-                        Arrays.stream(methods).map(this::convertSentinelRule).filter(Objects::nonNull).collect(Collectors.toList());
-                degradeRuleRegister.batchRegister(retrofitDegradeRuleList);
-                break;
-            }
-            case RESILIENCE4J: {
-                break;
-            }
-            default: {
-                throw new IllegalArgumentException("Not currently supported! degradeType=" + degradeType);
-            }
-
-        }
-
-
+        Method[] methods = retrofitInterface.getMethods();
+        List<RetrofitDegradeRule> retrofitDegradeRuleList = Arrays.stream(methods)
+                .map(this::convertSentinelRule)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        degradeRuleRegister.batchRegister(retrofitDegradeRuleList);
     }
 
     /**
-     * TODO 可以优化 和{@link com.github.lianjiatech.retrofit.spring.boot.degrade.SentinelDegradeRuleRegister#convert(com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitDegradeRule)}放到一起
-     * Sentinel 规则转换器
+     * 提取熔断规则，优先级为方法>类>默认
      * @param method method
      * @return RetrofitDegradeRule
      */
@@ -164,19 +150,11 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         } else {
             degrade = retrofitInterface.getAnnotation(Degrade.class);
         }
-
-        if (degrade == null) {
-            return null;
-        }
-
-        DegradeStrategy degradeStrategy = degrade.degradeStrategy();
         BaseResourceNameParser resourceNameParser = retrofitConfigBean.getResourceNameParser();
         String resourceName = resourceNameParser.parseResourceName(method, environment);
-
         RetrofitDegradeRule degradeRule = new RetrofitDegradeRule();
-        degradeRule.setCount(degrade.count());
-        degradeRule.setDegradeStrategy(degradeStrategy);
-        degradeRule.setTimeWindow(degrade.timeWindow());
+        degradeRule.setCount(Optional.ofNullable(degrade).map(Degrade::count).orElse(null));
+        degradeRule.setTimeWindow(Optional.ofNullable(degrade).map(Degrade::timeWindow).orElse(null));
         degradeRule.setResourceName(resourceName);
         return degradeRule;
     }
@@ -303,25 +281,11 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         // TODO 这里稍微有点问题，开启熔断则所有实例都会加熔断拦截器，但是拦截器升不生效则取决于是否配置了@Degrade注解，可不可以把这里做成有一个全局默认配置，有@Degrade则走单独配置？
         DegradeProperty degradeProperty = retrofitProperties.getDegrade();
         if (degradeProperty.isEnable()) {
-            DegradeType degradeType = degradeProperty.getDegradeType();
-            switch (degradeType) {
-                case SENTINEL: {
-                    try {
-                        Class.forName("com.alibaba.csp.sentinel.SphU");
-                        DegradeInterceptor degradeInterceptor = new DegradeInterceptor();
-                        degradeInterceptor.setEnvironment(environment);
-                        degradeInterceptor.setResourceNameParser(retrofitConfigBean.getResourceNameParser());
-                        degradeInterceptor.setDegradeRuleRegister(retrofitConfigBean.getDegradeRuleRegister());
-                        okHttpClientBuilder.addInterceptor(degradeInterceptor);
-                    } catch (ClassNotFoundException e) {
-                        logger.warn("com.alibaba.csp.sentinel not found! No SentinelDegradeInterceptor is set.");
-                    }
-                    break;
-                }
-                default: {
-                    throw new IllegalArgumentException("Not currently supported! degradeType=" + degradeType);
-                }
-            }
+            DegradeInterceptor degradeInterceptor = new DegradeInterceptor();
+            degradeInterceptor.setEnvironment(environment);
+            degradeInterceptor.setResourceNameParser(retrofitConfigBean.getResourceNameParser());
+            degradeInterceptor.setDegradeRuleRegister(retrofitConfigBean.getDegradeRuleRegister());
+            okHttpClientBuilder.addInterceptor(degradeInterceptor);
         }
 
         // add ServiceInstanceChooserInterceptor
