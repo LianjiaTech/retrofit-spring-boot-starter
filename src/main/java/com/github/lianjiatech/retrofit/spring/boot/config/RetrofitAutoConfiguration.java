@@ -29,7 +29,6 @@ import com.github.lianjiatech.retrofit.spring.boot.core.PrototypeInterceptorBdfP
 import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitFactoryBean;
 import com.github.lianjiatech.retrofit.spring.boot.core.ServiceInstanceChooser;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.BaseResourceNameParser;
-import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitDegradeRuleInitializer;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.GlobalAndNetworkInterceptorFinder;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.ServiceInstanceChooserInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.retry.BaseRetryInterceptor;
@@ -143,11 +142,6 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
-    }
-
-    @Bean
-    public RetrofitDegradeRuleInitializer retrofitDegradeRuleInitializer() {
-        return new RetrofitDegradeRuleInitializer(retrofitProperties.getDegrade());
     }
 
     @Configuration
