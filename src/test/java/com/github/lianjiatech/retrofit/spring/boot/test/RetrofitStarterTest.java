@@ -8,7 +8,10 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.IntStream;
 
+import com.github.lianjiatech.retrofit.spring.boot.test.http.HttpApi4;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -55,6 +58,9 @@ public class RetrofitStarterTest {
 
     @Autowired
     private HttpApi3 httpApi3;
+
+    @Autowired
+    private HttpApi4 httpApi4;
 
     private static final ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .setSerializationInclusion(JsonInclude.Include.NON_NULL);
@@ -415,6 +421,34 @@ public class RetrofitStarterTest {
                 .setAge(10);
         Boolean apiBoolean = httpApi.getBoolean(mockPerson);
         System.out.println(apiBoolean);
+    }
+
+    @Test
+    public void testDegrade() {
+        IntStream.range(0, 100).parallel().forEach((i) ->{
+            try {
+                Person mockPerson = new Person().setId(1L)
+                        .setName("test")
+                        .setAge(10);
+                Result mockResult = new Result<>()
+                        .setCode(0)
+                        .setMsg("ok")
+                        .setData(mockPerson);
+                MockResponse response = new MockResponse()
+                        .setResponseCode(200)
+                        .addHeader("Content-Type", "application/text; charset=utf-8")
+                        .addHeader("Cache-Control", "no-cache")
+                        .setBody(objectMapper.writeValueAsString(mockResult))
+                        .setHeadersDelay(5, TimeUnit.SECONDS);
+                server.enqueue(response);
+                System.out.println(httpApi4.getPerson(2L).getCode());
+            }catch (Exception e){
+                System.out.println("抛出异常：" + e.getMessage());
+            }finally {
+                System.out.println("当前请求轮次： "+ (i+1));
+            }
+        });
+
     }
 
 }

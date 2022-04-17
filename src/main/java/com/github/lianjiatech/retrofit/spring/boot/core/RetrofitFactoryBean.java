@@ -6,14 +6,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
+import com.github.lianjiatech.retrofit.spring.boot.degrade.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -36,14 +33,6 @@ import com.github.lianjiatech.retrofit.spring.boot.config.DegradeProperty;
 import com.github.lianjiatech.retrofit.spring.boot.config.LogProperty;
 import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitConfigBean;
 import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitProperties;
-import com.github.lianjiatech.retrofit.spring.boot.degrade.BaseResourceNameParser;
-import com.github.lianjiatech.retrofit.spring.boot.degrade.Degrade;
-import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeStrategy;
-import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeType;
-import com.github.lianjiatech.retrofit.spring.boot.degrade.FallbackFactory;
-import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitDegradeRule;
-import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitDegradeRuleInitializer;
-import com.github.lianjiatech.retrofit.spring.boot.degrade.SentinelDegradeInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseLoggingInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.BasePathMatchInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.ErrorDecoderInterceptor;
@@ -73,7 +62,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
     private static final Map<Class<? extends CallAdapter.Factory>, CallAdapter.Factory> CALL_ADAPTER_FACTORIES_CACHE =
             new HashMap<>(4);
 
-    private Class<T> retrofitInterface;
+    private final Class<T> retrofitInterface;
 
     private Environment environment;
 
@@ -83,7 +72,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
 
     private ApplicationContext applicationContext;
 
-    private RetrofitClient retrofitClient;
+    private final RetrofitClient retrofitClient;
 
     private static final Map<Class<? extends Converter.Factory>, Converter.Factory> CONVERTER_FACTORIES_CACHE =
             new HashMap<>(4);
@@ -122,40 +111,52 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         );
     }
 
+    /**
+     * 加载熔断配置,熔断粒度可控制到方法级别
+     */
     private void loadDegradeRules() {
-        // 读取熔断配置
-        Method[] methods = retrofitInterface.getMethods();
-        for (Method method : methods) {
-            if (method.isDefault()) {
-                continue;
-            }
-            int modifiers = method.getModifiers();
-            if (Modifier.isStatic(modifiers)) {
-                continue;
-            }
-            // 获取熔断配置
-            Degrade degrade;
-            if (method.isAnnotationPresent(Degrade.class)) {
-                degrade = method.getAnnotation(Degrade.class);
-            } else {
-                degrade = retrofitInterface.getAnnotation(Degrade.class);
-            }
+        DegradeProperty degradeProperty = retrofitProperties.getDegrade();
+        DegradeRuleRegister degradeRuleRegister = retrofitConfigBean.getDegradeRuleRegister();
 
-            if (degrade == null) {
-                continue;
-            }
-
-            DegradeStrategy degradeStrategy = degrade.degradeStrategy();
-            BaseResourceNameParser resourceNameParser = retrofitConfigBean.getResourceNameParser();
-            String resourceName = resourceNameParser.parseResourceName(method, environment);
-
-            RetrofitDegradeRule degradeRule = new RetrofitDegradeRule();
-            degradeRule.setCount(degrade.count());
-            degradeRule.setDegradeStrategy(degradeStrategy);
-            degradeRule.setTimeWindow(degrade.timeWindow());
-            degradeRule.setResourceName(resourceName);
-            RetrofitDegradeRuleInitializer.addRetrofitDegradeRule(degradeRule);
+        if (!degradeProperty.isEnable()) {
+            return;
         }
+        Assert.notNull(degradeRuleRegister, "[DegradeRuleRegister] not found bean instance");
+        Method[] methods = retrofitInterface.getMethods();
+        List<RetrofitDegradeRule> retrofitDegradeRuleList = Arrays.stream(methods)
+                .map(this::convertSentinelRule)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        degradeRuleRegister.batchRegister(retrofitDegradeRuleList);
+    }
+
+    /**
+     * 提取熔断规则，优先级为方法>类>默认
+     * @param method method
+     * @return RetrofitDegradeRule
+     */
+    private RetrofitDegradeRule convertSentinelRule(Method method) {
+        if (method.isDefault()) {
+            return null;
+        }
+        int modifiers = method.getModifiers();
+        if (Modifier.isStatic(modifiers)) {
+            return null;
+        }
+        // 获取熔断配置
+        Degrade degrade;
+        if (method.isAnnotationPresent(Degrade.class)) {
+            degrade = method.getAnnotation(Degrade.class);
+        } else {
+            degrade = retrofitInterface.getAnnotation(Degrade.class);
+        }
+        BaseResourceNameParser resourceNameParser = retrofitConfigBean.getResourceNameParser();
+        String resourceName = resourceNameParser.parseResourceName(method, environment);
+        RetrofitDegradeRule degradeRule = new RetrofitDegradeRule();
+        degradeRule.setCount(Optional.ofNullable(degrade).map(Degrade::count).orElse(null));
+        degradeRule.setTimeWindow(Optional.ofNullable(degrade).map(Degrade::timeWindow).orElse(null));
+        degradeRule.setResourceName(resourceName);
+        return degradeRule;
     }
 
     /**
@@ -277,26 +278,14 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         }
 
         // add DegradeInterceptor
+        // TODO 这里稍微有点问题，开启熔断则所有实例都会加熔断拦截器，但是拦截器升不生效则取决于是否配置了@Degrade注解，可不可以把这里做成有一个全局默认配置，有@Degrade则走单独配置？
         DegradeProperty degradeProperty = retrofitProperties.getDegrade();
         if (degradeProperty.isEnable()) {
-            DegradeType degradeType = degradeProperty.getDegradeType();
-            switch (degradeType) {
-                case SENTINEL: {
-                    try {
-                        Class.forName("com.alibaba.csp.sentinel.SphU");
-                        SentinelDegradeInterceptor sentinelDegradeInterceptor = new SentinelDegradeInterceptor();
-                        sentinelDegradeInterceptor.setEnvironment(environment);
-                        sentinelDegradeInterceptor.setResourceNameParser(retrofitConfigBean.getResourceNameParser());
-                        okHttpClientBuilder.addInterceptor(sentinelDegradeInterceptor);
-                    } catch (ClassNotFoundException e) {
-                        logger.warn("com.alibaba.csp.sentinel not found! No SentinelDegradeInterceptor is set.");
-                    }
-                    break;
-                }
-                default: {
-                    throw new IllegalArgumentException("Not currently supported! degradeType=" + degradeType);
-                }
-            }
+            DegradeInterceptor degradeInterceptor = new DegradeInterceptor();
+            degradeInterceptor.setEnvironment(environment);
+            degradeInterceptor.setResourceNameParser(retrofitConfigBean.getResourceNameParser());
+            degradeInterceptor.setDegradeRuleRegister(retrofitConfigBean.getDegradeRuleRegister());
+            okHttpClientBuilder.addInterceptor(degradeInterceptor);
         }
 
         // add ServiceInstanceChooserInterceptor

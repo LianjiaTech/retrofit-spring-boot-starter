@@ -7,4 +7,6 @@ public enum DegradeType {
 
     SENTINEL,
 
+    RESILIENCE4J;
+
 }
