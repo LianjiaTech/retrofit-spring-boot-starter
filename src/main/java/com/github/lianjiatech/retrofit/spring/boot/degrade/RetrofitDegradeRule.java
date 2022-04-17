@@ -7,9 +7,11 @@ public class RetrofitDegradeRule {
 
     private String resourceName;
 
-    private Float count;
+    private double count;
 
-    private Integer timeWindow;
+    private int timeWindow;
+
+    private DegradeStrategy degradeStrategy;
 
     public String getResourceName() {
         return resourceName;
@@ -19,20 +21,27 @@ public class RetrofitDegradeRule {
         this.resourceName = resourceName;
     }
 
-    public Float getCount() {
+    public double getCount() {
         return count;
     }
 
-    public void setCount(Float count) {
+    public void setCount(double count) {
         this.count = count;
     }
 
-    public Integer getTimeWindow() {
+    public int getTimeWindow() {
         return timeWindow;
     }
 
-    public void setTimeWindow(Integer timeWindow) {
+    public void setTimeWindow(int timeWindow) {
         this.timeWindow = timeWindow;
     }
 
+    public DegradeStrategy getDegradeStrategy() {
+        return degradeStrategy;
+    }
+
+    public void setDegradeStrategy(DegradeStrategy degradeStrategy) {
+        this.degradeStrategy = degradeStrategy;
+    }
 }
