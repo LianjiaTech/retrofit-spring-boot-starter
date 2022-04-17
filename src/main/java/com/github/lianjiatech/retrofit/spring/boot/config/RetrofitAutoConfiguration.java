@@ -4,14 +4,23 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
+import com.alibaba.csp.sentinel.SphU;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeRuleRegister;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.Resilience4jDegradeRuleRegister;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.SentinelDegradeRuleRegister;
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
@@ -29,7 +38,6 @@ import com.github.lianjiatech.retrofit.spring.boot.core.PrototypeInterceptorBdfP
 import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitFactoryBean;
 import com.github.lianjiatech.retrofit.spring.boot.core.ServiceInstanceChooser;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.BaseResourceNameParser;
-import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitDegradeRuleInitializer;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.GlobalAndNetworkInterceptorFinder;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.ServiceInstanceChooserInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.retry.BaseRetryInterceptor;
@@ -71,7 +79,7 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
 
     @Bean
     @ConditionalOnMissingBean
-    public RetrofitConfigBean retrofitConfigBean() throws IllegalAccessException, InstantiationException {
+    public RetrofitConfigBean retrofitConfigBean(ObjectProvider<DegradeRuleRegister> degradeRuleRegisterObjectProvider) throws IllegalAccessException, InstantiationException {
         RetrofitConfigBean retrofitConfigBean =
                 new RetrofitConfigBean(retrofitProperties, globalAndNetworkInterceptorFinder());
         // Initialize the connection pool
@@ -121,7 +129,26 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
         Class<? extends BaseResourceNameParser> resourceNameParser = degrade.getResourceNameParser();
         retrofitConfigBean.setResourceNameParser(resourceNameParser.newInstance());
 
+        // degrade register
+        retrofitConfigBean.setDegradeRuleRegister(degradeRuleRegisterObjectProvider.getIfAvailable());
+
         return retrofitConfigBean;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnClass(SphU.class)
+    @ConditionalOnProperty(name = "retrofit.degrade.degrade-type", havingValue = "sentinel")
+    public DegradeRuleRegister sentinelDegradeRuleRegister(){
+        return new SentinelDegradeRuleRegister();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnClass(CircuitBreaker.class)
+    @ConditionalOnProperty(name = "retrofit.degrade.degrade-type", havingValue = "resilience4j")
+    public DegradeRuleRegister resilience4JDegradeRuleRegister(CircuitBreakerRegistry circuitBreakerRegistry){
+        return new Resilience4jDegradeRuleRegister(circuitBreakerRegistry);
     }
 
 
@@ -143,11 +170,6 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
-    }
-
-    @Bean
-    public RetrofitDegradeRuleInitializer retrofitDegradeRuleInitializer() {
-        return new RetrofitDegradeRuleInitializer(retrofitProperties.getDegrade());
     }
 
     @Configuration
