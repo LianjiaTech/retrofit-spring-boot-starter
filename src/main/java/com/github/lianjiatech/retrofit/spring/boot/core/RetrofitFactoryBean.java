@@ -27,6 +27,8 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import com.alibaba.csp.sentinel.slots.block.degrade.DegradeRule;
+import com.alibaba.csp.sentinel.slots.block.degrade.DegradeRuleManager;
 import com.github.lianjiatech.retrofit.spring.boot.annotation.Intercept;
 import com.github.lianjiatech.retrofit.spring.boot.annotation.InterceptMark;
 import com.github.lianjiatech.retrofit.spring.boot.annotation.Intercepts;
@@ -36,13 +38,9 @@ import com.github.lianjiatech.retrofit.spring.boot.config.DegradeProperty;
 import com.github.lianjiatech.retrofit.spring.boot.config.LogProperty;
 import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitConfigBean;
 import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitProperties;
-import com.github.lianjiatech.retrofit.spring.boot.degrade.BaseResourceNameParser;
-import com.github.lianjiatech.retrofit.spring.boot.degrade.Degrade;
-import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeStrategy;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeType;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.FallbackFactory;
-import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitDegradeRule;
-import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitDegradeRuleInitializer;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.SentinelDegrade;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.SentinelDegradeInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseLoggingInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.BasePathMatchInterceptor;
@@ -123,8 +121,19 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
     }
 
     private void loadDegradeRules() {
+        DegradeProperty degrade = retrofitProperties.getDegrade();
+        if (!degrade.isEnable()) {
+            return;
+        }
+        if (degrade.getDegradeType() == DegradeType.SENTINEL) {
+            loadSentinelDegradeRules();
+        }
+    }
+
+    private void loadSentinelDegradeRules() {
         // 读取熔断配置
         Method[] methods = retrofitInterface.getMethods();
+        List<DegradeRule> rules = new ArrayList<>();
         for (Method method : methods) {
             if (method.isDefault()) {
                 continue;
@@ -134,28 +143,29 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
                 continue;
             }
             // 获取熔断配置
-            Degrade degrade;
-            if (method.isAnnotationPresent(Degrade.class)) {
-                degrade = method.getAnnotation(Degrade.class);
-            } else {
-                degrade = retrofitInterface.getAnnotation(Degrade.class);
-            }
-
-            if (degrade == null) {
+            SentinelDegrade sentinelDegrade = getSentinelDegrade(method);
+            if (sentinelDegrade == null) {
                 continue;
             }
-
-            DegradeStrategy degradeStrategy = degrade.degradeStrategy();
-            BaseResourceNameParser resourceNameParser = retrofitConfigBean.getResourceNameParser();
-            String resourceName = resourceNameParser.parseResourceName(method, environment);
-
-            RetrofitDegradeRule degradeRule = new RetrofitDegradeRule();
-            degradeRule.setCount(degrade.count());
-            degradeRule.setDegradeStrategy(degradeStrategy);
-            degradeRule.setTimeWindow(degrade.timeWindow());
-            degradeRule.setResourceName(resourceName);
-            RetrofitDegradeRuleInitializer.addRetrofitDegradeRule(degradeRule);
+            String resourceName = retrofitConfigBean.getResourceNameParser().parseResourceName(method, environment);
+            DegradeRule degradeRule = new DegradeRule()
+                    .setCount(sentinelDegrade.count())
+                    .setTimeWindow(sentinelDegrade.timeWindow())
+                    .setGrade(sentinelDegrade.grade());
+            degradeRule.setResource(resourceName);
+            rules.add(degradeRule);
         }
+        DegradeRuleManager.loadRules(rules);
+    }
+
+    private SentinelDegrade getSentinelDegrade(Method method) {
+        SentinelDegrade sentinelDegrade;
+        if (method.isAnnotationPresent(SentinelDegrade.class)) {
+            sentinelDegrade = method.getAnnotation(SentinelDegrade.class);
+        } else {
+            sentinelDegrade = retrofitInterface.getAnnotation(SentinelDegrade.class);
+        }
+        return sentinelDegrade;
     }
 
     /**
