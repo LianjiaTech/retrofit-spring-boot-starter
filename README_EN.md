@@ -30,7 +30,7 @@
 - [x] [Request retry](#Request-retry)
 - [x] [Error decoder](#Error-decoder)
 - [x] [Global interceptor](#Global-interceptor)
-- [x] [Fuse degrade](#Fuse-degrade)
+- [x] [Fuse sentinelDegrade](#Fuse-sentinelDegrade)
 - [x] [HTTP calls between microservices](#HTTP-calls-between-microservices)
 - [x] [CallAdapter](#CallAdapter)
 - [x] [Converter](#Converter)
@@ -490,26 +490,26 @@ public class SourceInterceptor extends BaseGlobalInterceptor {
 
 You only need to implement the NetworkInterceptor interface and configure it as a bean in the spring container to support automatic weaving into the global network interceptor.
 
-### Fuse degrade
+### Fuse sentinelDegrade
 
 In the distributed service architecture, fuse downgrade of unstable external services is one of the important measures to ensure high service availability. Since the stability of external services cannot be guaranteed, when external services are unstable, the response time will become longer. Correspondingly, the caller's response time will become longer, threads will accumulate, and eventually the caller's thread pool may be exhausted, causing the entire service to be unavailable. Therefore, we need to fuse and downgrade unstable weakly dependent service calls, temporarily cut off unstable calls, and avoid local instability leading to an overall service avalanche.
 
-retrofit-spring-boot-starter supports the fuse downgrade function, and the bottom layer is based on [Sentinel](https://sentinelguard.io/zh-cn/docs/introduction.html). Specifically, it supports self-discovery of fusing resources and annotated degrade rule configuration. If you need to use the fuse to downgrade, you only need to do the following:
+retrofit-spring-boot-starter supports the fuse downgrade function, and the bottom layer is based on [Sentinel](https://sentinelguard.io/zh-cn/docs/introduction.html). Specifically, it supports self-discovery of fusing resources and annotated sentinelDegrade rule configuration. If you need to use the fuse to downgrade, you only need to do the following:
 
-#### 1. Enable fuse degrade
+#### 1. Enable fuse sentinelDegrade
 
 By default, the fuse downgrade function is turned off, you need to set the corresponding configuration items to turn on the fuse downgrade function
 
 ```yaml
 retrofit:
-  enable-degrade: true
+  enable-sentinelDegrade: true
   # the degade type(Currently only Sentinel is supported)
-  degrade-type: sentinel
+  sentinelDegrade-type: sentinel
   # the resource name parser
-  resource-name-parser: com.github.lianjiatech.retrofit.spring.boot.degrade.DefaultResourceNameParser
+  resource-name-parser: com.github.lianjiatech.retrofit.spring.boot.sentinelDegrade.DefaultResourceNameParser
 ```
 
-The resource name resolver is used to implement user-defined resource names. The default configuration is `DefaultResourceNameParser`, and the corresponding resource name format is `HTTP_OUT:GET:http://localhost:8080/api/degrade/test`.Users can inherit the `BaseResourceNameParser` class to implement their own resource name parser.
+The resource name resolver is used to implement user-defined resource names. The default configuration is `DefaultResourceNameParser`, and the corresponding resource name format is `HTTP_OUT:GET:http://localhost:8080/api/sentinelDegrade/test`.Users can inherit the `BaseResourceNameParser` class to implement their own resource name parser.
 
 **In addition, since the fuse downgrade function is optional, enabling fuse downgrade requires users to introduce Sentinel dependencies by themselves**:
 
@@ -521,7 +521,7 @@ The resource name resolver is used to implement user-defined resource names. The
 </dependency>
 ```
 
-### Configure degrade rules (optional)
+### Configure sentinelDegrade rules (optional)
 
 **`retrofit-spring-boot-starter` supports annotation-based configuration of downgrade rules, and you can configure downgrade rules through @Degrade annotations**. The @Degrade annotation can be configured on the interface or method, and the priority of the configuration on the method is higher.
 

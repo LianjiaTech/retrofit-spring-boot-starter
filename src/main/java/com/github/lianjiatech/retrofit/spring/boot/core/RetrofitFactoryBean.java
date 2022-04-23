@@ -8,7 +8,6 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import com.github.lianjiatech.retrofit.spring.boot.degrade.*;
 import org.slf4j.Logger;
@@ -20,9 +19,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.env.Environment;
-import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
+import org.springframework.util.*;
 
 import com.github.lianjiatech.retrofit.spring.boot.annotation.Intercept;
 import com.github.lianjiatech.retrofit.spring.boot.annotation.InterceptMark;
@@ -116,18 +113,11 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
      */
     private void loadDegradeRules() {
         DegradeProperty degradeProperty = retrofitProperties.getDegrade();
-        DegradeRuleRegister degradeRuleRegister = retrofitConfigBean.getDegradeRuleRegister();
-
         if (!degradeProperty.isEnable()) {
             return;
         }
-        Assert.notNull(degradeRuleRegister, "[DegradeRuleRegister] not found bean instance");
         Method[] methods = retrofitInterface.getMethods();
-        List<RetrofitDegradeRule> retrofitDegradeRuleList = Arrays.stream(methods)
-                .map(this::convertSentinelRule)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-        degradeRuleRegister.batchRegister(retrofitDegradeRuleList);
+        Arrays.stream(methods).forEach(this::register);
     }
 
     /**
@@ -135,28 +125,40 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
      * @param method method
      * @return RetrofitDegradeRule
      */
-    private RetrofitDegradeRule convertSentinelRule(Method method) {
+    private void register(Method method) {
         if (method.isDefault()) {
-            return null;
+            return;
         }
         int modifiers = method.getModifiers();
         if (Modifier.isStatic(modifiers)) {
-            return null;
+            return;
         }
-        // 获取熔断配置
-        Degrade degrade;
-        if (method.isAnnotationPresent(Degrade.class)) {
-            degrade = method.getAnnotation(Degrade.class);
-        } else {
-            degrade = retrofitInterface.getAnnotation(Degrade.class);
+        // 先从方法上获取熔断配置
+        boolean isMethod = true;
+        Degrade degrade = AnnotationUtils.findAnnotation(method, Degrade.class);
+        // 如果方法上没有，就从类上获取
+        if (Objects.isNull(degrade)) {
+            isMethod = false;
+            degrade = AnnotationUtils.findAnnotation(retrofitInterface, Degrade.class);
         }
+        // 都没有则直接返回null
+        if (Objects.isNull(degrade)){
+            return;
+        }
+        // 检查此注解有无被继承，有继承则将子注解的属性整理为map
+        // TODO 也许需要增强？ 注解剁成继承、@AliasFor、（多子类注解）注解在同一节点问题？ 现在只取第一层，第一个子类注解
+        List<Annotation> annotationList = Optional.ofNullable(AnnotationUtils.getAnnotations(isMethod ? method :
+                retrofitInterface)).map(Arrays::asList).orElse(Collections.emptyList());
+        Map<String, Object> attrMap = annotationList.stream()
+                .filter((annotation) -> annotation.getClass().isAnnotationPresent(Degrade.class))
+                .findFirst()
+                .map(AnnotationUtils::getAnnotationAttributes)
+                .orElse(new HashMap<>());
         BaseResourceNameParser resourceNameParser = retrofitConfigBean.getResourceNameParser();
         String resourceName = resourceNameParser.parseResourceName(method, environment);
-        RetrofitDegradeRule degradeRule = new RetrofitDegradeRule();
-        degradeRule.setCount(Optional.ofNullable(degrade).map(Degrade::count).orElse(null));
-        degradeRule.setTimeWindow(Optional.ofNullable(degrade).map(Degrade::timeWindow).orElse(null));
-        degradeRule.setResourceName(resourceName);
-        return degradeRule;
+        DegradeRuleRegister<Object> ruleRegister = (DegradeRuleRegister<Object>) applicationContext.getBean(degrade.register());
+        Assert.notNull(ruleRegister, "[DegradeRuleRegister] not found bean instance");
+        ruleRegister.register(resourceName, ruleRegister.newInstanceByDefault(attrMap));
     }
 
     /**

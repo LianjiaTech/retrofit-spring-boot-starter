@@ -201,13 +201,13 @@ retrofit:
       retry-interceptor: com.github.lianjiatech.retrofit.spring.boot.retry.DefaultRetryInterceptor
 
    # 熔断降级配置
-   degrade:
+   sentinelDegrade:
       # 是否启用熔断降级
       enable: true
       # 熔断降级实现方式
-      degrade-type: sentinel
+      sentinelDegrade-type: sentinel
       # 熔断资源名称解析器
-      resource-name-parser: com.github.lianjiatech.retrofit.spring.boot.degrade.DefaultResourceNameParser
+      resource-name-parser: com.github.lianjiatech.retrofit.spring.boot.sentinelDegrade.DefaultResourceNameParser
    # 全局连接超时时间
    global-connect-timeout-ms: 5000
    # 全局读取超时时间
@@ -600,16 +600,16 @@ public class SourceGlobalInterceptor implements GlobalInterceptor {
 ```yaml
 retrofit:
   # 熔断降级配置
-  degrade:
+  sentinelDegrade:
     # 是否启用熔断降级
     enable: true
     # 熔断降级实现方式
-    degrade-type: sentinel
+    sentinelDegrade-type: sentinel
     # 熔断资源名称解析器
-    resource-name-parser: com.github.lianjiatech.retrofit.spring.boot.degrade.DefaultResourceNameParser
+    resource-name-parser: com.github.lianjiatech.retrofit.spring.boot.sentinelDegrade.DefaultResourceNameParser
 ```
 
-资源名称解析器用于实现用户自定义资源名称，默认配置是`DefaultResourceNameParser`，对应的资源名称格式为`HTTP_OUT:GET:http://localhost:8080/api/degrade/test`。用户可以继承`BaseResourceNameParser`类实现自己的资源名称解析器。
+资源名称解析器用于实现用户自定义资源名称，默认配置是`DefaultResourceNameParser`，对应的资源名称格式为`HTTP_OUT:GET:http://localhost:8080/api/sentinelDegrade/test`。用户可以继承`BaseResourceNameParser`类实现自己的资源名称解析器。
 
 另外，由于熔断降级功能是可选的，**因此启用熔断降级需要用户自行引入Sentinel依赖**：
 

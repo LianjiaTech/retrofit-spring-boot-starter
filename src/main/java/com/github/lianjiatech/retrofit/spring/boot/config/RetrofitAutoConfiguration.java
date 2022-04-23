@@ -6,8 +6,8 @@ import java.util.concurrent.TimeUnit;
 
 import com.alibaba.csp.sentinel.SphU;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeRuleRegister;
-import com.github.lianjiatech.retrofit.spring.boot.degrade.Resilience4jDegradeRuleRegister;
-import com.github.lianjiatech.retrofit.spring.boot.degrade.SentinelDegradeRuleRegister;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.resilience4j.Resilience4jDegradeRuleRegister;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.sentinel.SentinelDegradeRuleRegister;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import org.slf4j.Logger;

@@ -3,21 +3,17 @@ package com.github.lianjiatech.retrofit.spring.boot.degrade;
 import java.lang.annotation.*;
 
 /**
- * 应仅采用异常比例模式来控制熔断，超时导致的报错应在okhttp这一层做
- * @author 陈添明 yukdawn@gmail.com
+ * 熔断注解，该注解尽量不要被直接使用
+ * @author yukdawn@gmail.com 2022/4/23 21:54
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD, ElementType.TYPE})
+@Target({ElementType.METHOD, ElementType.TYPE, ElementType.ANNOTATION_TYPE})
 @Documented
 public @interface Degrade {
 
     /**
-     * 异常比例
+     * 根据类型从spring容器中获取bean
+     * @return DegradeRuleRegister
      */
-    float count();
-
-    /**
-     * 时间窗口size，单位：秒
-     */
-    int timeWindow() default 5;
+    Class<? extends DegradeRuleRegister<?>> register();
 }
