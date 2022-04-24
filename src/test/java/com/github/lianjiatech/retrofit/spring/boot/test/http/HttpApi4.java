@@ -1,6 +1,7 @@
 package com.github.lianjiatech.retrofit.spring.boot.test.http;
 
 import com.github.lianjiatech.retrofit.spring.boot.annotation.RetrofitClient;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.resilience4j.Resilience4jDegrade;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.sentinel.SentinelDegrade;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.FallbackFactory;
 import com.github.lianjiatech.retrofit.spring.boot.test.entity.Person;
@@ -15,7 +16,7 @@ import retrofit2.http.Query;
  * @author 陈添明
  */
 @RetrofitClient(baseUrl = "${test.baseUrl}", fallbackFactory = HttpApi4.HttpDegradeFallbackFactory.class)
-@SentinelDegrade(count = 0.5F)
+@SentinelDegrade(count = 0.5D)
 public interface HttpApi4 {
 
     /**

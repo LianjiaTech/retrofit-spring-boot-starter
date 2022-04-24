@@ -2,11 +2,11 @@ package com.github.lianjiatech.retrofit.spring.boot.degrade.sentinel;
 
 import java.lang.annotation.*;
 
+import com.alibaba.csp.sentinel.slots.block.RuleConstant;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.Degrade;
-import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeStrategy;
 
 /**
- * 应仅采用异常比例模式来控制熔断，超时导致的报错应在okhttp这一层做
+ * Sentinel熔断器配置
  * @author 陈添明 yukdawn@gmail.com
  */
 @Retention(RetentionPolicy.RUNTIME)
@@ -16,18 +16,19 @@ import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeStrategy;
 public @interface SentinelDegrade {
 
     /**
+     * 熔断策略
+     */
+    int grade() default DEFAULT_GRADE;
+    /**
      * 异常比例
      */
-    // FIXME double
-    float count();
-
+    double count() default DEFAULT_COUNT;
     /**
      * 时间窗口size，单位：秒
      */
-    int timeWindow() default 5;
+    int timeWindow() default SentinelDegrade.DEFAULT_TIME_WINDOW;
 
-    /**
-     * Degrade strategy (0: average RT, 1: exception ratio).
-     */
-    DegradeStrategy degradeStrategy() default DegradeStrategy.AVERAGE_RT;
+    int DEFAULT_GRADE = RuleConstant.DEGRADE_GRADE_RT;
+    double DEFAULT_COUNT = 0.5D;
+    int DEFAULT_TIME_WINDOW = 5;
 }

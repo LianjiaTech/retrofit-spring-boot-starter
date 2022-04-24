@@ -18,9 +18,9 @@ public class DegradeInterceptor implements Interceptor {
 
     private BaseResourceNameParser resourceNameParser;
 
-    protected DegradeRuleRegister degradeRuleRegister;
+    protected DegradeRuleRegister<?> degradeRuleRegister;
 
-    public void setDegradeRuleRegister(DegradeRuleRegister degradeRuleRegister) {
+    public void setDegradeRuleRegister(DegradeRuleRegister<?> degradeRuleRegister) {
         this.degradeRuleRegister = degradeRuleRegister;
     }
 
