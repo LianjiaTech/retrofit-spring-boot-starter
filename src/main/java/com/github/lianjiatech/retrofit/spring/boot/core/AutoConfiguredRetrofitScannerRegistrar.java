@@ -1,6 +1,5 @@
 package com.github.lianjiatech.retrofit.spring.boot.core;
 
-
 import java.util.List;
 
 import org.springframework.beans.BeansException;
@@ -24,7 +23,8 @@ import lombok.extern.slf4j.Slf4j;
  * @author 陈添明
  */
 @Slf4j
-public class AutoConfiguredRetrofitScannerRegistrar implements BeanFactoryAware, ImportBeanDefinitionRegistrar, ResourceLoaderAware, BeanClassLoaderAware {
+public class AutoConfiguredRetrofitScannerRegistrar
+        implements BeanFactoryAware, ImportBeanDefinitionRegistrar, ResourceLoaderAware, BeanClassLoaderAware {
 
     private BeanFactory beanFactory;
 
@@ -51,7 +51,8 @@ public class AutoConfiguredRetrofitScannerRegistrar implements BeanFactoryAware,
             packages.forEach(pkg -> log.debug("Using auto-configuration base package '{}'", pkg));
         }
 
-        // Scan the @RetrofitClient annotated interface under the specified path and register it to the BeanDefinitionRegistry
+        // Scan the @RetrofitClient annotated interface under the specified path and register it to the
+        // BeanDefinitionRegistry
         ClassPathRetrofitClientScanner scanner = new ClassPathRetrofitClientScanner(registry, classLoader);
         if (resourceLoader != null) {
             scanner.setResourceLoader(resourceLoader);

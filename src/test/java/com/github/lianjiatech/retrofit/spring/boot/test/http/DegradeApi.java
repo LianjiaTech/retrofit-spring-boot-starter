@@ -10,7 +10,6 @@ import retrofit2.http.Query;
 
 /**
  * @author 陈添明
- * @summary
  * @since 2022/1/21 4:19 下午
  */
 @RetrofitClient(baseUrl = "${test.baseUrl}")

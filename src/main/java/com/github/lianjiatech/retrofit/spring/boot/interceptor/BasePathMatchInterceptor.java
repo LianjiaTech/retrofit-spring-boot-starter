@@ -6,6 +6,7 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 
 import lombok.Data;
+import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
 
@@ -15,7 +16,7 @@ import okhttp3.Response;
  * @author 陈添明
  */
 @Data
-public abstract class BasePathMatchInterceptor implements PrototypeInterceptor {
+public abstract class BasePathMatchInterceptor implements Interceptor {
 
     private String[] include;
 

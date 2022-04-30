@@ -1,24 +1,16 @@
 /*
  * Copyright (C) 2015 Square, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package com.github.lianjiatech.retrofit.spring.boot.core;
-
-import com.github.lianjiatech.retrofit.spring.boot.exception.RetrofitException;
-import okhttp3.Request;
-import okhttp3.ResponseBody;
-import retrofit2.*;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
@@ -26,6 +18,15 @@ import java.lang.reflect.Type;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
+import com.github.lianjiatech.retrofit.spring.boot.exception.RetrofitException;
+
+import okhttp3.Request;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.CallAdapter;
+import retrofit2.Converter;
+import retrofit2.Response;
+import retrofit2.Retrofit;
 
 /**
  * 同步调用，如果返回的http状态码是是成功，返回responseBody 反序列化之后的对象。否则，抛出异常！异常信息中包含请求和响应相关信息。

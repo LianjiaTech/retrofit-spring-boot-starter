@@ -49,7 +49,6 @@ public class RetrofitConvertFactoriesTest {
         server.close();
     }
 
-
     @Test
     public void test() {
 
@@ -75,6 +74,5 @@ public class RetrofitConvertFactoriesTest {
         Assert.assertEquals("test", data.getName());
         Assert.assertEquals(10, data.getAge().intValue());
     }
-
 
 }

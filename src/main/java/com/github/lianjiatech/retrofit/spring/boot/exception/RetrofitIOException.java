@@ -5,7 +5,6 @@ package com.github.lianjiatech.retrofit.spring.boot.exception;
  */
 public class RetrofitIOException extends RetrofitException {
 
-
     public RetrofitIOException(String message, Throwable cause) {
         super(message, cause);
     }

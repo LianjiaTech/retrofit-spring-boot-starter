@@ -1,18 +1,20 @@
 package com.github.lianjiatech.retrofit.spring.boot.test;
 
-import com.github.lianjiatech.retrofit.spring.boot.test.http.DownloadApi;
-import okhttp3.ResponseBody;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.util.UUID;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import retrofit2.Response;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.util.UUID;
+import com.github.lianjiatech.retrofit.spring.boot.test.http.DownloadApi;
+
+import okhttp3.ResponseBody;
+import retrofit2.Response;
 
 /**
  * @author 陈添明
@@ -47,7 +49,7 @@ public class DownloadTest {
             int length;
             while ((length = is.read(b)) > 0) {
                 fos.write(b, 0, length);
-            } 
+            }
             is.close();
             fos.close();
         }

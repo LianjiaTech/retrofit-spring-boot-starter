@@ -1,7 +1,5 @@
 package com.github.lianjiatech.retrofit.spring.boot.config;
 
-import com.github.lianjiatech.retrofit.spring.boot.retry.BaseRetryInterceptor;
-import com.github.lianjiatech.retrofit.spring.boot.retry.DefaultRetryInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.retry.RetryRule;
 
 import lombok.Data;
@@ -20,8 +18,8 @@ public class RetryProperty {
     private boolean enableGlobalRetry = false;
 
     /**
-     * 全局最大重试次数，最大可设置为100
-     * The maximum number of retries, the maximum can be set to 100
+     * 全局最大重试次数
+     * The maximum number of retries
      */
     private int globalMaxRetries = 2;
 
@@ -37,9 +35,4 @@ public class RetryProperty {
      */
 
     private RetryRule[] globalRetryRules = {RetryRule.RESPONSE_STATUS_NOT_2XX, RetryRule.OCCUR_IO_EXCEPTION};
-
-    /**
-     * retry interceptor
-     */
-    private Class<? extends BaseRetryInterceptor> retryInterceptor = DefaultRetryInterceptor.class;
 }

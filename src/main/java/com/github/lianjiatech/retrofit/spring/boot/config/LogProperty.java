@@ -1,9 +1,7 @@
 package com.github.lianjiatech.retrofit.spring.boot.config;
 
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseLoggingInterceptor;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.LogLevel;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.LogStrategy;
+import com.github.lianjiatech.retrofit.spring.boot.log.LogLevel;
+import com.github.lianjiatech.retrofit.spring.boot.log.LogStrategy;
 
 import lombok.Data;
 
@@ -14,10 +12,10 @@ import lombok.Data;
 public class LogProperty {
 
     /**
-     * 启用日志打印
+     * 是否启用全局日志打印
      * Enable log printing
      */
-    private boolean enable = true;
+    private boolean enableGlobalLog = true;
 
     /**
      * 全局日志打印级别，支持的日志级别参见{@link LogLevel}
@@ -30,10 +28,4 @@ public class LogProperty {
      * Log printing strategy, see {@link LogStrategy} for supported log printing strategies
      */
     private LogStrategy globalLogStrategy = LogStrategy.BASIC;
-
-    /**
-     * 日志打印拦截器
-     * Log print Interceptor
-     */
-    private Class<? extends BaseLoggingInterceptor> loggingInterceptor = DefaultLoggingInterceptor.class;
 }

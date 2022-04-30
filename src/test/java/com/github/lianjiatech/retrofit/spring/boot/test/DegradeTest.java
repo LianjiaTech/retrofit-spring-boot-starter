@@ -25,7 +25,6 @@ import okhttp3.mockwebserver.MockWebServer;
 
 /**
  * @author 陈添明
- * @summary
  * @since 2022/1/21 4:20 下午
  */
 @SpringBootTest(classes = RetrofitTestApplication.class)

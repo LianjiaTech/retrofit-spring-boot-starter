@@ -6,7 +6,6 @@ package com.github.lianjiatech.retrofit.spring.boot.degrade;
  */
 public interface FallbackFactory<T> {
 
-
     /**
      * Returns an instance of the fallback appropriate for the given cause
      *

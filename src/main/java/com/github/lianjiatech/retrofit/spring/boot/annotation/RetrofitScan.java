@@ -1,9 +1,14 @@
 package com.github.lianjiatech.retrofit.spring.boot.annotation;
 
-import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClientScannerRegistrar;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 import org.springframework.context.annotation.Import;
 
-import java.lang.annotation.*;
+import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClientScannerRegistrar;
 
 /**
  * @author 陈添明
@@ -22,14 +27,12 @@ public @interface RetrofitScan {
      */
     String[] value() default {};
 
-
     /**
      * Scan package path
      *
      * @return basePackages
      */
     String[] basePackages() default {};
-
 
     /**
      * Scan package classes

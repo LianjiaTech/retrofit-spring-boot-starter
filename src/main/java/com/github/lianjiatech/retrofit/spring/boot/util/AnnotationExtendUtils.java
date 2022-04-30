@@ -3,8 +3,6 @@ package com.github.lianjiatech.retrofit.spring.boot.util;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
-import org.springframework.lang.Nullable;
-
 import lombok.experimental.UtilityClass;
 
 /**
@@ -21,7 +19,7 @@ public class AnnotationExtendUtils {
      * @param <A> 注解泛型参数
      * @return 方法或者类上指定的注解。
      */
-    public static <A extends Annotation> A findAnnotation(Method method, @Nullable Class<A> annotationType) {
+    public static <A extends Annotation> A findAnnotation(Method method, Class<A> annotationType) {
         A annotation = method.getAnnotation(annotationType);
         if (annotation != null) {
             return annotation;

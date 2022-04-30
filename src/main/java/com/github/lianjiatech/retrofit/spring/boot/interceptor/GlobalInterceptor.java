@@ -6,6 +6,4 @@ import okhttp3.Interceptor;
  *
  * @author 陈添明
  */
-public interface GlobalInterceptor extends Interceptor {
-
-}
+public interface GlobalInterceptor extends Interceptor {}

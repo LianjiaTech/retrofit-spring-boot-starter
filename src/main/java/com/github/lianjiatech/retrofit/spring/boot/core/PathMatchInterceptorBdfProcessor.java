@@ -1,6 +1,5 @@
 package com.github.lianjiatech.retrofit.spring.boot.core;
 
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.PrototypeInterceptor;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -8,11 +7,13 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.BasePathMatchInterceptor;
+
 /**
  * @author 陈添明
  */
 
-public class PrototypeInterceptorBdfProcessor implements BeanDefinitionRegistryPostProcessor {
+public class PathMatchInterceptorBdfProcessor implements BeanDefinitionRegistryPostProcessor {
 
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
@@ -25,7 +26,7 @@ public class PrototypeInterceptorBdfProcessor implements BeanDefinitionRegistryP
             }
             try {
                 Class<?> beanClass = Class.forName(beanClassName);
-                if (PrototypeInterceptor.class.isAssignableFrom(beanClass)) {
+                if (BasePathMatchInterceptor.class.isAssignableFrom(beanClass)) {
                     beanDefinition.setScope(ConfigurableBeanFactory.SCOPE_PROTOTYPE);
                 }
             } catch (ClassNotFoundException e) {

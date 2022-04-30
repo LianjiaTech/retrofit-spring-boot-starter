@@ -79,14 +79,12 @@ public final class RetrofitUtils {
         }
     }
 
-
     private static boolean bodyHasUnknownEncoding(Headers headers) {
         String contentEncoding = headers.get(CONTENT_ENCODING);
         return contentEncoding != null
                 && !IDENTITY.equalsIgnoreCase(contentEncoding)
                 && !GZIP.equalsIgnoreCase(contentEncoding);
     }
-
 
     public static String convertBaseUrl(RetrofitClient retrofitClient, String baseUrl, Environment environment) {
         if (StringUtils.hasText(baseUrl)) {
@@ -107,4 +105,3 @@ public final class RetrofitUtils {
         return baseUrl;
     }
 }
-

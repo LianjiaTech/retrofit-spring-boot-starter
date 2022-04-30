@@ -10,8 +10,7 @@ public class AppIOException extends RuntimeException {
      * detail message.  The cause is not initialized, and may subsequently be
      * initialized by a call to {@link #initCause}.
      */
-    public AppIOException() {
-    }
+    public AppIOException() {}
 
     /**
      * Constructs a new runtime exception with the specified detail message.

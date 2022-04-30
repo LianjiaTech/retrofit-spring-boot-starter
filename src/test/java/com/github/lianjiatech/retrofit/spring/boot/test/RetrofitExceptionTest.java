@@ -32,9 +32,9 @@ public class RetrofitExceptionTest {
     @Autowired
     private HttpApi httpApi;
 
-    private static final ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            .setSerializationInclusion(JsonInclude.Include.NON_NULL);
-
+    private static final ObjectMapper objectMapper =
+            new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                    .setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
     private MockWebServer server;
 
@@ -51,7 +51,6 @@ public class RetrofitExceptionTest {
         System.out.println("=========关闭MockWebServer===========");
         server.close();
     }
-
 
     @Test(expected = Throwable.class)
 //    @Test
