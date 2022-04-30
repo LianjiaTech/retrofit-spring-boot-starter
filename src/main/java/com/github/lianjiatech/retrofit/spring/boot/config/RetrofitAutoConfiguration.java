@@ -11,7 +11,9 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
@@ -28,7 +30,10 @@ import com.github.lianjiatech.retrofit.spring.boot.core.NoValidServiceInstanceCh
 import com.github.lianjiatech.retrofit.spring.boot.core.PrototypeInterceptorBdfProcessor;
 import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitFactoryBean;
 import com.github.lianjiatech.retrofit.spring.boot.core.ServiceInstanceChooser;
-import com.github.lianjiatech.retrofit.spring.boot.degrade.BaseResourceNameParser;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.DefaultResourceNameParser;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeInterceptor;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.ResourceNameParser;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.sentinel.SentinelDegradeInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.GlobalAndNetworkInterceptorFinder;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.ServiceInstanceChooserInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.retry.BaseRetryInterceptor;
@@ -49,10 +54,13 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
 
     private static final Logger logger = LoggerFactory.getLogger(RetrofitAutoConfiguration.class);
 
-    @Autowired
-    private RetrofitProperties retrofitProperties;
+    private final RetrofitProperties retrofitProperties;
 
     private ApplicationContext applicationContext;
+
+    public RetrofitAutoConfiguration(RetrofitProperties retrofitProperties) {
+        this.retrofitProperties = retrofitProperties;
+    }
 
     @Configuration
     public static class RetrofitProcessorAutoConfiguration {
@@ -70,7 +78,9 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
 
     @Bean
     @ConditionalOnMissingBean
-    public RetrofitConfigBean retrofitConfigBean() throws IllegalAccessException, InstantiationException {
+    public RetrofitConfigBean retrofitConfigBean(@Autowired(required = false) ResourceNameParser resourceNameParser,
+            @Autowired(required = false) DegradeInterceptor degradeInterceptor)
+            throws IllegalAccessException, InstantiationException {
         RetrofitConfigBean retrofitConfigBean =
                 new RetrofitConfigBean(retrofitProperties, globalAndNetworkInterceptorFinder());
         // Initialize the connection pool
@@ -80,24 +90,28 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
             pool.forEach((poolName, poolConfig) -> {
                 long keepAliveSecond = poolConfig.getKeepAliveSecond();
                 int maxIdleConnections = poolConfig.getMaxIdleConnections();
-                ConnectionPool connectionPool = new ConnectionPool(maxIdleConnections, keepAliveSecond, TimeUnit.SECONDS);
+                ConnectionPool connectionPool =
+                        new ConnectionPool(maxIdleConnections, keepAliveSecond, TimeUnit.SECONDS);
                 poolRegistry.put(poolName, connectionPool);
             });
         }
         retrofitConfigBean.setPoolRegistry(poolRegistry);
 
         // callAdapterFactory
-        Class<? extends CallAdapter.Factory>[] globalCallAdapterFactories = retrofitProperties.getGlobalCallAdapterFactories();
+        Class<? extends CallAdapter.Factory>[] globalCallAdapterFactories =
+                retrofitProperties.getGlobalCallAdapterFactories();
         retrofitConfigBean.setGlobalCallAdapterFactoryClasses(globalCallAdapterFactories);
 
         // converterFactory
-        Class<? extends Converter.Factory>[] globalConverterFactories = retrofitProperties.getGlobalConverterFactories();
+        Class<? extends Converter.Factory>[] globalConverterFactories =
+                retrofitProperties.getGlobalConverterFactories();
         retrofitConfigBean.setGlobalConverterFactoryClasses(globalConverterFactories);
 
         // retryInterceptor
         RetryProperty retry = retrofitProperties.getRetry();
         Class<? extends BaseRetryInterceptor> retryInterceptor = retry.getRetryInterceptor();
-        BaseRetryInterceptor retryInterceptorInstance = ApplicationContextUtils.getBean(applicationContext, retryInterceptor);
+        BaseRetryInterceptor retryInterceptorInstance =
+                ApplicationContextUtils.getBeanOrNull(applicationContext, retryInterceptor);
         if (retryInterceptorInstance == null) {
             retryInterceptorInstance = retryInterceptor.newInstance();
         }
@@ -112,17 +126,29 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
             serviceInstanceChooser = new NoValidServiceInstanceChooser();
         }
 
-        ServiceInstanceChooserInterceptor serviceInstanceChooserInterceptor = new ServiceInstanceChooserInterceptor(serviceInstanceChooser);
+        ServiceInstanceChooserInterceptor serviceInstanceChooserInterceptor =
+                new ServiceInstanceChooserInterceptor(serviceInstanceChooser);
         retrofitConfigBean.setServiceInstanceChooserInterceptor(serviceInstanceChooserInterceptor);
 
-        // resource name parser
-        DegradeProperty degrade = retrofitProperties.getDegrade();
-        Class<? extends BaseResourceNameParser> resourceNameParser = degrade.getResourceNameParser();
-        retrofitConfigBean.setResourceNameParser(resourceNameParser.newInstance());
-
+        retrofitConfigBean.setResourceNameParser(resourceNameParser);
+        retrofitConfigBean.setDegradeInterceptor(degradeInterceptor);
         return retrofitConfigBean;
     }
 
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnProperty(name = "retrofit.degrade.enable", havingValue = "true")
+    public ResourceNameParser resourceNameParser() {
+        return new DefaultResourceNameParser();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnProperty(name = "retrofit.degrade.degrade-type", havingValue = "sentinel")
+    @ConditionalOnBean(ResourceNameParser.class)
+    public DegradeInterceptor degradeInterceptor(ResourceNameParser resourceNameParser) {
+        return new SentinelDegradeInterceptor(resourceNameParser);
+    }
 
     @Bean
     @ConditionalOnMissingBean
