@@ -5,7 +5,7 @@ package com.github.lianjiatech.retrofit.spring.boot.retry;
  */
 class RetryStrategy {
     private int maxRetries;
-    private int intervalMs;
+    private final int intervalMs;
 
     public RetryStrategy(int maxRetries, int intervalMs) {
         this.maxRetries = maxRetries;

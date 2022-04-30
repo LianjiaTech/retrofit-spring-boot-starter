@@ -5,9 +5,12 @@ import com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInt
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.LogLevel;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.LogStrategy;
 
+import lombok.Data;
+
 /**
  * @author 陈添明
  */
+@Data
 public class LogProperty {
 
     /**
@@ -15,7 +18,6 @@ public class LogProperty {
      * Enable log printing
      */
     private boolean enable = true;
-
 
     /**
      * 全局日志打印级别，支持的日志级别参见{@link LogLevel}
@@ -29,42 +31,9 @@ public class LogProperty {
      */
     private LogStrategy globalLogStrategy = LogStrategy.BASIC;
 
-
     /**
      * 日志打印拦截器
      * Log print Interceptor
      */
     private Class<? extends BaseLoggingInterceptor> loggingInterceptor = DefaultLoggingInterceptor.class;
-
-    public boolean isEnable() {
-        return enable;
-    }
-
-    public void setEnable(boolean enable) {
-        this.enable = enable;
-    }
-
-    public LogLevel getGlobalLogLevel() {
-        return globalLogLevel;
-    }
-
-    public void setGlobalLogLevel(LogLevel globalLogLevel) {
-        this.globalLogLevel = globalLogLevel;
-    }
-
-    public LogStrategy getGlobalLogStrategy() {
-        return globalLogStrategy;
-    }
-
-    public void setGlobalLogStrategy(LogStrategy globalLogStrategy) {
-        this.globalLogStrategy = globalLogStrategy;
-    }
-
-    public Class<? extends BaseLoggingInterceptor> getLoggingInterceptor() {
-        return loggingInterceptor;
-    }
-
-    public void setLoggingInterceptor(Class<? extends BaseLoggingInterceptor> loggingInterceptor) {
-        this.loggingInterceptor = loggingInterceptor;
-    }
 }

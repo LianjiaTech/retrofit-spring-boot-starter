@@ -1,13 +1,14 @@
 package com.github.lianjiatech.retrofit.spring.boot.interceptor;
 
-import com.github.lianjiatech.retrofit.spring.boot.core.ErrorDecoder;
-import okhttp3.Interceptor;
-import okhttp3.Request;
-import okhttp3.Response;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.github.lianjiatech.retrofit.spring.boot.core.ErrorDecoder;
+
+import okhttp3.Interceptor;
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  * @author 陈添明
@@ -16,7 +17,7 @@ public class ErrorDecoderInterceptor implements Interceptor {
 
     private final ErrorDecoder errorDecoder;
 
-    private static Map<ErrorDecoder, ErrorDecoderInterceptor> cache = new HashMap<>(4);
+    private static final Map<ErrorDecoder, ErrorDecoderInterceptor> CACHE = new HashMap<>(4);
 
     private ErrorDecoderInterceptor(ErrorDecoder errorDecoder) {
         this.errorDecoder = errorDecoder;
@@ -44,20 +45,19 @@ public class ErrorDecoderInterceptor implements Interceptor {
             throw errorDecoder.ioExceptionDecode(request, e);
         } catch (Exception e) {
             if (decoded && e instanceof RuntimeException) {
-                throw (RuntimeException) e;
+                throw (RuntimeException)e;
             }
             throw errorDecoder.exceptionDecode(request, e);
         }
     }
 
-
     public static ErrorDecoderInterceptor create(ErrorDecoder errorDecoder) {
-        ErrorDecoderInterceptor interceptor = cache.get(errorDecoder);
+        ErrorDecoderInterceptor interceptor = CACHE.get(errorDecoder);
         if (interceptor != null) {
             return interceptor;
         }
         interceptor = new ErrorDecoderInterceptor(errorDecoder);
-        cache.put(errorDecoder, interceptor);
+        CACHE.put(errorDecoder, interceptor);
         return interceptor;
     }
 }

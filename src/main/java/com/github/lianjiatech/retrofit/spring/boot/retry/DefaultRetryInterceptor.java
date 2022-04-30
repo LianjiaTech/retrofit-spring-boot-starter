@@ -1,25 +1,23 @@
 package com.github.lianjiatech.retrofit.spring.boot.retry;
 
-import okhttp3.Request;
-import okhttp3.Response;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
+import okhttp3.Request;
+import okhttp3.Response;
+
 /**
  * @author 陈添明
  */
+@Slf4j
 public class DefaultRetryInterceptor extends BaseRetryInterceptor {
-
-    private final static Logger logger = LoggerFactory.getLogger(DefaultRetryInterceptor.class);
 
     @Override
     protected Response retryIntercept(int maxRetries, int intervalMs, RetryRule[] retryRules, Chain chain) {
-        HashSet<RetryRule> retryRuleSet = (HashSet<RetryRule>) Arrays.stream(retryRules).collect(Collectors.toSet());
+        HashSet<RetryRule> retryRuleSet = (HashSet<RetryRule>)Arrays.stream(retryRules).collect(Collectors.toSet());
         RetryStrategy retryStrategy = new RetryStrategy(maxRetries, intervalMs);
         while (true) {
             try {
@@ -35,7 +33,7 @@ public class DefaultRetryInterceptor extends BaseRetryInterceptor {
                     }
                     // 执行重试
                     retryStrategy.retry();
-                    logger.debug("The response fails, retry is performed! The response code is " + response.code());
+                    log.debug("The response fails, retry is performed! The response code is " + response.code());
                     response.close();
                 }
             } catch (Exception e) {

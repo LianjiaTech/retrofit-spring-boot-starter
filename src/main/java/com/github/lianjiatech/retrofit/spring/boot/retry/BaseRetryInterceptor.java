@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 
 import com.github.lianjiatech.retrofit.spring.boot.util.AnnotationExtendUtils;
 
+import lombok.Data;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -16,6 +17,7 @@ import retrofit2.Invocation;
  *
  * @author 陈添明
  */
+@Data
 public abstract class BaseRetryInterceptor implements Interceptor {
 
     private boolean enableGlobalRetry;
@@ -74,9 +76,7 @@ public abstract class BaseRetryInterceptor implements Interceptor {
     }
 
     /**
-     * process a retryable request
-     * The access level here is set to protected, which can facilitate business personalized expansion
-     * 这里访问级别设置为protected，可方便业务个性化扩展
+     * 重试拦截
      *
      * @param maxRetries 最大重试次数。Maximum number of retries
      * @param intervalMs 重试时间间隔。Retry interval
@@ -85,21 +85,4 @@ public abstract class BaseRetryInterceptor implements Interceptor {
      * @return 请求响应。Response
      */
     protected abstract Response retryIntercept(int maxRetries, int intervalMs, RetryRule[] retryRules, Chain chain);
-
-
-    public void setEnableGlobalRetry(boolean enableGlobalRetry) {
-        this.enableGlobalRetry = enableGlobalRetry;
-    }
-
-    public void setGlobalMaxRetries(int globalMaxRetries) {
-        this.globalMaxRetries = globalMaxRetries;
-    }
-
-    public void setGlobalIntervalMs(int globalIntervalMs) {
-        this.globalIntervalMs = globalIntervalMs;
-    }
-
-    public void setGlobalRetryRules(RetryRule[] globalRetryRules) {
-        this.globalRetryRules = globalRetryRules;
-    }
 }

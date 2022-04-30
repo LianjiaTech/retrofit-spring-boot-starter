@@ -5,14 +5,13 @@ import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 
+import lombok.experimental.UtilityClass;
+
 /**
  * @author 陈添明
  */
+@UtilityClass
 public final class ApplicationContextUtils {
-
-    private ApplicationContextUtils() {
-        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
-    }
 
     public static <T> T getBeanOrNull(ApplicationContext context, Class<T> clz) {
         try {

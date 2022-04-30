@@ -1,11 +1,10 @@
 package com.github.lianjiatech.retrofit.spring.boot.config;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
@@ -34,11 +33,13 @@ import com.github.lianjiatech.retrofit.spring.boot.degrade.DefaultResourceNamePa
 import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.ResourceNameParser;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.sentinel.SentinelDegradeInterceptor;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.GlobalAndNetworkInterceptorFinder;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.GlobalInterceptor;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.NetworkInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.ServiceInstanceChooserInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.retry.BaseRetryInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.util.ApplicationContextUtils;
 
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.ConnectionPool;
 import retrofit2.CallAdapter;
 import retrofit2.Converter;
@@ -50,9 +51,8 @@ import retrofit2.converter.jackson.JacksonConverterFactory;
 @Configuration
 @EnableConfigurationProperties(RetrofitProperties.class)
 @AutoConfigureAfter({JacksonAutoConfiguration.class})
+@Slf4j
 public class RetrofitAutoConfiguration implements ApplicationContextAware {
-
-    private static final Logger logger = LoggerFactory.getLogger(RetrofitAutoConfiguration.class);
 
     private final RetrofitProperties retrofitProperties;
 
@@ -72,29 +72,26 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
     }
 
     @Bean
-    public GlobalAndNetworkInterceptorFinder globalAndNetworkInterceptorFinder() {
-        return new GlobalAndNetworkInterceptorFinder();
-    }
-
-    @Bean
     @ConditionalOnMissingBean
     public RetrofitConfigBean retrofitConfigBean(@Autowired(required = false) ResourceNameParser resourceNameParser,
-            @Autowired(required = false) DegradeInterceptor degradeInterceptor)
+            @Autowired(required = false) DegradeInterceptor degradeInterceptor,
+            @Autowired(required = false) List<GlobalInterceptor> globalInterceptors,
+            @Autowired(required = false) List<NetworkInterceptor> networkInterceptors)
             throws IllegalAccessException, InstantiationException {
-        RetrofitConfigBean retrofitConfigBean =
-                new RetrofitConfigBean(retrofitProperties, globalAndNetworkInterceptorFinder());
-        // Initialize the connection pool
-        Map<String, ConnectionPool> poolRegistry = new ConcurrentHashMap<>(4);
-        Map<String, PoolConfig> pool = retrofitProperties.getPool();
-        if (pool != null) {
-            pool.forEach((poolName, poolConfig) -> {
-                long keepAliveSecond = poolConfig.getKeepAliveSecond();
-                int maxIdleConnections = poolConfig.getMaxIdleConnections();
-                ConnectionPool connectionPool =
-                        new ConnectionPool(maxIdleConnections, keepAliveSecond, TimeUnit.SECONDS);
-                poolRegistry.put(poolName, connectionPool);
-            });
-        }
+        RetrofitConfigBean retrofitConfigBean = new RetrofitConfigBean(retrofitProperties);
+        retrofitConfigBean.setGlobalInterceptors(globalInterceptors);
+        retrofitConfigBean.setNetworkInterceptors(networkInterceptors);
+        retrofitConfigBean.setResourceNameParser(resourceNameParser);
+        retrofitConfigBean.setDegradeInterceptor(degradeInterceptor);
+
+        Map<String, ConnectionPool> poolRegistry = new HashMap<>(4);
+        retrofitProperties.getPool().forEach((poolName, poolConfig) -> {
+            long keepAliveSecond = poolConfig.getKeepAliveSecond();
+            int maxIdleConnections = poolConfig.getMaxIdleConnections();
+            ConnectionPool connectionPool =
+                    new ConnectionPool(maxIdleConnections, keepAliveSecond, TimeUnit.SECONDS);
+            poolRegistry.put(poolName, connectionPool);
+        });
         retrofitConfigBean.setPoolRegistry(poolRegistry);
 
         // callAdapterFactory
@@ -111,10 +108,7 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
         RetryProperty retry = retrofitProperties.getRetry();
         Class<? extends BaseRetryInterceptor> retryInterceptor = retry.getRetryInterceptor();
         BaseRetryInterceptor retryInterceptorInstance =
-                ApplicationContextUtils.getBeanOrNull(applicationContext, retryInterceptor);
-        if (retryInterceptorInstance == null) {
-            retryInterceptorInstance = retryInterceptor.newInstance();
-        }
+                ApplicationContextUtils.getBeanOrNew(applicationContext, retryInterceptor);
         BeanUtils.copyProperties(retry, retryInterceptorInstance);
         retrofitConfigBean.setRetryInterceptor(retryInterceptorInstance);
 
@@ -130,8 +124,7 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
                 new ServiceInstanceChooserInterceptor(serviceInstanceChooser);
         retrofitConfigBean.setServiceInstanceChooserInterceptor(serviceInstanceChooserInterceptor);
 
-        retrofitConfigBean.setResourceNameParser(resourceNameParser);
-        retrofitConfigBean.setDegradeInterceptor(degradeInterceptor);
+
         return retrofitConfigBean;
     }
 
@@ -176,7 +169,7 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
     public static class RetrofitScannerRegistrarNotFoundConfiguration implements InitializingBean {
         @Override
         public void afterPropertiesSet() {
-            logger.debug("No {} found.", RetrofitFactoryBean.class.getName());
+            log.debug("No {} found.", RetrofitFactoryBean.class.getName());
         }
     }
 

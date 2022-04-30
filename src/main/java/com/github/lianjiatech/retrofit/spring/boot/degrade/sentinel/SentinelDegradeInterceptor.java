@@ -23,7 +23,7 @@ import retrofit2.Invocation;
  */
 public class SentinelDegradeInterceptor implements DegradeInterceptor {
 
-    private ResourceNameParser resourceNameParser;
+    private final ResourceNameParser resourceNameParser;
 
     public SentinelDegradeInterceptor(ResourceNameParser resourceNameParser) {
         this.resourceNameParser = resourceNameParser;

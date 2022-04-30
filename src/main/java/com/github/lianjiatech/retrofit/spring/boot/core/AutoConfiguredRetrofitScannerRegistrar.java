@@ -1,8 +1,8 @@
 package com.github.lianjiatech.retrofit.spring.boot.core;
 
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.List;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.BeanFactory;
@@ -14,7 +14,7 @@ import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.AnnotationMetadata;
 
-import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * This will just scan the same base package as Spring Boot does. If you want more power, you can explicitly use
@@ -23,9 +23,8 @@ import java.util.List;
  *
  * @author 陈添明
  */
+@Slf4j
 public class AutoConfiguredRetrofitScannerRegistrar implements BeanFactoryAware, ImportBeanDefinitionRegistrar, ResourceLoaderAware, BeanClassLoaderAware {
-
-    private static final Logger logger = LoggerFactory.getLogger(AutoConfiguredRetrofitScannerRegistrar.class);
 
     private BeanFactory beanFactory;
 
@@ -38,19 +37,18 @@ public class AutoConfiguredRetrofitScannerRegistrar implements BeanFactoryAware,
         this.beanFactory = beanFactory;
     }
 
-
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
         if (!AutoConfigurationPackages.has(this.beanFactory)) {
-            logger.debug("Could not determine auto-configuration package, automatic retrofit scanning disabled.");
+            log.debug("Could not determine auto-configuration package, automatic retrofit scanning disabled.");
             return;
         }
 
-        logger.debug("Searching for retrofits annotated with @RetrofitClient");
+        log.debug("Searching for retrofits annotated with @RetrofitClient");
 
         List<String> packages = AutoConfigurationPackages.get(this.beanFactory);
-        if (logger.isDebugEnabled()) {
-            packages.forEach(pkg -> logger.debug("Using auto-configuration base package '{}'", pkg));
+        if (log.isDebugEnabled()) {
+            packages.forEach(pkg -> log.debug("Using auto-configuration base package '{}'", pkg));
         }
 
         // Scan the @RetrofitClient annotated interface under the specified path and register it to the BeanDefinitionRegistry
@@ -64,12 +62,10 @@ public class AutoConfiguredRetrofitScannerRegistrar implements BeanFactoryAware,
         scanner.doScan(packageArr);
     }
 
-
     @Override
     public void setResourceLoader(ResourceLoader resourceLoader) {
         this.resourceLoader = resourceLoader;
     }
-
 
     @Override
     public void setBeanClassLoader(ClassLoader classLoader) {

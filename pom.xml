@@ -46,9 +46,16 @@
         <okio.version>1.17.5</okio.version>
         <sentinel.version>1.6.3</sentinel.version>
         <jackson.version>2.12.6.1</jackson.version>
+        <lombok.version>1.18.24</lombok.version>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-commons</artifactId>
