@@ -1,4 +1,4 @@
-package com.github.lianjiatech.retrofit.spring.boot.degrade;
+package com.github.lianjiatech.retrofit.spring.boot.degrade.sentinel;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
 public @interface SentinelDegrade {
 
     /**
-     * RT模式下为慢调用临界 RT（超出该值计为慢调用）；异常比例/异常数模式下为对应的阈值
+     * 各降级策略对应的阈值。平均响应时间(ms)，异常比例(0-1)，异常数量(1-N)
      */
     double count();
 

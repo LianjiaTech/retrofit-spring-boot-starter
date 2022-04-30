@@ -1,7 +1,5 @@
 package com.github.lianjiatech.retrofit.spring.boot.config;
 
-import com.github.lianjiatech.retrofit.spring.boot.degrade.BaseResourceNameParser;
-import com.github.lianjiatech.retrofit.spring.boot.degrade.DefaultResourceNameParser;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeType;
 
 /**
@@ -17,16 +15,10 @@ public class DegradeProperty {
     private boolean enable = false;
 
     /**
-     * 熔断降级类型，暂时只支持SENTINEL
-     * degrade type, Only SENTINEL is currently supported
+     * 熔断降级类型
+     * degrade type
      */
     private DegradeType degradeType = DegradeType.SENTINEL;
-
-    /**
-     * 资源名称解析器
-     * resource name parser
-     */
-    private Class<? extends BaseResourceNameParser> resourceNameParser = DefaultResourceNameParser.class;
 
 
     public boolean isEnable() {
@@ -43,13 +35,5 @@ public class DegradeProperty {
 
     public void setDegradeType(DegradeType degradeType) {
         this.degradeType = degradeType;
-    }
-
-    public Class<? extends BaseResourceNameParser> getResourceNameParser() {
-        return resourceNameParser;
-    }
-
-    public void setResourceNameParser(Class<? extends BaseResourceNameParser> resourceNameParser) {
-        this.resourceNameParser = resourceNameParser;
     }
 }

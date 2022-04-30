@@ -1,12 +1,14 @@
 package com.github.lianjiatech.retrofit.spring.boot.retry;
 
+import java.io.IOException;
+import java.lang.reflect.Method;
+
+import com.github.lianjiatech.retrofit.spring.boot.util.AnnotationExtendUtils;
+
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
 import retrofit2.Invocation;
-
-import java.io.IOException;
-import java.lang.reflect.Method;
 
 /**
  * 请求重试拦截器
@@ -33,7 +35,7 @@ public abstract class BaseRetryInterceptor implements Interceptor {
         assert invocation != null;
         Method method = invocation.method();
         // 获取重试配置
-        Retry retry = getRetry(method);
+        Retry retry = AnnotationExtendUtils.findAnnotation(method, Retry.class);
 
         if (!needRetry(retry)) {
             return chain.proceed(request);
@@ -70,18 +72,6 @@ public abstract class BaseRetryInterceptor implements Interceptor {
         }
         return false;
     }
-
-    private Retry getRetry(Method method) {
-        Retry retry;
-        if (method.isAnnotationPresent(Retry.class)) {
-            retry = method.getAnnotation(Retry.class);
-        } else {
-            Class<?> declaringClass = method.getDeclaringClass();
-            retry = declaringClass.getAnnotation(Retry.class);
-        }
-        return retry;
-    }
-
 
     /**
      * process a retryable request

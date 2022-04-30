@@ -14,16 +14,24 @@ public final class ApplicationContextUtils {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
     }
 
-
-    public static <T> T getBean(ApplicationContext context, Class<T> clz) {
+    public static <T> T getBeanOrNull(ApplicationContext context, Class<T> clz) {
         try {
-            T bean = context.getBean(clz);
-            return bean;
+            return context.getBean(clz);
         } catch (BeansException e) {
             return null;
         }
     }
 
+    public static <T> T getBeanOrNew(ApplicationContext context, Class<T> clz)
+            throws InstantiationException, IllegalAccessException {
+        try {
+            return context.getBean(clz);
+        } catch (BeansException e) {
+            return clz.newInstance();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
     public static <T> T getTargetInstanceIfNecessary(T bean) {
         Object object = bean;
         while (AopUtils.isAopProxy(object)) {

@@ -1,7 +1,15 @@
 package com.github.lianjiatech.retrofit.spring.boot.util;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+
+import org.springframework.core.env.Environment;
+import org.springframework.util.StringUtils;
+
 import com.github.lianjiatech.retrofit.spring.boot.annotation.RetrofitClient;
 import com.github.lianjiatech.retrofit.spring.boot.exception.ReadResponseBodyException;
+
 import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.Response;
@@ -9,28 +17,23 @@ import okhttp3.ResponseBody;
 import okio.Buffer;
 import okio.BufferedSource;
 import okio.GzipSource;
-import org.springframework.core.env.Environment;
-import org.springframework.util.StringUtils;
-
-import java.io.IOException;
-import java.nio.charset.Charset;
 
 /**
  * @author 陈添明
  */
 public final class RetrofitUtils {
 
-    private static final Charset UTF8 = Charset.forName("UTF-8");
+    private static final Charset UTF8 = StandardCharsets.UTF_8;
     public static final String GZIP = "gzip";
     public static final String CONTENT_ENCODING = "Content-Encoding";
     public static final String IDENTITY = "identity";
 
     private static final String SUFFIX = "/";
+    public static final String HTTP_PREFIX = "http://";
 
     private RetrofitUtils() {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
     }
-
 
     /**
      * read ResponseBody as String
@@ -100,7 +103,7 @@ public final class RetrofitUtils {
             if (!path.endsWith(SUFFIX)) {
                 path += SUFFIX;
             }
-            baseUrl = "http://" + (serviceId + SUFFIX + path).replaceAll("/+", SUFFIX);
+            baseUrl = HTTP_PREFIX + (serviceId + SUFFIX + path).replaceAll("/+", SUFFIX);
             baseUrl = environment.resolveRequiredPlaceholders(baseUrl);
         }
         return baseUrl;
