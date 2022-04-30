@@ -1,7 +1,7 @@
 package com.github.lianjiatech.retrofit.spring.boot.degrade.sentinel;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import com.alibaba.csp.sentinel.Entry;
@@ -16,6 +16,7 @@ import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitBlockExceptio
 import okhttp3.Response;
 
 /**
+ * Sentinel 熔断规则注册器
  * @author yukdawn@gmail.com 2022/4/5 23:15
  */
 public class SentinelDegradeRuleRegister implements DegradeRuleRegister<DegradeRule> {
@@ -23,9 +24,10 @@ public class SentinelDegradeRuleRegister implements DegradeRuleRegister<DegradeR
     @Override
     public void register(String resourceName, DegradeRule rule) {
         rule.setResource(resourceName);
-        DegradeRuleManager.loadRules(Collections.singletonList(rule));
+        List<DegradeRule> rules = DegradeRuleManager.getRules();
+        rules.add(rule);
+        DegradeRuleManager.loadRules(rules);
     }
-
     @Override
     public DegradeRule newInstanceByDefault(Map<String, Object> attrMap) {
         return new DegradeRule()

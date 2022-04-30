@@ -12,7 +12,7 @@ import com.github.lianjiatech.retrofit.spring.boot.test.service.TestService;
 import okhttp3.Request;
 import okhttp3.Response;
 
-@Component
+//@Component
 @Order(2)
 public class SourceGlobalInterceptor implements GlobalInterceptor {
 

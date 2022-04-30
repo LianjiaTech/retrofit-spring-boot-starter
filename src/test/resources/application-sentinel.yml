@@ -1,4 +1,3 @@
-
 retrofit:
   # 连接池配置
   pool:
@@ -12,7 +11,6 @@ retrofit:
   # 是否禁用void返回值类型
   disable-void-return-type: false
 
-
   # 全局转换器工厂
   global-converter-factories:
     - com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory
@@ -22,39 +20,6 @@ retrofit:
     - com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory
     - com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory
 
-  # 日志打印配置
-  log:
-    # 启用日志打印
-    enable: true
-    # 日志打印拦截器
-    logging-interceptor: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor
-    # 全局日志打印级别
-    global-log-level: info
-    # 全局日志打印策略
-    global-log-strategy: body
-
-
-  # 重试配置
-  retry:
-    # 是否启用全局重试
-    enable-global-retry: true
-    # 全局重试间隔时间
-    global-interval-ms: 1
-    # 全局最大重试次数
-    global-max-retries: 1
-    # 全局重试规则
-    global-retry-rules:
-      - response_status_not_2xx
-      - occur_io_exception
-    # 重试拦截器
-    retry-interceptor: com.github.lianjiatech.retrofit.spring.boot.retry.DefaultRetryInterceptor
-
-  # 熔断降级配置
-  degrade:
-    # 是否启用熔断降级
-    enable: true
-    # 熔断降级实现方式
-    degrade-type: sentinel
   # 全局连接超时时间
   global-connect-timeout-ms: 5000
   # 全局读取超时时间
@@ -63,6 +28,11 @@ retrofit:
   global-write-timeout-ms: 5000
   # 全局完整调用超时时间
   global-call-timeout-ms: 0
+
+  # 熔断降级配置
+  degrade:
+    # 熔断降级实现方式
+    degrade-type: sentinel
 
 test:
   baseUrl: http://localhost:8080/api/test/

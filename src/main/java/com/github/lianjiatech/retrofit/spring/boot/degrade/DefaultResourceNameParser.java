@@ -16,7 +16,7 @@ import retrofit2.http.*;
 public class DefaultResourceNameParser implements ResourceNameParser, EnvironmentAware {
 
     private static final String PREFIX = "HTTP_OUT";
-    private static Map<Method, String> RESOURCE_NAME_CACHE = new ConcurrentHashMap<>(128);
+    private static final Map<Method, String> RESOURCE_NAME_CACHE = new ConcurrentHashMap<>(128);
 
     private Environment env;
 

@@ -8,7 +8,6 @@ import java.util.concurrent.TimeUnit;
 
 import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeRuleRegister;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitBlockException;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
@@ -19,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Resilience4j 熔断规则注册器
  * @author yukdawn@gmail.com 2022/4/5 23:15
  */
 public class Resilience4jDegradeRuleRegister implements DegradeRuleRegister<CircuitBreakerConfig> {

@@ -7,7 +7,7 @@ import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 
 /**
  * 应仅采用异常比例模式来控制熔断，超时导致的报错应在okhttp这一层做
- * @author 陈添明 yukdawn@gmail.com
+ * @author yukdawn@gmail.com
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})
@@ -16,38 +16,31 @@ import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 public @interface Resilience4jDegrade {
 
     /**
-     * 滑动窗口的类型
-     * @return
+     * @return 滑动窗口的类型
      */
     CircuitBreakerConfig.SlidingWindowType slidingWindowType() default CircuitBreakerConfig.SlidingWindowType.TIME_BASED;
     /**
-     * 窗口的大小
-     * @return
+     * @return 窗口的大小
      */
     int slidingWindowSize() default DEFAULT_SLIDING_WINDOW_SIZE;
     /**
-     * 在单位窗口内最少需要几次调用才能开始进行统计计算
-     * @return
+     * @return 在单位窗口内最少需要几次调用才能开始进行统计计算
      */
     int minimumNumberOfCalls() default DEFAULT_MINIMUM_NUMBER_OF_CALLS;
     /**
-     * 单位时间窗口内调用失败率达到多少后会启动断路器
-     * @return
+     * @return 单位时间窗口内调用失败率达到多少后会启动断路器
      */
     float failureRateThreshold() default DEFAULT_FAILURE_RATE_THRESHOLD;
     /**
-     * 允许断路器自动由打开状态转换为半开状态
-     * @return
+     * @return 允许断路器自动由打开状态转换为半开状态
      */
     boolean enableAutomaticTransitionFromOpenToHalfOpen() default DEFAULT_ENABLE_AUTOMATIC_TRANSITION_FROM_OPEN_TO_HALF_OPEN;
     /**
-     * 在半开状态下允许进行正常调用的次数
-     * @return
+     * @return 在半开状态下允许进行正常调用的次数
      */
     int permittedNumberOfCallsInHalfOpenState() default DEFAULT_PERMITTED_NUMBER_OF_CALLS_IN_HALF_OPEN_STATE;
     /**
-     * 断路器打开状态转换为半开状态需要等待秒数
-     * @return
+     * @return 断路器打开状态转换为半开状态需要等待秒数
      */
     int waitDurationInOpenState() default DEFAULT_WAIT_DURATION_IN_OPEN_STATE;
 

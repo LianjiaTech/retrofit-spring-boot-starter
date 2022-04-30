@@ -146,11 +146,11 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         // 检查此注解有无被继承，有继承则将子注解的属性整理为map
         // TODO 也许需要增强？ 注解多重继承、@AliasFor、（多子类注解）注解在同一节点问题？ 现在只取第一层，第一个子类注解
         List<Annotation> annotationList = Optional
-                .ofNullable(AnnotationUtils.getAnnotations(Objects.isNull(methodDegrade) ? method : retrofitInterface))
+                .ofNullable(AnnotationUtils.getAnnotations(Objects.nonNull(methodDegrade) ? method : retrofitInterface))
                 .map(Arrays::asList)
                 .orElse(Collections.emptyList());
         Map<String, Object> attrMap = annotationList.stream()
-                .filter((annotation) -> annotation.getClass().isAnnotationPresent(Degrade.class))
+                .filter((annotation) -> annotation.annotationType().isAnnotationPresent(Degrade.class))
                 .findFirst()
                 .map(AnnotationUtils::getAnnotationAttributes)
                 .orElse(new HashMap<>());
