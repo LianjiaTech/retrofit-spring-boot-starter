@@ -1,8 +1,9 @@
 package com.github.lianjiatech.retrofit.spring.boot.core;
 
-import com.github.lianjiatech.retrofit.spring.boot.annotation.RetrofitClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -11,18 +12,17 @@ import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.util.ClassUtils;
 
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.Set;
+import com.github.lianjiatech.retrofit.spring.boot.annotation.RetrofitClient;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author 陈添明
  */
+@Slf4j
 public class ClassPathRetrofitClientScanner extends ClassPathBeanDefinitionScanner {
 
     private final ClassLoader classLoader;
-
-    private final static Logger logger = LoggerFactory.getLogger(ClassPathRetrofitClientScanner.class);
 
     public ClassPathRetrofitClientScanner(BeanDefinitionRegistry registry, ClassLoader classLoader) {
         super(registry, false);
@@ -34,12 +34,12 @@ public class ClassPathRetrofitClientScanner extends ClassPathBeanDefinitionScann
         this.addIncludeFilter(annotationTypeFilter);
     }
 
-
     @Override
     protected Set<BeanDefinitionHolder> doScan(String... basePackages) {
         Set<BeanDefinitionHolder> beanDefinitions = super.doScan(basePackages);
         if (beanDefinitions.isEmpty()) {
-            logger.warn("No RetrofitClient was found in '" + Arrays.toString(basePackages) + "' package. Please check your configuration.");
+            log.warn("No RetrofitClient was found in '" + Arrays.toString(basePackages)
+                    + "' package. Please check your configuration.");
         } else {
             processBeanDefinitions(beanDefinitions);
         }
@@ -56,22 +56,22 @@ public class ClassPathRetrofitClientScanner extends ClassPathBeanDefinitionScann
                         classLoader);
                 return !target.isAnnotation();
             } catch (Exception ex) {
-                logger.error("load class exception:", ex);
+                log.error("load class exception:", ex);
             }
         }
         return false;
     }
 
-
     private void processBeanDefinitions(Set<BeanDefinitionHolder> beanDefinitions) {
         GenericBeanDefinition definition;
         for (BeanDefinitionHolder holder : beanDefinitions) {
-            definition = (GenericBeanDefinition) holder.getBeanDefinition();
-            if (logger.isDebugEnabled()) {
-                logger.debug("Creating RetrofitClientBean with name '" + holder.getBeanName()
+            definition = (GenericBeanDefinition)holder.getBeanDefinition();
+            if (log.isDebugEnabled()) {
+                log.debug("Creating RetrofitClientBean with name '" + holder.getBeanName()
                         + "' and '" + definition.getBeanClassName() + "' Interface");
             }
-            definition.getConstructorArgumentValues().addGenericArgumentValue(Objects.requireNonNull(definition.getBeanClassName()));
+            definition.getConstructorArgumentValues()
+                    .addGenericArgumentValue(Objects.requireNonNull(definition.getBeanClassName()));
             // beanClass全部设置为RetrofitFactoryBean
             definition.setBeanClass(RetrofitFactoryBean.class);
         }

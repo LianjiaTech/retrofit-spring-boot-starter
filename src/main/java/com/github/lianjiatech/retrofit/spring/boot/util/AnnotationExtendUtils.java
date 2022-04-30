@@ -5,10 +5,13 @@ import java.lang.reflect.Method;
 
 import org.springframework.lang.Nullable;
 
+import lombok.experimental.UtilityClass;
+
 /**
  * @author 陈添明
  * @since 2022/4/30 3:02 下午
  */
+@UtilityClass
 public class AnnotationExtendUtils {
 
     /**

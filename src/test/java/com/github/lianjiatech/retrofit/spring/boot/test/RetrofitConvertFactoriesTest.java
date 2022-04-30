@@ -1,24 +1,24 @@
 package com.github.lianjiatech.retrofit.spring.boot.test;
 
-import com.github.lianjiatech.retrofit.spring.boot.test.entity.Person;
-import com.github.lianjiatech.retrofit.spring.boot.test.entity.Result;
-import com.github.lianjiatech.retrofit.spring.boot.test.http.ConvertFactoriesTestApi;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
+import java.io.IOException;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.io.IOException;
+import com.github.lianjiatech.retrofit.spring.boot.test.entity.Person;
+import com.github.lianjiatech.retrofit.spring.boot.test.entity.Result;
+import com.github.lianjiatech.retrofit.spring.boot.test.http.ConvertFactoriesTestApi;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
 
 /**
  * @author 陈添明
@@ -26,9 +26,6 @@ import java.io.IOException;
 @SpringBootTest(classes = RetrofitTestApplication.class)
 @RunWith(SpringRunner.class)
 public class RetrofitConvertFactoriesTest {
-
-
-    private static final Logger logger = LoggerFactory.getLogger(RetrofitExceptionTest.class);
 
     @Autowired
     private ConvertFactoriesTestApi convertFactoriesTestApi;

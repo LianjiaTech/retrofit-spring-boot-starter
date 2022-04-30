@@ -2,11 +2,13 @@ package com.github.lianjiatech.retrofit.spring.boot.config;
 
 import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeType;
 
+import lombok.Data;
+
 /**
  * @author 陈添明
  */
+@Data
 public class DegradeProperty {
-
 
     /**
      * 启用熔断降级
@@ -19,21 +21,4 @@ public class DegradeProperty {
      * degrade type
      */
     private DegradeType degradeType = DegradeType.SENTINEL;
-
-
-    public boolean isEnable() {
-        return enable;
-    }
-
-    public void setEnable(boolean enable) {
-        this.enable = enable;
-    }
-
-    public DegradeType getDegradeType() {
-        return degradeType;
-    }
-
-    public void setDegradeType(DegradeType degradeType) {
-        this.degradeType = degradeType;
-    }
 }

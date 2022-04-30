@@ -1,17 +1,20 @@
 package com.github.lianjiatech.retrofit.spring.boot.interceptor;
 
-import okhttp3.Request;
-import okhttp3.Response;
+import java.io.IOException;
+
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 
-import java.io.IOException;
+import lombok.Data;
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  * 路径匹配拦截器, 如果使用spring-bean方式，使用原型模式
  *
  * @author 陈添明
  */
+@Data
 public abstract class BasePathMatchInterceptor implements PrototypeInterceptor {
 
     private String[] include;
@@ -19,15 +22,6 @@ public abstract class BasePathMatchInterceptor implements PrototypeInterceptor {
     private String[] exclude;
 
     private PathMatcher pathMatcher = new AntPathMatcher();
-
-
-    public void setInclude(String[] include) {
-        this.include = include;
-    }
-
-    public void setExclude(String[] exclude) {
-        this.exclude = exclude;
-    }
 
     @Override
     public final Response intercept(Chain chain) throws IOException {

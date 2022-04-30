@@ -1,19 +1,18 @@
 package com.github.lianjiatech.retrofit.spring.boot.util;
 
-import org.springframework.beans.BeanUtils;
-
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.util.Map;
 
+import org.springframework.beans.BeanUtils;
+
+import lombok.experimental.UtilityClass;
+
 /**
  * @author 陈添明
  */
+@UtilityClass
 public final class BeanExtendUtils {
-
-    private BeanExtendUtils() {
-        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
-    }
 
     /**
      * 使用map填充bean实例的属性值

@@ -10,6 +10,7 @@ import org.springframework.util.StringUtils;
 import com.github.lianjiatech.retrofit.spring.boot.annotation.RetrofitClient;
 import com.github.lianjiatech.retrofit.spring.boot.exception.ReadResponseBodyException;
 
+import lombok.experimental.UtilityClass;
 import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.Response;
@@ -21,6 +22,7 @@ import okio.GzipSource;
 /**
  * @author 陈添明
  */
+@UtilityClass
 public final class RetrofitUtils {
 
     private static final Charset UTF8 = StandardCharsets.UTF_8;
@@ -30,10 +32,6 @@ public final class RetrofitUtils {
 
     private static final String SUFFIX = "/";
     public static final String HTTP_PREFIX = "http://";
-
-    private RetrofitUtils() {
-        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
-    }
 
     /**
      * read ResponseBody as String

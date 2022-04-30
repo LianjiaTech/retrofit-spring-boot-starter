@@ -1,18 +1,16 @@
 package com.github.lianjiatech.retrofit.spring.boot.interceptor;
 
+import java.io.IOException;
+
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
 
 /**
  * @author 陈添明
  */
+@Slf4j
 public class DefaultLoggingInterceptor extends BaseLoggingInterceptor {
-
-    private final static Logger logger = LoggerFactory.getLogger(DefaultLoggingInterceptor.class);
 
     private final HttpLoggingInterceptor httpLoggingInterceptor;
 
@@ -33,13 +31,13 @@ public class DefaultLoggingInterceptor extends BaseLoggingInterceptor {
 
     public HttpLoggingInterceptor.Logger httpLoggingInterceptorLogger(LogLevel level) {
         if (level == LogLevel.DEBUG) {
-            return logger::debug;
+            return log::debug;
         } else if (level == LogLevel.ERROR) {
-            return logger::error;
+            return log::error;
         } else if (level == LogLevel.INFO) {
-            return logger::info;
+            return log::info;
         } else if (level == LogLevel.WARN) {
-            return logger::warn;
+            return log::warn;
         }
         throw new UnsupportedOperationException("We don't support this log level currently.");
     }

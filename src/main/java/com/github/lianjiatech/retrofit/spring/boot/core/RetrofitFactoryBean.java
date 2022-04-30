@@ -11,11 +11,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.ApplicationContext;
@@ -68,10 +65,8 @@ import retrofit2.Retrofit;
  */
 public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware, ApplicationContextAware {
 
-    private final static Logger logger = LoggerFactory.getLogger(RetrofitFactoryBean.class);
-
     private static final Map<Class<? extends CallAdapter.Factory>, CallAdapter.Factory> CALL_ADAPTER_FACTORIES_CACHE =
-            new ConcurrentHashMap<>(4);
+            new HashMap<>(4);
 
     private Class<T> retrofitInterface;
 
@@ -84,7 +79,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
     private ApplicationContext applicationContext;
 
     private static final Map<Class<? extends Converter.Factory>, Converter.Factory> CONVERTER_FACTORIES_CACHE =
-            new ConcurrentHashMap<>(4);
+            new HashMap<>(4);
 
     public RetrofitFactoryBean(Class<T> retrofitInterface) {
         this.retrofitInterface = retrofitInterface;
@@ -281,10 +276,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
     private void addErrorDecoderInterceptor(OkHttpClient.Builder okHttpClientBuilder, RetrofitClient retrofitClient)
             throws InstantiationException, IllegalAccessException {
         Class<? extends ErrorDecoder> errorDecoderClass = retrofitClient.errorDecoder();
-        ErrorDecoder decoder = ApplicationContextUtils.getBeanOrNull(applicationContext, errorDecoderClass);
-        if (decoder == null) {
-            decoder = errorDecoderClass.newInstance();
-        }
+        ErrorDecoder decoder = ApplicationContextUtils.getBeanOrNew(applicationContext, errorDecoderClass);
         ErrorDecoderInterceptor decoderInterceptor = ErrorDecoderInterceptor.create(decoder);
         okHttpClientBuilder.addInterceptor(decoderInterceptor);
     }
@@ -454,10 +446,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         for (Class<? extends CallAdapter.Factory> callAdapterFactoryClass : combineCallAdapterFactoryClasses) {
             CallAdapter.Factory callAdapterFactory = CALL_ADAPTER_FACTORIES_CACHE.get(callAdapterFactoryClass);
             if (callAdapterFactory == null) {
-                callAdapterFactory = ApplicationContextUtils.getBeanOrNull(applicationContext, callAdapterFactoryClass);
-                if (callAdapterFactory == null) {
-                    callAdapterFactory = callAdapterFactoryClass.newInstance();
-                }
+                callAdapterFactory = ApplicationContextUtils.getBeanOrNew(applicationContext, callAdapterFactoryClass);
                 CALL_ADAPTER_FACTORIES_CACHE.put(callAdapterFactoryClass, callAdapterFactory);
             }
             callAdapterFactories.add(callAdapterFactory);

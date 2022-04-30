@@ -4,9 +4,12 @@ import com.github.lianjiatech.retrofit.spring.boot.retry.BaseRetryInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.retry.DefaultRetryInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.retry.RetryRule;
 
+import lombok.Data;
+
 /**
  * @author 陈添明
  */
+@Data
 public class RetryProperty {
 
     /**
@@ -35,50 +38,8 @@ public class RetryProperty {
 
     private RetryRule[] globalRetryRules = {RetryRule.RESPONSE_STATUS_NOT_2XX, RetryRule.OCCUR_IO_EXCEPTION};
 
-
     /**
      * retry interceptor
      */
     private Class<? extends BaseRetryInterceptor> retryInterceptor = DefaultRetryInterceptor.class;
-
-
-    public boolean isEnableGlobalRetry() {
-        return enableGlobalRetry;
-    }
-
-    public void setEnableGlobalRetry(boolean enableGlobalRetry) {
-        this.enableGlobalRetry = enableGlobalRetry;
-    }
-
-    public int getGlobalMaxRetries() {
-        return globalMaxRetries;
-    }
-
-    public void setGlobalMaxRetries(int globalMaxRetries) {
-        this.globalMaxRetries = globalMaxRetries;
-    }
-
-    public int getGlobalIntervalMs() {
-        return globalIntervalMs;
-    }
-
-    public void setGlobalIntervalMs(int globalIntervalMs) {
-        this.globalIntervalMs = globalIntervalMs;
-    }
-
-    public RetryRule[] getGlobalRetryRules() {
-        return globalRetryRules;
-    }
-
-    public void setGlobalRetryRules(RetryRule[] globalRetryRules) {
-        this.globalRetryRules = globalRetryRules;
-    }
-
-    public Class<? extends BaseRetryInterceptor> getRetryInterceptor() {
-        return retryInterceptor;
-    }
-
-    public void setRetryInterceptor(Class<? extends BaseRetryInterceptor> retryInterceptor) {
-        this.retryInterceptor = retryInterceptor;
-    }
 }
