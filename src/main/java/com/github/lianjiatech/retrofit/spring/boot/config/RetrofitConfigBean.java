@@ -3,8 +3,8 @@ package com.github.lianjiatech.retrofit.spring.boot.config;
 import java.util.List;
 import java.util.Map;
 
-import com.github.lianjiatech.retrofit.spring.boot.degrade.BaseResourceNameParser;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeRuleRegister;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.ResourceNameParser;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.GlobalAndNetworkInterceptorFinder;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.GlobalInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.NetworkInterceptor;
@@ -36,9 +36,9 @@ public class RetrofitConfigBean {
 
     private Class<? extends CallAdapter.Factory>[] globalCallAdapterFactoryClasses;
 
-    private BaseResourceNameParser resourceNameParser;
+    private ResourceNameParser resourceNameParser;
 
-    private DegradeRuleRegister degradeRuleRegister;
+    private DegradeRuleRegister<?> degradeRuleRegister;
 
     public RetrofitProperties getRetrofitProperties() {
         return retrofitProperties;
@@ -101,19 +101,19 @@ public class RetrofitConfigBean {
         this.globalCallAdapterFactoryClasses = globalCallAdapterFactoryClasses;
     }
 
-    public BaseResourceNameParser getResourceNameParser() {
+    public ResourceNameParser getResourceNameParser() {
         return resourceNameParser;
     }
 
-    public void setResourceNameParser(BaseResourceNameParser resourceNameParser) {
+    public void setResourceNameParser(ResourceNameParser resourceNameParser) {
         this.resourceNameParser = resourceNameParser;
     }
 
-    public DegradeRuleRegister getDegradeRuleRegister() {
+    public DegradeRuleRegister<?> getDegradeRuleRegister() {
         return degradeRuleRegister;
     }
 
-    public void setDegradeRuleRegister(DegradeRuleRegister degradeRuleRegister) {
+    public void setDegradeRuleRegister(DegradeRuleRegister<?> degradeRuleRegister) {
         this.degradeRuleRegister = degradeRuleRegister;
     }
 }

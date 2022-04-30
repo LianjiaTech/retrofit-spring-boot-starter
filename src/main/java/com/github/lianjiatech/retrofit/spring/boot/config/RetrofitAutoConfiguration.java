@@ -5,7 +5,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import com.alibaba.csp.sentinel.SphU;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.DefaultResourceNameParser;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeRuleRegister;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.ResourceNameParser;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.resilience4j.Resilience4jDegradeRuleRegister;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.sentinel.SentinelDegradeRuleRegister;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
@@ -37,7 +39,6 @@ import com.github.lianjiatech.retrofit.spring.boot.core.NoValidServiceInstanceCh
 import com.github.lianjiatech.retrofit.spring.boot.core.PrototypeInterceptorBdfProcessor;
 import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitFactoryBean;
 import com.github.lianjiatech.retrofit.spring.boot.core.ServiceInstanceChooser;
-import com.github.lianjiatech.retrofit.spring.boot.degrade.BaseResourceNameParser;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.GlobalAndNetworkInterceptorFinder;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.ServiceInstanceChooserInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.retry.BaseRetryInterceptor;
@@ -79,7 +80,8 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
 
     @Bean
     @ConditionalOnMissingBean
-    public RetrofitConfigBean retrofitConfigBean(ObjectProvider<DegradeRuleRegister> degradeRuleRegisterObjectProvider) throws IllegalAccessException, InstantiationException {
+    public RetrofitConfigBean retrofitConfigBean(ObjectProvider<DegradeRuleRegister<?>> degradeRuleRegisterObjectProvider,
+                                                 ResourceNameParser resourceNameParser) throws IllegalAccessException, InstantiationException {
         RetrofitConfigBean retrofitConfigBean =
                 new RetrofitConfigBean(retrofitProperties, globalAndNetworkInterceptorFinder());
         // Initialize the connection pool
@@ -125,9 +127,7 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
         retrofitConfigBean.setServiceInstanceChooserInterceptor(serviceInstanceChooserInterceptor);
 
         // resource name parser
-        DegradeProperty degrade = retrofitProperties.getDegrade();
-        Class<? extends BaseResourceNameParser> resourceNameParser = degrade.getResourceNameParser();
-        retrofitConfigBean.setResourceNameParser(resourceNameParser.newInstance());
+        retrofitConfigBean.setResourceNameParser(resourceNameParser);
 
         // degrade register
         retrofitConfigBean.setDegradeRuleRegister(degradeRuleRegisterObjectProvider.getIfAvailable());
@@ -138,8 +138,8 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
     @Bean
     @ConditionalOnMissingBean
     @ConditionalOnClass(SphU.class)
-    @ConditionalOnProperty(name = "retrofit.degrade.degrade-type", havingValue = "sentinel")
-    public DegradeRuleRegister sentinelDegradeRuleRegister(){
+    @ConditionalOnProperty(name = "retrofit.degrade.degrade-type", havingValue = "sentinel", matchIfMissing = true)
+    public DegradeRuleRegister<?> sentinelDegradeRuleRegister(){
         return new SentinelDegradeRuleRegister();
     }
 
@@ -147,10 +147,15 @@ public class RetrofitAutoConfiguration implements ApplicationContextAware {
     @ConditionalOnMissingBean
     @ConditionalOnClass(CircuitBreaker.class)
     @ConditionalOnProperty(name = "retrofit.degrade.degrade-type", havingValue = "resilience4j")
-    public DegradeRuleRegister resilience4JDegradeRuleRegister(CircuitBreakerRegistry circuitBreakerRegistry){
+    public DegradeRuleRegister<?> resilience4JDegradeRuleRegister(CircuitBreakerRegistry circuitBreakerRegistry){
         return new Resilience4jDegradeRuleRegister(circuitBreakerRegistry);
     }
 
+    @Bean
+    @ConditionalOnMissingBean
+    public ResourceNameParser resourceNameParser(){
+        return new DefaultResourceNameParser();
+    }
 
     @Bean
     @ConditionalOnMissingBean

@@ -14,9 +14,7 @@ import java.lang.reflect.Method;
  */
 public class DegradeInterceptor implements Interceptor {
 
-    private Environment environment;
-
-    private BaseResourceNameParser resourceNameParser;
+    private ResourceNameParser resourceNameParser;
 
     protected DegradeRuleRegister<?> degradeRuleRegister;
 
@@ -24,11 +22,7 @@ public class DegradeInterceptor implements Interceptor {
         this.degradeRuleRegister = degradeRuleRegister;
     }
 
-    public void setEnvironment(Environment environment) {
-        this.environment = environment;
-    }
-
-    public void setResourceNameParser(BaseResourceNameParser resourceNameParser) {
+    public void setResourceNameParser(ResourceNameParser resourceNameParser) {
         this.resourceNameParser = resourceNameParser;
     }
 
@@ -38,7 +32,7 @@ public class DegradeInterceptor implements Interceptor {
         Invocation invocation = request.tag(Invocation.class);
         assert invocation != null;
         Method method = invocation.method();
-        String resourceName = resourceNameParser.parseResourceName(method, environment);
+        String resourceName = resourceNameParser.parseResourceName(method);
         return degradeIntercept(resourceName, chain);
     }
 

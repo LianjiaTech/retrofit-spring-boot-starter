@@ -48,15 +48,6 @@ retrofit:
       - occur_io_exception
     # 重试拦截器
     retry-interceptor: com.github.lianjiatech.retrofit.spring.boot.retry.DefaultRetryInterceptor
-
-  # 熔断降级配置
-  degrade:
-    # 是否启用熔断降级
-    enable: true
-    # 熔断降级实现方式
-    degrade-type: sentinel
-    # 熔断资源名称解析器
-    resource-name-parser: com.github.lianjiatech.retrofit.spring.boot.degrade.DefaultResourceNameParser
   # 全局连接超时时间
   global-connect-timeout-ms: 5000
   # 全局读取超时时间

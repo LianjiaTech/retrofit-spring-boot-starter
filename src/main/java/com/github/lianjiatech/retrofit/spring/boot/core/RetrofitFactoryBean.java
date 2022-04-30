@@ -8,6 +8,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import com.github.lianjiatech.retrofit.spring.boot.degrade.*;
 import org.slf4j.Logger;
@@ -69,14 +70,25 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
 
     private ApplicationContext applicationContext;
 
+    private ResourceNameParser resourceNameParser;
+
+    private DegradeRuleRegister<?> degradeRuleRegister;
+
     private final RetrofitClient retrofitClient;
+
+    private final List<Method> methods;
 
     private static final Map<Class<? extends Converter.Factory>, Converter.Factory> CONVERTER_FACTORIES_CACHE =
             new HashMap<>(4);
 
     public RetrofitFactoryBean(Class<T> retrofitInterface) {
         this.retrofitInterface = retrofitInterface;
-        retrofitClient = retrofitInterface.getAnnotation(RetrofitClient.class);
+        this.retrofitClient = retrofitInterface.getAnnotation(RetrofitClient.class);
+        this.methods = Arrays.stream(retrofitInterface.getMethods())
+                // 只处理非默认，非静态的interface方法
+                .filter(method -> !method.isDefault() && !Modifier.isStatic(method.getModifiers()))
+                .collect(Collectors.toList());
+
     }
 
     @Override
@@ -97,7 +109,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         FallbackFactory<?> fallbackFactory = null;
         if (!void.class.isAssignableFrom(fallbackFactoryClass)) {
             fallbackFactory =
-                    (FallbackFactory)ApplicationContextUtils.getBean(applicationContext, fallbackFactoryClass);
+                    (FallbackFactory<?>)ApplicationContextUtils.getBean(applicationContext, fallbackFactoryClass);
         }
         loadDegradeRules();
         // proxy
@@ -116,49 +128,45 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         if (!degradeProperty.isEnable()) {
             return;
         }
-        Method[] methods = retrofitInterface.getMethods();
-        Arrays.stream(methods).forEach(this::register);
+        methods.forEach(this::register);
     }
 
     /**
-     * 提取熔断规则，优先级为方法>类>默认
+     * 提取熔断规则，优先级为 方法 > 类 > 默认
      * @param method method
-     * @return RetrofitDegradeRule
      */
     private void register(Method method) {
-        if (method.isDefault()) {
-            return;
-        }
-        int modifiers = method.getModifiers();
-        if (Modifier.isStatic(modifiers)) {
-            return;
-        }
         // 先从方法上获取熔断配置
-        boolean isMethod = true;
-        Degrade degrade = AnnotationUtils.findAnnotation(method, Degrade.class);
-        // 如果方法上没有，就从类上获取
-        if (Objects.isNull(degrade)) {
-            isMethod = false;
-            degrade = AnnotationUtils.findAnnotation(retrofitInterface, Degrade.class);
-        }
-        // 都没有则直接返回null
-        if (Objects.isNull(degrade)){
+        Degrade methodDegrade = AnnotationUtils.findAnnotation(method, Degrade.class);
+        Degrade classDegrade = AnnotationUtils.findAnnotation(retrofitInterface, Degrade.class);
+        // 都没有则直接返回
+        if (Objects.isNull(methodDegrade) && Objects.isNull(classDegrade)){
             return;
         }
         // 检查此注解有无被继承，有继承则将子注解的属性整理为map
-        // TODO 也许需要增强？ 注解剁成继承、@AliasFor、（多子类注解）注解在同一节点问题？ 现在只取第一层，第一个子类注解
-        List<Annotation> annotationList = Optional.ofNullable(AnnotationUtils.getAnnotations(isMethod ? method :
-                retrofitInterface)).map(Arrays::asList).orElse(Collections.emptyList());
+        // TODO 也许需要增强？ 注解多重继承、@AliasFor、（多子类注解）注解在同一节点问题？ 现在只取第一层，第一个子类注解
+        List<Annotation> annotationList = Optional
+                .ofNullable(AnnotationUtils.getAnnotations(Objects.isNull(methodDegrade) ? method : retrofitInterface))
+                .map(Arrays::asList)
+                .orElse(Collections.emptyList());
         Map<String, Object> attrMap = annotationList.stream()
                 .filter((annotation) -> annotation.getClass().isAnnotationPresent(Degrade.class))
                 .findFirst()
                 .map(AnnotationUtils::getAnnotationAttributes)
                 .orElse(new HashMap<>());
-        BaseResourceNameParser resourceNameParser = retrofitConfigBean.getResourceNameParser();
-        String resourceName = resourceNameParser.parseResourceName(method, environment);
-        DegradeRuleRegister<Object> ruleRegister = (DegradeRuleRegister<Object>) applicationContext.getBean(degrade.register());
-        Assert.notNull(ruleRegister, "[DegradeRuleRegister] not found bean instance");
-        ruleRegister.register(resourceName, ruleRegister.newInstanceByDefault(attrMap));
+        String resourceName = resourceNameParser.parseResourceName(method);
+        degradeRuleRegister.registerByNewConfig(resourceName, attrMap);
+    }
+
+    /**
+     * 检查client上是否存在熔断配置
+     * @param method client的method
+     * @return 是否存在
+     */
+    private boolean existDegradeInClient(Method method) {
+        Degrade methodDegrade = AnnotationUtils.findAnnotation(method, Degrade.class);
+        Degrade classDegrade = AnnotationUtils.findAnnotation(retrofitInterface, Degrade.class);
+        return Objects.isNull(methodDegrade) && Objects.isNull(classDegrade);
     }
 
     /**
@@ -280,13 +288,14 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         }
 
         // add DegradeInterceptor
-        // TODO 应该加一个是否全局生效开关和全局断路的配置
         DegradeProperty degradeProperty = retrofitProperties.getDegrade();
-        if (degradeProperty.isEnable()) {
+        // 检查全局熔断开关是否打开，或当前client上存在熔断注解，则添加熔断拦截器
+        if (degradeProperty.isEnable() || methods.stream().anyMatch(this::existDegradeInClient)) {
+            logger.debug("[{}] add DegradeInterceptor, the degrade component is [{}]",
+                    retrofitInterface.getSimpleName(), degradeProperty.getDegradeType());
             DegradeInterceptor degradeInterceptor = new DegradeInterceptor();
-            degradeInterceptor.setEnvironment(environment);
-            degradeInterceptor.setResourceNameParser(retrofitConfigBean.getResourceNameParser());
-            degradeInterceptor.setDegradeRuleRegister(retrofitConfigBean.getDegradeRuleRegister());
+            degradeInterceptor.setResourceNameParser(resourceNameParser);
+            degradeInterceptor.setDegradeRuleRegister(degradeRuleRegister);
             okHttpClientBuilder.addInterceptor(degradeInterceptor);
         }
 
@@ -387,9 +396,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
             }
             if (classAnnotation instanceof Intercepts) {
                 Intercept[] value = ((Intercepts)classAnnotation).value();
-                for (Intercept intercept : value) {
-                    interceptAnnotations.add(intercept);
-                }
+                interceptAnnotations.addAll(Arrays.asList(value));
             }
         }
         for (Annotation interceptAnnotation : interceptAnnotations) {
@@ -560,5 +567,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         this.applicationContext = applicationContext;
         this.retrofitConfigBean = applicationContext.getBean(RetrofitConfigBean.class);
         this.retrofitProperties = retrofitConfigBean.getRetrofitProperties();
+        this.resourceNameParser = retrofitConfigBean.getResourceNameParser();
+        this.degradeRuleRegister = retrofitConfigBean.getDegradeRuleRegister();
     }
 }

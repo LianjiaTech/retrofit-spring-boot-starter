@@ -27,6 +27,10 @@ public interface DegradeRuleRegister<T> {
      */
     T newInstanceByDefault(Map<String, Object> attrMap);
 
+    default void registerByNewConfig(String resourceName, Map<String, Object> attrMap){
+        this.register(resourceName, this.newInstanceByDefault(attrMap));
+    }
+
     /**
      * 使用规则代理执行目标方法
      * @param resourceName 资源名称
