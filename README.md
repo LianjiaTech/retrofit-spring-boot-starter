@@ -147,18 +147,20 @@ public class TestService {
 
 ## 配置项说明
 
-`retrofit-spring-boot-starter`支持了多个可配置的属性，用来应对不同的业务场景。**
+`retrofit-spring-boot-starter`支持了多个可配置的属性，用来应对不同的业务场景，具体可支持的配置项及默认值如下：
+
+**注意：应用只需要配置要更改的配置项即可！**
 
 ```yaml
 retrofit:
    # 连接池配置
    pool:
-      # test1连接池配置
-      test1:
+      # default连接池
+      default:
          # 最大空闲连接数
-         max-idle-connections: 3
+         max-idle-connections: 5
          # 连接保活时间(秒)
-         keep-alive-second: 100
+         keep-alive-second: 300
 
    # 是否禁用void返回值类型
    disable-void-return-type: false
@@ -182,17 +184,17 @@ retrofit:
       # 全局日志打印级别
       global-log-level: info
       # 全局日志打印策略
-      global-log-strategy: body
+      global-log-strategy: basic
 
 
    # 重试配置
    retry:
       # 是否启用全局重试
-      enable-global-retry: true
+      enable-global-retry: false
       # 全局重试间隔时间
-      global-interval-ms: 1
+      global-interval-ms: 100
       # 全局最大重试次数
-      global-max-retries: 1
+      global-max-retries: 2
       # 全局重试规则
       global-retry-rules:
          - response_status_not_2xx
@@ -203,17 +205,17 @@ retrofit:
    # 熔断降级配置
    degrade:
       # 是否启用熔断降级
-      enable: true
+      enable: false
       # 熔断降级实现方式
       degrade-type: sentinel
       # 熔断资源名称解析器
       resource-name-parser: com.github.lianjiatech.retrofit.spring.boot.degrade.DefaultResourceNameParser
    # 全局连接超时时间
-   global-connect-timeout-ms: 5000
+   global-connect-timeout-ms: 10000
    # 全局读取超时时间
-   global-read-timeout-ms: 5000
+   global-read-timeout-ms: 10000
    # 全局写入超时时间
-   global-write-timeout-ms: 5000
+   global-write-timeout-ms: 10000
    # 全局完整调用超时时间
    global-call-timeout-ms: 0
 ```

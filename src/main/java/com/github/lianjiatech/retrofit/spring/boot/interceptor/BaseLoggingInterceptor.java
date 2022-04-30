@@ -1,9 +1,11 @@
 package com.github.lianjiatech.retrofit.spring.boot.interceptor;
 
+import okhttp3.Interceptor;
+
 /**
  * @author 陈添明
  */
-public abstract class BaseLoggingInterceptor implements NetworkInterceptor {
+public abstract class BaseLoggingInterceptor implements Interceptor {
 
     /**
      * 日志打印级别

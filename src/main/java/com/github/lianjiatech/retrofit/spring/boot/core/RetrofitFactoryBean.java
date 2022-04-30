@@ -360,7 +360,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
                     "logStrategy cannot all be configured as LogStrategy.NULL!");
 
             BaseLoggingInterceptor loggingInterceptor = constructor.newInstance(logLevel, logStrategy);
-            okHttpClientBuilder.addNetworkInterceptor(loggingInterceptor);
+            okHttpClientBuilder.addInterceptor(loggingInterceptor);
         }
 
         List<NetworkInterceptor> networkInterceptors = retrofitConfigBean.getNetworkInterceptors();
