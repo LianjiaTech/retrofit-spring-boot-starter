@@ -1,10 +1,11 @@
 package com.github.lianjiatech.retrofit.spring.boot.core;
 
+import java.io.IOException;
+
 import com.github.lianjiatech.retrofit.spring.boot.exception.RetrofitException;
+
 import okhttp3.Request;
 import okhttp3.Response;
-
-import java.io.IOException;
 
 /**
  * 错误解码器。ErrorDecoder.
@@ -31,7 +32,6 @@ public interface ErrorDecoder {
         }
         return null;
     }
-
 
     /**
      * 当请求发生IO异常时，将HTTP信息解码到异常中。

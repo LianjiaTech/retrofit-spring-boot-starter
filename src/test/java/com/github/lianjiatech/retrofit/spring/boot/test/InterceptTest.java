@@ -1,13 +1,7 @@
 package com.github.lianjiatech.retrofit.spring.boot.test;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.lianjiatech.retrofit.spring.boot.test.entity.Person;
-import com.github.lianjiatech.retrofit.spring.boot.test.entity.Result;
-import com.github.lianjiatech.retrofit.spring.boot.test.http.InterceptApi;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
+import java.io.IOException;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -17,11 +11,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.io.IOException;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.lianjiatech.retrofit.spring.boot.test.entity.Person;
+import com.github.lianjiatech.retrofit.spring.boot.test.entity.Result;
+import com.github.lianjiatech.retrofit.spring.boot.test.http.InterceptApi;
+
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
 
 /**
  * @author 陈添明
- * @summary
  * @since 2022/1/21 4:20 下午
  */
 @SpringBootTest(classes = RetrofitTestApplication.class)
@@ -31,9 +32,9 @@ public class InterceptTest {
     @Autowired
     private InterceptApi interceptApi;
 
-    private static final ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            .setSerializationInclusion(JsonInclude.Include.NON_NULL);
-
+    private static final ObjectMapper objectMapper =
+            new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                    .setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
     private MockWebServer server;
 

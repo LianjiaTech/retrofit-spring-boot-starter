@@ -46,7 +46,6 @@ import retrofit2.Response;
 @Slf4j
 public class RetrofitStarterTest {
 
-
     @Autowired
     private HttpApi httpApi;
 
@@ -62,9 +61,9 @@ public class RetrofitStarterTest {
     @Autowired
     private DownloadApi downloadApi;
 
-    private static final ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            .setSerializationInclusion(JsonInclude.Include.NON_NULL);
-
+    private static final ObjectMapper objectMapper =
+            new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                    .setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
     private MockWebServer server;
 
@@ -81,7 +80,6 @@ public class RetrofitStarterTest {
         System.out.println("=========关闭MockWebServer===========");
         server.close();
     }
-
 
     @Test
     public void testGetPersonBody() throws Exception {
@@ -141,7 +139,6 @@ public class RetrofitStarterTest {
         Assert.assertEquals(10, data2.getAge().intValue());
     }
 
-
     @Test
     public void testRetCall() throws InterruptedException, IOException {
         // mock
@@ -158,7 +155,6 @@ public class RetrofitStarterTest {
                 .addHeader("Cache-Control", "no-cache")
                 .setBody(objectMapper.writeValueAsString(mockResult));
         server.enqueue(response);
-
 
         Call<Result<Person>> resultCall = httpApi.getPersonCall(2L);
         CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -193,7 +189,6 @@ public class RetrofitStarterTest {
         });
         countDownLatch.await();
     }
-
 
     @Test
     public void testFuture() throws ExecutionException, InterruptedException, IOException {
@@ -361,7 +356,6 @@ public class RetrofitStarterTest {
         System.out.println(stringMapMap);
     }
 
-
     @Test
     public void savePersonList() throws IOException {
 
@@ -388,7 +382,6 @@ public class RetrofitStarterTest {
         int code = voidResult.getCode();
         Assert.assertEquals(code, 0);
     }
-
 
     @Test
     public void testString() {

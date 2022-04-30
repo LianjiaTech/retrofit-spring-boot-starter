@@ -1,9 +1,12 @@
 package com.github.lianjiatech.retrofit.spring.boot.annotation;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Repeatable;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.BasePathMatchInterceptor;
-
-import java.lang.annotation.*;
 
 /**
  * 自动将注解上的参数值赋值到handleInterceptor实例上

@@ -33,8 +33,9 @@ public class ErrorDecoderTest {
 
     private MockWebServer server;
 
-    private static final ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            .setSerializationInclusion(JsonInclude.Include.NON_NULL);
+    private static final ObjectMapper objectMapper =
+            new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                    .setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
     @Before
     public void before() throws IOException {
@@ -49,7 +50,6 @@ public class ErrorDecoderTest {
         System.out.println("=========关闭MockWebServer===========");
         server.close();
     }
-
 
     @Test(expected = Throwable.class)
     public void test() throws JsonProcessingException {
@@ -74,6 +74,5 @@ public class ErrorDecoderTest {
         System.out.println(error);
 
     }
-
 
 }

@@ -1,7 +1,6 @@
 package com.github.lianjiatech.retrofit.spring.boot.core;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -32,24 +31,15 @@ import com.github.lianjiatech.retrofit.spring.boot.annotation.Intercepts;
 import com.github.lianjiatech.retrofit.spring.boot.annotation.OkHttpClientBuilder;
 import com.github.lianjiatech.retrofit.spring.boot.annotation.RetrofitClient;
 import com.github.lianjiatech.retrofit.spring.boot.config.DegradeProperty;
-import com.github.lianjiatech.retrofit.spring.boot.config.LogProperty;
 import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitConfigBean;
 import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitProperties;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeProxy;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeType;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.FallbackFactory;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.sentinel.SentinelDegrade;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.BaseLoggingInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.BasePathMatchInterceptor;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.ErrorDecoderInterceptor;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.GlobalInterceptor;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.LogLevel;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.LogStrategy;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.NetworkInterceptor;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.ServiceInstanceChooserInterceptor;
-import com.github.lianjiatech.retrofit.spring.boot.retry.BaseRetryInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.util.AnnotationExtendUtils;
-import com.github.lianjiatech.retrofit.spring.boot.util.ApplicationContextUtils;
+import com.github.lianjiatech.retrofit.spring.boot.util.AppContextUtils;
 import com.github.lianjiatech.retrofit.spring.boot.util.BeanExtendUtils;
 import com.github.lianjiatech.retrofit.spring.boot.util.RetrofitUtils;
 
@@ -172,7 +162,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         if (!void.class.isAssignableFrom(fallbackClass)) {
             Assert.isTrue(retrofitInterface.isAssignableFrom(fallbackClass),
                     "The fallback type must implement the current interface！the fallback type is " + fallbackClass);
-            Object fallback = ApplicationContextUtils.getBeanOrNull(applicationContext, fallbackClass);
+            Object fallback = AppContextUtils.getBeanOrNull(applicationContext, fallbackClass);
             Assert.notNull(fallback, "fallback  must be a valid spring bean! the fallback class is " + fallbackClass);
         }
 
@@ -181,7 +171,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
             Assert.isTrue(FallbackFactory.class.isAssignableFrom(fallbackFactoryClass),
                     "The fallback factory type must implement FallbackFactory！the fallback factory is "
                             + fallbackFactoryClass);
-            Object fallbackFactory = ApplicationContextUtils.getBeanOrNull(applicationContext, fallbackFactoryClass);
+            Object fallbackFactory = AppContextUtils.getBeanOrNull(applicationContext, fallbackFactoryClass);
             Assert.notNull(fallbackFactory,
                     "fallback factory  must be a valid spring bean! the fallback factory class is "
                             + fallbackFactoryClass);
@@ -210,92 +200,22 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
     }
 
     private OkHttpClient createOkHttpClient()
-            throws IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
+            throws IllegalAccessException, InstantiationException, InvocationTargetException {
         OkHttpClient.Builder okHttpClientBuilder = createOkHttpClientBuilder();
         RetrofitClient retrofitClient = retrofitInterface.getAnnotation(RetrofitClient.class);
-        addDegradeInterceptor(okHttpClientBuilder);
-        addServiceInstanceChooserInterceptor(okHttpClientBuilder, retrofitClient);
-        addErrorDecoderInterceptor(okHttpClientBuilder, retrofitClient);
-        addDefineOnInterfaceInterceptor(okHttpClientBuilder);
-        addGlobalInterceptor(okHttpClientBuilder);
-        addRetryInterceptor(okHttpClientBuilder);
-        addLoggingInterceptor(okHttpClientBuilder, retrofitClient);
-        addNetworkInterceptor(okHttpClientBuilder);
-        return okHttpClientBuilder.build();
-    }
-
-    private void addNetworkInterceptor(OkHttpClient.Builder okHttpClientBuilder) {
-        List<NetworkInterceptor> networkInterceptors = retrofitConfigBean.getNetworkInterceptors();
-        if (!CollectionUtils.isEmpty(networkInterceptors)) {
-            for (NetworkInterceptor networkInterceptor : networkInterceptors) {
-                okHttpClientBuilder.addNetworkInterceptor(networkInterceptor);
-            }
-        }
-    }
-
-    private void addLoggingInterceptor(OkHttpClient.Builder okHttpClientBuilder, RetrofitClient retrofitClient)
-            throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
-        LogProperty logProperty = retrofitProperties.getLog();
-        if (logProperty.isEnable() && retrofitClient.enableLog()) {
-            Class<? extends BaseLoggingInterceptor> loggingInterceptorClass = logProperty.getLoggingInterceptor();
-            Constructor<? extends BaseLoggingInterceptor> constructor =
-                    loggingInterceptorClass.getConstructor(LogLevel.class, LogStrategy.class);
-            LogLevel logLevel = retrofitClient.logLevel();
-            LogStrategy logStrategy = retrofitClient.logStrategy();
-            if (logLevel.equals(LogLevel.NULL)) {
-                logLevel = logProperty.getGlobalLogLevel();
-            }
-            if (logStrategy.equals(LogStrategy.NULL)) {
-                logStrategy = logProperty.getGlobalLogStrategy();
-            }
-
-            Assert.isTrue(!logLevel.equals(LogLevel.NULL), "LogLevel cannot all be configured as LogLevel.NULL!");
-            Assert.isTrue(!logStrategy.equals(LogStrategy.NULL),
-                    "logStrategy cannot all be configured as LogStrategy.NULL!");
-
-            BaseLoggingInterceptor loggingInterceptor = constructor.newInstance(logLevel, logStrategy);
-            okHttpClientBuilder.addInterceptor(loggingInterceptor);
-        }
-    }
-
-    private void addRetryInterceptor(OkHttpClient.Builder okHttpClientBuilder) {
-        BaseRetryInterceptor retryInterceptor = retrofitConfigBean.getRetryInterceptor();
-        okHttpClientBuilder.addInterceptor(retryInterceptor);
-    }
-
-    private void addGlobalInterceptor(OkHttpClient.Builder okHttpClientBuilder) {
-        List<GlobalInterceptor> globalInterceptors = retrofitConfigBean.getGlobalInterceptors();
-        globalInterceptors.forEach(okHttpClientBuilder::addInterceptor);
-    }
-
-    private void addDefineOnInterfaceInterceptor(OkHttpClient.Builder okHttpClientBuilder)
-            throws InstantiationException, IllegalAccessException {
-        findInterceptorByAnnotation().forEach(okHttpClientBuilder::addInterceptor);
-    }
-
-    private void addErrorDecoderInterceptor(OkHttpClient.Builder okHttpClientBuilder, RetrofitClient retrofitClient)
-            throws InstantiationException, IllegalAccessException {
-        Class<? extends ErrorDecoder> errorDecoderClass = retrofitClient.errorDecoder();
-        ErrorDecoder decoder = ApplicationContextUtils.getBeanOrNew(applicationContext, errorDecoderClass);
-        ErrorDecoderInterceptor decoderInterceptor = ErrorDecoderInterceptor.create(decoder);
-        okHttpClientBuilder.addInterceptor(decoderInterceptor);
-    }
-
-    private void addServiceInstanceChooserInterceptor(OkHttpClient.Builder okHttpClientBuilder,
-            RetrofitClient retrofitClient) {
-        if (StringUtils.hasText(retrofitClient.serviceId())) {
-            ServiceInstanceChooserInterceptor serviceInstanceChooserInterceptor =
-                    retrofitConfigBean.getServiceInstanceChooserInterceptor();
-            if (serviceInstanceChooserInterceptor != null) {
-                okHttpClientBuilder.addInterceptor(serviceInstanceChooserInterceptor);
-            }
-        }
-    }
-
-    private void addDegradeInterceptor(OkHttpClient.Builder okHttpClientBuilder) {
         if (isEnableSentinelDegrade(retrofitProperties.getDegrade(), retrofitInterface)) {
             okHttpClientBuilder.addInterceptor(retrofitConfigBean.getDegradeInterceptor());
         }
+        if (StringUtils.hasText(retrofitClient.serviceId())) {
+            okHttpClientBuilder.addInterceptor(retrofitConfigBean.getServiceChooseInterceptor());
+        }
+        okHttpClientBuilder.addInterceptor(retrofitConfigBean.getErrorDecoderInterceptor());
+        findInterceptorByAnnotation().forEach(okHttpClientBuilder::addInterceptor);
+        retrofitConfigBean.getGlobalInterceptors().forEach(okHttpClientBuilder::addInterceptor);
+        okHttpClientBuilder.addInterceptor(retrofitConfigBean.getRetryInterceptor());
+        okHttpClientBuilder.addInterceptor(retrofitConfigBean.getLoggingInterceptor());
+        retrofitConfigBean.getNetworkInterceptors().forEach(okHttpClientBuilder::addInterceptor);
+        return okHttpClientBuilder.build();
     }
 
     private OkHttpClient.Builder createOkHttpClientBuilder() throws InvocationTargetException, IllegalAccessException {
@@ -369,8 +289,8 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
             Class<? extends BasePathMatchInterceptor> interceptorClass =
                     (Class<? extends BasePathMatchInterceptor>)handler;
             BasePathMatchInterceptor interceptor =
-                    ApplicationContextUtils.getTargetInstanceIfNecessary(
-                            ApplicationContextUtils.getBeanOrNew(applicationContext, interceptorClass));
+                    AppContextUtils.getTargetInstanceIfNecessary(
+                            AppContextUtils.getBeanOrNew(applicationContext, interceptorClass));
             Map<String, Object> annotationResolveAttributes = new HashMap<>(8);
             // 占位符属性替换。Placeholder attribute replacement
             annotationAttributes.forEach((key, value) -> {
@@ -446,7 +366,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         for (Class<? extends CallAdapter.Factory> callAdapterFactoryClass : combineCallAdapterFactoryClasses) {
             CallAdapter.Factory callAdapterFactory = CALL_ADAPTER_FACTORIES_CACHE.get(callAdapterFactoryClass);
             if (callAdapterFactory == null) {
-                callAdapterFactory = ApplicationContextUtils.getBeanOrNew(applicationContext, callAdapterFactoryClass);
+                callAdapterFactory = AppContextUtils.getBeanOrNew(applicationContext, callAdapterFactoryClass);
                 CALL_ADAPTER_FACTORIES_CACHE.put(callAdapterFactoryClass, callAdapterFactory);
             }
             callAdapterFactories.add(callAdapterFactory);
@@ -476,10 +396,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         for (Class<? extends Converter.Factory> converterFactoryClass : combineConverterFactoryClasses) {
             Converter.Factory converterFactory = CONVERTER_FACTORIES_CACHE.get(converterFactoryClass);
             if (converterFactory == null) {
-                converterFactory = ApplicationContextUtils.getBeanOrNull(applicationContext, converterFactoryClass);
-                if (converterFactory == null) {
-                    converterFactory = converterFactoryClass.newInstance();
-                }
+                converterFactory = AppContextUtils.getBeanOrNew(applicationContext, converterFactoryClass);
                 CONVERTER_FACTORIES_CACHE.put(converterFactoryClass, converterFactory);
             }
             converterFactories.add(converterFactory);

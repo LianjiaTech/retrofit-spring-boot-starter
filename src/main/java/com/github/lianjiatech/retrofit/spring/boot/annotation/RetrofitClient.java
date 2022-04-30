@@ -1,15 +1,17 @@
 package com.github.lianjiatech.retrofit.spring.boot.annotation;
 
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 import com.github.lianjiatech.retrofit.spring.boot.core.DefaultErrorDecoder;
 import com.github.lianjiatech.retrofit.spring.boot.core.ErrorDecoder;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.LogLevel;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.LogStrategy;
-import org.springframework.stereotype.Service;
+
 import retrofit2.CallAdapter;
 import retrofit2.Converter;
 import retrofit2.Retrofit;
-
-import java.lang.annotation.*;
 
 /**
  * @author 陈添明
@@ -72,33 +74,6 @@ public @interface RetrofitClient {
      * bean.
      */
     Class<?> fallbackFactory() default void.class;
-
-
-    /**
-     * 针对当前接口是否启用日志打印
-     * Whether to enable log printing for the current interface
-     *
-     * @return enableLog
-     */
-    boolean enableLog() default true;
-
-    /**
-     * 日志打印级别，支持的日志级别参见{@link LogLevel}
-     * 如果为NULL，则取全局日志打印级别
-     * Log printing level, see {@link LogLevel} for supported log levels
-     *
-     * @return logLevel
-     */
-    LogLevel logLevel() default LogLevel.NULL;
-
-    /**
-     * 日志打印策略，支持的日志打印策略参见{@link LogStrategy}
-     * 如果为NULL，则取全局日志打印策略
-     * Log printing strategy, see {@link LogStrategy} for supported log printing strategies
-     *
-     * @return logStrategy
-     */
-    LogStrategy logStrategy() default LogStrategy.NULL;
 
 
     /**

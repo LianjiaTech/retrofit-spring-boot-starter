@@ -11,13 +11,21 @@ import lombok.experimental.UtilityClass;
  * @author 陈添明
  */
 @UtilityClass
-public final class ApplicationContextUtils {
+public final class AppContextUtils {
 
     public static <T> T getBeanOrNull(ApplicationContext context, Class<T> clz) {
         try {
             return context.getBean(clz);
         } catch (BeansException e) {
             return null;
+        }
+    }
+
+    public static <T> T getBeanOrDefault(ApplicationContext context, Class<T> clz, T t) {
+        try {
+            return context.getBean(clz);
+        } catch (BeansException e) {
+            return t;
         }
     }
 

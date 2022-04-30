@@ -1,6 +1,9 @@
 package com.github.lianjiatech.retrofit.spring.boot.core;
 
-import com.github.lianjiatech.retrofit.spring.boot.annotation.RetrofitScan;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.ResourceLoaderAware;
@@ -12,14 +15,13 @@ import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
 
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import com.github.lianjiatech.retrofit.spring.boot.annotation.RetrofitScan;
 
 /**
  * @author 陈添明
  */
-public class RetrofitClientScannerRegistrar implements ImportBeanDefinitionRegistrar, ResourceLoaderAware, BeanClassLoaderAware {
+public class RetrofitClientScannerRegistrar
+        implements ImportBeanDefinitionRegistrar, ResourceLoaderAware, BeanClassLoaderAware {
 
     private ResourceLoader resourceLoader;
 
@@ -32,7 +34,8 @@ public class RetrofitClientScannerRegistrar implements ImportBeanDefinitionRegis
         if (attributes == null) {
             return;
         }
-        // Scan the @RetrofitClient annotated interface under the specified path and register it to the BeanDefinitionRegistry
+        // Scan the @RetrofitClient annotated interface under the specified path and register it to the
+        // BeanDefinitionRegistry
         ClassPathRetrofitClientScanner scanner = new ClassPathRetrofitClientScanner(registry, classLoader);
         if (resourceLoader != null) {
             scanner.setResourceLoader(resourceLoader);
@@ -43,7 +46,6 @@ public class RetrofitClientScannerRegistrar implements ImportBeanDefinitionRegis
         // Scan and register to BeanDefinition
         scanner.doScan(basePackages);
     }
-
 
     /**
      * 获取扫描的基础包路径
@@ -64,15 +66,13 @@ public class RetrofitClientScannerRegistrar implements ImportBeanDefinitionRegis
         for (Class<?> basePackageClass : basePackageClasses) {
             packagesToScan.add(ClassUtils.getPackageName(basePackageClass));
         }
-        return packagesToScan.toArray(new String[packagesToScan.size()]);
+        return packagesToScan.toArray(new String[0]);
     }
-
 
     @Override
     public void setResourceLoader(ResourceLoader resourceLoader) {
         this.resourceLoader = resourceLoader;
     }
-
 
     @Override
     public void setBeanClassLoader(ClassLoader classLoader) {

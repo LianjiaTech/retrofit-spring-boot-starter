@@ -1,17 +1,18 @@
 package com.github.lianjiatech.retrofit.spring.boot.exception;
 
-import com.github.lianjiatech.retrofit.spring.boot.util.RetrofitUtils;
-import okhttp3.Request;
-import okhttp3.Response;
+import java.io.IOException;
+
 import org.springframework.util.StringUtils;
 
-import java.io.IOException;
+import com.github.lianjiatech.retrofit.spring.boot.util.RetrofitUtils;
+
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  * @author 陈添明
  */
 public class RetrofitException extends RuntimeException {
-
 
     public RetrofitException(String message, Throwable cause) {
         super(message, cause);
@@ -21,7 +22,6 @@ public class RetrofitException extends RuntimeException {
         super(message);
     }
 
-
     public static RetrofitException errorStatus(Request request, Response response) {
         String msg = String.format("invalid Response! request=%s, response=%s", request, response);
         try {
@@ -30,7 +30,8 @@ public class RetrofitException extends RuntimeException {
                 msg += ", body=" + responseBody;
             }
         } catch (ReadResponseBodyException e) {
-            throw new RetrofitException(String.format("read ResponseBody error! request=%s, response=%s", request, response), e);
+            throw new RetrofitException(
+                    String.format("read ResponseBody error! request=%s, response=%s", request, response), e);
         } finally {
             response.close();
         }
@@ -43,7 +44,7 @@ public class RetrofitException extends RuntimeException {
 
     public static RetrofitException errorUnknown(Request request, Exception cause) {
         if (cause instanceof RetrofitException) {
-            return (RetrofitException) cause;
+            return (RetrofitException)cause;
         }
         return new RetrofitException(cause.getMessage() + ", request=" + request, cause);
     }

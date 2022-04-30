@@ -1,4 +1,4 @@
-package com.github.lianjiatech.retrofit.spring.boot.interceptor;
+package com.github.lianjiatech.retrofit.spring.boot.log;
 
 
 /**
@@ -6,11 +6,6 @@ package com.github.lianjiatech.retrofit.spring.boot.interceptor;
  */
 
 public enum LogStrategy {
-
-    /**
-     * No config
-     */
-    NULL,
 
     /**
      * No logs.

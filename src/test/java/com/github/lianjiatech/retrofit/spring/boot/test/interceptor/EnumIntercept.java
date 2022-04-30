@@ -1,10 +1,13 @@
 package com.github.lianjiatech.retrofit.spring.boot.test.interceptor;
 
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 import com.github.lianjiatech.retrofit.spring.boot.annotation.InterceptMark;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.BasePathMatchInterceptor;
-
-import java.lang.annotation.*;
 
 /**
  * 自动将注解上的参数值赋值到handleInterceptor实例上
@@ -16,7 +19,6 @@ import java.lang.annotation.*;
 @Documented
 @InterceptMark
 public @interface EnumIntercept {
-
 
     EnvEnum envEnum();
 

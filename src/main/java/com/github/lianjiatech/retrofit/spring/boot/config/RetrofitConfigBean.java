@@ -6,10 +6,12 @@ import java.util.Map;
 
 import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.ResourceNameParser;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.ErrorDecoderInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.GlobalInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.NetworkInterceptor;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.ServiceInstanceChooserInterceptor;
-import com.github.lianjiatech.retrofit.spring.boot.retry.BaseRetryInterceptor;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.ServiceChooseInterceptor;
+import com.github.lianjiatech.retrofit.spring.boot.log.LoggingInterceptor;
+import com.github.lianjiatech.retrofit.spring.boot.retry.RetryInterceptor;
 
 import lombok.Data;
 import okhttp3.ConnectionPool;
@@ -30,9 +32,9 @@ public class RetrofitConfigBean {
 
     private List<NetworkInterceptor> networkInterceptors;
 
-    private BaseRetryInterceptor retryInterceptor;
+    private RetryInterceptor retryInterceptor;
 
-    private ServiceInstanceChooserInterceptor serviceInstanceChooserInterceptor;
+    private ServiceChooseInterceptor serviceChooseInterceptor;
 
     private Class<? extends Converter.Factory>[] globalConverterFactoryClasses;
 
@@ -41,6 +43,10 @@ public class RetrofitConfigBean {
     private ResourceNameParser resourceNameParser;
 
     private DegradeInterceptor degradeInterceptor;
+
+    private LoggingInterceptor loggingInterceptor;
+
+    private ErrorDecoderInterceptor errorDecoderInterceptor;
 
     public RetrofitConfigBean(RetrofitProperties retrofitProperties) {
         this.retrofitProperties = retrofitProperties;

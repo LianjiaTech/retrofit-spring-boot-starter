@@ -200,7 +200,7 @@ retrofit:
          - response_status_not_2xx
          - occur_io_exception
       # 重试拦截器
-      retry-interceptor: com.github.lianjiatech.retrofit.spring.boot.retry.DefaultRetryInterceptor
+      retry-interceptor: com.github.lianjiatech.retrofit.spring.boot.retry.RetryInterceptor
 
    # 熔断降级配置
    degrade:
@@ -487,7 +487,7 @@ retrofit:
     global-retry-rules:
       - response_status_not_2xx
     # 重试拦截器
-    retry-interceptor: com.github.lianjiatech.retrofit.spring.boot.retry.DefaultRetryInterceptor
+    retry-interceptor: com.github.lianjiatech.retrofit.spring.boot.retry.RetryInterceptor
 ```
 
 **重试规则支持三种配置**：

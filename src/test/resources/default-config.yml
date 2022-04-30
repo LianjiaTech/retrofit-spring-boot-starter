@@ -8,10 +8,6 @@ retrofit:
       # 连接保活时间(秒)
       keep-alive-second: 300
 
-  # 是否禁用void返回值类型
-  disable-void-return-type: false
-
-
   # 全局转换器工厂
   global-converter-factories:
     - com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory
@@ -24,14 +20,11 @@ retrofit:
   # 日志打印配置
   log:
     # 启用日志打印
-    enable: true
-    # 日志打印拦截器
-    logging-interceptor: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor
+    enable-global-log: true
     # 全局日志打印级别
     global-log-level: info
     # 全局日志打印策略
     global-log-strategy: basic
-
 
   # 重试配置
   retry:
@@ -45,8 +38,6 @@ retrofit:
     global-retry-rules:
       - response_status_not_2xx
       - occur_io_exception
-    # 重试拦截器
-    retry-interceptor: com.github.lianjiatech.retrofit.spring.boot.retry.DefaultRetryInterceptor
 
   # 熔断降级配置
   degrade:
@@ -54,6 +45,7 @@ retrofit:
     enable: false
     # 熔断降级实现方式
     degrade-type: sentinel
+
   # 全局连接超时时间
   global-connect-timeout-ms: 10000
   # 全局读取超时时间
@@ -62,3 +54,5 @@ retrofit:
   global-write-timeout-ms: 10000
   # 全局完整调用超时时间
   global-call-timeout-ms: 0
+  # 是否禁用void返回值类型
+  disable-void-return-type: false

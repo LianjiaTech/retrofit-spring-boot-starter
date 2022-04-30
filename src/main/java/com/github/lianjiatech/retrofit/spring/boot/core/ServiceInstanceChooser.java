@@ -8,7 +8,6 @@ import java.net.URI;
 @FunctionalInterface
 public interface ServiceInstanceChooser {
 
-
     /**
      * Chooses a ServiceInstance URI from the LoadBalancer for the specified service.
      *

@@ -24,5 +24,4 @@ public enum  RetryRule {
      * IO exception occurred
      */
     OCCUR_IO_EXCEPTION,
-
 }
