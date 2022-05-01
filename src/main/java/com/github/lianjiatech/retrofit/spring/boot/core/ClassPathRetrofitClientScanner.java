@@ -12,8 +12,6 @@ import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.util.ClassUtils;
 
-import com.github.lianjiatech.retrofit.spring.boot.annotation.RetrofitClient;
-
 import lombok.extern.slf4j.Slf4j;
 
 /**

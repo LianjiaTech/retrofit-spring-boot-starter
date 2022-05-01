@@ -9,10 +9,6 @@ retrofit:
       # 连接保活时间(秒)
       keep-alive-second: 100
 
-  # 是否禁用void返回值类型
-  disable-void-return-type: false
-
-
   # 全局转换器工厂
   global-converter-factories:
     - com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory

@@ -6,8 +6,7 @@ import java.lang.reflect.Proxy;
 
 import org.springframework.context.ApplicationContext;
 
-import com.github.lianjiatech.retrofit.spring.boot.annotation.RetrofitClient;
-import com.github.lianjiatech.retrofit.spring.boot.util.AppContextUtils;
+import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClient;
 
 /**
  * @author 陈添明
@@ -27,13 +26,12 @@ public class DegradeProxy implements InvocationHandler {
         Class<?> fallbackClass = retrofitClient.fallback();
         Object fallback = null;
         if (!void.class.isAssignableFrom(fallbackClass)) {
-            fallback = AppContextUtils.getBeanOrNull(applicationContext, fallbackClass);
+            fallback = applicationContext.getBean(fallbackClass);
         }
         Class<?> fallbackFactoryClass = retrofitClient.fallbackFactory();
         FallbackFactory<?> fallbackFactory = null;
         if (!void.class.isAssignableFrom(fallbackFactoryClass)) {
-            fallbackFactory =
-                    (FallbackFactory)AppContextUtils.getBeanOrNull(applicationContext, fallbackFactoryClass);
+            fallbackFactory = (FallbackFactory<?>)applicationContext.getBean(fallbackFactoryClass);
         }
         DegradeProxy degradeProxy = new DegradeProxy(source, fallback, fallbackFactory);
         return (T)Proxy.newProxyInstance(retrofitInterface.getClassLoader(),

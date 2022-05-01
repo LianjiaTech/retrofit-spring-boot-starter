@@ -7,7 +7,7 @@ import java.util.Objects;
 
 import org.springframework.util.StringUtils;
 
-import com.github.lianjiatech.retrofit.spring.boot.annotation.RetrofitClient;
+import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClient;
 import com.github.lianjiatech.retrofit.spring.boot.core.ServiceInstanceChooser;
 
 import okhttp3.HttpUrl;
@@ -21,7 +21,7 @@ import retrofit2.Invocation;
  */
 public class ServiceChooseInterceptor implements Interceptor {
 
-    private final ServiceInstanceChooser serviceInstanceChooser;
+    protected final ServiceInstanceChooser serviceInstanceChooser;
 
     public ServiceChooseInterceptor(ServiceInstanceChooser serviceDiscovery) {
         this.serviceInstanceChooser = serviceDiscovery;

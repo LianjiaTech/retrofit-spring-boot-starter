@@ -1,6 +1,8 @@
 package com.github.lianjiatech.retrofit.spring.boot.degrade;
 
 import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import retrofit2.http.DELETE;
 import retrofit2.http.GET;
@@ -17,6 +19,23 @@ import retrofit2.http.PUT;
 public interface ResourceNameParser {
 
     String HTTP_OUT = "HTTP_OUT";
+
+    Map<Method, String> RESOURCE_NAME_CACHE = new ConcurrentHashMap<>(128);
+
+    /**
+     * 提取资源名称，支持缓存
+     * @param method 方法
+     * @return 资源名称
+     */
+    default String extractResourceNameCache(Method method) {
+        String resourceName = RESOURCE_NAME_CACHE.get(method);
+        if (resourceName != null) {
+            return resourceName;
+        }
+        resourceName = extractResourceName(method);
+        RESOURCE_NAME_CACHE.put(method, resourceName);
+        return resourceName;
+    }
 
     /**
      * 提取资源名称

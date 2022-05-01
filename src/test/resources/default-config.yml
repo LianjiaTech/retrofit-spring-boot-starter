@@ -54,5 +54,3 @@ retrofit:
   global-write-timeout-ms: 10000
   # 全局完整调用超时时间
   global-call-timeout-ms: 0
-  # 是否禁用void返回值类型
-  disable-void-return-type: false

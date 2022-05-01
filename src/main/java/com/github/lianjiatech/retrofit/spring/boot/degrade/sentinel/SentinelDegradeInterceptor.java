@@ -23,7 +23,7 @@ import retrofit2.Invocation;
  */
 public class SentinelDegradeInterceptor implements DegradeInterceptor {
 
-    private final ResourceNameParser resourceNameParser;
+    protected final ResourceNameParser resourceNameParser;
 
     public SentinelDegradeInterceptor(ResourceNameParser resourceNameParser) {
         this.resourceNameParser = resourceNameParser;
@@ -36,7 +36,7 @@ public class SentinelDegradeInterceptor implements DegradeInterceptor {
         if (AnnotationExtendUtils.findAnnotation(method, SentinelDegrade.class) == null) {
             return chain.proceed(request);
         }
-        String resourceName = resourceNameParser.extractResourceName(method);
+        String resourceName = resourceNameParser.extractResourceNameCache(method);
         Entry entry = null;
         try {
             entry = SphU.entry(resourceName, ResourceTypeConstants.COMMON_WEB, EntryType.OUT);

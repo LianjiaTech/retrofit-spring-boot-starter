@@ -6,8 +6,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.github.lianjiatech.retrofit.spring.boot.annotation.InterceptMark;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.BasePathMatchInterceptor;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.InterceptMark;
 
 /**
  * 自动将注解上的参数值赋值到handleInterceptor实例上

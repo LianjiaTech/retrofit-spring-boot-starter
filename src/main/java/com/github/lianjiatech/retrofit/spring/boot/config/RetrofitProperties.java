@@ -53,11 +53,6 @@ public class RetrofitProperties {
     private LogProperty log = new LogProperty();
 
     /**
-     * Disable Void return type
-     */
-    private boolean disableVoidReturnType = false;
-
-    /**
      * 全局连接超时时间
      */
     private int globalConnectTimeoutMs = 10_000;

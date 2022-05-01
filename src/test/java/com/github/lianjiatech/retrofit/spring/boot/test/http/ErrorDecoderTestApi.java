@@ -1,6 +1,6 @@
 package com.github.lianjiatech.retrofit.spring.boot.test.http;
 
-import com.github.lianjiatech.retrofit.spring.boot.annotation.RetrofitClient;
+import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClient;
 import com.github.lianjiatech.retrofit.spring.boot.log.LogStrategy;
 import com.github.lianjiatech.retrofit.spring.boot.log.Logging;
 import com.github.lianjiatech.retrofit.spring.boot.test.InvalidRespErrorDecoder;

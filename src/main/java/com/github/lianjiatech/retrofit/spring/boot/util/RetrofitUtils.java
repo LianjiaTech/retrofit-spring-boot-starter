@@ -7,7 +7,7 @@ import java.nio.charset.StandardCharsets;
 import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
 
-import com.github.lianjiatech.retrofit.spring.boot.annotation.RetrofitClient;
+import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClient;
 import com.github.lianjiatech.retrofit.spring.boot.exception.ReadResponseBodyException;
 
 import lombok.experimental.UtilityClass;

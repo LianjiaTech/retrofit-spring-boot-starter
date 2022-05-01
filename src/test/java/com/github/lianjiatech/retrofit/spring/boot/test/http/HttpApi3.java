@@ -2,8 +2,8 @@ package com.github.lianjiatech.retrofit.spring.boot.test.http;
 
 import java.util.concurrent.TimeUnit;
 
-import com.github.lianjiatech.retrofit.spring.boot.annotation.OkHttpClientBuilder;
-import com.github.lianjiatech.retrofit.spring.boot.annotation.RetrofitClient;
+import com.github.lianjiatech.retrofit.spring.boot.core.OkHttpClientBuilder;
+import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClient;
 import com.github.lianjiatech.retrofit.spring.boot.test.entity.Person;
 import com.github.lianjiatech.retrofit.spring.boot.test.entity.Result;
 

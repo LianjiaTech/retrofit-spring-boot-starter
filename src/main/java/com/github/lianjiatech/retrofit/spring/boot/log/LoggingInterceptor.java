@@ -20,7 +20,7 @@ import retrofit2.Invocation;
 @Slf4j
 public class LoggingInterceptor implements Interceptor {
 
-    private final LogProperty logProperty;
+    protected final LogProperty logProperty;
 
     public LoggingInterceptor(LogProperty logProperty) {
         this.logProperty = logProperty;

@@ -1,4 +1,4 @@
-package com.github.lianjiatech.retrofit.spring.boot.annotation;
+package com.github.lianjiatech.retrofit.spring.boot.core;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

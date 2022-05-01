@@ -1,13 +1,10 @@
-package com.github.lianjiatech.retrofit.spring.boot.annotation;
+package com.github.lianjiatech.retrofit.spring.boot.core;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
-import com.github.lianjiatech.retrofit.spring.boot.core.DefaultErrorDecoder;
-import com.github.lianjiatech.retrofit.spring.boot.core.ErrorDecoder;
 
 import retrofit2.CallAdapter;
 import retrofit2.Converter;
@@ -66,7 +63,6 @@ public @interface RetrofitClient {
      */
     Class<?> fallback() default void.class;
 
-
     /**
      * Define a fallback factory for the specified Feign client interface. The fallback
      * factory must produce instances of fallback classes that implement the interface
@@ -75,19 +71,9 @@ public @interface RetrofitClient {
      */
     Class<?> fallbackFactory() default void.class;
 
-
-    /**
-     * When calling {@link Retrofit#create(Class)} on the resulting {@link Retrofit} instance, eagerly validate the
-     * configuration of all methods in the supplied interface.
-     *
-     * @return validateEagerly
-     */
-    boolean validateEagerly() default false;
-
     /**
      * 当前接口采用的错误解码器，当请求发生异常或者收到无效响应结果的时候，将HTTP相关信息解码到异常中，无效响应由业务自己判断。
-     * 一般情况下，每个服务对应的无效响应各不相同，可以自定义对应的{@link ErrorDecoder}，然后配置在这里。
-     * <p>
+     * 一般情况下，每个服务对应的无效响应各不相同，可以自定义对应的{@link ErrorDecoder}，然后配置在这里。<br></>
      * The error decoder used in the current interface will decode HTTP related information into the exception when an exception occurs in the request or an invalid response result is received.
      * The invalid response is determined by the business itself.
      * In general, the invalid response corresponding to each service is different, you can customize the corresponding {@link ErrorDecoder}, and then configure it here.
@@ -102,6 +88,14 @@ public @interface RetrofitClient {
      * @return connection pool name
      */
     String poolName() default "default";
+
+    /**
+     * When calling {@link Retrofit#create(Class)} on the resulting {@link Retrofit} instance, eagerly validate the
+     * configuration of all methods in the supplied interface.
+     *
+     * @return validateEagerly
+     */
+    boolean validateEagerly() default false;
 
     /**
      * Sets the default connect timeout for new connections. A value of 0 means no timeout,
@@ -130,7 +124,6 @@ public @interface RetrofitClient {
      */
     int writeTimeoutMs() default -1;
 
-
     /**
      * Sets the default timeout for complete calls. A value of 0 means no timeout,
      * otherwise values must be between 1 and Integer.MAX_VALUE when converted to milliseconds.
@@ -147,7 +140,6 @@ public @interface RetrofitClient {
      * @return pingInterval
      */
     int pingIntervalMs() default 0;
-
 
     /**
      * Configure this client to allow protocol redirects from HTTPS to HTTP and from HTTP to HTTPS.
