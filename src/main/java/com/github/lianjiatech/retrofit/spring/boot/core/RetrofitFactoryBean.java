@@ -22,19 +22,15 @@ import org.springframework.core.env.Environment;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-import com.alibaba.csp.sentinel.slots.block.degrade.DegradeRule;
-import com.alibaba.csp.sentinel.slots.block.degrade.DegradeRuleManager;
 import com.github.lianjiatech.retrofit.spring.boot.config.DegradeProperty;
 import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitConfigBean;
 import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitProperties;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeProxy;
-import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeType;
-import com.github.lianjiatech.retrofit.spring.boot.degrade.sentinel.SentinelDegrade;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitDegrade;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.BasePathMatchInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.Intercept;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.InterceptMark;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.Intercepts;
-import com.github.lianjiatech.retrofit.spring.boot.util.AnnotationExtendUtils;
 import com.github.lianjiatech.retrofit.spring.boot.util.AppContextUtils;
 import com.github.lianjiatech.retrofit.spring.boot.util.BeanExtendUtils;
 import com.github.lianjiatech.retrofit.spring.boot.util.RetrofitUtils;
@@ -66,53 +62,22 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
     @Override
     public T getObject() throws Exception {
         T source = createRetrofit().create(retrofitInterface);
-        if (!isEnableSentinelDegrade(retrofitProperties.getDegrade(), retrofitInterface)) {
+        if (!isEnableDegrade(retrofitProperties.getDegrade(), retrofitInterface)) {
             return source;
         }
-        // 启用代理
-        loadDegradeRules();
+        retrofitConfigBean.getRetrofitDegrade().loadDegradeRules(retrofitInterface);
         return DegradeProxy.create(source, retrofitInterface, applicationContext);
     }
 
-    public boolean isEnableSentinelDegrade(DegradeProperty degradeProperty, Class<?> retrofitInterface) {
+    public boolean isEnableDegrade(DegradeProperty degradeProperty, Class<?> retrofitInterface) {
         if (!degradeProperty.isEnable()) {
             return false;
         }
-        return AnnotationExtendUtils.isAnnotationPresent(retrofitInterface, SentinelDegrade.class);
-    }
-
-    private void loadDegradeRules() {
-        if (retrofitProperties.getDegrade().getDegradeType() == DegradeType.SENTINEL) {
-            loadSentinelDegradeRules();
+        RetrofitDegrade retrofitDegrade = retrofitConfigBean.getRetrofitDegrade();
+        if (retrofitDegrade == null) {
+            return false;
         }
-    }
-
-    private void loadSentinelDegradeRules() {
-        // 读取熔断配置
-        Method[] methods = retrofitInterface.getMethods();
-        List<DegradeRule> rules = new ArrayList<>();
-        for (Method method : methods) {
-            if (method.isDefault()) {
-                continue;
-            }
-            int modifiers = method.getModifiers();
-            if (Modifier.isStatic(modifiers)) {
-                continue;
-            }
-            // 获取熔断配置
-            SentinelDegrade sentinelDegrade = AnnotationExtendUtils.findAnnotation(method, SentinelDegrade.class);
-            if (sentinelDegrade == null) {
-                continue;
-            }
-
-            DegradeRule degradeRule = new DegradeRule()
-                    .setCount(sentinelDegrade.count())
-                    .setTimeWindow(sentinelDegrade.timeWindow())
-                    .setGrade(sentinelDegrade.grade());
-            degradeRule.setResource(retrofitConfigBean.getResourceNameParser().extractResourceNameCache(method));
-            rules.add(degradeRule);
-        }
-        DegradeRuleManager.loadRules(rules);
+        return retrofitDegrade.isEnableDegrade(retrofitInterface);
     }
 
     @Override
@@ -140,8 +105,8 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
             throws IllegalAccessException, InstantiationException, InvocationTargetException {
         OkHttpClient.Builder okHttpClientBuilder = createOkHttpClientBuilder();
         RetrofitClient retrofitClient = retrofitInterface.getAnnotation(RetrofitClient.class);
-        if (isEnableSentinelDegrade(retrofitProperties.getDegrade(), retrofitInterface)) {
-            okHttpClientBuilder.addInterceptor(retrofitConfigBean.getDegradeInterceptor());
+        if (isEnableDegrade(retrofitProperties.getDegrade(), retrofitInterface)) {
+            okHttpClientBuilder.addInterceptor(retrofitConfigBean.getRetrofitDegrade());
         }
         if (StringUtils.hasText(retrofitClient.serviceId())) {
             okHttpClientBuilder.addInterceptor(retrofitConfigBean.getServiceChooseInterceptor());

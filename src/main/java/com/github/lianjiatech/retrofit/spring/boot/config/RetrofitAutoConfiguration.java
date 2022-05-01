@@ -29,9 +29,9 @@ import com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFacto
 import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitFactoryBean;
 import com.github.lianjiatech.retrofit.spring.boot.core.ServiceInstanceChooser;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.DefaultResourceNameParser;
-import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.ResourceNameParser;
-import com.github.lianjiatech.retrofit.spring.boot.degrade.sentinel.SentinelDegradeInterceptor;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitDegrade;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.sentinel.SentinelRetrofitDegrade;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.ErrorDecoderInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.GlobalInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.NetworkInterceptor;
@@ -70,7 +70,7 @@ public class RetrofitAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public RetrofitConfigBean retrofitConfigBean(@Autowired(required = false) ResourceNameParser resourceNameParser,
-            @Autowired(required = false) DegradeInterceptor degradeInterceptor,
+            @Autowired(required = false) RetrofitDegrade retrofitDegrade,
             @Autowired(required = false) List<GlobalInterceptor> globalInterceptors,
             @Autowired(required = false) List<NetworkInterceptor> networkInterceptors,
             ServiceChooseInterceptor serviceChooseInterceptor, RetryInterceptor retryInterceptor,
@@ -80,7 +80,7 @@ public class RetrofitAutoConfiguration {
         retrofitConfigBean.setGlobalInterceptors(globalInterceptors);
         retrofitConfigBean.setNetworkInterceptors(networkInterceptors);
         retrofitConfigBean.setResourceNameParser(resourceNameParser);
-        retrofitConfigBean.setDegradeInterceptor(degradeInterceptor);
+        retrofitConfigBean.setRetrofitDegrade(retrofitDegrade);
         retrofitConfigBean.setServiceChooseInterceptor(serviceChooseInterceptor);
         retrofitConfigBean.setRetryInterceptor(retryInterceptor);
         retrofitConfigBean.setLoggingInterceptor(loggingInterceptor);
@@ -159,10 +159,10 @@ public class RetrofitAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnProperty(name = "retrofit.degrade.degrade-type", havingValue = "sentinel")
+    @ConditionalOnProperty(name = "retrofit.degrade.degrade-type", havingValue = RetrofitDegrade.SENTINEL)
     @ConditionalOnBean(ResourceNameParser.class)
-    public DegradeInterceptor degradeInterceptor(ResourceNameParser resourceNameParser) {
-        return new SentinelDegradeInterceptor(resourceNameParser);
+    public RetrofitDegrade retrofitDegrade(ResourceNameParser resourceNameParser) {
+        return new SentinelRetrofitDegrade(resourceNameParser);
     }
 
     @Bean

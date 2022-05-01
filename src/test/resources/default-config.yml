@@ -44,7 +44,7 @@ retrofit:
     # 是否启用熔断降级
     enable: false
     # 熔断降级实现方式
-    degrade-type: sentinel
+    degrade-type: none
 
   # 全局连接超时时间
   global-connect-timeout-ms: 10000
