@@ -6,5 +6,6 @@ package com.github.lianjiatech.retrofit.spring.boot.degrade;
 public enum DegradeType {
 
     SENTINEL,
+    RESILIENCE4J;
 
 }

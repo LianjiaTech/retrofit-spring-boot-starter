@@ -72,7 +72,7 @@ public class DegradeSentinelTest {
                         .addHeader("Content-Type", "application/text; charset=utf-8")
                         .addHeader("Cache-Control", "no-cache")
                         .setBody(objectMapper.writeValueAsString(mockResult))
-                        .setBodyDelay(10, TimeUnit.SECONDS);
+                        .setBodyDelay(5, TimeUnit.SECONDS);
                 server.enqueue(response);
                 return degradeSentinelApi.getPerson1(2L).getCode();
             } catch (Exception e) {
