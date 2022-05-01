@@ -6,7 +6,7 @@
 
     <groupId>com.github.lianjiatech</groupId>
     <artifactId>retrofit-spring-boot-starter</artifactId>
-    <version>2.2.22</version>
+    <version>2.3.0</version>
 
     <name>retrofit-spring-boot-starter</name>
     <description>retrofit-spring-boot-starter</description>
@@ -46,7 +46,6 @@
         <okio.version>1.17.5</okio.version>
         <sentinel.version>1.6.3</sentinel.version>
         <jackson.version>2.12.6.1</jackson.version>
-        <resilience4j-spring.version>1.7.1</resilience4j-spring.version>
     </properties>
 
     <dependencies>
@@ -160,14 +159,6 @@
             <version>${sentinel.version}</version>
             <scope>provided</scope>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/io.github.resilience4j/resilience4j-spring -->
-        <dependency>
-            <groupId>io.github.resilience4j</groupId>
-            <artifactId>resilience4j-spring-boot2</artifactId>
-            <version>${resilience4j-spring.version}</version>
-            <scope>provided</scope>
-        </dependency>
-
     </dependencies>
 
     <distributionManagement>
