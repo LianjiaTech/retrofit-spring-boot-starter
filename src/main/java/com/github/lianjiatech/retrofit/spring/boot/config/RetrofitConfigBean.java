@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import com.github.lianjiatech.retrofit.spring.boot.degrade.ResourceNameParser;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitDegrade;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.ErrorDecoderInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.GlobalInterceptor;
@@ -39,8 +38,6 @@ public class RetrofitConfigBean {
     private Class<? extends Converter.Factory>[] globalConverterFactoryClasses;
 
     private Class<? extends CallAdapter.Factory>[] globalCallAdapterFactoryClasses;
-
-    private ResourceNameParser resourceNameParser;
 
     private RetrofitDegrade retrofitDegrade;
 

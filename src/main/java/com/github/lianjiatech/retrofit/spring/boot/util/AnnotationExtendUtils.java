@@ -13,13 +13,13 @@ import lombok.experimental.UtilityClass;
 public class AnnotationExtendUtils {
 
     /**
-     * 查找方法上的Annotation，如果不存在，则查找类上的。
+     * 查找方法及其类上的指定注解，优先返回方法上的。
+     * @param <A> 注解泛型参数
      * @param method 方法
      * @param annotationType 注解类型
-     * @param <A> 注解泛型参数
-     * @return 方法或者类上指定的注解。
+     * @return 方法及其类上的指定注解。
      */
-    public static <A extends Annotation> A findAnnotation(Method method, Class<A> annotationType) {
+    public static <A extends Annotation> A findAnnotationIncludeClass(Method method, Class<A> annotationType) {
         A annotation = method.getAnnotation(annotationType);
         if (annotation != null) {
             return annotation;
@@ -28,13 +28,14 @@ public class AnnotationExtendUtils {
     }
 
     /**
-     * 判断某个类上指定的Annotation是否存在。如果类上不存在，则继续判断每个公有方法是否存在。
+     * 判断某个类及其公有方法上是否存在指定注解。
+     * @param <A> 注解泛型参数
      * @param clazz 类
      * @param annotationType 注解类型
-     * @param <A> 注解泛型参数
-     * @return 某个类上指定的Annotation是否存在。类或公有方法存在，则返回true。
+     * @return 判断某个类及其公有方法上是否存在指定注解。
      */
-    public static <A extends Annotation> boolean isAnnotationPresent(Class<?> clazz, Class<A> annotationType) {
+    public static <A extends Annotation> boolean isAnnotationPresentIncludeMethod(Class<?> clazz,
+            Class<A> annotationType) {
         if (clazz.isAnnotationPresent(annotationType)) {
             return true;
         }

@@ -22,7 +22,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-import com.github.lianjiatech.retrofit.spring.boot.config.DegradeProperty;
 import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitConfigBean;
 import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitProperties;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeProxy;
@@ -62,17 +61,14 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
     @Override
     public T getObject() throws Exception {
         T source = createRetrofit().create(retrofitInterface);
-        if (!isEnableDegrade(retrofitProperties.getDegrade(), retrofitInterface)) {
+        if (!isEnableDegrade(retrofitInterface)) {
             return source;
         }
         retrofitConfigBean.getRetrofitDegrade().loadDegradeRules(retrofitInterface);
         return DegradeProxy.create(source, retrofitInterface, applicationContext);
     }
 
-    public boolean isEnableDegrade(DegradeProperty degradeProperty, Class<?> retrofitInterface) {
-        if (!degradeProperty.isEnable()) {
-            return false;
-        }
+    public boolean isEnableDegrade(Class<?> retrofitInterface) {
         RetrofitDegrade retrofitDegrade = retrofitConfigBean.getRetrofitDegrade();
         if (retrofitDegrade == null) {
             return false;
@@ -105,7 +101,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
             throws IllegalAccessException, InstantiationException, InvocationTargetException {
         OkHttpClient.Builder okHttpClientBuilder = createOkHttpClientBuilder();
         RetrofitClient retrofitClient = retrofitInterface.getAnnotation(RetrofitClient.class);
-        if (isEnableDegrade(retrofitProperties.getDegrade(), retrofitInterface)) {
+        if (isEnableDegrade(retrofitInterface)) {
             okHttpClientBuilder.addInterceptor(retrofitConfigBean.getRetrofitDegrade());
         }
         if (StringUtils.hasText(retrofitClient.serviceId())) {
@@ -162,7 +158,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
     }
 
     @SuppressWarnings("unchecked")
-    private List<Interceptor> findInterceptorByAnnotation() throws InstantiationException, IllegalAccessException {
+    private List<Interceptor> findInterceptorByAnnotation() {
         Annotation[] classAnnotations = retrofitInterface.getAnnotations();
         List<Interceptor> interceptors = new ArrayList<>();
         // 找出被@InterceptMark标记的注解。Find the annotation marked by @InterceptMark
