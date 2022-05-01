@@ -17,7 +17,7 @@ public @interface SentinelDegrade {
     /**
      * 各降级策略对应的阈值。平均响应时间(ms)，异常比例(0-1)，异常数量(1-N)
      */
-    double count();
+    double count() default 1000;
 
     /**
      * 熔断时长，单位为 s

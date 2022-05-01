@@ -2,6 +2,8 @@ package com.github.lianjiatech.retrofit.spring.boot.core;
 
 import java.net.URI;
 
+import com.github.lianjiatech.retrofit.spring.boot.exception.ServiceInstanceChooseException;
+
 /**
  * @author 陈添明
  */
@@ -15,5 +17,13 @@ public interface ServiceInstanceChooser {
      * @return Return the uri of ServiceInstance
      */
     URI choose(String serviceId);
+
+    class NoValidServiceInstanceChooser implements ServiceInstanceChooser {
+
+        @Override
+        public URI choose(String serviceId) {
+            throw new ServiceInstanceChooseException("No valid service instance selector, Please configure it!");
+        }
+    }
 
 }

@@ -1,0 +1,5 @@
+retrofit:
+  # 熔断降级配置
+  degrade:
+    # 熔断降级类型。默认none，表示不启用熔断降级
+    degrade-type: sentinel

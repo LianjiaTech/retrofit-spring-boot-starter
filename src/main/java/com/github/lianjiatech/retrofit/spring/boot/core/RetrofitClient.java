@@ -80,7 +80,7 @@ public @interface RetrofitClient {
      *
      * @return ErrorDecoder
      */
-    Class<? extends ErrorDecoder> errorDecoder() default DefaultErrorDecoder.class;
+    Class<? extends ErrorDecoder> errorDecoder() default ErrorDecoder.DefaultErrorDecoder.class;
 
     /**
      * connection pool name

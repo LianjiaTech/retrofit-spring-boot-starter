@@ -11,14 +11,7 @@ import lombok.Data;
 public class DegradeProperty {
 
     /**
-     * 是否启用熔断降级
-     * enable degrade
-     */
-    private boolean enable = false;
-
-    /**
-     * 熔断降级类型
-     * degrade type
+     * 熔断降级类型。默认none，表示不启用熔断降级
      */
     private String degradeType = RetrofitDegrade.NONE;
 }

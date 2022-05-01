@@ -57,4 +57,6 @@ public interface ErrorDecoder {
         return RetrofitException.errorUnknown(request, cause);
     }
 
+    class DefaultErrorDecoder implements ErrorDecoder {}
+
 }

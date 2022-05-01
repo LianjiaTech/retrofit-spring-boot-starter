@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
@@ -16,21 +16,20 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
+import com.alibaba.csp.sentinel.SphU;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.lianjiatech.retrofit.spring.boot.core.AutoConfiguredRetrofitScannerRegistrar;
 import com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory;
 import com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory;
-import com.github.lianjiatech.retrofit.spring.boot.core.DefaultErrorDecoder;
-import com.github.lianjiatech.retrofit.spring.boot.core.NoValidServiceInstanceChooser;
+import com.github.lianjiatech.retrofit.spring.boot.core.ErrorDecoder;
 import com.github.lianjiatech.retrofit.spring.boot.core.PathMatchInterceptorBdfProcessor;
 import com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory;
 import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitFactoryBean;
 import com.github.lianjiatech.retrofit.spring.boot.core.ServiceInstanceChooser;
-import com.github.lianjiatech.retrofit.spring.boot.degrade.DefaultResourceNameParser;
-import com.github.lianjiatech.retrofit.spring.boot.degrade.ResourceNameParser;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitDegrade;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.resilience4j.Resilience4jRetrofitDegrade;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.sentinel.SentinelRetrofitDegrade;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.ErrorDecoderInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.GlobalInterceptor;
@@ -39,6 +38,8 @@ import com.github.lianjiatech.retrofit.spring.boot.interceptor.ServiceChooseInte
 import com.github.lianjiatech.retrofit.spring.boot.log.LoggingInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.retry.RetryInterceptor;
 
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.ConnectionPool;
 import retrofit2.converter.jackson.JacksonConverterFactory;
@@ -69,8 +70,7 @@ public class RetrofitAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public RetrofitConfigBean retrofitConfigBean(@Autowired(required = false) ResourceNameParser resourceNameParser,
-            @Autowired(required = false) RetrofitDegrade retrofitDegrade,
+    public RetrofitConfigBean retrofitConfigBean(@Autowired(required = false) RetrofitDegrade retrofitDegrade,
             @Autowired(required = false) List<GlobalInterceptor> globalInterceptors,
             @Autowired(required = false) List<NetworkInterceptor> networkInterceptors,
             ServiceChooseInterceptor serviceChooseInterceptor, RetryInterceptor retryInterceptor,
@@ -79,7 +79,6 @@ public class RetrofitAutoConfiguration {
         RetrofitConfigBean retrofitConfigBean = new RetrofitConfigBean(retrofitProperties);
         retrofitConfigBean.setGlobalInterceptors(globalInterceptors);
         retrofitConfigBean.setNetworkInterceptors(networkInterceptors);
-        retrofitConfigBean.setResourceNameParser(resourceNameParser);
         retrofitConfigBean.setRetrofitDegrade(retrofitDegrade);
         retrofitConfigBean.setServiceChooseInterceptor(serviceChooseInterceptor);
         retrofitConfigBean.setRetryInterceptor(retryInterceptor);
@@ -116,8 +115,8 @@ public class RetrofitAutoConfiguration {
     }
 
     @Bean
-    public DefaultErrorDecoder defaultErrorDecoder() {
-        return new DefaultErrorDecoder();
+    public ErrorDecoder.DefaultErrorDecoder defaultErrorDecoder() {
+        return new ErrorDecoder.DefaultErrorDecoder();
     }
 
     @Bean
@@ -141,7 +140,7 @@ public class RetrofitAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public ServiceInstanceChooser serviceInstanceChooser() {
-        return new NoValidServiceInstanceChooser();
+        return new ServiceInstanceChooser.NoValidServiceInstanceChooser();
     }
 
     @Bean
@@ -152,17 +151,18 @@ public class RetrofitAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnProperty(name = "retrofit.degrade.enable", havingValue = "true")
-    public ResourceNameParser resourceNameParser() {
-        return new DefaultResourceNameParser();
+    @ConditionalOnClass(SphU.class)
+    @ConditionalOnProperty(name = "retrofit.degrade.degrade-type", havingValue = RetrofitDegrade.SENTINEL)
+    public RetrofitDegrade sentinelRetrofitDegrade() {
+        return new SentinelRetrofitDegrade();
     }
 
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnProperty(name = "retrofit.degrade.degrade-type", havingValue = RetrofitDegrade.SENTINEL)
-    @ConditionalOnBean(ResourceNameParser.class)
-    public RetrofitDegrade retrofitDegrade(ResourceNameParser resourceNameParser) {
-        return new SentinelRetrofitDegrade(resourceNameParser);
+    @ConditionalOnClass(CircuitBreaker.class)
+    @ConditionalOnProperty(name = "retrofit.degrade.degrade-type", havingValue = RetrofitDegrade.RESILIENCE4J)
+    public RetrofitDegrade resilience4jRetrofitDegrade() {
+        return new Resilience4jRetrofitDegrade(CircuitBreakerRegistry.ofDefaults());
     }
 
     @Bean
