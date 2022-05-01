@@ -5,7 +5,7 @@ import java.io.IOException;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 
-import lombok.Data;
+import lombok.Setter;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -15,17 +15,17 @@ import okhttp3.Response;
  *
  * @author 陈添明
  */
-@Data
+@Setter
 public abstract class BasePathMatchInterceptor implements Interceptor {
 
-    private String[] include;
+    protected String[] include;
 
-    private String[] exclude;
+    protected String[] exclude;
 
-    private PathMatcher pathMatcher = new AntPathMatcher();
+    protected PathMatcher pathMatcher = new AntPathMatcher();
 
     @Override
-    public final Response intercept(Chain chain) throws IOException {
+    public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
 
         String path = request.url().encodedPath();
@@ -50,10 +50,8 @@ public abstract class BasePathMatchInterceptor implements Interceptor {
     protected abstract Response doIntercept(Chain chain) throws IOException;
 
     /**
-     * <p>
-     * 当前http的url路径是否与指定的patterns匹配
+     * 当前http的url路径是否与指定的patterns匹配。<br></>
      * Whether the current http URL path matches the specified patterns
-     * </p>
      *
      * @param patterns the specified patterns
      * @param path     http URL path

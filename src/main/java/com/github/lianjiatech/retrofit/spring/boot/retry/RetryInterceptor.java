@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 import com.github.lianjiatech.retrofit.spring.boot.config.RetryProperty;
 import com.github.lianjiatech.retrofit.spring.boot.util.AnnotationExtendUtils;
 
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Interceptor;
 import okhttp3.Request;
@@ -21,10 +20,9 @@ import retrofit2.Invocation;
  * @author 陈添明
  */
 @Slf4j
-@Data
 public class RetryInterceptor implements Interceptor {
 
-    private final RetryProperty retryProperty;
+    protected final RetryProperty retryProperty;
 
     public RetryInterceptor(RetryProperty retryProperty) {
         this.retryProperty = retryProperty;

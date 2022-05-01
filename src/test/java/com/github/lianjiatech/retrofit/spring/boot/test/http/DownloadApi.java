@@ -1,6 +1,7 @@
 package com.github.lianjiatech.retrofit.spring.boot.test.http;
 
-import com.github.lianjiatech.retrofit.spring.boot.annotation.RetrofitClient;
+import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClient;
+
 import okhttp3.ResponseBody;
 import retrofit2.Response;
 import retrofit2.http.GET;

@@ -15,11 +15,12 @@ import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
 
-import com.github.lianjiatech.retrofit.spring.boot.annotation.RetrofitScan;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author 陈添明
  */
+@Slf4j
 public class RetrofitClientScannerRegistrar
         implements ImportBeanDefinitionRegistrar, ResourceLoaderAware, BeanClassLoaderAware {
 
@@ -42,6 +43,8 @@ public class RetrofitClientScannerRegistrar
         }
         // Specify the base package for scanning
         String[] basePackages = getPackagesToScan(attributes);
+        log.info("Scan the @RetrofitClient annotated interface using the @RetrofitScan configuration. packages={}",
+                Arrays.toString(basePackages));
         scanner.registerFilters();
         // Scan and register to BeanDefinition
         scanner.doScan(basePackages);

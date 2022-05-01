@@ -1,4 +1,4 @@
-package com.github.lianjiatech.retrofit.spring.boot.test.http;
+package com.github.lianjiatech.retrofit.spring.boot.other;
 
 import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClient;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.sentinel.SentinelDegrade;
@@ -14,7 +14,7 @@ import retrofit2.http.Query;
  */
 @RetrofitClient(baseUrl = "${test.baseUrl}")
 @SentinelDegrade(count = 100)
-public interface DegradeApi {
+public interface OtherPathApi {
 
     /**
      * 其他任意Java类型 <br>

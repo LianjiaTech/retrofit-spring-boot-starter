@@ -2,8 +2,8 @@ package com.github.lianjiatech.retrofit.spring.boot.test.http;
 
 import java.util.Map;
 
-import com.github.lianjiatech.retrofit.spring.boot.annotation.Intercept;
-import com.github.lianjiatech.retrofit.spring.boot.annotation.RetrofitClient;
+import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClient;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.Intercept;
 import com.github.lianjiatech.retrofit.spring.boot.test.entity.Person;
 import com.github.lianjiatech.retrofit.spring.boot.test.entity.Result;
 import com.github.lianjiatech.retrofit.spring.boot.test.interceptor.EnumIntercept;

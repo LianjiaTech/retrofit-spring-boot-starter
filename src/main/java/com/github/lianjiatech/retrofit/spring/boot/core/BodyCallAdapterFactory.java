@@ -29,7 +29,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 
 /**
- * 同步调用，如果返回的http状态码是是成功，返回responseBody 反序列化之后的对象。否则，抛出异常！异常信息中包含请求和响应相关信息。
+ * 同步调用，如果返回的http状态码是是成功，返回responseBody 反序列化之后的对象。否则，抛出异常！异常信息中包含请求和响应相关信息。<br></>
  * Synchronous call, if the returned http status code is successful, return the responseBody object after deserialization.
  * Otherwise, throw an exception! The exception information includes request and response related information.
  *
@@ -48,16 +48,16 @@ public final class BodyCallAdapterFactory extends CallAdapter.Factory {
         if (Response.class.isAssignableFrom(getRawType(returnType))) {
             return null;
         }
-        return new BodyCallAdapter(returnType, annotations, retrofit);
+        return new BodyCallAdapter<>(returnType, annotations, retrofit);
     }
 
-    final class BodyCallAdapter<R> implements CallAdapter<R, R> {
+    static final class BodyCallAdapter<R> implements CallAdapter<R, R> {
 
-        private Type returnType;
+        private final Type returnType;
 
-        private Retrofit retrofit;
+        private final Retrofit retrofit;
 
-        private Annotation[] annotations;
+        private final Annotation[] annotations;
 
         BodyCallAdapter(Type returnType, Annotation[] annotations, Retrofit retrofit) {
             this.returnType = returnType;

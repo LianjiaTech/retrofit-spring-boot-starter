@@ -29,10 +29,8 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 
 /**
- * <p>
- * 同步调用执行，直接返回 #{@link Response} 对象
+ * 同步调用执行，直接返回 #{@link Response} 对象。<br/>
  * Synchronous call execution, directly return #{@link Response} object
- * </p>
  *
  * @author 陈添明
  */
@@ -41,7 +39,7 @@ public final class ResponseCallAdapterFactory extends CallAdapter.Factory {
     @Override
     public CallAdapter<?, ?> get(Type returnType, Annotation[] annotations, Retrofit retrofit) {
         if (Response.class.isAssignableFrom(getRawType(returnType))) {
-            return new ResponseCallAdapter(returnType);
+            return new ResponseCallAdapter<>(returnType);
         }
         return null;
     }
