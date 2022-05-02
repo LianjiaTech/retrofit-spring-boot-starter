@@ -10,7 +10,6 @@
 [![Author](https://img.shields.io/badge/Author-chentianming-orange.svg?style=flat-square)](https://juejin.im/user/3562073404738584/posts)
 [![QQ-Group](https://img.shields.io/badge/QQ%E7%BE%A4-806714302-orange.svg?style=flat-square) ](https://img.ljcdn.com/hc-picture/6302d742-ebc8-4649-95cf-62ccf57a1add)
 
-[English Document](https://github.com/LianjiaTech/retrofit-spring-boot-starter/blob/master/README_EN.md)
 
 `Retrofit`是适用于`Android`和`Java`且类型安全的HTTP客户端，其最大的特性的是**支持通过`接口`的方式发起HTTP请求**。而`spring-boot`是使用最广泛的Java开发框架，但是`Retrofit`官方没有支持与`spring-boot`框架快速整合，因此我们开发了`retrofit-spring-boot-starter`。
 
@@ -149,7 +148,7 @@ public class TestService {
 
 `retrofit-spring-boot-starter`支持了多个可配置的属性，用来应对不同的业务场景，具体可支持的配置项及默认值如下：
 
-**注意：应用只需要配置要更改的配置项即可！**
+**注意：应用只需要配置要更改的配置项！**
 
 ```yaml
 retrofit:
