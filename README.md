@@ -32,14 +32,14 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 
 - [x] [超时时间设置](#超时时间设置)
 - [x] [注解式拦截器](#注解式拦截器)
-- [x] [连接池管理](#连接池管理)
 - [x] [日志打印](#日志打印)
 - [x] [请求重试](#请求重试)
-- [x] [错误解码器](#错误解码器)
-- [x] [全局拦截器](#全局拦截器)
 - [x] [熔断降级](#熔断降级)
-- [x] [微服务之间的HTTP调用](#微服务之间的HTTP调用)
+- [x] [错误解码器](#错误解码器)
 - [x] [自定义注入OkHttpClient](#自定义注入OkHttpClient)
+- [x] [微服务之间的HTTP调用](#微服务之间的HTTP调用)
+- [x] [连接池管理](#连接池管理)
+- [x] [全局拦截器](#全局拦截器)
 - [x] [调用适配器](#调用适配器)
 - [x] [数据转换器](#数据转码器)
 - [x] [其他功能示例](#其他功能示例)
@@ -162,10 +162,6 @@ retrofit:
          # 连接保活时间(秒)
          keep-alive-second: 300
 
-   # 是否禁用void返回值类型
-   disable-void-return-type: false
-
-
    # 全局转换器工厂
    global-converter-factories:
       - com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory
@@ -178,14 +174,11 @@ retrofit:
    # 日志打印配置
    log:
       # 启用日志打印
-      enable: true
-      # 日志打印拦截器
-      logging-interceptor: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor
+      enable-global-log: true
       # 全局日志打印级别
       global-log-level: info
       # 全局日志打印策略
       global-log-strategy: basic
-
 
    # 重试配置
    retry:
@@ -199,17 +192,12 @@ retrofit:
       global-retry-rules:
          - response_status_not_2xx
          - occur_io_exception
-      # 重试拦截器
-      retry-interceptor: com.github.lianjiatech.retrofit.spring.boot.retry.RetryInterceptor
 
    # 熔断降级配置
    degrade:
-      # 是否启用熔断降级
-      enable: false
-      # 熔断降级实现方式
-      degrade-type: sentinel
-      # 熔断资源名称解析器
-      resource-name-parser: com.github.lianjiatech.retrofit.spring.boot.degrade.DefaultResourceNameParser
+      # 熔断降级类型。默认none，表示不启用熔断降级
+      degrade-type: none
+
    # 全局连接超时时间
    global-connect-timeout-ms: 10000
    # 全局读取超时时间
@@ -408,52 +396,24 @@ public interface HttpApi {
 
 这样就能在指定url的请求上，自动加上签名信息了。
 
-### 连接池管理
-
-默认情况下，所有通过`Retrofit`发送的http请求都会使用`max-idle-connections=5  keep-alive-second=300`的默认连接池。当然，我们也可以在配置文件中配置多个自定义的连接池，然后通过`@RetrofitClient`的`poolName`属性来指定使用。比如我们要让某个接口下的请求全部使用`poolName=test1`的连接池，代码实现如下：
-
-1. 配置连接池。
-
-    ```yaml
-    retrofit:
-      # 连接池配置
-      pool:
-        # test1连接池配置
-        test1:
-          # 最大空闲连接数
-          max-idle-connections: 3
-          # 连接保活时间(秒)
-          keep-alive-second: 100
-    ```
-
-2. 通过`@RetrofitClient`的`poolName`属性来指定使用的连接池。
-
-    ```java
-    @RetrofitClient(baseUrl = "${test.baseUrl}", poolName="test1")
-    public interface HttpApi {
-
-        @GET("person")
-        Result<Person> getPerson(@Query("id") Long id);
-    }
-    ```
-
 ### 日志打印
 
-很多情况下，我们希望将http请求日志记录下来。本框架支持以下全局日志打印配置：
+`retrofit-spring-boot-starter`支持支持全局日志打印和声明式日志打印。
+
+#### 全局日志打印
+
+全局日志打印默认开启，开启后所有`HTTP`请求都会打印日志，默认配置如下：
 
 ```yaml
 retrofit:
-  # 日志打印配置
-  log:
-    # 启用日志打印
-    enable: true
-    # 日志打印拦截器
-    logging-interceptor: com.github.lianjiatech.retrofit.spring.boot.interceptor.DefaultLoggingInterceptor
-    # 全局日志打印级别
-    global-log-level: info
-    # 全局日志打印策略
-    global-log-strategy: body
-
+   # 日志打印配置
+   log:
+      # 启用日志打印
+      enable-global-log: true
+      # 全局日志打印级别
+      global-log-level: info
+      # 全局日志打印策略
+      global-log-strategy: basic
 ```
 
 **4种日志打印策略含义如下**：
@@ -463,7 +423,13 @@ retrofit:
 3. `HEADERS`：Logs request and response lines and their respective headers.
 4. `BODY`：Logs request and response lines and their respective headers and bodies (if present).
 
-针对每个接口，如果需要单独定制的话，可以设置`@RetrofitClient`的`enableLog`、`logLevel`和`logStrategy`。
+#### 声明式日志打印
+
+如果只需要部分请求才打印日志，可以在相关接口或者方法上使用`@Logging`注解。
+
+#### 日志打印自定义扩展
+
+如果需要修改日志打印行为，继承`LoggingInterceptor`，并将其配置成Spring bean即可！
 
 ### 请求重试
 
@@ -471,24 +437,22 @@ retrofit:
 
 #### 全局重试
 
-全局重试默认关闭，可以通过配置`retrofit.retry.enable-global-retry=ture`开启。开启之后，所有`HTTP`请求都会按照配置参数自动重试，详细配置项如下：
+全局重试默认关闭。开启之后，所有`HTTP`请求都会按照配置参数自动重试，默认配置项如下：
 
 ```yaml
-retrofit:
   # 重试配置
   retry:
-    # 是否启用全局重试
-    enable-global-retry: true
-    # 全局重试间隔时间
-    global-interval-ms: 20
-    # 全局最大重试次数
-    global-max-retries: 10
-    # 全局重试规则
-    global-retry-rules:
-      - response_status_not_2xx
-    # 重试拦截器
-    retry-interceptor: com.github.lianjiatech.retrofit.spring.boot.retry.RetryInterceptor
-```
+     # 是否启用全局重试
+     enable-global-retry: false
+     # 全局重试间隔时间
+     global-interval-ms: 100
+     # 全局最大重试次数
+     global-max-retries: 2
+     # 全局重试规则
+     global-retry-rules:
+        - response_status_not_2xx
+        - occur_io_exception
+ ```
 
 **重试规则支持三种配置**：
 
@@ -500,9 +464,109 @@ retrofit:
 
 如果只需要在指定某些请求才执行重试，可以使用声明式重试！具体就是在接口或者方法上声明`@Retry`注解。
 
+#### 请求重试自定义扩展
+
+如果需要修改请求重试行为，继承`RetryInterceptor`，并将其配置成Spring bean即可！
+
+### 熔断降级
+
+熔断降级功能默认关闭。当前支持`sentinel`和`resilience4j`两种实现。
+
+```yaml
+retrofit:
+   # 熔断降级配置
+   degrade:
+      # 熔断降级类型。默认none，表示不启用熔断降级
+      degrade-type: sentinel
+```
+
+#### sentinel熔断降级
+
+配置`degrade-type=sentinel`开启。然后在相关接口或者方法上声明`@SentinelDegrade`即可。另外项目需要自行引入`sentinel`依赖。
+
+```xml
+
+<dependency>
+   <groupId>com.alibaba.csp</groupId>
+   <artifactId>sentinel-core</artifactId>
+   <version>1.6.3</version>
+</dependency>
+```
+
+#### resilience4j熔断降级
+
+配置`degrade-type=resilience4j`开启。然后在相关接口或者方法上声明`@Resilience4jDegrade`即可。另外项目需要自行引入`resilience4j`依赖。
+
+```xml
+
+<dependency>
+   <groupId>io.github.resilience4j</groupId>
+   <artifactId>resilience4j-circuitbreaker</artifactId>
+   <version>1.7.1</version>
+</dependency>
+```
+
+#### 扩展熔断降级
+
+如果用户需要使用其他的熔断降级实现，继承`BaseRetrofitDegrade`，并将其配置`bean`即可，具体可参考`SentinelRetrofitDegrade`。
+
+#### @RetrofitClient设置fallback或者fallbackFactory (可选)
+
+如果`@RetrofitClient`不设置`fallback`或者`fallbackFactory`，当触发熔断时，会直接抛出`RetrofitBlockException`异常。**用户可以通过设置`fallback`
+或者`fallbackFactory`来定制熔断时的方法返回值**。`fallback`类必须是当前接口的实现类，`fallbackFactory`必须是`FallbackFactory<T>`
+实现类，泛型参数类型为当前接口类型。另外，`fallback`和`fallbackFactory`实例必须配置成`Spring`容器的`Bean`。
+
+**`fallbackFactory`相对于`fallback`，主要差别在于能够感知每次熔断的异常原因(cause)**。参考示例如下：
+
+```java
+
+@Slf4j
+@Service
+public class HttpDegradeFallback implements HttpDegradeApi {
+
+   @Override
+   public Result<Integer> test() {
+      Result<Integer> fallback = new Result<>();
+      fallback.setCode(100)
+              .setMsg("fallback")
+              .setBody(1000000);
+      return fallback;
+   }
+}
+```
+
+```java
+
+@Slf4j
+@Service
+public class HttpDegradeFallbackFactory implements FallbackFactory<HttpDegradeApi> {
+
+   /**
+    * Returns an instance of the fallback appropriate for the given cause
+    *
+    * @param cause fallback cause
+    * @return 实现了retrofit接口的实例。an instance that implements the retrofit interface.
+    */
+   @Override
+   public HttpDegradeApi create(Throwable cause) {
+      log.error("触发熔断了! ", cause.getMessage(), cause);
+      return new HttpDegradeApi() {
+         @Override
+         public Result<Integer> test() {
+            Result<Integer> fallback = new Result<>();
+            fallback.setCode(100)
+                    .setMsg("fallback")
+                    .setBody(1000000);
+            return fallback;
+         }
+      }
+   }
+```
+
 ### 错误解码器
 
-在`HTTP`发生请求错误(包括发生异常或者响应数据不符合预期)的时候，错误解码器可将`HTTP`相关信息解码到自定义异常中。你可以在`@RetrofitClient`注解的`errorDecoder()`指定当前接口的错误解码器，自定义错误解码器需要实现`ErrorDecoder`接口：
+在`HTTP`发生请求错误(包括发生异常或者响应数据不符合预期)的时候，错误解码器可将`HTTP`相关信息解码到自定义异常中。你可以在`@RetrofitClient`注解的`errorDecoder()`
+指定当前接口的错误解码器，自定义错误解码器需要实现`ErrorDecoder`接口：
 
 ```java
 /**
@@ -560,147 +624,31 @@ public interface ErrorDecoder {
 
 ```
 
-## 全局拦截器
+### 自定义注入OkHttpClient
 
-### 全局应用拦截器
-
-如果我们需要对整个系统的的http请求执行统一的拦截处理，可以自定义实现全局拦截器`GlobalInterceptor`, 并配置成`spring`容器中的`bean`！例如我们需要在整个系统发起的http请求，都带上来源信息。
+通常情况下，通过`@RetrofitClient`注解属性动态创建`OkHttpClient`对象能够满足大部分使用场景。但是在某些情况下，用户可能需要自定义`OkHttpClient`
+，这个时候，可以在接口上定义返回类型是`OkHttpClient.Builder`的静态方法来实现。代码示例如下：
 
 ```java
-@Component
-@Order(2)
-public class SourceGlobalInterceptor implements GlobalInterceptor {
 
-   @Autowired
-   private TestService testService;
+@RetrofitClient(baseUrl = "http://ke.com")
+public interface HttpApi3 {
 
-   @Override
-   public Response intercept(Chain chain) throws IOException {
-      Request request = chain.request();
-      Request newReq = request.newBuilder()
-              .addHeader("source", "test")
-              .build();
-      System.out.println("===========执行全局重试===========");
-      testService.test();
-      return chain.proceed(newReq);
+   @OkHttpClientBuilder
+   static OkHttpClient.Builder okhttpClientBuilder() {
+      return new OkHttpClient.Builder()
+              .connectTimeout(1, TimeUnit.SECONDS)
+              .readTimeout(1, TimeUnit.SECONDS)
+              .writeTimeout(1, TimeUnit.SECONDS);
+
    }
+
+   @GET
+   Result<Person> getPerson(@Url String url, @Query("id") Long id);
 }
 ```
 
-### 全局网络拦截器
-
-只需要实现`NetworkInterceptor`接口 并配置成`spring`容器中的`bean`就支持自动织入全局网络拦截器。
-
-### 熔断降级
-
-`retrofit-spring-boot-starter`支持熔断降级功能，底层基于[Sentinel](https://sentinelguard.io/zh-cn/docs/introduction.html)实现。具体来说，支持了**熔断资源自发现**和**注解式降级规则配置**。如需使用熔断降级，只需要进行以下操作即可：
-
-#### 1. 开启熔断降级功能
-	
-**默认情况下，熔断降级功能是关闭的，需要设置相应的配置项来开启熔断降级功能**：
-
-```yaml
-retrofit:
-  # 熔断降级配置
-  degrade:
-    # 是否启用熔断降级
-    enable: true
-    # 熔断降级实现方式
-    degrade-type: sentinel
-    # 熔断资源名称解析器
-    resource-name-parser: com.github.lianjiatech.retrofit.spring.boot.degrade.DefaultResourceNameParser
-```
-
-资源名称解析器用于实现用户自定义资源名称，默认配置是`DefaultResourceNameParser`，对应的资源名称格式为`HTTP_OUT:GET:http://localhost:8080/api/degrade/test`。用户可以继承`BaseResourceNameParser`类实现自己的资源名称解析器。
-
-另外，由于熔断降级功能是可选的，**因此启用熔断降级需要用户自行引入Sentinel依赖**：
-
-```xml
-<dependency>
-    <groupId>com.alibaba.csp</groupId>
-    <artifactId>sentinel-core</artifactId>
-    <version>1.6.3</version>
-</dependency>
-```
-
-#### 2. 配置降级规则（可选）
-
-**`retrofit-spring-boot-starter`支持注解式配置降级规则，通过`@Degrade`注解来配置降级规则**。`@Degrade`注解可以配置在接口或者方法上，配置在方法上的优先级更高。
-
-```java
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD, ElementType.TYPE})
-@Documented
-public @interface Degrade {
-
-    /**
-     * RT threshold or exception ratio threshold count.
-     */
-    double count();
-
-    /**
-     * Degrade recover timeout (in seconds) when degradation occurs.
-     */
-    int timeWindow() default 5;
-
-    /**
-     * Degrade strategy (0: average RT, 1: exception ratio).
-     */
-    DegradeStrategy degradeStrategy() default DegradeStrategy.AVERAGE_RT;
-}
-```
-
-> **如果应用项目已支持通过配置中心配置降级规则，可忽略注解式配置方式**。
-
-#### 3. @RetrofitClient设置fallback或者fallbackFactory (可选)
-
-如果`@RetrofitClient`不设置`fallback`或者`fallbackFactory`，当触发熔断时，会直接抛出`RetrofitBlockException`异常。**用户可以通过设置`fallback`或者`fallbackFactory`来定制熔断时的方法返回值**。`fallback`类必须是当前接口的实现类，`fallbackFactory`必须是`FallbackFactory<T>`实现类，泛型参数类型为当前接口类型。另外，`fallback`和`fallbackFactory`实例必须配置成`Spring`容器的`Bean`。
-
-**`fallbackFactory`相对于`fallback`，主要差别在于能够感知每次熔断的异常原因(cause)**。参考示例如下：
-
-```java
-@Slf4j
-@Service
-public class HttpDegradeFallback implements HttpDegradeApi {
-
-    @Override
-    public Result<Integer> test() {
-        Result<Integer> fallback = new Result<>();
-        fallback.setCode(100)
-                .setMsg("fallback")
-                .setBody(1000000);
-        return fallback;
-    }
-}
-```
-
-```java
-@Slf4j
-@Service
-public class HttpDegradeFallbackFactory implements FallbackFactory<HttpDegradeApi> {
-
-    /**
-     * Returns an instance of the fallback appropriate for the given cause
-     *
-     * @param cause fallback cause
-     * @return 实现了retrofit接口的实例。an instance that implements the retrofit interface.
-     */
-    @Override
-    public HttpDegradeApi create(Throwable cause) {
-        log.error("触发熔断了! ", cause.getMessage(), cause);
-        return new HttpDegradeApi() {
-            @Override
-            public Result<Integer> test() {
-                Result<Integer> fallback = new Result<>();
-                fallback.setCode(100)
-                        .setMsg("fallback")
-                        .setBody(1000000);
-                return fallback;
-            }
-    }
-}
-```
-
+> 方法必须使用`@OkHttpClientBuilder`注解标记！
 
 ### 微服务之间的HTTP调用
 
@@ -729,31 +677,67 @@ public interface ApiCountService {
 }
 ```
 
-### 自定义注入OkHttpClient
+### 连接池管理
 
-通常情况下，通过`@RetrofitClient`注解属性动态创建`OkHttpClient`对象能够满足大部分使用场景。但是在某些情况下，用户可能需要自定义`OkHttpClient`
-，这个时候，可以在接口上定义返回类型是`OkHttpClient.Builder`的静态方法来实现。代码示例如下：
+默认情况下，所有通过`Retrofit`发送的http请求都会使用`max-idle-connections=5  keep-alive-second=300`
+的默认连接池。当然，我们也可以在配置文件中配置多个自定义的连接池，然后通过`@RetrofitClient`的`poolName`属性来指定使用。比如我们要让某个接口下的请求全部使用`poolName=test1`的连接池，代码实现如下：
+
+1. 配置连接池。
+
+    ```yaml
+    retrofit:
+      # 连接池配置
+      pool:
+        # test1连接池配置
+        test1:
+          # 最大空闲连接数
+          max-idle-connections: 3
+          # 连接保活时间(秒)
+          keep-alive-second: 100
+    ```
+
+2. 通过`@RetrofitClient`的`poolName`属性来指定使用的连接池。
+
+    ```java
+    @RetrofitClient(baseUrl = "${test.baseUrl}", poolName="test1")
+    public interface HttpApi {
+
+        @GET("person")
+        Result<Person> getPerson(@Query("id") Long id);
+    }
+    ```
+
+## 全局拦截器
+
+### 全局应用拦截器
+
+如果我们需要对整个系统的的http请求执行统一的拦截处理，可以自定义实现全局拦截器`GlobalInterceptor`, 并配置成`spring`容器中的`bean`！例如我们需要在整个系统发起的http请求，都带上来源信息。
 
 ```java
 
-@RetrofitClient(baseUrl = "http://ke.com")
-public interface HttpApi3 {
+@Component
+@Order(2)
+public class SourceGlobalInterceptor implements GlobalInterceptor {
 
-   @OkHttpClientBuilder
-   static OkHttpClient.Builder okhttpClientBuilder() {
-      return new OkHttpClient.Builder()
-              .connectTimeout(1, TimeUnit.SECONDS)
-              .readTimeout(1, TimeUnit.SECONDS)
-              .writeTimeout(1, TimeUnit.SECONDS);
+   @Autowired
+   private TestService testService;
 
+   @Override
+   public Response intercept(Chain chain) throws IOException {
+      Request request = chain.request();
+      Request newReq = request.newBuilder()
+              .addHeader("source", "test")
+              .build();
+      System.out.println("===========执行全局重试===========");
+      testService.test();
+      return chain.proceed(newReq);
    }
-
-   @GET
-   Result<Person> getPerson(@Url String url, @Query("id") Long id);
 }
 ```
 
-> 方法必须使用`@OkHttpClientBuilder`注解标记！
+### 全局网络拦截器
+
+只需要实现`NetworkInterceptor`接口 并配置成`spring`容器中的`bean`就支持自动织入全局网络拦截器。
 
 ## 调用适配器和数据转码器
 
@@ -859,18 +843,19 @@ retrofit:
 - [JAXB](https://docs.oracle.com/javase/tutorial/jaxb/intro/index.html): com.squareup.retrofit2:converter-jaxb
 - fastJson：com.alibaba.fastjson.support.retrofit.Retrofit2ConverterFactory
 
-`retrofit-spring-boot-starter`支持通过`retrofit.global-converter-factories`配置全局数据转换器工厂，转换器工厂实例优先从Spring容器获取，如果没有获取到，则反射创建。默认的全局数据转换器工厂是`retrofit2.converter.jackson.JacksonConverterFactory`，你可以直接通过`spring.jackson.*`配置`jackson`序列化规则，配置可参考[Customize the Jackson ObjectMapper](https://docs.spring.io/spring-boot/docs/2.1.5.RELEASE/reference/htmlsingle/#howto-customize-the-jackson-objectmapper)！
+`retrofit-spring-boot-starter`支持通过`retrofit.global-converter-factories`配置全局数据转换器工厂，转换器工厂实例优先从Spring容器获取，如果没有获取到，则反射创建。
+默认的全局数据转换器工厂是`retrofit2.converter.jackson.JacksonConverterFactory`。如果需要修改jackson配置，自行覆盖`JacksonConverterFactory`的`bean`
+配置即可。
 
 ```yaml
 retrofit:
-  # 全局转换器工厂
+   # 全局转换器工厂
    global-converter-factories:
+      - com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory
       - retrofit2.converter.jackson.JacksonConverterFactory
 ```
 
 针对每个Java接口，还可以通过`@RetrofitClient`注解的`converterFactories()`指定当前接口采用的`Converter.Factory`，指定的转换器工厂实例依然优先从Spring容器获取。
-
-**注意：如果`Converter.Factory`没有`public`的无参构造器，请手动将其配置成`Spring`容器的`Bean`对象**！
 
 ## 其他功能示例
 
