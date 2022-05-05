@@ -2,6 +2,7 @@ package com.github.lianjiatech.retrofit.spring.boot.core;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -16,6 +17,7 @@ import retrofit2.Retrofit;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
+@Inherited
 public @interface RetrofitClient {
 
     /**

@@ -39,16 +39,6 @@ public interface HttpApi {
     Result<Person> getPerson(@Query("id") Long id);
 
     /**
-     * Void <br>
-     * 不关注返回类型可以使用Void。如果http状态码不是2xx，直接抛错！
-     *
-     * @param id id
-     * @return Void
-     */
-    @GET("person")
-    Void getPersonVoid(@Query("id") Long id);
-
-    /**
      * CompletableFuture<T> <br>
      * 将响应体内容适配成CompletableFuture<T>对象返回，异步调用
      *
