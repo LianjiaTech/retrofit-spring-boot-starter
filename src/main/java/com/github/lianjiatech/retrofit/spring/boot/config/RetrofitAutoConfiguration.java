@@ -6,11 +6,9 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -40,7 +38,6 @@ import com.github.lianjiatech.retrofit.spring.boot.retry.RetryInterceptor;
 
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
-import lombok.extern.slf4j.Slf4j;
 import okhttp3.ConnectionPool;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
@@ -49,8 +46,6 @@ import retrofit2.converter.jackson.JacksonConverterFactory;
  */
 @Configuration
 @EnableConfigurationProperties(RetrofitProperties.class)
-@AutoConfigureAfter({JacksonAutoConfiguration.class})
-@Slf4j
 public class RetrofitAutoConfiguration {
 
     private final RetrofitProperties retrofitProperties;
