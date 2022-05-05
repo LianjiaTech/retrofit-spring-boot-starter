@@ -97,8 +97,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         return connectionPool;
     }
 
-    private OkHttpClient createOkHttpClient()
-            throws IllegalAccessException, InstantiationException, InvocationTargetException {
+    private OkHttpClient createOkHttpClient() throws IllegalAccessException, InvocationTargetException {
         OkHttpClient.Builder okHttpClientBuilder = createOkHttpClientBuilder();
         RetrofitClient retrofitClient = retrofitInterface.getAnnotation(RetrofitClient.class);
         if (isEnableDegrade(retrofitInterface)) {
