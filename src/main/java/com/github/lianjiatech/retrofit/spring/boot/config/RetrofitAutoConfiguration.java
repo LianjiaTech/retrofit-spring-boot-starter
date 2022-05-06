@@ -14,7 +14,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-import com.alibaba.csp.sentinel.SphU;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,7 +35,6 @@ import com.github.lianjiatech.retrofit.spring.boot.interceptor.ServiceChooseInte
 import com.github.lianjiatech.retrofit.spring.boot.log.LoggingInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.retry.RetryInterceptor;
 
-import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import okhttp3.ConnectionPool;
 import retrofit2.converter.jackson.JacksonConverterFactory;
@@ -146,7 +144,7 @@ public class RetrofitAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnClass(SphU.class)
+    @ConditionalOnClass(name = "com.alibaba.csp.sentinel.SphU")
     @ConditionalOnProperty(name = "retrofit.degrade.degrade-type", havingValue = RetrofitDegrade.SENTINEL)
     public RetrofitDegrade sentinelRetrofitDegrade() {
         return new SentinelRetrofitDegrade();
@@ -154,7 +152,7 @@ public class RetrofitAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnClass(CircuitBreaker.class)
+    @ConditionalOnClass(name = "io.github.resilience4j.circuitbreaker.CircuitBreaker")
     @ConditionalOnProperty(name = "retrofit.degrade.degrade-type", havingValue = RetrofitDegrade.RESILIENCE4J)
     public RetrofitDegrade resilience4jRetrofitDegrade() {
         return new Resilience4jRetrofitDegrade(CircuitBreakerRegistry.ofDefaults());
