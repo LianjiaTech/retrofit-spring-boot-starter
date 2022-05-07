@@ -43,7 +43,8 @@ public class Resilience4jRetrofitDegrade extends BaseRetrofitDegrade {
                 continue;
             }
             Resilience4jDegrade resilience4jDegrade =
-                    AnnotationExtendUtils.findAnnotationIncludeClass(method, Resilience4jDegrade.class);
+                    AnnotationExtendUtils.findMergedAnnotation(method, method.getDeclaringClass(),
+                            Resilience4jDegrade.class);
             if (resilience4jDegrade == null) {
                 continue;
             }

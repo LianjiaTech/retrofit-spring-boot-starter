@@ -42,7 +42,8 @@ public class SentinelRetrofitDegrade extends BaseRetrofitDegrade {
             }
             // 获取熔断配置
             SentinelDegrade sentinelDegrade =
-                    AnnotationExtendUtils.findAnnotationIncludeClass(method, SentinelDegrade.class);
+                    AnnotationExtendUtils.findMergedAnnotation(method, method.getDeclaringClass(),
+                            SentinelDegrade.class);
             if (sentinelDegrade == null) {
                 continue;
             }
@@ -61,7 +62,8 @@ public class SentinelRetrofitDegrade extends BaseRetrofitDegrade {
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
         Method method = Objects.requireNonNull(request.tag(Invocation.class)).method();
-        if (AnnotationExtendUtils.findAnnotationIncludeClass(method, SentinelDegrade.class) == null) {
+        if (AnnotationExtendUtils.findMergedAnnotation(method, method.getDeclaringClass(),
+                SentinelDegrade.class) == null) {
             return chain.proceed(request);
         }
         String resourceName = parseResourceName(method);

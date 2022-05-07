@@ -1,4 +1,4 @@
-package com.github.lianjiatech.retrofit.spring.boot.test;
+package com.github.lianjiatech.retrofit.spring.boot.test.decoder;
 
 import java.io.IOException;
 
@@ -14,9 +14,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.lianjiatech.retrofit.spring.boot.test.RetrofitTestApplication;
 import com.github.lianjiatech.retrofit.spring.boot.test.entity.Person;
 import com.github.lianjiatech.retrofit.spring.boot.test.entity.Result;
-import com.github.lianjiatech.retrofit.spring.boot.test.http.ErrorDecoderTestApi;
 
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;

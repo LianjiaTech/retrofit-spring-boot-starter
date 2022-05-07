@@ -30,38 +30,38 @@ public interface ResourceNameParser {
      */
     default HttpMethodPath parseHttpMethodPath(Method method) {
 
-        if (method.isAnnotationPresent(HTTP.class)) {
-            HTTP http = method.getAnnotation(HTTP.class);
+        HTTP http = method.getAnnotation(HTTP.class);
+        if (http != null) {
             return new HttpMethodPath(http.method(), http.path());
         }
 
-        if (method.isAnnotationPresent(GET.class)) {
-            GET get = method.getAnnotation(GET.class);
+        GET get = method.getAnnotation(GET.class);
+        if (get != null) {
             return new HttpMethodPath("GET", get.value());
         }
 
-        if (method.isAnnotationPresent(POST.class)) {
-            POST post = method.getAnnotation(POST.class);
+        POST post = method.getAnnotation(POST.class);
+        if (post != null) {
             return new HttpMethodPath("POST", post.value());
         }
 
-        if (method.isAnnotationPresent(PUT.class)) {
-            PUT put = method.getAnnotation(PUT.class);
+        PUT put = method.getAnnotation(PUT.class);
+        if (put != null) {
             return new HttpMethodPath("PUT", put.value());
         }
 
-        if (method.isAnnotationPresent(DELETE.class)) {
-            DELETE delete = method.getAnnotation(DELETE.class);
+        DELETE delete = method.getAnnotation(DELETE.class);
+        if (delete != null) {
             return new HttpMethodPath("DELETE", delete.value());
         }
 
-        if (method.isAnnotationPresent(HEAD.class)) {
-            HEAD head = method.getAnnotation(HEAD.class);
+        HEAD head = method.getAnnotation(HEAD.class);
+        if (head != null) {
             return new HttpMethodPath("HEAD", head.value());
         }
 
-        if (method.isAnnotationPresent(PATCH.class)) {
-            PATCH patch = method.getAnnotation(PATCH.class);
+        PATCH patch = method.getAnnotation(PATCH.class);
+        if (patch != null) {
             return new HttpMethodPath("PATCH", patch.value());
         }
         throw new UnsupportedOperationException("unsupported method!" + method);

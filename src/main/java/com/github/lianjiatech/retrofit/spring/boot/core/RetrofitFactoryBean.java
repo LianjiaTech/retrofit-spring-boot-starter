@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.BeansException;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.EnvironmentAware;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.env.Environment;
 import org.springframework.util.Assert;
@@ -87,7 +89,8 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
     }
 
     private okhttp3.ConnectionPool parseConnectionPool() {
-        RetrofitClient retrofitClient = retrofitInterface.getAnnotation(RetrofitClient.class);
+        RetrofitClient retrofitClient =
+                AnnotatedElementUtils.findMergedAnnotation(retrofitInterface, RetrofitClient.class);
         String poolName = retrofitClient.poolName();
         Map<String, ConnectionPool> poolRegistry = retrofitConfigBean.getPoolRegistry();
         Assert.notNull(poolRegistry, "poolRegistry does not exist! Please set retrofitConfigBean.poolRegistry!");
@@ -99,7 +102,8 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
 
     private OkHttpClient createOkHttpClient() throws IllegalAccessException, InvocationTargetException {
         OkHttpClient.Builder okHttpClientBuilder = createOkHttpClientBuilder();
-        RetrofitClient retrofitClient = retrofitInterface.getAnnotation(RetrofitClient.class);
+        RetrofitClient retrofitClient =
+                AnnotatedElementUtils.findMergedAnnotation(retrofitInterface, RetrofitClient.class);
         if (isEnableDegrade(retrofitInterface)) {
             okHttpClientBuilder.addInterceptor(retrofitConfigBean.getRetrofitDegrade());
         }
@@ -116,7 +120,8 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
     }
 
     private OkHttpClient.Builder createOkHttpClientBuilder() throws InvocationTargetException, IllegalAccessException {
-        RetrofitClient retrofitClient = retrofitInterface.getAnnotation(RetrofitClient.class);
+        RetrofitClient retrofitClient =
+                AnnotatedElementUtils.findMergedAnnotation(retrofitInterface, RetrofitClient.class);
         Method method = findOkHttpClientBuilderMethod();
         if (method != null) {
             return (OkHttpClient.Builder)method.invoke(null);
@@ -158,11 +163,11 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
 
     @SuppressWarnings("unchecked")
     private List<Interceptor> findInterceptorByAnnotation() {
-        Annotation[] classAnnotations = retrofitInterface.getAnnotations();
+        Annotation[] classAnnotations = AnnotationUtils.getAnnotations(retrofitInterface);
         List<Interceptor> interceptors = new ArrayList<>();
         // 找出被@InterceptMark标记的注解。Find the annotation marked by @InterceptMark
         List<Annotation> interceptAnnotations = new ArrayList<>();
-        for (Annotation classAnnotation : classAnnotations) {
+        for (Annotation classAnnotation : Objects.requireNonNull(classAnnotations)) {
             Class<? extends Annotation> annotationType = classAnnotation.annotationType();
             if (annotationType.isAnnotationPresent(InterceptMark.class)) {
                 interceptAnnotations.add(classAnnotation);
@@ -204,9 +209,9 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         return interceptors;
     }
 
-    private Retrofit createRetrofit()
-            throws InstantiationException, IllegalAccessException, InvocationTargetException {
-        RetrofitClient retrofitClient = retrofitInterface.getAnnotation(RetrofitClient.class);
+    private Retrofit createRetrofit() throws IllegalAccessException, InvocationTargetException {
+        RetrofitClient retrofitClient =
+                AnnotatedElementUtils.findMergedAnnotation(retrofitInterface, RetrofitClient.class);
         String baseUrl = RetrofitUtils.convertBaseUrl(retrofitClient, retrofitClient.baseUrl(), environment);
 
         OkHttpClient client = createOkHttpClient();

@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.context.EnvironmentAware;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.env.Environment;
 
 import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClient;
@@ -29,7 +30,8 @@ public abstract class BaseRetrofitDegrade implements RetrofitDegrade, ResourceNa
         if (resourceName != null) {
             return resourceName;
         }
-        RetrofitClient retrofitClient = method.getDeclaringClass().getAnnotation(RetrofitClient.class);
+        RetrofitClient retrofitClient =
+                AnnotatedElementUtils.findMergedAnnotation(method.getDeclaringClass(), RetrofitClient.class);
         String baseUrl = RetrofitUtils.convertBaseUrl(retrofitClient, retrofitClient.baseUrl(), environment);
         HttpMethodPath httpMethodPath = parseHttpMethodPath(method);
         resourceName = formatResourceName(baseUrl, httpMethodPath);

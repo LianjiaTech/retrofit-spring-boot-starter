@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 
 import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClient;
 
@@ -22,7 +23,8 @@ public class DegradeProxy implements InvocationHandler {
 
     @SuppressWarnings("unchecked")
     public static <T> T create(Object source, Class<T> retrofitInterface, ApplicationContext applicationContext) {
-        RetrofitClient retrofitClient = retrofitInterface.getAnnotation(RetrofitClient.class);
+        RetrofitClient retrofitClient =
+                AnnotatedElementUtils.findMergedAnnotation(retrofitInterface, RetrofitClient.class);
         Class<?> fallbackClass = retrofitClient.fallback();
         Object fallback = null;
         if (!void.class.isAssignableFrom(fallbackClass)) {

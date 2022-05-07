@@ -41,6 +41,7 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 - [x] [全局拦截器](#全局拦截器)
 - [x] [调用适配器](#调用适配器)
 - [x] [数据转换器](#数据转码器)
+- [x] [元注解](#元注解)
 - [x] [其他功能示例](#其他功能示例)
 
 ## 快速使用
@@ -51,7 +52,7 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-   <version>2.3.1</version>
+   <version>2.3.2</version>
 </dependency>
 ```
 
@@ -64,7 +65,7 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-   <version>2.3.1</version>
+   <version>2.3.2</version>
 </dependency>
  <dependency>
     <groupId>com.squareup.okhttp3</groupId>
@@ -853,6 +854,29 @@ retrofit:
 ```
 
 针对每个Java接口，还可以通过`@RetrofitClient`注解的`converterFactories()`指定当前接口采用的`Converter.Factory`，指定的转换器工厂实例依然优先从Spring容器获取。
+
+### 元注解
+
+`@RetrofitClient`、`@Retry`、`@Logging`、`@Resilience4jDegrade`等注解支持元注解、继承以及`@AliasFor`。 我们可以随意组合、调整相关注解：
+
+```java
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+@Documented
+@Inherited
+@RetrofitClient(baseUrl = "${test.baseUrl}")
+@Logging(logLevel = LogLevel.WARN)
+@Retry(intervalMs = 200)
+public @interface MyRetrofitClient {
+
+   @AliasFor(annotation = RetrofitClient.class, attribute = "converterFactories")
+   Class<? extends Converter.Factory>[] converterFactories() default {GsonConverterFactory.class};
+
+   @AliasFor(annotation = Logging.class, attribute = "logStrategy")
+   LogStrategy logStrategy() default LogStrategy.BODY;
+}
+```
 
 ## 其他功能示例
 
