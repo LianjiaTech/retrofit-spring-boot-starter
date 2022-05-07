@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Objects;
 
+import org.springframework.core.annotation.AnnotatedElementUtils;
+
 import com.github.lianjiatech.retrofit.spring.boot.config.LogProperty;
 
 import lombok.extern.slf4j.Slf4j;
@@ -30,8 +32,7 @@ public class LoggingInterceptor implements Interceptor {
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
         Method method = Objects.requireNonNull(request.tag(Invocation.class)).method();
-        // 获取重试配置
-        Logging logging = method.getDeclaringClass().getAnnotation(Logging.class);
+        Logging logging = AnnotatedElementUtils.findMergedAnnotation(method.getDeclaringClass(), Logging.class);
         if (!needLog(logging)) {
             return chain.proceed(request);
         }

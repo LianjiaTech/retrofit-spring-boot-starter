@@ -33,7 +33,7 @@ public class RetryInterceptor implements Interceptor {
         Request request = chain.request();
         Method method = Objects.requireNonNull(request.tag(Invocation.class)).method();
         // 获取重试配置
-        Retry retry = AnnotationExtendUtils.findAnnotationIncludeClass(method, Retry.class);
+        Retry retry = AnnotationExtendUtils.findMergedAnnotation(method, method.getDeclaringClass(), Retry.class);
         if (!needRetry(retry)) {
             return chain.proceed(request);
         }

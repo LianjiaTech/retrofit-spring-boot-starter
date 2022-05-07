@@ -1,4 +1,4 @@
-package com.github.lianjiatech.retrofit.spring.boot.test;
+package com.github.lianjiatech.retrofit.spring.boot.test.degrade;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -17,9 +17,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.lianjiatech.retrofit.spring.boot.test.RetrofitTestApplication;
 import com.github.lianjiatech.retrofit.spring.boot.test.entity.Person;
 import com.github.lianjiatech.retrofit.spring.boot.test.entity.Result;
-import com.github.lianjiatech.retrofit.spring.boot.test.http.DegradeR4jApi;
 
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -27,13 +27,13 @@ import okhttp3.mockwebserver.MockWebServer;
 /**
  * @author yukdawn@gmail.com
  */
-@ActiveProfiles("r4j")
+@ActiveProfiles("sentinel")
 @SpringBootTest(classes = RetrofitTestApplication.class)
 @RunWith(SpringRunner.class)
-public class DegradeR4jTest {
+public class DegradeSentinelTest {
 
     @Autowired
-    private DegradeR4jApi degradeR4jApi;
+    private DegradeSentinelApi degradeSentinelApi;
 
     private static final ObjectMapper objectMapper =
             new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
@@ -56,7 +56,7 @@ public class DegradeR4jTest {
     }
 
     @Test
-    public void testDegradeR4j() {
+    public void testDegrade() {
         long count = IntStream.range(0, 100).parallel().map((i) -> {
             try {
                 Person mockPerson = new Person().setId(1L)
@@ -71,15 +71,15 @@ public class DegradeR4jTest {
                         .addHeader("Content-Type", "application/text; charset=utf-8")
                         .addHeader("Cache-Control", "no-cache")
                         .setBody(objectMapper.writeValueAsString(mockResult))
-                        .setBodyDelay(10, TimeUnit.SECONDS);
+                        .setBodyDelay(5, TimeUnit.SECONDS);
                 server.enqueue(response);
-                return degradeR4jApi.getPerson1(2L).getCode();
+                return degradeSentinelApi.getPerson1(2L).getCode();
             } catch (Exception e) {
                 return 100;
             }
         }).filter(i -> i == -1).count();
         System.out.println(count);
-        Assert.assertTrue(count > 70L);
+        Assert.assertTrue(count > 80L);
 
     }
 

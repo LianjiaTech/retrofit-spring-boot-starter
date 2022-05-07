@@ -1,4 +1,4 @@
-package com.github.lianjiatech.retrofit.spring.boot.test.http;
+package com.github.lianjiatech.retrofit.spring.boot.test.decoder;
 
 import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClient;
 import com.github.lianjiatech.retrofit.spring.boot.log.LogStrategy;
