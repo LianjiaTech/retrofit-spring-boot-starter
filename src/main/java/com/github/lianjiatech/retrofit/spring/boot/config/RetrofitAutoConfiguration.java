@@ -121,13 +121,13 @@ public class RetrofitAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public RetryInterceptor retryInterceptor() {
-        return new RetryInterceptor(retrofitProperties.getRetry());
+        return new RetryInterceptor(retrofitProperties.getGlobalRetry());
     }
 
     @Bean
     @ConditionalOnMissingBean
     public LoggingInterceptor logInterceptor() {
-        return new LoggingInterceptor(retrofitProperties.getLog());
+        return new LoggingInterceptor(retrofitProperties.getGlobalLog());
     }
 
     @Bean
@@ -147,7 +147,7 @@ public class RetrofitAutoConfiguration {
     @ConditionalOnClass(name = "com.alibaba.csp.sentinel.SphU")
     @ConditionalOnProperty(name = "retrofit.degrade.degrade-type", havingValue = RetrofitDegrade.SENTINEL)
     public RetrofitDegrade sentinelRetrofitDegrade() {
-        return new SentinelRetrofitDegrade();
+        return new SentinelRetrofitDegrade(retrofitProperties.getDegrade().getGlobalSentinelDegrade());
     }
 
     @Bean
@@ -155,7 +155,8 @@ public class RetrofitAutoConfiguration {
     @ConditionalOnClass(name = "io.github.resilience4j.circuitbreaker.CircuitBreaker")
     @ConditionalOnProperty(name = "retrofit.degrade.degrade-type", havingValue = RetrofitDegrade.RESILIENCE4J)
     public RetrofitDegrade resilience4jRetrofitDegrade() {
-        return new Resilience4jRetrofitDegrade(CircuitBreakerRegistry.ofDefaults());
+        return new Resilience4jRetrofitDegrade(CircuitBreakerRegistry.ofDefaults(),
+                retrofitProperties.getDegrade().getGlobalResilience4jDegrade());
     }
 
     @Bean

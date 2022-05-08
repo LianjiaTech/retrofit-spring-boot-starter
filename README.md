@@ -169,25 +169,25 @@ retrofit:
       - com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory
       - com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory
 
-   # 日志打印配置
-   log:
+   # 全局日志打印配置
+   global-log:
       # 启用日志打印
-      enable-global-log: true
+      enable: true
       # 全局日志打印级别
-      global-log-level: info
+      log-level: info
       # 全局日志打印策略
-      global-log-strategy: basic
+      log-strategy: basic
 
    # 重试配置
-   retry:
+   global-retry:
       # 是否启用全局重试
-      enable-global-retry: false
+      enable: false
       # 全局重试间隔时间
-      global-interval-ms: 100
+      interval-ms: 100
       # 全局最大重试次数
-      global-max-retries: 2
+      max-retries: 2
       # 全局重试规则
-      global-retry-rules:
+      retry-rules:
          - response_status_not_2xx
          - occur_io_exception
 
@@ -195,6 +195,47 @@ retrofit:
    degrade:
       # 熔断降级类型。默认none，表示不启用熔断降级
       degrade-type: none
+      # 全局sentinel降级配置
+      global-sentinel-degrade:
+         # 是否开启
+         enable: false
+         # 各降级策略对应的阈值。平均响应时间(ms)，异常比例(0-1)，异常数量(1-N)
+         count: 1000
+         # 熔断时长，单位为 s
+         time-window: 5
+         # 降级策略（0：平均响应时间；1：异常比例；2：异常数量）
+         grade: 0
+
+      # 全局resilience4j降级配置
+      global-resilience4j-degrade:
+         # 是否开启
+         enable: false
+         # 滑动窗口的类型
+         sliding-window-type: count_based
+         # 窗口的大小
+         sliding-window-size: 100
+         # 在单位窗口内最少需要几次调用才能开始进行统计计算
+         minimum-number-of-calls: 100
+         # 单位时间窗口内调用失败率达到多少后会启动断路器
+         failure-rate-threshold: 50
+         # 允许断路器自动由打开状态转换为半开状态
+         enable-automatic-transition-from-open-to-half-open: true
+         # 在半开状态下允许进行正常调用的次数
+         permitted-number-of-calls-in-half-open-state: 10
+         # 断路器打开状态转换为半开状态需要等待秒数
+         wait-duration-in-open-state-seconds: 60
+         # 指定断路器应保持半开多长时间的等待持续时间，可选配置，大于1才是有效配置。
+         max-wait-duration-in-half-open-state-seconds: 0
+         # 忽略的异常类列表，只有配置值之后才会加载。
+         ignore-exceptions: []
+         # 记录的异常类列表，只有配置值之后才会加载。
+         record-exceptions: []
+         # 慢调用比例阈值
+         slow-call-rate-threshold: 100
+         # 慢调用阈值秒数，超过该秒数视为慢调用
+         slow-call-duration-threshold-seconds: 60
+         # 启用可写堆栈跟踪的标志
+         writable-stack-trace-enabled: true
 
    # 全局连接超时时间
    global-connect-timeout-ms: 10000
@@ -204,6 +245,7 @@ retrofit:
    global-write-timeout-ms: 10000
    # 全局完整调用超时时间
    global-call-timeout-ms: 0
+
 ```
 
 ## 高级功能
@@ -404,14 +446,14 @@ public interface HttpApi {
 
 ```yaml
 retrofit:
-   # 日志打印配置
-   log:
+   # 全局日志打印配置
+   global-log:
       # 启用日志打印
-      enable-global-log: true
+      enable: true
       # 全局日志打印级别
-      global-log-level: info
+      log-level: info
       # 全局日志打印策略
-      global-log-strategy: basic
+      log-strategy: basic
 ```
 
 **4种日志打印策略含义如下**：
@@ -438,16 +480,16 @@ retrofit:
 全局重试默认关闭。开启之后，所有`HTTP`请求都会按照配置参数自动重试，默认配置项如下：
 
 ```yaml
-  # 重试配置
-  retry:
+  # 全局重试配置
+  global-retry:
      # 是否启用全局重试
-     enable-global-retry: false
+     enable: false
      # 全局重试间隔时间
-     global-interval-ms: 100
+     interval-ms: 100
      # 全局最大重试次数
-     global-max-retries: 2
+     max-retries: 2
      # 全局重试规则
-     global-retry-rules:
+     retry-rules:
         - response_status_not_2xx
         - occur_io_exception
  ```
@@ -491,6 +533,21 @@ retrofit:
 </dependency>
 ```
 
+通过以下配置可开启全局sentinel熔断降级：
+
+```yaml
+retrofit:
+  # 熔断降级配置
+  degrade:
+    # 熔断降级类型。默认none，表示不启用熔断降级
+    degrade-type: sentinel
+    # 全局sentinel降级配置
+    global-sentinel-degrade:
+      # 是否开启
+      enable: true
+      # ...其他sentinel全局配置
+```
+
 #### resilience4j熔断降级
 
 配置`degrade-type=resilience4j`开启。然后在相关接口或者方法上声明`@Resilience4jDegrade`即可。另外项目需要自行引入`resilience4j`依赖。
@@ -502,6 +559,21 @@ retrofit:
    <artifactId>resilience4j-circuitbreaker</artifactId>
    <version>1.7.1</version>
 </dependency>
+```
+
+通过以下配置可开启全局resilience4j熔断降级：
+
+```yaml
+retrofit:
+  # 熔断降级配置
+  degrade:
+    # 熔断降级类型。默认none，表示不启用熔断降级
+    degrade-type: resilience4j
+    # 全局resilience4j降级配置
+    global-resilience4j-degrade:
+      # 是否开启
+      enable: true
+      # ...其他resilience4j全局配置
 ```
 
 #### 扩展熔断降级

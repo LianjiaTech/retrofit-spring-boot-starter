@@ -4,9 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Objects;
 
-import org.springframework.core.annotation.AnnotatedElementUtils;
-
-import com.github.lianjiatech.retrofit.spring.boot.config.LogProperty;
+import com.github.lianjiatech.retrofit.spring.boot.util.AnnotationExtendUtils;
 
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Interceptor;
@@ -22,47 +20,36 @@ import retrofit2.Invocation;
 @Slf4j
 public class LoggingInterceptor implements Interceptor {
 
-    protected final LogProperty logProperty;
+    protected final GlobalLogProperty globalLogProperty;
 
-    public LoggingInterceptor(LogProperty logProperty) {
-        this.logProperty = logProperty;
+    public LoggingInterceptor(GlobalLogProperty globalLogProperty) {
+        this.globalLogProperty = globalLogProperty;
     }
 
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
         Method method = Objects.requireNonNull(request.tag(Invocation.class)).method();
-        Logging logging = AnnotatedElementUtils.findMergedAnnotation(method.getDeclaringClass(), Logging.class);
+        Logging logging = AnnotationExtendUtils.findMergedAnnotation(method, method.getDeclaringClass(), Logging.class);
         if (!needLog(logging)) {
             return chain.proceed(request);
         }
-        LogLevel logLevel = logging == null ? logProperty.getGlobalLogLevel() : logging.logLevel();
-        LogStrategy logStrategy = logging == null ? logProperty.getGlobalLogStrategy() : logging.logStrategy();
+        LogLevel logLevel = logging == null ? globalLogProperty.getLogLevel() : logging.logLevel();
+        LogStrategy logStrategy = logging == null ? globalLogProperty.getLogStrategy() : logging.logStrategy();
         HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor(matchLogger(logLevel));
         httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.valueOf(logStrategy.name()));
         return httpLoggingInterceptor.intercept(chain);
     }
 
     protected boolean needLog(Logging logging) {
-        if (logProperty.isEnableGlobalLog()) {
-            // 开启全局打印日志的情况下
-            // 没配置@Logging，需要重试
+        if (globalLogProperty.isEnable()) {
             if (logging == null) {
                 return true;
             }
-            // 配置了@Logging，enable==true，需要打印日志
-            if (logging.enable()) {
-                return true;
-            }
+            return logging.enable();
         } else {
-            // 未开启全局日志打印
-            // 配置了@Logging，enable==true，需要打印日志
-            if (logging != null && logging.enable()) {
-                return true;
-            }
+            return logging != null && logging.enable();
         }
-        // 其他情况，不需要打印日志
-        return false;
     }
 
     protected HttpLoggingInterceptor.Logger matchLogger(LogLevel level) {

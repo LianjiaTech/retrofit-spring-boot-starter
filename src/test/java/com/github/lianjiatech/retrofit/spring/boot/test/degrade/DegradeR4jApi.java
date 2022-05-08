@@ -18,8 +18,8 @@ import retrofit2.http.Query;
  * @author 陈添明
  */
 @RetrofitClient(baseUrl = "${test.baseUrl}", fallbackFactory = DegradeR4jApi.HttpDegradeFallbackFactory.class)
-@Resilience4jDegrade(slidingWindowType = CircuitBreakerConfig.SlidingWindowType.TIME_BASED, minimumNumberOfCalls = 10,
-        permittedNumberOfCallsInHalfOpenState = 5)
+@Resilience4jDegrade(slidingWindowType = CircuitBreakerConfig.SlidingWindowType.TIME_BASED,
+        failureRateThreshold = 30, minimumNumberOfCalls = 10, permittedNumberOfCallsInHalfOpenState = 5)
 public interface DegradeR4jApi {
 
     @GET("degrade/person1")

@@ -18,33 +18,75 @@ retrofit:
     - com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory
     - com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory
 
-  # 日志打印配置
-  log:
+  # 全局日志打印配置
+  global-log:
     # 启用全局日志打印
-    enable-global-log: true
+    enable: true
     # 全局日志打印级别
-    global-log-level: info
+    log-level: info
     # 全局日志打印策略
-    global-log-strategy: body
+    log-strategy: body
 
 
-  # 重试配置
-  retry:
+  # 全局重试配置
+  global-retry:
     # 是否启用全局重试
-    enable-global-retry: true
+    enable: true
     # 全局重试间隔时间
-    global-interval-ms: 1
+    interval-ms: 1
     # 全局最大重试次数
-    global-max-retries: 1
+    max-retries: 1
     # 全局重试规则
-    global-retry-rules:
+    retry-rules:
       - response_status_not_2xx
       - occur_io_exception
 
   # 熔断降级配置
   degrade:
     # 熔断降级类型。默认none，表示不启用熔断降级
-    degrade-type: sentinel
+    degrade-type: none
+    # 全局sentinel降级配置
+    global-sentinel-degrade:
+      # 是否开启
+      enable: false
+      # 各降级策略对应的阈值。平均响应时间(ms)，异常比例(0-1)，异常数量(1-N)
+      count: 1000
+      # 熔断时长，单位为 s
+      time-window: 5
+      # 降级策略（0：平均响应时间；1：异常比例；2：异常数量）
+      grade: 0
+
+    # 全局resilience4j降级配置
+    global-resilience4j-degrade:
+      # 是否开启
+      enable: false
+      # 滑动窗口的类型
+      sliding-window-type: count_based
+      # 窗口的大小
+      sliding-window-size: 100
+      # 在单位窗口内最少需要几次调用才能开始进行统计计算
+      minimum-number-of-calls: 100
+      # 单位时间窗口内调用失败率达到多少后会启动断路器
+      failure-rate-threshold: 50
+      # 允许断路器自动由打开状态转换为半开状态
+      enable-automatic-transition-from-open-to-half-open: true
+      # 在半开状态下允许进行正常调用的次数
+      permitted-number-of-calls-in-half-open-state: 10
+      # 断路器打开状态转换为半开状态需要等待秒数
+      wait-duration-in-open-state-seconds: 60
+      # 指定断路器应保持半开多长时间的等待持续时间，可选配置，大于1才是有效配置。
+      max-wait-duration-in-half-open-state-seconds: 0
+      # 忽略的异常类列表，只有配置值之后才会加载。
+      ignore-exceptions: [ ]
+      # 记录的异常类列表，只有配置值之后才会加载。
+      record-exceptions: [ ]
+      # 慢调用比例阈值
+      slow-call-rate-threshold: 100
+      # 慢调用阈值秒数，超过该秒数视为慢调用
+      slow-call-duration-threshold-seconds: 60
+      # 启用可写堆栈跟踪的标志
+      writable-stack-trace-enabled: true
+
   # 全局连接超时时间
   global-connect-timeout-ms: 5000
   # 全局读取超时时间

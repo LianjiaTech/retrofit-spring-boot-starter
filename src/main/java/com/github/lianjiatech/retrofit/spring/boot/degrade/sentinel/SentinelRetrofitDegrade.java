@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import org.springframework.core.annotation.AnnotatedElementUtils;
+
 import com.alibaba.csp.sentinel.Entry;
 import com.alibaba.csp.sentinel.EntryType;
 import com.alibaba.csp.sentinel.ResourceTypeConstants;
@@ -26,10 +28,24 @@ import retrofit2.Invocation;
  */
 public class SentinelRetrofitDegrade extends BaseRetrofitDegrade {
 
+    protected final GlobalSentinelDegradeProperty globalSentinelDegradeProperty;
+
+    public SentinelRetrofitDegrade(GlobalSentinelDegradeProperty globalSentinelDegradeProperty) {
+        this.globalSentinelDegradeProperty = globalSentinelDegradeProperty;
+    }
+
     @Override
     public boolean isEnableDegrade(Class<?> retrofitInterface) {
-        // 类或者方法上存在@SentinelDegrade -> 允许降级
-        return AnnotationExtendUtils.isAnnotationPresentIncludeMethod(retrofitInterface, SentinelDegrade.class);
+        if (globalSentinelDegradeProperty.isEnable()) {
+            SentinelDegrade sentinelDegrade =
+                    AnnotatedElementUtils.findMergedAnnotation(retrofitInterface, SentinelDegrade.class);
+            if (sentinelDegrade == null) {
+                return true;
+            }
+            return sentinelDegrade.enable();
+        } else {
+            return AnnotationExtendUtils.isAnnotationPresentIncludeMethod(retrofitInterface, SentinelDegrade.class);
+        }
     }
 
     @Override
@@ -44,26 +60,41 @@ public class SentinelRetrofitDegrade extends BaseRetrofitDegrade {
             SentinelDegrade sentinelDegrade =
                     AnnotationExtendUtils.findMergedAnnotation(method, method.getDeclaringClass(),
                             SentinelDegrade.class);
-            if (sentinelDegrade == null) {
+
+            if (!needDegrade(sentinelDegrade)) {
                 continue;
             }
             DegradeRule degradeRule = new DegradeRule()
-                    .setCount(sentinelDegrade.count())
-                    .setTimeWindow(sentinelDegrade.timeWindow())
-                    .setGrade(sentinelDegrade.grade());
+                    .setCount(sentinelDegrade == null ? globalSentinelDegradeProperty.getCount()
+                            : sentinelDegrade.count())
+                    .setTimeWindow(sentinelDegrade == null ? globalSentinelDegradeProperty.getTimeWindow()
+                            : sentinelDegrade.timeWindow())
+                    .setGrade(sentinelDegrade == null ? globalSentinelDegradeProperty.getGrade()
+                            : sentinelDegrade.grade());
             degradeRule.setResource(parseResourceName(method));
             rules.add(degradeRule);
         }
         DegradeRuleManager.loadRules(rules);
     }
 
+    protected boolean needDegrade(SentinelDegrade sentinelDegrade) {
+        if (globalSentinelDegradeProperty.isEnable()) {
+            if (sentinelDegrade == null) {
+                return true;
+            }
+            return sentinelDegrade.enable();
+        } else {
+            return sentinelDegrade != null && sentinelDegrade.enable();
+        }
+    }
 
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
         Method method = Objects.requireNonNull(request.tag(Invocation.class)).method();
-        if (AnnotationExtendUtils.findMergedAnnotation(method, method.getDeclaringClass(),
-                SentinelDegrade.class) == null) {
+        SentinelDegrade sentinelDegrade = AnnotationExtendUtils.findMergedAnnotation(method, method.getDeclaringClass(),
+                SentinelDegrade.class);
+        if (!needDegrade(sentinelDegrade)) {
             return chain.proceed(request);
         }
         String resourceName = parseResourceName(method);

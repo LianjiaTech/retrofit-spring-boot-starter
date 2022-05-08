@@ -28,6 +28,11 @@ import java.lang.annotation.Target;
 public @interface Resilience4jDegrade {
 
     /**
+     * 是否开启
+     */
+    boolean enable() default true;
+
+    /**
      * 滑动窗口的类型
      */
     SlidingWindowType slidingWindowType() default SlidingWindowType.COUNT_BASED;
