@@ -6,6 +6,8 @@ import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.core.annotation.AnnotatedElementUtils;
+
 import com.github.lianjiatech.retrofit.spring.boot.degrade.BaseRetrofitDegrade;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitBlockException;
 import com.github.lianjiatech.retrofit.spring.boot.util.AnnotationExtendUtils;
@@ -26,14 +28,26 @@ import retrofit2.Invocation;
 public class Resilience4jRetrofitDegrade extends BaseRetrofitDegrade {
 
     protected final CircuitBreakerRegistry circuitBreakerRegistry;
+    protected final GlobalResilience4jDegradeProperty globalResilience4jDegradeProperty;
 
-    public Resilience4jRetrofitDegrade(CircuitBreakerRegistry circuitBreakerRegistry) {
+    public Resilience4jRetrofitDegrade(CircuitBreakerRegistry circuitBreakerRegistry,
+            GlobalResilience4jDegradeProperty globalResilience4jDegradeProperty) {
         this.circuitBreakerRegistry = circuitBreakerRegistry;
+        this.globalResilience4jDegradeProperty = globalResilience4jDegradeProperty;
     }
 
     @Override
     public boolean isEnableDegrade(Class<?> retrofitInterface) {
-        return AnnotationExtendUtils.isAnnotationPresentIncludeMethod(retrofitInterface, Resilience4jDegrade.class);
+        if (globalResilience4jDegradeProperty.isEnable()) {
+            Resilience4jDegrade resilience4jDegrade =
+                    AnnotatedElementUtils.findMergedAnnotation(retrofitInterface, Resilience4jDegrade.class);
+            if (resilience4jDegrade == null) {
+                return true;
+            }
+            return resilience4jDegrade.enable();
+        } else {
+            return AnnotationExtendUtils.isAnnotationPresentIncludeMethod(retrofitInterface, Resilience4jDegrade.class);
+        }
     }
 
     @Override
@@ -45,31 +59,94 @@ public class Resilience4jRetrofitDegrade extends BaseRetrofitDegrade {
             Resilience4jDegrade resilience4jDegrade =
                     AnnotationExtendUtils.findMergedAnnotation(method, method.getDeclaringClass(),
                             Resilience4jDegrade.class);
-            if (resilience4jDegrade == null) {
+            if (!needDegrade(resilience4jDegrade)) {
                 continue;
             }
+
+            CircuitBreakerConfig.SlidingWindowType slidingWindowType =
+                    resilience4jDegrade == null
+                            ? CircuitBreakerConfig.SlidingWindowType
+                                    .valueOf(globalResilience4jDegradeProperty.getSlidingWindowType().name())
+                            : resilience4jDegrade.slidingWindowType();
+            int slidingWindowSize =
+                    resilience4jDegrade == null ? globalResilience4jDegradeProperty.getSlidingWindowSize()
+                            : resilience4jDegrade.slidingWindowSize();
+
+            int minimumNumberOfCalls =
+                    resilience4jDegrade == null ? globalResilience4jDegradeProperty.getMinimumNumberOfCalls()
+                            : resilience4jDegrade.minimumNumberOfCalls();
+
+            float failureRateThreshold =
+                    resilience4jDegrade == null ? globalResilience4jDegradeProperty.getFailureRateThreshold()
+                            : resilience4jDegrade.failureRateThreshold();
+
+            boolean enableAutomaticTransitionFromOpenToHalfOpen = resilience4jDegrade == null
+                    ? globalResilience4jDegradeProperty.isEnableAutomaticTransitionFromOpenToHalfOpen()
+                    : resilience4jDegrade.enableAutomaticTransitionFromOpenToHalfOpen();
+
+            int permittedNumberOfCallsInHalfOpenState = resilience4jDegrade == null
+                    ? globalResilience4jDegradeProperty.getPermittedNumberOfCallsInHalfOpenState()
+                    : resilience4jDegrade.permittedNumberOfCallsInHalfOpenState();
+
+            int waitDurationInOpenStateSeconds =
+                    resilience4jDegrade == null ? globalResilience4jDegradeProperty.getWaitDurationInOpenStateSeconds()
+                            : resilience4jDegrade.waitDurationInOpenStateSeconds();
+
+            int maxWaitDurationInHalfOpenStateSeconds = resilience4jDegrade == null
+                    ? globalResilience4jDegradeProperty.getMaxWaitDurationInHalfOpenStateSeconds()
+                    : resilience4jDegrade.maxWaitDurationInHalfOpenStateSeconds();
+
+            Class<? extends Throwable>[] ignoreExceptions =
+                    resilience4jDegrade == null ? globalResilience4jDegradeProperty.getIgnoreExceptions()
+                            : resilience4jDegrade.ignoreExceptions();
+
+            Class<? extends Throwable>[] recordExceptions =
+                    resilience4jDegrade == null ? globalResilience4jDegradeProperty.getRecordExceptions()
+                            : resilience4jDegrade.recordExceptions();
+
+            float slowCallRateThreshold =
+                    resilience4jDegrade == null ? globalResilience4jDegradeProperty.getSlowCallRateThreshold()
+                            : resilience4jDegrade.slowCallRateThreshold();
+
+            int slowCallDurationThresholdSeconds = resilience4jDegrade == null
+                    ? globalResilience4jDegradeProperty.getSlowCallDurationThresholdSeconds()
+                    : resilience4jDegrade.slowCallDurationThresholdSeconds();
+
+            boolean writableStackTraceEnabled =
+                    resilience4jDegrade == null ? globalResilience4jDegradeProperty.isWritableStackTraceEnabled()
+                            : resilience4jDegrade.writableStackTraceEnabled();
+
             // 断路器配置
             CircuitBreakerConfig.Builder builder = CircuitBreakerConfig.custom()
-                    .waitDurationInOpenState(Duration.ofSeconds(resilience4jDegrade.waitDurationInOpenStateSeconds()))
-                    .permittedNumberOfCallsInHalfOpenState(resilience4jDegrade.permittedNumberOfCallsInHalfOpenState())
-                    .slidingWindowSize(resilience4jDegrade.slidingWindowSize())
-                    .slidingWindowType(resilience4jDegrade.slidingWindowType())
-                    .minimumNumberOfCalls(resilience4jDegrade.minimumNumberOfCalls())
-                    .failureRateThreshold(resilience4jDegrade.failureRateThreshold())
-                    .ignoreExceptions(resilience4jDegrade.ignoreExceptions())
-                    .recordExceptions(resilience4jDegrade.recordExceptions())
-                    .automaticTransitionFromOpenToHalfOpenEnabled(
-                            resilience4jDegrade.enableAutomaticTransitionFromOpenToHalfOpen())
-                    .slowCallRateThreshold(resilience4jDegrade.slowCallRateThreshold())
-                    .slowCallDurationThreshold(
-                            Duration.ofSeconds(resilience4jDegrade.slowCallDurationThresholdSeconds()))
-                    .writableStackTraceEnabled(resilience4jDegrade.writableStackTraceEnabled());
+                    .waitDurationInOpenState(Duration.ofSeconds(waitDurationInOpenStateSeconds))
+                    .permittedNumberOfCallsInHalfOpenState(permittedNumberOfCallsInHalfOpenState)
+                    .slidingWindowSize(slidingWindowSize)
+                    .slidingWindowType(slidingWindowType)
+                    .minimumNumberOfCalls(minimumNumberOfCalls)
+                    .failureRateThreshold(failureRateThreshold)
+                    .ignoreExceptions(ignoreExceptions)
+                    .recordExceptions(recordExceptions)
+                    .automaticTransitionFromOpenToHalfOpenEnabled(enableAutomaticTransitionFromOpenToHalfOpen)
+                    .slowCallRateThreshold(slowCallRateThreshold)
+                    .slowCallDurationThreshold(Duration.ofSeconds(slowCallDurationThresholdSeconds))
+                    .writableStackTraceEnabled(writableStackTraceEnabled);
 
-            if (resilience4jDegrade.maxWaitDurationInHalfOpenStateSeconds() > 0) {
+            if (maxWaitDurationInHalfOpenStateSeconds > 0) {
                 builder.maxWaitDurationInHalfOpenState(
-                        Duration.ofSeconds(resilience4jDegrade.maxWaitDurationInHalfOpenStateSeconds()));
+                        Duration.ofSeconds(maxWaitDurationInHalfOpenStateSeconds));
             }
             circuitBreakerRegistry.circuitBreaker(parseResourceName(method), builder.build());
+        }
+    }
+
+    protected boolean needDegrade(Resilience4jDegrade resilience4jDegrade) {
+        if (globalResilience4jDegradeProperty.isEnable()) {
+            if (resilience4jDegrade == null) {
+                return true;
+            }
+            return resilience4jDegrade.enable();
+        } else {
+            return resilience4jDegrade != null && resilience4jDegrade.enable();
         }
     }
 

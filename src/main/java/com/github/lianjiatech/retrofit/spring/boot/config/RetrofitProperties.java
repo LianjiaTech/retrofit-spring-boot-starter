@@ -9,6 +9,9 @@ import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory;
 import com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory;
 import com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeProperty;
+import com.github.lianjiatech.retrofit.spring.boot.log.GlobalLogProperty;
+import com.github.lianjiatech.retrofit.spring.boot.retry.GlobalRetryProperty;
 
 import lombok.Data;
 import retrofit2.CallAdapter;
@@ -32,11 +35,11 @@ public class RetrofitProperties {
     private Map<String, PoolConfig> pool = new LinkedHashMap<>();
 
     /**
-     * 重试配置
+     * 全局重试配置
      * retry config
      */
     @NestedConfigurationProperty
-    private RetryProperty retry = new RetryProperty();
+    private GlobalRetryProperty globalRetry = new GlobalRetryProperty();
 
     /**
      * 熔断降级配置
@@ -46,11 +49,11 @@ public class RetrofitProperties {
     private DegradeProperty degrade = new DegradeProperty();
 
     /**
-     * 日志配置
+     * 全局日志配置
      * log config
      */
     @NestedConfigurationProperty
-    private LogProperty log = new LogProperty();
+    private GlobalLogProperty globalLog = new GlobalLogProperty();
 
     /**
      * 全局连接超时时间

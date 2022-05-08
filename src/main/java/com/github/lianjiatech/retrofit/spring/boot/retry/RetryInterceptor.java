@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import com.github.lianjiatech.retrofit.spring.boot.config.RetryProperty;
 import com.github.lianjiatech.retrofit.spring.boot.util.AnnotationExtendUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -22,10 +21,10 @@ import retrofit2.Invocation;
 @Slf4j
 public class RetryInterceptor implements Interceptor {
 
-    protected final RetryProperty retryProperty;
+    protected final GlobalRetryProperty globalRetryProperty;
 
-    public RetryInterceptor(RetryProperty retryProperty) {
-        this.retryProperty = retryProperty;
+    public RetryInterceptor(GlobalRetryProperty globalRetryProperty) {
+        this.globalRetryProperty = globalRetryProperty;
     }
 
     @Override
@@ -38,32 +37,21 @@ public class RetryInterceptor implements Interceptor {
             return chain.proceed(request);
         }
         // 重试
-        int maxRetries = retry == null ? retryProperty.getGlobalMaxRetries() : retry.maxRetries();
-        int intervalMs = retry == null ? retryProperty.getGlobalIntervalMs() : retry.intervalMs();
-        RetryRule[] retryRules = retry == null ? retryProperty.getGlobalRetryRules() : retry.retryRules();
+        int maxRetries = retry == null ? globalRetryProperty.getMaxRetries() : retry.maxRetries();
+        int intervalMs = retry == null ? globalRetryProperty.getIntervalMs() : retry.intervalMs();
+        RetryRule[] retryRules = retry == null ? globalRetryProperty.getRetryRules() : retry.retryRules();
         return retryIntercept(maxRetries, intervalMs, retryRules, chain);
     }
 
     protected boolean needRetry(Retry retry) {
-
-        if (retryProperty.isEnableGlobalRetry()) {
-            // 开启全局重试的情况下
-            // 没配置@Retry，需要重试
+        if (globalRetryProperty.isEnable()) {
             if (retry == null) {
                 return true;
             }
-            // 配置了@Retry，enable==true，需要重试
-            if (retry.enable()) {
-                return true;
-            }
+            return retry.enable();
         } else {
-            // 未开启全局重试
-            // 配置了@Retry，enable==true，需要重试
-            if (retry != null && retry.enable()) {
-                return true;
-            }
+            return retry != null && retry.enable();
         }
-        return false;
     }
 
     protected Response retryIntercept(int maxRetries, int intervalMs, RetryRule[] retryRules, Chain chain) {

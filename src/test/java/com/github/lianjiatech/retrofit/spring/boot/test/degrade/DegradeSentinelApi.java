@@ -17,7 +17,6 @@ import retrofit2.http.Query;
  * @author 陈添明
  */
 @RetrofitClient(baseUrl = "${test.baseUrl}", fallbackFactory = DegradeSentinelApi.HttpDegradeFallbackFactory.class)
-@SentinelDegrade
 public interface DegradeSentinelApi {
 
     /**
@@ -27,8 +26,8 @@ public interface DegradeSentinelApi {
     @GET("degrade/person1")
     Result<Person> getPerson1(@Query("id") Long id);
 
-    @SentinelDegrade(count = 5, timeWindow = 10)
     @GET("degrade/person2")
+    @SentinelDegrade(enable = false)
     Result<Person> getPerson2(@Query("id") Long id);
 
     @Service
