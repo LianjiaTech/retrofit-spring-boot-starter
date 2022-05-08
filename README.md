@@ -311,6 +311,7 @@ public class TimeStampInterceptor extends BasePathMatchInterceptor {
 ```java
 @RetrofitClient(baseUrl = "${test.baseUrl}")
 @Intercept(handler = TimeStampInterceptor.class, include = {"/api/**"}, exclude = "/api/test/savePerson")
+@Intercept(handler = TimeStamp2Interceptor.class) // 需要多个，直接添加即可
 public interface HttpApi {
 
     @GET("person")

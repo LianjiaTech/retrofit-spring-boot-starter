@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClient;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.FallbackFactory;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.resilience4j.Resilience4jDegrade;
+import com.github.lianjiatech.retrofit.spring.boot.retry.Retry;
 import com.github.lianjiatech.retrofit.spring.boot.test.entity.Person;
 import com.github.lianjiatech.retrofit.spring.boot.test.entity.Result;
 
@@ -17,6 +18,7 @@ import retrofit2.http.Query;
 /**
  * @author 陈添明
  */
+@Retry(enable = false)
 @RetrofitClient(baseUrl = "${test.baseUrl}", fallbackFactory = DegradeR4jApi.HttpDegradeFallbackFactory.class)
 @Resilience4jDegrade(slidingWindowType = CircuitBreakerConfig.SlidingWindowType.TIME_BASED,
         failureRateThreshold = 30, minimumNumberOfCalls = 10, permittedNumberOfCallsInHalfOpenState = 5)

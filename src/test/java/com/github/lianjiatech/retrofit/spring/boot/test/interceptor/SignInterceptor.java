@@ -1,11 +1,14 @@
 package com.github.lianjiatech.retrofit.spring.boot.test.interceptor;
 
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.BasePathMatchInterceptor;
-import okhttp3.Request;
-import okhttp3.Response;
+import java.io.IOException;
+
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.BasePathMatchInterceptor;
+
+import lombok.Setter;
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  * 加签拦截器，取加签值，放到header中
@@ -13,19 +16,12 @@ import java.io.IOException;
  * @author 陈添明
  */
 @Component
+@Setter
 public class SignInterceptor extends BasePathMatchInterceptor {
 
     private String accessKeyId;
 
     private String accessKeySecret;
-
-    public void setAccessKeyId(String accessKeyId) {
-        this.accessKeyId = accessKeyId;
-    }
-
-    public void setAccessKeySecret(String accessKeySecret) {
-        this.accessKeySecret = accessKeySecret;
-    }
 
     @Override
     public Response doIntercept(Chain chain) throws IOException {

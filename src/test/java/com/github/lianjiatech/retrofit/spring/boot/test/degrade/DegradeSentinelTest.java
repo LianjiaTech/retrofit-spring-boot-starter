@@ -21,6 +21,7 @@ import com.github.lianjiatech.retrofit.spring.boot.test.RetrofitTestApplication;
 import com.github.lianjiatech.retrofit.spring.boot.test.entity.Person;
 import com.github.lianjiatech.retrofit.spring.boot.test.entity.Result;
 
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 
@@ -30,6 +31,7 @@ import okhttp3.mockwebserver.MockWebServer;
 @ActiveProfiles("sentinel")
 @SpringBootTest(classes = RetrofitTestApplication.class)
 @RunWith(SpringRunner.class)
+@Slf4j
 public class DegradeSentinelTest {
 
     @Autowired
