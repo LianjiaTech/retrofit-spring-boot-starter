@@ -199,30 +199,46 @@ retrofit:
       global-resilience4j-degrade:
          # 是否开启
          enable: false
-         # 根据该名称从Spring容器中获取CircuitBreakerConfig，作为全局熔断配置
-         circuit-breaker-config-bean-name: defaultCircuitBreakerConfig
+         # 根据该名称从#{@link CircuitBreakerConfigRegistry}获取CircuitBreakerConfig，作为全局熔断配置
+         circuit-breaker-config-name: defaultCircuitBreakerConfig
 ```
 
 ## 高级功能
 
 ### 自定义OkHttpClient属性
 
-根据`@RetrofitClient`的`baseOkHttpClientBeanName`，根据该名称从Spring容器中对应的`OkHttpClient`来初始化当前接口的`OkHttpClient`。
+根据`@RetrofitClient`的`sourceOkHttpClient`，根据该名称到#{@link SourceOkHttpClientRegistry}查找对应的OkHttpClient来构建当前接口的OkhttpClient。
 通过这种方式，用户可以配置超时时间、代理、连接池、分发等等`OkHttpClient`属性。
 
-默认是`defaultBaseOkHttpClient`，可以按下面方式覆盖Spring配置：
+通过实现`SourceOkHttpClientRegistrar`接口，可以实现自定义注册。比如：
 
 ```java
- @Bean
-public OkHttpClient defaultBaseOkHttpClient(){
-        return new OkHttpClient.Builder()
-        .addInterceptor(chain->{
-        log.info("=======替换defaultBaseOkHttpClient构建OkHttpClient=====");
-        return chain.proceed(chain.request());
-        })
-        .build();
-        }
- ```
+
+@Slf4j
+@Component
+public class CustomSourceOkHttpClientRegistrar implements SourceOkHttpClientRegistrar {
+
+   @Override
+   public void register(SourceOkHttpClientRegistry registry) {
+
+      // 替换默认的SourceOkHttpClient
+      registry.register(Constants.DEFAULT_SOURCE_OK_HTTP_CLIENT, new OkHttpClient.Builder()
+              .addInterceptor(chain -> {
+                 log.info("============替换默认的SourceOkHttpClient=============");
+                 return chain.proceed(chain.request());
+              })
+              .build());
+
+      // 添加新的SourceOkHttpClient
+      registry.register("testSourceOkHttpClient", new OkHttpClient.Builder()
+              .addInterceptor(chain -> {
+                 log.info("============使用testSourceOkHttpClient=============");
+                 return chain.proceed(chain.request());
+              })
+              .build());
+   }
+}
+```
 
 ### 注解式拦截器
 
@@ -525,8 +541,38 @@ retrofit:
       global-resilience4j-degrade:
          # 是否开启
          enable: true
-         # 根据该名称从Spring容器中获取CircuitBreakerConfig，作为全局熔断配置
-         circuit-breaker-config-bean-name: defaultCircuitBreakerConfig
+         # 根据该名称从#{@link CircuitBreakerConfigRegistry}获取CircuitBreakerConfig，作为全局熔断配置
+         circuit-breaker-config-name: defaultCircuitBreakerConfig
+```
+
+通过实现`CircuitBreakerConfigRegistrar`接口，可以注入自定义CircuitBreakerConfig。
+
+```java
+
+@Slf4j
+@Component
+public class CustomSourceOkHttpClientRegistrar implements SourceOkHttpClientRegistrar {
+
+   @Override
+   public void register(SourceOkHttpClientRegistry registry) {
+
+      // 替换默认的SourceOkHttpClient
+      registry.register(Constants.DEFAULT_SOURCE_OK_HTTP_CLIENT, new OkHttpClient.Builder()
+              .addInterceptor(chain -> {
+                 log.info("============替换默认的SourceOkHttpClient=============");
+                 return chain.proceed(chain.request());
+              })
+              .build());
+
+      // 添加新的SourceOkHttpClient
+      registry.register("testSourceOkHttpClient", new OkHttpClient.Builder()
+              .addInterceptor(chain -> {
+                 log.info("============使用testSourceOkHttpClient=============");
+                 return chain.proceed(chain.request());
+              })
+              .build());
+   }
+}
 ```
 
 #### 扩展熔断降级

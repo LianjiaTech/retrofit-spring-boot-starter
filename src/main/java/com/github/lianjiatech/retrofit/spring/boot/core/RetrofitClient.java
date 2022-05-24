@@ -90,8 +90,8 @@ public @interface RetrofitClient {
     boolean validateEagerly() default false;
 
     /**
-     * 根据该名称从Spring容器中对应的OkHttpClient来初始化当前接口的OkHttpClient
+     * 原始OkHttpClient，根据该名称到#{@link SourceOkHttpClientRegistry}查找对应的OkHttpClient来构建当前接口的OkhttpClient。
      */
-    String baseOkHttpClientBeanName() default Constants.DEFAULT_BASE_OK_HTTP_CLIENT;
+    String sourceOkHttpClient() default Constants.DEFAULT_SOURCE_OK_HTTP_CLIENT;
 
 }

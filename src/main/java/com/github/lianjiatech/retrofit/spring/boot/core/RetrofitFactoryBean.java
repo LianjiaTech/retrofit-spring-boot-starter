@@ -83,9 +83,9 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
     private OkHttpClient createOkHttpClient() {
         RetrofitClient retrofitClient =
                 AnnotatedElementUtils.findMergedAnnotation(retrofitInterface, RetrofitClient.class);
-        OkHttpClient baseOkHttpClient = applicationContext.getBean(
-                Objects.requireNonNull(retrofitClient).baseOkHttpClientBeanName(), OkHttpClient.class);
-        OkHttpClient.Builder okHttpClientBuilder = baseOkHttpClient.newBuilder();
+        OkHttpClient sourceOkHttpClient = retrofitConfigBean.getSourceOkHttpClientRegistry()
+                .get(Objects.requireNonNull(retrofitClient).sourceOkHttpClient());
+        OkHttpClient.Builder okHttpClientBuilder = sourceOkHttpClient.newBuilder();
         if (isEnableDegrade(retrofitInterface)) {
             okHttpClientBuilder.addInterceptor(retrofitConfigBean.getRetrofitDegrade());
         }

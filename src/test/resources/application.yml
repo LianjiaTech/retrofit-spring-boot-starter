@@ -51,8 +51,8 @@ retrofit:
     global-resilience4j-degrade:
       # 是否开启
       enable: false
-      # 根据该名称从Spring容器中获取CircuitBreakerConfig，作为全局熔断配置
-      circuit-breaker-config-bean-name: defaultCircuitBreakerConfig
+      # 根据该名称从#{@link CircuitBreakerConfigRegistry}获取CircuitBreakerConfig，作为全局熔断配置
+      circuit-breaker-config-name: defaultCircuitBreakerConfig
 
 test:
   baseUrl: http://localhost:8080/api/test/

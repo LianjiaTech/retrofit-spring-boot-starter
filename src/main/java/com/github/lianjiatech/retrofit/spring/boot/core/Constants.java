@@ -8,7 +8,7 @@ public interface Constants {
 
     String STR_EMPTY = "";
 
-    String DEFAULT_BASE_OK_HTTP_CLIENT = "defaultBaseOkHttpClient";
+    String DEFAULT_SOURCE_OK_HTTP_CLIENT = "defaultSourceOkHttpClient";
 
     String SPH_U_CLASS_NAME = "com.alibaba.csp.sentinel.SphU";
 

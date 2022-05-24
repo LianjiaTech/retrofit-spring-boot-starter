@@ -24,7 +24,7 @@ public @interface Resilience4jDegrade {
     boolean enable() default true;
 
     /**
-     * 根据该名称从Spring容器中获取CircuitBreakerConfig，作为当前接口或者方法的熔断配置
+     * 根据该名称从#{@link CircuitBreakerConfigRegistry}中获取CircuitBreakerConfig，作为当前接口或者方法的熔断配置
      */
-    String circuitBreakerConfigBeanName() default Constants.CIRCUIT_BREAKER_CLASS_NAME;
+    String circuitBreakerConfigName() default Constants.CIRCUIT_BREAKER_CLASS_NAME;
 }
