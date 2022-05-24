@@ -1,9 +1,6 @@
 package com.github.lianjiatech.retrofit.spring.boot.config;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -13,6 +10,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -20,6 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.lianjiatech.retrofit.spring.boot.core.AutoConfiguredRetrofitScannerRegistrar;
 import com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory;
 import com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory;
+import com.github.lianjiatech.retrofit.spring.boot.core.Constants;
 import com.github.lianjiatech.retrofit.spring.boot.core.ErrorDecoder;
 import com.github.lianjiatech.retrofit.spring.boot.core.PathMatchInterceptorBdfProcessor;
 import com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory;
@@ -36,7 +35,7 @@ import com.github.lianjiatech.retrofit.spring.boot.log.LoggingInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.retry.RetryInterceptor;
 
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
-import okhttp3.ConnectionPool;
+import okhttp3.OkHttpClient;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
 /**
@@ -77,16 +76,6 @@ public class RetrofitAutoConfiguration {
         retrofitConfigBean.setRetryInterceptor(retryInterceptor);
         retrofitConfigBean.setLoggingInterceptor(loggingInterceptor);
         retrofitConfigBean.setErrorDecoderInterceptor(errorDecoderInterceptor);
-
-        Map<String, ConnectionPool> poolRegistry = new HashMap<>(4);
-        retrofitProperties.getPool().forEach((poolName, poolConfig) -> {
-            long keepAliveSecond = poolConfig.getKeepAliveSecond();
-            int maxIdleConnections = poolConfig.getMaxIdleConnections();
-            ConnectionPool connectionPool =
-                    new ConnectionPool(maxIdleConnections, keepAliveSecond, TimeUnit.SECONDS);
-            poolRegistry.put(poolName, connectionPool);
-        });
-        retrofitConfigBean.setPoolRegistry(poolRegistry);
         retrofitConfigBean.setGlobalCallAdapterFactoryClasses(retrofitProperties.getGlobalCallAdapterFactories());
         retrofitConfigBean.setGlobalConverterFactoryClasses(retrofitProperties.getGlobalConverterFactories());
         return retrofitConfigBean;
@@ -126,7 +115,7 @@ public class RetrofitAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public LoggingInterceptor logInterceptor() {
+    public LoggingInterceptor loggingInterceptor() {
         return new LoggingInterceptor(retrofitProperties.getGlobalLog());
     }
 
@@ -143,17 +132,25 @@ public class RetrofitAutoConfiguration {
     }
 
     @Bean
+    @Primary
+    @ConditionalOnMissingBean(name = Constants.DEFAULT_BASE_OK_HTTP_CLIENT)
+    OkHttpClient defaultBaseOkHttpClient() {
+        return new OkHttpClient.Builder()
+                .build();
+    }
+
+    @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnClass(name = "com.alibaba.csp.sentinel.SphU")
-    @ConditionalOnProperty(name = "retrofit.degrade.degrade-type", havingValue = RetrofitDegrade.SENTINEL)
+    @ConditionalOnClass(name = Constants.SPH_U_CLASS_NAME)
+    @ConditionalOnProperty(name = Constants.DEGRADE_TYPE, havingValue = RetrofitDegrade.SENTINEL)
     public RetrofitDegrade sentinelRetrofitDegrade() {
         return new SentinelRetrofitDegrade(retrofitProperties.getDegrade().getGlobalSentinelDegrade());
     }
 
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnClass(name = "io.github.resilience4j.circuitbreaker.CircuitBreaker")
-    @ConditionalOnProperty(name = "retrofit.degrade.degrade-type", havingValue = RetrofitDegrade.RESILIENCE4J)
+    @ConditionalOnClass(name = Constants.CIRCUIT_BREAKER_CLASS_NAME)
+    @ConditionalOnProperty(name = Constants.DEGRADE_TYPE, havingValue = RetrofitDegrade.RESILIENCE4J)
     public RetrofitDegrade resilience4jRetrofitDegrade() {
         return new Resilience4jRetrofitDegrade(CircuitBreakerRegistry.ofDefaults(),
                 retrofitProperties.getDegrade().getGlobalResilience4jDegrade());
