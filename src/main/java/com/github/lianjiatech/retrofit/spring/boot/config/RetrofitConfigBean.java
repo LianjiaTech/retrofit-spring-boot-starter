@@ -14,6 +14,7 @@ import com.github.lianjiatech.retrofit.spring.boot.retry.RetryInterceptor;
 
 import lombok.Data;
 import okhttp3.ConnectionPool;
+import okhttp3.OkHttpClient;
 import retrofit2.CallAdapter;
 import retrofit2.Converter;
 

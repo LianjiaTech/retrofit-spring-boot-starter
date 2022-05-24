@@ -1,19 +1,5 @@
 package com.github.lianjiatech.retrofit.spring.boot.config;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -34,10 +20,23 @@ import com.github.lianjiatech.retrofit.spring.boot.interceptor.NetworkIntercepto
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.ServiceChooseInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.log.LoggingInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.retry.RetryInterceptor;
-
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import okhttp3.ConnectionPool;
+import okhttp3.OkHttpClient;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import retrofit2.converter.jackson.JacksonConverterFactory;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author 陈添明
@@ -64,10 +63,10 @@ public class RetrofitAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public RetrofitConfigBean retrofitConfigBean(@Autowired(required = false) RetrofitDegrade retrofitDegrade,
-            @Autowired(required = false) List<GlobalInterceptor> globalInterceptors,
-            @Autowired(required = false) List<NetworkInterceptor> networkInterceptors,
-            ServiceChooseInterceptor serviceChooseInterceptor, RetryInterceptor retryInterceptor,
-            LoggingInterceptor loggingInterceptor, ErrorDecoderInterceptor errorDecoderInterceptor) {
+                                                 @Autowired(required = false) List<GlobalInterceptor> globalInterceptors,
+                                                 @Autowired(required = false) List<NetworkInterceptor> networkInterceptors,
+                                                 ServiceChooseInterceptor serviceChooseInterceptor, RetryInterceptor retryInterceptor,
+                                                 LoggingInterceptor loggingInterceptor, ErrorDecoderInterceptor errorDecoderInterceptor) {
 
         RetrofitConfigBean retrofitConfigBean = new RetrofitConfigBean(retrofitProperties);
         retrofitConfigBean.setGlobalInterceptors(globalInterceptors);
@@ -132,6 +131,17 @@ public class RetrofitAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    public OkHttpClient httpClientBuilder() {
+        // Construct an OkHttpClient object
+        return new OkHttpClient.Builder()
+                .connectTimeout(retrofitProperties.getGlobalConnectTimeoutMs(), TimeUnit.MILLISECONDS)
+                .readTimeout(retrofitProperties.getGlobalReadTimeoutMs(), TimeUnit.MILLISECONDS)
+                .writeTimeout(retrofitProperties.getGlobalWriteTimeoutMs(), TimeUnit.MILLISECONDS)
+                .callTimeout(retrofitProperties.getGlobalCallTimeoutMs(), TimeUnit.MILLISECONDS).build();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
     public ServiceInstanceChooser serviceInstanceChooser() {
         return new ServiceInstanceChooser.NoValidServiceInstanceChooser();
     }
@@ -171,6 +181,7 @@ public class RetrofitAutoConfiguration {
     @Configuration
     @Import({AutoConfiguredRetrofitScannerRegistrar.class})
     @ConditionalOnMissingBean(RetrofitFactoryBean.class)
-    public static class RetrofitScannerRegistrarNotFoundConfiguration {}
+    public static class RetrofitScannerRegistrarNotFoundConfiguration {
+    }
 
 }

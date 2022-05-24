@@ -126,6 +126,9 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         if (method != null) {
             return (OkHttpClient.Builder)method.invoke(null);
         }
+
+        OkHttpClient client = applicationContext.getBean(OkHttpClient.class);
+
         okhttp3.ConnectionPool connectionPool = parseConnectionPool();
         final int connectTimeoutMs = retrofitClient.connectTimeoutMs() == -1
                 ? retrofitProperties.getGlobalConnectTimeoutMs() : retrofitClient.connectTimeoutMs();
@@ -137,7 +140,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
                 : retrofitClient.callTimeoutMs();
 
         // Construct an OkHttpClient object
-        return new OkHttpClient.Builder()
+        return client.newBuilder()
                 .connectTimeout(connectTimeoutMs, TimeUnit.MILLISECONDS)
                 .readTimeout(readTimeoutMs, TimeUnit.MILLISECONDS)
                 .writeTimeout(writeTimeoutMs, TimeUnit.MILLISECONDS)
