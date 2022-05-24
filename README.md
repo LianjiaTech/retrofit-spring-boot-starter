@@ -207,10 +207,8 @@ retrofit:
 
 ### 自定义OkHttpClient属性
 
-根据`@RetrofitClient`的`sourceOkHttpClient`，根据该名称到#{@link SourceOkHttpClientRegistry}查找对应的OkHttpClient来构建当前接口的OkhttpClient。
-通过这种方式，用户可以配置超时时间、代理、连接池、分发等等`OkHttpClient`属性。
-
-通过实现`SourceOkHttpClientRegistrar`接口，可以实现自定义注册。比如：
+通过实现`SourceOkHttpClientRegistrar`接口，可以实现自定义注册。然后使用`@RetrofitClient`的`sourceOkHttpClient`属性指定`源OkHttpClient`。
+系统会基于该`OkHttpClient`创建当前接口使用的`OkHttpClient`。可以配置超时时间、代理、连接池、分发等等属性。
 
 ```java
 
@@ -545,7 +543,8 @@ retrofit:
          circuit-breaker-config-name: defaultCircuitBreakerConfig
 ```
 
-通过实现`CircuitBreakerConfigRegistrar`接口，可以注入自定义CircuitBreakerConfig。
+通过实现`CircuitBreakerConfigRegistrar`接口，可以注入自定义CircuitBreakerConfig。 然后使用`@Resilience4jDegrade`的`circuitBreakerConfigName`
+指定采用熔断配置。
 
 ```java
 
