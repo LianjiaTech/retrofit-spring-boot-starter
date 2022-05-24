@@ -199,32 +199,8 @@ retrofit:
       global-resilience4j-degrade:
          # 是否开启
          enable: false
-         # 滑动窗口的类型
-         sliding-window-type: count_based
-         # 窗口的大小
-         sliding-window-size: 100
-         # 在单位窗口内最少需要几次调用才能开始进行统计计算
-         minimum-number-of-calls: 100
-         # 单位时间窗口内调用失败率达到多少后会启动断路器
-         failure-rate-threshold: 50
-         # 允许断路器自动由打开状态转换为半开状态
-         enable-automatic-transition-from-open-to-half-open: true
-         # 在半开状态下允许进行正常调用的次数
-         permitted-number-of-calls-in-half-open-state: 10
-         # 断路器打开状态转换为半开状态需要等待秒数
-         wait-duration-in-open-state-seconds: 60
-         # 指定断路器应保持半开多长时间的等待持续时间，可选配置，大于1才是有效配置。
-         max-wait-duration-in-half-open-state-seconds: 0
-         # 忽略的异常类列表，只有配置值之后才会加载。
-         ignore-exceptions: [ ]
-         # 记录的异常类列表，只有配置值之后才会加载。
-         record-exceptions: [ ]
-         # 慢调用比例阈值
-         slow-call-rate-threshold: 100
-         # 慢调用阈值秒数，超过该秒数视为慢调用
-         slow-call-duration-threshold-seconds: 60
-         # 启用可写堆栈跟踪的标志
-         writable-stack-trace-enabled: true
+         # 根据该名称从Spring容器中获取CircuitBreakerConfig，作为全局熔断配置
+         circuit-breaker-config-bean-name: defaultCircuitBreakerConfig
 ```
 
 ## 高级功能
@@ -237,17 +213,16 @@ retrofit:
 默认是`defaultBaseOkHttpClient`，可以按下面方式覆盖Spring配置：
 
 ```java
-@Bean
-@Primary
-OkHttpClient defaultBaseOkHttpClient(){
+ @Bean
+public OkHttpClient defaultBaseOkHttpClient(){
         return new OkHttpClient.Builder()
         .addInterceptor(chain->{
-        log.info("=======替换defaultBaseOkHttpClient=====");
+        log.info("=======替换defaultBaseOkHttpClient构建OkHttpClient=====");
         return chain.proceed(chain.request());
         })
         .build();
         }
-```
+ ```
 
 ### 注解式拦截器
 
@@ -542,15 +517,16 @@ retrofit:
 
 ```yaml
 retrofit:
-  # 熔断降级配置
-  degrade:
-    # 熔断降级类型。默认none，表示不启用熔断降级
-    degrade-type: resilience4j
-    # 全局resilience4j降级配置
-    global-resilience4j-degrade:
-      # 是否开启
-      enable: true
-      # ...其他resilience4j全局配置
+   # 熔断降级配置
+   degrade:
+      # 熔断降级类型。默认none，表示不启用熔断降级
+      degrade-type: resilience4j
+      # 全局resilience4j降级配置
+      global-resilience4j-degrade:
+         # 是否开启
+         enable: true
+         # 根据该名称从Spring容器中获取CircuitBreakerConfig，作为全局熔断配置
+         circuit-breaker-config-bean-name: defaultCircuitBreakerConfig
 ```
 
 #### 扩展熔断降级

@@ -10,7 +10,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Primary;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -34,6 +33,7 @@ import com.github.lianjiatech.retrofit.spring.boot.interceptor.ServiceChooseInte
 import com.github.lianjiatech.retrofit.spring.boot.log.LoggingInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.retry.RetryInterceptor;
 
+import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import okhttp3.OkHttpClient;
 import retrofit2.converter.jackson.JacksonConverterFactory;
@@ -49,15 +49,6 @@ public class RetrofitAutoConfiguration {
 
     public RetrofitAutoConfiguration(RetrofitProperties retrofitProperties) {
         this.retrofitProperties = retrofitProperties;
-    }
-
-    @Configuration
-    public static class RetrofitProcessorAutoConfiguration {
-
-        @Bean
-        public static PathMatchInterceptorBdfProcessor prototypeInterceptorBdfProcessor() {
-            return new PathMatchInterceptorBdfProcessor();
-        }
     }
 
     @Bean
@@ -127,33 +118,15 @@ public class RetrofitAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    ServiceChooseInterceptor serviceChooseInterceptor(@Autowired ServiceInstanceChooser serviceInstanceChooser) {
+    public ServiceChooseInterceptor serviceChooseInterceptor(@Autowired ServiceInstanceChooser serviceInstanceChooser) {
         return new ServiceChooseInterceptor(serviceInstanceChooser);
     }
 
     @Bean
-    @Primary
     @ConditionalOnMissingBean(name = Constants.DEFAULT_BASE_OK_HTTP_CLIENT)
-    OkHttpClient defaultBaseOkHttpClient() {
+    public OkHttpClient defaultBaseOkHttpClient() {
         return new OkHttpClient.Builder()
                 .build();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    @ConditionalOnClass(name = Constants.SPH_U_CLASS_NAME)
-    @ConditionalOnProperty(name = Constants.DEGRADE_TYPE, havingValue = RetrofitDegrade.SENTINEL)
-    public RetrofitDegrade sentinelRetrofitDegrade() {
-        return new SentinelRetrofitDegrade(retrofitProperties.getDegrade().getGlobalSentinelDegrade());
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    @ConditionalOnClass(name = Constants.CIRCUIT_BREAKER_CLASS_NAME)
-    @ConditionalOnProperty(name = Constants.DEGRADE_TYPE, havingValue = RetrofitDegrade.RESILIENCE4J)
-    public RetrofitDegrade resilience4jRetrofitDegrade() {
-        return new Resilience4jRetrofitDegrade(CircuitBreakerRegistry.ofDefaults(),
-                retrofitProperties.getDegrade().getGlobalResilience4jDegrade());
     }
 
     @Bean
@@ -169,5 +142,58 @@ public class RetrofitAutoConfiguration {
     @Import({AutoConfiguredRetrofitScannerRegistrar.class})
     @ConditionalOnMissingBean(RetrofitFactoryBean.class)
     public static class RetrofitScannerRegistrarNotFoundConfiguration {}
+
+    @Configuration
+    public static class RetrofitProcessorAutoConfiguration {
+
+        @Bean
+        public static PathMatchInterceptorBdfProcessor prototypeInterceptorBdfProcessor() {
+            return new PathMatchInterceptorBdfProcessor();
+        }
+    }
+
+    @Configuration
+    @ConditionalOnClass(name = Constants.CIRCUIT_BREAKER_CLASS_NAME)
+    @ConditionalOnProperty(name = Constants.DEGRADE_TYPE, havingValue = RetrofitDegrade.RESILIENCE4J)
+    @EnableConfigurationProperties(RetrofitProperties.class)
+    public static class Resilience4jConfiguration {
+
+        private final RetrofitProperties properties;
+
+        public Resilience4jConfiguration(RetrofitProperties properties) {
+            this.properties = properties;
+        }
+
+        @Bean
+        @ConditionalOnMissingBean
+        public RetrofitDegrade resilience4jRetrofitDegrade() {
+            return new Resilience4jRetrofitDegrade(CircuitBreakerRegistry.ofDefaults(),
+                    properties.getDegrade().getGlobalResilience4jDegrade());
+        }
+
+        @Bean
+        @ConditionalOnMissingBean(name = Constants.DEFAULT_CIRCUIT_BREAKER_CONFIG)
+        public CircuitBreakerConfig defaultCircuitBreakerConfig() {
+            return CircuitBreakerConfig.ofDefaults();
+        }
+    }
+
+    @ConditionalOnClass(name = Constants.SPH_U_CLASS_NAME)
+    @ConditionalOnProperty(name = Constants.DEGRADE_TYPE, havingValue = RetrofitDegrade.SENTINEL)
+    @EnableConfigurationProperties(RetrofitProperties.class)
+    public static class SentinelConfiguration {
+
+        private final RetrofitProperties properties;
+
+        public SentinelConfiguration(RetrofitProperties properties) {
+            this.properties = properties;
+        }
+
+        @Bean
+        @ConditionalOnMissingBean
+        public RetrofitDegrade sentinelRetrofitDegrade() {
+            return new SentinelRetrofitDegrade(properties.getDegrade().getGlobalSentinelDegrade());
+        }
+    }
 
 }

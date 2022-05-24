@@ -2,10 +2,12 @@ package com.github.lianjiatech.retrofit.spring.boot.degrade.resilience4j;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 
 import com.github.lianjiatech.retrofit.spring.boot.degrade.BaseRetrofitDegrade;
@@ -25,10 +27,11 @@ import retrofit2.Invocation;
  * @author 陈添明
  * @since 2022/5/1 8:02 下午
  */
-public class Resilience4jRetrofitDegrade extends BaseRetrofitDegrade {
+public class Resilience4jRetrofitDegrade extends BaseRetrofitDegrade implements ApplicationContextAware {
 
     protected final CircuitBreakerRegistry circuitBreakerRegistry;
     protected final GlobalResilience4jDegradeProperty globalResilience4jDegradeProperty;
+    protected ApplicationContext applicationContext;
 
     public Resilience4jRetrofitDegrade(CircuitBreakerRegistry circuitBreakerRegistry,
             GlobalResilience4jDegradeProperty globalResilience4jDegradeProperty) {
@@ -62,80 +65,11 @@ public class Resilience4jRetrofitDegrade extends BaseRetrofitDegrade {
             if (!needDegrade(resilience4jDegrade)) {
                 continue;
             }
-
-            CircuitBreakerConfig.SlidingWindowType slidingWindowType =
-                    resilience4jDegrade == null
-                            ? CircuitBreakerConfig.SlidingWindowType
-                                    .valueOf(globalResilience4jDegradeProperty.getSlidingWindowType().name())
-                            : resilience4jDegrade.slidingWindowType();
-            int slidingWindowSize =
-                    resilience4jDegrade == null ? globalResilience4jDegradeProperty.getSlidingWindowSize()
-                            : resilience4jDegrade.slidingWindowSize();
-
-            int minimumNumberOfCalls =
-                    resilience4jDegrade == null ? globalResilience4jDegradeProperty.getMinimumNumberOfCalls()
-                            : resilience4jDegrade.minimumNumberOfCalls();
-
-            float failureRateThreshold =
-                    resilience4jDegrade == null ? globalResilience4jDegradeProperty.getFailureRateThreshold()
-                            : resilience4jDegrade.failureRateThreshold();
-
-            boolean enableAutomaticTransitionFromOpenToHalfOpen = resilience4jDegrade == null
-                    ? globalResilience4jDegradeProperty.isEnableAutomaticTransitionFromOpenToHalfOpen()
-                    : resilience4jDegrade.enableAutomaticTransitionFromOpenToHalfOpen();
-
-            int permittedNumberOfCallsInHalfOpenState = resilience4jDegrade == null
-                    ? globalResilience4jDegradeProperty.getPermittedNumberOfCallsInHalfOpenState()
-                    : resilience4jDegrade.permittedNumberOfCallsInHalfOpenState();
-
-            int waitDurationInOpenStateSeconds =
-                    resilience4jDegrade == null ? globalResilience4jDegradeProperty.getWaitDurationInOpenStateSeconds()
-                            : resilience4jDegrade.waitDurationInOpenStateSeconds();
-
-            int maxWaitDurationInHalfOpenStateSeconds = resilience4jDegrade == null
-                    ? globalResilience4jDegradeProperty.getMaxWaitDurationInHalfOpenStateSeconds()
-                    : resilience4jDegrade.maxWaitDurationInHalfOpenStateSeconds();
-
-            Class<? extends Throwable>[] ignoreExceptions =
-                    resilience4jDegrade == null ? globalResilience4jDegradeProperty.getIgnoreExceptions()
-                            : resilience4jDegrade.ignoreExceptions();
-
-            Class<? extends Throwable>[] recordExceptions =
-                    resilience4jDegrade == null ? globalResilience4jDegradeProperty.getRecordExceptions()
-                            : resilience4jDegrade.recordExceptions();
-
-            float slowCallRateThreshold =
-                    resilience4jDegrade == null ? globalResilience4jDegradeProperty.getSlowCallRateThreshold()
-                            : resilience4jDegrade.slowCallRateThreshold();
-
-            int slowCallDurationThresholdSeconds = resilience4jDegrade == null
-                    ? globalResilience4jDegradeProperty.getSlowCallDurationThresholdSeconds()
-                    : resilience4jDegrade.slowCallDurationThresholdSeconds();
-
-            boolean writableStackTraceEnabled =
-                    resilience4jDegrade == null ? globalResilience4jDegradeProperty.isWritableStackTraceEnabled()
-                            : resilience4jDegrade.writableStackTraceEnabled();
-
-            // 断路器配置
-            CircuitBreakerConfig.Builder builder = CircuitBreakerConfig.custom()
-                    .waitDurationInOpenState(Duration.ofSeconds(waitDurationInOpenStateSeconds))
-                    .permittedNumberOfCallsInHalfOpenState(permittedNumberOfCallsInHalfOpenState)
-                    .slidingWindowSize(slidingWindowSize)
-                    .slidingWindowType(slidingWindowType)
-                    .minimumNumberOfCalls(minimumNumberOfCalls)
-                    .failureRateThreshold(failureRateThreshold)
-                    .ignoreExceptions(ignoreExceptions)
-                    .recordExceptions(recordExceptions)
-                    .automaticTransitionFromOpenToHalfOpenEnabled(enableAutomaticTransitionFromOpenToHalfOpen)
-                    .slowCallRateThreshold(slowCallRateThreshold)
-                    .slowCallDurationThreshold(Duration.ofSeconds(slowCallDurationThresholdSeconds))
-                    .writableStackTraceEnabled(writableStackTraceEnabled);
-
-            if (maxWaitDurationInHalfOpenStateSeconds > 0) {
-                builder.maxWaitDurationInHalfOpenState(
-                        Duration.ofSeconds(maxWaitDurationInHalfOpenStateSeconds));
-            }
-            circuitBreakerRegistry.circuitBreaker(parseResourceName(method), builder.build());
+            String circuitBreakerConfigBeanName =
+                    resilience4jDegrade == null ? globalResilience4jDegradeProperty.getCircuitBreakerConfigBeanName()
+                            : resilience4jDegrade.circuitBreakerConfigBeanName();
+            circuitBreakerRegistry.circuitBreaker(parseResourceName(method),
+                    applicationContext.getBean(circuitBreakerConfigBeanName, CircuitBreakerConfig.class));
         }
     }
 
@@ -172,5 +106,10 @@ public class Resilience4jRetrofitDegrade extends BaseRetrofitDegrade {
             circuitBreaker.onError(stopWatch.stop().toNanos(), TimeUnit.NANOSECONDS, throwable);
             throw throwable;
         }
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
     }
 }
