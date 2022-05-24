@@ -1,14 +1,5 @@
 
 retrofit:
-  # 连接池配置
-  pool:
-    # test1连接池配置
-    test1:
-      # 最大空闲连接数
-      max-idle-connections: 3
-      # 连接保活时间(秒)
-      keep-alive-second: 100
-
   # 全局转换器工厂
   global-converter-factories:
     - com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory
@@ -86,15 +77,6 @@ retrofit:
       slow-call-duration-threshold-seconds: 60
       # 启用可写堆栈跟踪的标志
       writable-stack-trace-enabled: true
-
-  # 全局连接超时时间
-  global-connect-timeout-ms: 5000
-  # 全局读取超时时间
-  global-read-timeout-ms: 5000
-  # 全局写入超时时间
-  global-write-timeout-ms: 5000
-  # 全局完整调用超时时间
-  global-call-timeout-ms: 0
 
 test:
   baseUrl: http://localhost:8080/api/test/

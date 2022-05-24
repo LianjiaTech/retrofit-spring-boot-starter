@@ -2,7 +2,6 @@ package com.github.lianjiatech.retrofit.spring.boot.config;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitDegrade;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.ErrorDecoderInterceptor;
@@ -13,7 +12,6 @@ import com.github.lianjiatech.retrofit.spring.boot.log.LoggingInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.retry.RetryInterceptor;
 
 import lombok.Data;
-import okhttp3.ConnectionPool;
 import retrofit2.CallAdapter;
 import retrofit2.Converter;
 
@@ -24,8 +22,6 @@ import retrofit2.Converter;
 public class RetrofitConfigBean {
 
     private final RetrofitProperties retrofitProperties;
-
-    private Map<String, ConnectionPool> poolRegistry;
 
     private List<GlobalInterceptor> globalInterceptors;
 

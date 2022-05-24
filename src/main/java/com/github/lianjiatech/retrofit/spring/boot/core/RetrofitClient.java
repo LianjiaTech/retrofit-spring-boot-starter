@@ -29,21 +29,19 @@ public @interface RetrofitClient {
      * Can be specified as property key, eg: ${propertyKey}.
      * If baseUrl is not configured, you must configure serviceId and path optional configuration.
      *
-     *
-     * @return baseUrl
      */
-    String baseUrl() default "";
+    String baseUrl() default Constants.STR_EMPTY;
 
     /**
      * The name of the service.
      * Can be specified as property key, eg: ${propertyKey}.
      */
-    String serviceId() default "";
+    String serviceId() default Constants.STR_EMPTY;
 
     /**
      * Path prefix to be used by all method-level mappings.
      */
-    String path() default "";
+    String path() default Constants.STR_EMPTY;
 
     /**
      * 适用于当前接口的转换器工厂，优先级比全局转换器工厂更高。转换器实例优先从Spring容器获取，如果没有获取到，则反射创建。
@@ -80,16 +78,8 @@ public @interface RetrofitClient {
      * The invalid response is determined by the business itself.
      * In general, the invalid response corresponding to each service is different, you can customize the corresponding {@link ErrorDecoder}, and then configure it here.
      *
-     * @return ErrorDecoder
      */
     Class<? extends ErrorDecoder> errorDecoder() default ErrorDecoder.DefaultErrorDecoder.class;
-
-    /**
-     * connection pool name
-     *
-     * @return connection pool name
-     */
-    String poolName() default "default";
 
     /**
      * When calling {@link Retrofit#create(Class)} on the resulting {@link Retrofit} instance, eagerly validate the
@@ -100,70 +90,8 @@ public @interface RetrofitClient {
     boolean validateEagerly() default false;
 
     /**
-     * Sets the default connect timeout for new connections. A value of 0 means no timeout,
-     * otherwise values must be between 1 and Integer.MAX_VALUE when converted to milliseconds.
-     * If it is configured as -1, the global default configuration is used.
-     *
-     * @return connectTimeoutMs
+     * 根据该名称从Spring容器中对应的OkHttpClient来初始化当前接口的OkHttpClient
      */
-    int connectTimeoutMs() default -1;
-
-    /**
-     * Sets the default read timeout for new connections. A value of 0 means no timeout,
-     * otherwise values must be between 1 and Integer.MAX_VALUE when converted to milliseconds.
-     * If it is configured as -1, the global default configuration is used.
-     *
-     * @return readTimeoutMs
-     */
-    int readTimeoutMs() default -1;
-
-    /**
-     * Sets the default write timeout for new connections. A value of 0 means no timeout,
-     * otherwise values must be between 1 and Integer.MAX_VALUE when converted to milliseconds.
-     * If it is configured as -1, the global default configuration is used.
-     *
-     * @return writeTimeoutMs
-     */
-    int writeTimeoutMs() default -1;
-
-    /**
-     * Sets the default timeout for complete calls. A value of 0 means no timeout,
-     * otherwise values must be between 1 and Integer.MAX_VALUE when converted to milliseconds.
-     *
-     * @return callTimeout
-     */
-    int callTimeoutMs() default -1;
-
-    /**
-     * Sets the interval between HTTP/2 and web socket pings initiated by this client.
-     * Use this to automatically send ping frames until either the connection fails or it is closed.
-     * This keeps the connection alive and may detect connectivity failures.
-     *
-     * @return pingInterval
-     */
-    int pingIntervalMs() default 0;
-
-    /**
-     * Configure this client to allow protocol redirects from HTTPS to HTTP and from HTTP to HTTPS.
-     * Redirects are still first restricted by followRedirects. Defaults to true.
-     *
-     * @return followSslRedirects
-     */
-    boolean followSslRedirects() default true;
-
-    /**
-     * Configure this client to follow redirects. If unset, redirects will be followed.
-     *
-     * @return followRedirects
-     */
-    boolean followRedirects() default true;
-
-    /**
-     * Configure this client to retry or not when a connectivity problem is encountered.
-     * By default, this client silently recovers from the following problems:
-     *
-     * @return retryOnConnectionFailure
-     */
-    boolean retryOnConnectionFailure() default true;
+    String baseOkHttpClientBeanName() default Constants.DEFAULT_BASE_OK_HTTP_CLIENT;
 
 }

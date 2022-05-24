@@ -22,7 +22,7 @@ import retrofit2.http.Query;
 /**
  * @author 陈添明
  */
-@RetrofitClient(baseUrl = "${test.baseUrl}", poolName = "test1", errorDecoder = TestErrorDecoder.class)
+@RetrofitClient(baseUrl = "${test.baseUrl}", errorDecoder = TestErrorDecoder.class)
 @Sign(accessKeyId = "${test.accessKeyId}", accessKeySecret = "${test.accessKeySecret}", exclude = {"/api/test/query"})
 @Intercept(handler = TimeStampInterceptor.class)
 @Intercept(handler = TimeStamp2Interceptor.class)

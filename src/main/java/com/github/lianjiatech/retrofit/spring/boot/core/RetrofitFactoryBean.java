@@ -1,9 +1,6 @@
 package com.github.lianjiatech.retrofit.spring.boot.core;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -11,7 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
@@ -25,7 +21,6 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitConfigBean;
-import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitProperties;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeProxy;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitDegrade;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.BasePathMatchInterceptor;
@@ -36,7 +31,6 @@ import com.github.lianjiatech.retrofit.spring.boot.util.AppContextUtils;
 import com.github.lianjiatech.retrofit.spring.boot.util.BeanExtendUtils;
 import com.github.lianjiatech.retrofit.spring.boot.util.RetrofitUtils;
 
-import okhttp3.ConnectionPool;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
@@ -49,8 +43,6 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
     private final Class<T> retrofitInterface;
 
     private Environment environment;
-
-    private RetrofitProperties retrofitProperties;
 
     private RetrofitConfigBean retrofitConfigBean;
 
@@ -88,22 +80,12 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         return true;
     }
 
-    private okhttp3.ConnectionPool parseConnectionPool() {
+    private OkHttpClient createOkHttpClient() {
         RetrofitClient retrofitClient =
                 AnnotatedElementUtils.findMergedAnnotation(retrofitInterface, RetrofitClient.class);
-        String poolName = retrofitClient.poolName();
-        Map<String, ConnectionPool> poolRegistry = retrofitConfigBean.getPoolRegistry();
-        Assert.notNull(poolRegistry, "poolRegistry does not exist! Please set retrofitConfigBean.poolRegistry!");
-        ConnectionPool connectionPool = poolRegistry.get(poolName);
-        Assert.notNull(connectionPool,
-                "The connection pool corresponding to the current poolName does not exist! poolName = " + poolName);
-        return connectionPool;
-    }
-
-    private OkHttpClient createOkHttpClient() throws IllegalAccessException, InvocationTargetException {
-        OkHttpClient.Builder okHttpClientBuilder = createOkHttpClientBuilder();
-        RetrofitClient retrofitClient =
-                AnnotatedElementUtils.findMergedAnnotation(retrofitInterface, RetrofitClient.class);
+        OkHttpClient baseOkHttpClient = applicationContext.getBean(
+                Objects.requireNonNull(retrofitClient).baseOkHttpClientBeanName(), OkHttpClient.class);
+        OkHttpClient.Builder okHttpClientBuilder = baseOkHttpClient.newBuilder();
         if (isEnableDegrade(retrofitInterface)) {
             okHttpClientBuilder.addInterceptor(retrofitConfigBean.getRetrofitDegrade());
         }
@@ -117,48 +99,6 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         okHttpClientBuilder.addInterceptor(retrofitConfigBean.getLoggingInterceptor());
         retrofitConfigBean.getNetworkInterceptors().forEach(okHttpClientBuilder::addInterceptor);
         return okHttpClientBuilder.build();
-    }
-
-    private OkHttpClient.Builder createOkHttpClientBuilder() throws InvocationTargetException, IllegalAccessException {
-        RetrofitClient retrofitClient =
-                AnnotatedElementUtils.findMergedAnnotation(retrofitInterface, RetrofitClient.class);
-        Method method = findOkHttpClientBuilderMethod();
-        if (method != null) {
-            return (OkHttpClient.Builder)method.invoke(null);
-        }
-        okhttp3.ConnectionPool connectionPool = parseConnectionPool();
-        final int connectTimeoutMs = retrofitClient.connectTimeoutMs() == -1
-                ? retrofitProperties.getGlobalConnectTimeoutMs() : retrofitClient.connectTimeoutMs();
-        final int readTimeoutMs = retrofitClient.readTimeoutMs() == -1 ? retrofitProperties.getGlobalReadTimeoutMs()
-                : retrofitClient.readTimeoutMs();
-        final int writeTimeoutMs = retrofitClient.writeTimeoutMs() == -1
-                ? retrofitProperties.getGlobalWriteTimeoutMs() : retrofitClient.writeTimeoutMs();
-        final int callTimeoutMs = retrofitClient.callTimeoutMs() == -1 ? retrofitProperties.getGlobalCallTimeoutMs()
-                : retrofitClient.callTimeoutMs();
-
-        // Construct an OkHttpClient object
-        return new OkHttpClient.Builder()
-                .connectTimeout(connectTimeoutMs, TimeUnit.MILLISECONDS)
-                .readTimeout(readTimeoutMs, TimeUnit.MILLISECONDS)
-                .writeTimeout(writeTimeoutMs, TimeUnit.MILLISECONDS)
-                .callTimeout(callTimeoutMs, TimeUnit.MILLISECONDS)
-                .retryOnConnectionFailure(retrofitClient.retryOnConnectionFailure())
-                .followRedirects(retrofitClient.followRedirects())
-                .followSslRedirects(retrofitClient.followSslRedirects())
-                .pingInterval(retrofitClient.pingIntervalMs(), TimeUnit.MILLISECONDS)
-                .connectionPool(connectionPool);
-    }
-
-    private Method findOkHttpClientBuilderMethod() {
-        Method[] methods = retrofitInterface.getMethods();
-        for (Method method : methods) {
-            if (Modifier.isStatic(method.getModifiers())
-                    && method.isAnnotationPresent(OkHttpClientBuilder.class)
-                    && method.getReturnType().equals(OkHttpClient.Builder.class)) {
-                return method;
-            }
-        }
-        return null;
     }
 
     @SuppressWarnings("unchecked")
@@ -209,7 +149,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         return interceptors;
     }
 
-    private Retrofit createRetrofit() throws IllegalAccessException, InvocationTargetException {
+    private Retrofit createRetrofit() {
         RetrofitClient retrofitClient =
                 AnnotatedElementUtils.findMergedAnnotation(retrofitInterface, RetrofitClient.class);
         String baseUrl = RetrofitUtils.convertBaseUrl(retrofitClient, retrofitClient.baseUrl(), environment);
@@ -252,6 +192,5 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
         this.retrofitConfigBean = applicationContext.getBean(RetrofitConfigBean.class);
-        this.retrofitProperties = retrofitConfigBean.getRetrofitProperties();
     }
 }

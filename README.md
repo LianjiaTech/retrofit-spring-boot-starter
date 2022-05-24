@@ -29,15 +29,13 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 
 ## 功能特性
 
-- [x] [超时时间设置](#超时时间设置)
+- [x] [自定义OkHttpClient属性](#自定义OkHttpClient属性)
 - [x] [注解式拦截器](#注解式拦截器)
 - [x] [日志打印](#日志打印)
 - [x] [请求重试](#请求重试)
 - [x] [熔断降级](#熔断降级)
 - [x] [错误解码器](#错误解码器)
-- [x] [自定义注入OkHttpClient](#自定义注入OkHttpClient)
 - [x] [微服务之间的HTTP调用](#微服务之间的HTTP调用)
-- [x] [连接池管理](#连接池管理)
 - [x] [全局拦截器](#全局拦截器)
 - [x] [调用适配器](#调用适配器)
 - [x] [数据转换器](#数据转码器)
@@ -52,7 +50,7 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-   <version>2.3.2</version>
+   <version>2.3.3</version>
 </dependency>
 ```
 
@@ -65,7 +63,7 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-   <version>2.3.2</version>
+   <version>2.3.3</version>
 </dependency>
  <dependency>
     <groupId>com.squareup.okhttp3</groupId>
@@ -151,15 +149,6 @@ public class TestService {
 
 ```yaml
 retrofit:
-   # 连接池配置
-   pool:
-      # default连接池
-      default:
-         # 最大空闲连接数
-         max-idle-connections: 5
-         # 连接保活时间(秒)
-         keep-alive-second: 300
-
    # 全局转换器工厂
    global-converter-factories:
       - com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory
@@ -178,7 +167,7 @@ retrofit:
       # 全局日志打印策略
       log-strategy: basic
 
-   # 重试配置
+   # 全局重试配置
    global-retry:
       # 是否启用全局重试
       enable: false
@@ -227,52 +216,38 @@ retrofit:
          # 指定断路器应保持半开多长时间的等待持续时间，可选配置，大于1才是有效配置。
          max-wait-duration-in-half-open-state-seconds: 0
          # 忽略的异常类列表，只有配置值之后才会加载。
-         ignore-exceptions: []
+         ignore-exceptions: [ ]
          # 记录的异常类列表，只有配置值之后才会加载。
-         record-exceptions: []
+         record-exceptions: [ ]
          # 慢调用比例阈值
          slow-call-rate-threshold: 100
          # 慢调用阈值秒数，超过该秒数视为慢调用
          slow-call-duration-threshold-seconds: 60
          # 启用可写堆栈跟踪的标志
          writable-stack-trace-enabled: true
-
-   # 全局连接超时时间
-   global-connect-timeout-ms: 10000
-   # 全局读取超时时间
-   global-read-timeout-ms: 10000
-   # 全局写入超时时间
-   global-write-timeout-ms: 10000
-   # 全局完整调用超时时间
-   global-call-timeout-ms: 0
-
 ```
 
 ## 高级功能
 
-### 超时时间设置
+### 自定义OkHttpClient属性
 
-`retrofit-spring-boot-starter`支持两种方式设置超时时间，一种是全局超时时间设置，另一种是注解超时时间设置。
+根据`@RetrofitClient`的`baseOkHttpClientBeanName`，根据该名称从Spring容器中对应的`OkHttpClient`来初始化当前接口的`OkHttpClient`。
+通过这种方式，用户可以配置超时时间、代理、连接池、分发等等`OkHttpClient`属性。
 
-#### 全局超时时间设置
+默认是`defaultBaseOkHttpClient`，可以按下面方式覆盖Spring配置：
 
-**在yaml文件中可配置全局超时时间，对所有接口生效**。
-
-```yaml
-retrofit:
-   # 全局连接超时时间
-   global-connect-timeout-ms: 5000
-   # 全局读取超时时间
-   global-read-timeout-ms: 5000
-   # 全局写入超时时间
-   global-write-timeout-ms: 5000
-   # 全局完整调用超时时间
-   global-call-timeout-ms: 0
+```java
+@Bean
+@Primary
+OkHttpClient defaultBaseOkHttpClient(){
+        return new OkHttpClient.Builder()
+        .addInterceptor(chain->{
+        log.info("=======替换defaultBaseOkHttpClient=====");
+        return chain.proceed(chain.request());
+        })
+        .build();
+        }
 ```
-
-#### 注解式超时时间设置
-
-在`@RetrofitClient`注解上可以设置超时时间，针对当前接口生效，优先级更高。具体字段有`connectTimeoutMs`、`readTimeoutMs`、`writeTimeoutMs`、`callTimeoutMs`等。
 
 ### 注解式拦截器
 
@@ -696,32 +671,6 @@ public interface ErrorDecoder {
 
 ```
 
-### 自定义注入OkHttpClient
-
-通常情况下，通过`@RetrofitClient`注解属性动态创建`OkHttpClient`对象能够满足大部分使用场景。但是在某些情况下，用户可能需要自定义`OkHttpClient`
-，这个时候，可以在接口上定义返回类型是`OkHttpClient.Builder`的静态方法来实现。代码示例如下：
-
-```java
-
-@RetrofitClient(baseUrl = "http://ke.com")
-public interface HttpApi3 {
-
-   @OkHttpClientBuilder
-   static OkHttpClient.Builder okhttpClientBuilder() {
-      return new OkHttpClient.Builder()
-              .connectTimeout(1, TimeUnit.SECONDS)
-              .readTimeout(1, TimeUnit.SECONDS)
-              .writeTimeout(1, TimeUnit.SECONDS);
-
-   }
-
-   @GET
-   Result<Person> getPerson(@Url String url, @Query("id") Long id);
-}
-```
-
-> 方法必须使用`@OkHttpClientBuilder`注解标记！
-
 ### 微服务之间的HTTP调用
 
 为了能够使用微服务调用，需要进行如下配置：
@@ -748,36 +697,6 @@ public interface ApiCountService {
 
 }
 ```
-
-### 连接池管理
-
-默认情况下，所有通过`Retrofit`发送的http请求都会使用`max-idle-connections=5  keep-alive-second=300`
-的默认连接池。当然，我们也可以在配置文件中配置多个自定义的连接池，然后通过`@RetrofitClient`的`poolName`属性来指定使用。比如我们要让某个接口下的请求全部使用`poolName=test1`的连接池，代码实现如下：
-
-1. 配置连接池。
-
-    ```yaml
-    retrofit:
-      # 连接池配置
-      pool:
-        # test1连接池配置
-        test1:
-          # 最大空闲连接数
-          max-idle-connections: 3
-          # 连接保活时间(秒)
-          keep-alive-second: 100
-    ```
-
-2. 通过`@RetrofitClient`的`poolName`属性来指定使用的连接池。
-
-    ```java
-    @RetrofitClient(baseUrl = "${test.baseUrl}", poolName="test1")
-    public interface HttpApi {
-
-        @GET("person")
-        Result<Person> getPerson(@Query("id") Long id);
-    }
-    ```
 
 ## 全局拦截器
 
