@@ -4,8 +4,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Primary;
 
+import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.ConnectionPool;
 import okhttp3.Dispatcher;
@@ -25,18 +25,17 @@ public class RetrofitTestApplication {
     }
 
     @Bean
-    GsonConverterFactory gsonConverterFactory() {
+    public GsonConverterFactory gsonConverterFactory() {
         return GsonConverterFactory.create();
     }
 
     @Bean
-    JaxbConverterFactory jaxbConverterFactory() {
+    public JaxbConverterFactory jaxbConverterFactory() {
         return JaxbConverterFactory.create();
     }
 
     @Bean
-    @Primary
-    OkHttpClient defaultBaseOkHttpClient() {
+    public OkHttpClient defaultBaseOkHttpClient() {
         return new OkHttpClient.Builder()
                 .addInterceptor(chain -> {
                     log.info("=======替换defaultBaseOkHttpClient构建OkHttpClient=====");
@@ -46,7 +45,7 @@ public class RetrofitTestApplication {
     }
 
     @Bean
-    OkHttpClient testOkHttpClient() {
+    public OkHttpClient testOkHttpClient() {
         Dispatcher dispatcher = new Dispatcher();
         dispatcher.setMaxRequests(100);
         dispatcher.setMaxRequestsPerHost(10);
@@ -62,5 +61,26 @@ public class RetrofitTestApplication {
                     return chain.proceed(chain.request());
                 })
                 .build();
+    }
+
+    @Bean
+    public CircuitBreakerConfig defaultCircuitBreakerConfig() {
+        log.info("===替换defaultCircuitBreakerConfig====");
+        return CircuitBreakerConfig.ofDefaults();
+    }
+
+    @Bean
+    public CircuitBreakerConfig testCircuitBreakerConfig() {
+        return CircuitBreakerConfig.custom()
+                .slidingWindowType(CircuitBreakerConfig.SlidingWindowType.TIME_BASED)
+                .failureRateThreshold(30)
+                .minimumNumberOfCalls(10)
+                .permittedNumberOfCallsInHalfOpenState(5)
+                .build();
+    }
+
+    @Bean
+    public InvalidRespErrorDecoder invalidRespErrorDecoder() {
+        return new InvalidRespErrorDecoder();
     }
 }

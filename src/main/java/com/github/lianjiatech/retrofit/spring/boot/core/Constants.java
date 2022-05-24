@@ -17,4 +17,6 @@ public interface Constants {
     String CIRCUIT_BREAKER_CLASS_NAME = "io.github.resilience4j.circuitbreaker.CircuitBreaker";
 
     String RETROFIT = "retrofit";
+
+    String DEFAULT_CIRCUIT_BREAKER_CONFIG = "defaultCircuitBreakerConfig";
 }

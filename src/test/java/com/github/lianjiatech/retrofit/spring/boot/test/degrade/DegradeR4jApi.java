@@ -11,7 +11,6 @@ import com.github.lianjiatech.retrofit.spring.boot.retry.Retry;
 import com.github.lianjiatech.retrofit.spring.boot.test.entity.Person;
 import com.github.lianjiatech.retrofit.spring.boot.test.entity.Result;
 
-import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 
@@ -20,15 +19,13 @@ import retrofit2.http.Query;
  */
 @Retry(enable = false)
 @RetrofitClient(baseUrl = "${test.baseUrl}", fallbackFactory = DegradeR4jApi.HttpDegradeFallbackFactory.class)
-@Resilience4jDegrade(slidingWindowType = CircuitBreakerConfig.SlidingWindowType.TIME_BASED,
-        failureRateThreshold = 30, minimumNumberOfCalls = 10, permittedNumberOfCallsInHalfOpenState = 5)
+@Resilience4jDegrade(circuitBreakerConfigBeanName = "testCircuitBreakerConfig")
 public interface DegradeR4jApi {
 
     @GET("degrade/person1")
     Result<Person> getPerson1(@Query("id") Long id);
 
-    @Resilience4jDegrade(slidingWindowType = CircuitBreakerConfig.SlidingWindowType.TIME_BASED,
-            failureRateThreshold = 30, minimumNumberOfCalls = 10, permittedNumberOfCallsInHalfOpenState = 5)
+    @Resilience4jDegrade(circuitBreakerConfigBeanName = "testCircuitBreakerConfig")
     @GET("degrade/person2")
     Result<Person> getPerson2(@Query("id") Long id);
 
