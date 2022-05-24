@@ -1,5 +1,7 @@
 package com.github.lianjiatech.retrofit.spring.boot.test.custom.okhttp;
 
+import java.time.Duration;
+
 import org.springframework.stereotype.Component;
 
 import com.github.lianjiatech.retrofit.spring.boot.core.Constants;
@@ -22,6 +24,9 @@ public class CustomSourceOkHttpClientRegistrar implements SourceOkHttpClientRegi
 
         // 替换默认的SourceOkHttpClient
         registry.register(Constants.DEFAULT_SOURCE_OK_HTTP_CLIENT, new OkHttpClient.Builder()
+                .connectTimeout(Duration.ofSeconds(5))
+                .writeTimeout(Duration.ofSeconds(5))
+                .readTimeout(Duration.ofSeconds(5))
                 .addInterceptor(chain -> {
                     log.info("============替换默认的SourceOkHttpClient=============");
                     return chain.proceed(chain.request());
@@ -30,6 +35,9 @@ public class CustomSourceOkHttpClientRegistrar implements SourceOkHttpClientRegi
 
         // 添加新的SourceOkHttpClient
         registry.register("testSourceOkHttpClient", new OkHttpClient.Builder()
+                .connectTimeout(Duration.ofSeconds(5))
+                .writeTimeout(Duration.ofSeconds(5))
+                .readTimeout(Duration.ofSeconds(5))
                 .addInterceptor(chain -> {
                     log.info("============使用testSourceOkHttpClient=============");
                     return chain.proceed(chain.request());

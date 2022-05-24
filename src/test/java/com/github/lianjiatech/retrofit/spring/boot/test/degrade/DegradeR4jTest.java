@@ -71,7 +71,7 @@ public class DegradeR4jTest {
                         .addHeader("Content-Type", "application/text; charset=utf-8")
                         .addHeader("Cache-Control", "no-cache")
                         .setBody(objectMapper.writeValueAsString(mockResult))
-                        .setBodyDelay(10, TimeUnit.SECONDS);
+                        .setBodyDelay(6, TimeUnit.SECONDS);
                 server.enqueue(response);
                 return degradeR4jApi.getPerson1(2L).getCode();
             } catch (Exception e) {

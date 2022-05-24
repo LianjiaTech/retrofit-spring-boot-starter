@@ -24,8 +24,8 @@ public class CustomCircuitBreakerConfigRegistrar implements CircuitBreakerConfig
         // 注册其它的CircuitBreakerConfig
         registry.register("testCircuitBreakerConfig", CircuitBreakerConfig.custom()
                 .slidingWindowType(CircuitBreakerConfig.SlidingWindowType.TIME_BASED)
-                .failureRateThreshold(30)
-                .minimumNumberOfCalls(10)
+                .failureRateThreshold(20)
+                .minimumNumberOfCalls(5)
                 .permittedNumberOfCallsInHalfOpenState(5)
                 .build());
     }
