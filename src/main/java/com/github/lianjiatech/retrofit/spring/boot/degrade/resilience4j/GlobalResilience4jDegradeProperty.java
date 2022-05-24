@@ -18,7 +18,7 @@ public class GlobalResilience4jDegradeProperty {
     private boolean enable = false;
 
     /***
-     * 根据该名称从Spring容器中获取CircuitBreakerConfig，作为全局熔断配置
+     * 根据该名称从#{@link CircuitBreakerConfigRegistry}获取CircuitBreakerConfig，作为全局熔断配置
      */
-    private String circuitBreakerConfigBeanName = Constants.DEFAULT_CIRCUIT_BREAKER_CONFIG;
+    private String circuitBreakerConfigName = Constants.DEFAULT_CIRCUIT_BREAKER_CONFIG;
 }

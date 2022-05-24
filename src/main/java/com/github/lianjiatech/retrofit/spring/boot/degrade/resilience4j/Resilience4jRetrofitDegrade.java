@@ -5,9 +5,6 @@ import java.lang.reflect.Method;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 
 import com.github.lianjiatech.retrofit.spring.boot.degrade.BaseRetrofitDegrade;
@@ -16,7 +13,6 @@ import com.github.lianjiatech.retrofit.spring.boot.util.AnnotationExtendUtils;
 
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
-import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.core.StopWatch;
 import okhttp3.Request;
@@ -27,16 +23,18 @@ import retrofit2.Invocation;
  * @author 陈添明
  * @since 2022/5/1 8:02 下午
  */
-public class Resilience4jRetrofitDegrade extends BaseRetrofitDegrade implements ApplicationContextAware {
+public class Resilience4jRetrofitDegrade extends BaseRetrofitDegrade {
 
     protected final CircuitBreakerRegistry circuitBreakerRegistry;
     protected final GlobalResilience4jDegradeProperty globalResilience4jDegradeProperty;
-    protected ApplicationContext applicationContext;
+    protected final CircuitBreakerConfigRegistry circuitBreakerConfigRegistry;
 
     public Resilience4jRetrofitDegrade(CircuitBreakerRegistry circuitBreakerRegistry,
-            GlobalResilience4jDegradeProperty globalResilience4jDegradeProperty) {
+            GlobalResilience4jDegradeProperty globalResilience4jDegradeProperty,
+            CircuitBreakerConfigRegistry circuitBreakerConfigRegistry) {
         this.circuitBreakerRegistry = circuitBreakerRegistry;
         this.globalResilience4jDegradeProperty = globalResilience4jDegradeProperty;
+        this.circuitBreakerConfigRegistry = circuitBreakerConfigRegistry;
     }
 
     @Override
@@ -65,11 +63,11 @@ public class Resilience4jRetrofitDegrade extends BaseRetrofitDegrade implements 
             if (!needDegrade(resilience4jDegrade)) {
                 continue;
             }
-            String circuitBreakerConfigBeanName =
-                    resilience4jDegrade == null ? globalResilience4jDegradeProperty.getCircuitBreakerConfigBeanName()
-                            : resilience4jDegrade.circuitBreakerConfigBeanName();
+            String circuitBreakerConfigName =
+                    resilience4jDegrade == null ? globalResilience4jDegradeProperty.getCircuitBreakerConfigName()
+                            : resilience4jDegrade.circuitBreakerConfigName();
             circuitBreakerRegistry.circuitBreaker(parseResourceName(method),
-                    applicationContext.getBean(circuitBreakerConfigBeanName, CircuitBreakerConfig.class));
+                    circuitBreakerConfigRegistry.get(circuitBreakerConfigName));
         }
     }
 
@@ -106,10 +104,5 @@ public class Resilience4jRetrofitDegrade extends BaseRetrofitDegrade implements 
             circuitBreaker.onError(stopWatch.stop().toNanos(), TimeUnit.NANOSECONDS, throwable);
             throw throwable;
         }
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
     }
 }

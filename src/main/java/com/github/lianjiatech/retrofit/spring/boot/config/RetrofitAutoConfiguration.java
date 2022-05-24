@@ -23,7 +23,11 @@ import com.github.lianjiatech.retrofit.spring.boot.core.PathMatchInterceptorBdfP
 import com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory;
 import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitFactoryBean;
 import com.github.lianjiatech.retrofit.spring.boot.core.ServiceInstanceChooser;
+import com.github.lianjiatech.retrofit.spring.boot.core.SourceOkHttpClientRegistrar;
+import com.github.lianjiatech.retrofit.spring.boot.core.SourceOkHttpClientRegistry;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitDegrade;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.resilience4j.CircuitBreakerConfigRegistrar;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.resilience4j.CircuitBreakerConfigRegistry;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.resilience4j.Resilience4jRetrofitDegrade;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.sentinel.SentinelRetrofitDegrade;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.ErrorDecoderInterceptor;
@@ -33,9 +37,7 @@ import com.github.lianjiatech.retrofit.spring.boot.interceptor.ServiceChooseInte
 import com.github.lianjiatech.retrofit.spring.boot.log.LoggingInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.retry.RetryInterceptor;
 
-import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
-import okhttp3.OkHttpClient;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
 /**
@@ -51,43 +53,43 @@ public class RetrofitAutoConfiguration {
         this.retrofitProperties = retrofitProperties;
     }
 
-    @Bean
-    @ConditionalOnMissingBean
-    public RetrofitConfigBean retrofitConfigBean(@Autowired(required = false) RetrofitDegrade retrofitDegrade,
-            @Autowired(required = false) List<GlobalInterceptor> globalInterceptors,
-            @Autowired(required = false) List<NetworkInterceptor> networkInterceptors,
-            ServiceChooseInterceptor serviceChooseInterceptor, RetryInterceptor retryInterceptor,
-            LoggingInterceptor loggingInterceptor, ErrorDecoderInterceptor errorDecoderInterceptor) {
+    @Configuration
+    public static class RetrofitAdvanceConfiguration {
 
-        RetrofitConfigBean retrofitConfigBean = new RetrofitConfigBean(retrofitProperties);
-        retrofitConfigBean.setGlobalInterceptors(globalInterceptors);
-        retrofitConfigBean.setNetworkInterceptors(networkInterceptors);
-        retrofitConfigBean.setRetrofitDegrade(retrofitDegrade);
-        retrofitConfigBean.setServiceChooseInterceptor(serviceChooseInterceptor);
-        retrofitConfigBean.setRetryInterceptor(retryInterceptor);
-        retrofitConfigBean.setLoggingInterceptor(loggingInterceptor);
-        retrofitConfigBean.setErrorDecoderInterceptor(errorDecoderInterceptor);
-        retrofitConfigBean.setGlobalCallAdapterFactoryClasses(retrofitProperties.getGlobalCallAdapterFactories());
-        retrofitConfigBean.setGlobalConverterFactoryClasses(retrofitProperties.getGlobalConverterFactories());
-        return retrofitConfigBean;
+        @Bean
+        @ConditionalOnMissingBean
+        public static PathMatchInterceptorBdfProcessor prototypeInterceptorBdfProcessor() {
+            return new PathMatchInterceptorBdfProcessor();
+        }
     }
 
     @Bean
+    @ConditionalOnMissingBean
+    public SourceOkHttpClientRegistry sourceOkHttpClientRegistry(
+            @Autowired(required = false) List<SourceOkHttpClientRegistrar> sourceOkHttpClientRegistrars) {
+        return new SourceOkHttpClientRegistry(sourceOkHttpClientRegistrars);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
     public BodyCallAdapterFactory bodyCallAdapterFactory() {
         return new BodyCallAdapterFactory();
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public ResponseCallAdapterFactory responseCallAdapterFactory() {
         return new ResponseCallAdapterFactory();
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public BasicTypeConverterFactory basicTypeConverterFactory() {
         return new BasicTypeConverterFactory();
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public ErrorDecoder.DefaultErrorDecoder defaultErrorDecoder() {
         return new ErrorDecoder.DefaultErrorDecoder();
     }
@@ -123,13 +125,6 @@ public class RetrofitAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean(name = Constants.DEFAULT_BASE_OK_HTTP_CLIENT)
-    public OkHttpClient defaultBaseOkHttpClient() {
-        return new OkHttpClient.Builder()
-                .build();
-    }
-
-    @Bean
     @ConditionalOnMissingBean
     public JacksonConverterFactory jacksonConverterFactory() {
         ObjectMapper objectMapper = new ObjectMapper()
@@ -138,19 +133,33 @@ public class RetrofitAutoConfiguration {
         return JacksonConverterFactory.create(objectMapper);
     }
 
+    @Bean
+    @ConditionalOnMissingBean
+    public RetrofitConfigBean retrofitConfigBean(@Autowired(required = false) RetrofitDegrade retrofitDegrade,
+            @Autowired(required = false) List<GlobalInterceptor> globalInterceptors,
+            @Autowired(required = false) List<NetworkInterceptor> networkInterceptors,
+            ServiceChooseInterceptor serviceChooseInterceptor, RetryInterceptor retryInterceptor,
+            LoggingInterceptor loggingInterceptor, ErrorDecoderInterceptor errorDecoderInterceptor,
+            SourceOkHttpClientRegistry sourceOkHttpClientRegistry) {
+
+        RetrofitConfigBean retrofitConfigBean = new RetrofitConfigBean(retrofitProperties);
+        retrofitConfigBean.setGlobalInterceptors(globalInterceptors);
+        retrofitConfigBean.setNetworkInterceptors(networkInterceptors);
+        retrofitConfigBean.setRetrofitDegrade(retrofitDegrade);
+        retrofitConfigBean.setServiceChooseInterceptor(serviceChooseInterceptor);
+        retrofitConfigBean.setRetryInterceptor(retryInterceptor);
+        retrofitConfigBean.setLoggingInterceptor(loggingInterceptor);
+        retrofitConfigBean.setErrorDecoderInterceptor(errorDecoderInterceptor);
+        retrofitConfigBean.setGlobalCallAdapterFactoryClasses(retrofitProperties.getGlobalCallAdapterFactories());
+        retrofitConfigBean.setGlobalConverterFactoryClasses(retrofitProperties.getGlobalConverterFactories());
+        retrofitConfigBean.setSourceOkHttpClientRegistry(sourceOkHttpClientRegistry);
+        return retrofitConfigBean;
+    }
+
     @Configuration
     @Import({AutoConfiguredRetrofitScannerRegistrar.class})
     @ConditionalOnMissingBean(RetrofitFactoryBean.class)
     public static class RetrofitScannerRegistrarNotFoundConfiguration {}
-
-    @Configuration
-    public static class RetrofitProcessorAutoConfiguration {
-
-        @Bean
-        public static PathMatchInterceptorBdfProcessor prototypeInterceptorBdfProcessor() {
-            return new PathMatchInterceptorBdfProcessor();
-        }
-    }
 
     @Configuration
     @ConditionalOnClass(name = Constants.CIRCUIT_BREAKER_CLASS_NAME)
@@ -166,15 +175,16 @@ public class RetrofitAutoConfiguration {
 
         @Bean
         @ConditionalOnMissingBean
-        public RetrofitDegrade resilience4jRetrofitDegrade() {
-            return new Resilience4jRetrofitDegrade(CircuitBreakerRegistry.ofDefaults(),
-                    properties.getDegrade().getGlobalResilience4jDegrade());
+        public CircuitBreakerConfigRegistry circuitBreakerConfigRegistry(
+                @Autowired(required = false) List<CircuitBreakerConfigRegistrar> circuitBreakerConfigRegistrars) {
+            return new CircuitBreakerConfigRegistry(circuitBreakerConfigRegistrars);
         }
 
         @Bean
-        @ConditionalOnMissingBean(name = Constants.DEFAULT_CIRCUIT_BREAKER_CONFIG)
-        public CircuitBreakerConfig defaultCircuitBreakerConfig() {
-            return CircuitBreakerConfig.ofDefaults();
+        @ConditionalOnMissingBean
+        public RetrofitDegrade resilience4jRetrofitDegrade(CircuitBreakerConfigRegistry circuitBreakerConfigRegistry) {
+            return new Resilience4jRetrofitDegrade(CircuitBreakerRegistry.ofDefaults(),
+                    properties.getDegrade().getGlobalResilience4jDegrade(), circuitBreakerConfigRegistry);
         }
     }
 
@@ -183,17 +193,17 @@ public class RetrofitAutoConfiguration {
     @EnableConfigurationProperties(RetrofitProperties.class)
     public static class SentinelConfiguration {
 
-        private final RetrofitProperties properties;
+            private final RetrofitProperties properties;
 
-        public SentinelConfiguration(RetrofitProperties properties) {
-            this.properties = properties;
-        }
+            public SentinelConfiguration(RetrofitProperties properties) {
+                this.properties = properties;
+            }
 
-        @Bean
-        @ConditionalOnMissingBean
-        public RetrofitDegrade sentinelRetrofitDegrade() {
-            return new SentinelRetrofitDegrade(properties.getDegrade().getGlobalSentinelDegrade());
+            @Bean
+            @ConditionalOnMissingBean
+            public RetrofitDegrade sentinelRetrofitDegrade() {
+                return new SentinelRetrofitDegrade(properties.getDegrade().getGlobalSentinelDegrade());
+            }
         }
-    }
 
 }

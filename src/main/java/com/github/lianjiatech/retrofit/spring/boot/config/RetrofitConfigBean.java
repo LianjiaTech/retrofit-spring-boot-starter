@@ -3,6 +3,7 @@ package com.github.lianjiatech.retrofit.spring.boot.config;
 import java.util.Collections;
 import java.util.List;
 
+import com.github.lianjiatech.retrofit.spring.boot.core.SourceOkHttpClientRegistry;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitDegrade;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.ErrorDecoderInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.GlobalInterceptor;
@@ -40,6 +41,8 @@ public class RetrofitConfigBean {
     private LoggingInterceptor loggingInterceptor;
 
     private ErrorDecoderInterceptor errorDecoderInterceptor;
+
+    private SourceOkHttpClientRegistry sourceOkHttpClientRegistry;
 
     public RetrofitConfigBean(RetrofitProperties retrofitProperties) {
         this.retrofitProperties = retrofitProperties;

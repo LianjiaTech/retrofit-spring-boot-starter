@@ -19,13 +19,13 @@ import retrofit2.http.Query;
  */
 @Retry(enable = false)
 @RetrofitClient(baseUrl = "${test.baseUrl}", fallbackFactory = DegradeR4jApi.HttpDegradeFallbackFactory.class)
-@Resilience4jDegrade(circuitBreakerConfigBeanName = "testCircuitBreakerConfig")
+@Resilience4jDegrade(circuitBreakerConfigName = "testCircuitBreakerConfig")
 public interface DegradeR4jApi {
 
     @GET("degrade/person1")
     Result<Person> getPerson1(@Query("id") Long id);
 
-    @Resilience4jDegrade(circuitBreakerConfigBeanName = "testCircuitBreakerConfig")
+    @Resilience4jDegrade(circuitBreakerConfigName = "testCircuitBreakerConfig")
     @GET("degrade/person2")
     Result<Person> getPerson2(@Query("id") Long id);
 

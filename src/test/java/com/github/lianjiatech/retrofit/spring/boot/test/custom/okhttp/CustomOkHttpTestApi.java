@@ -11,7 +11,7 @@ import retrofit2.http.Query;
 /**
  * @author 陈添明
  */
-@RetrofitClient(baseUrl = "${test.baseUrl}", baseOkHttpClientBeanName = "testOkHttpClient")
+@RetrofitClient(baseUrl = "${test.baseUrl}", sourceOkHttpClient = "testSourceOkHttpClient")
 public interface CustomOkHttpTestApi {
 
     @GET("person")
