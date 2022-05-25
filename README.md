@@ -11,11 +11,9 @@
 [![QQ-Group](https://img.shields.io/badge/QQ%E7%BE%A4-806714302-orange.svg?style=flat-square) ](https://img.ljcdn.com/hc-picture/6302d742-ebc8-4649-95cf-62ccf57a1add)
 
 
-`Retrofit`是适用于`Android`和`Java`且类型安全的HTTP客户端，其最大的特性的是**支持通过`接口`的方式发起HTTP请求**。而`spring-boot`是使用最广泛的Java开发框架，但是`Retrofit`官方没有支持与`spring-boot`框架快速整合，因此我们开发了`retrofit-spring-boot-starter`。
-
 **`retrofit-spring-boot-starter`实现了`Retrofit`与`spring-boot`框架快速整合，并且支持了诸多功能增强，极大简化开发**。
 
-🚀项目持续优化迭代，欢迎大家提ISSUE和PR！麻烦大家能给一颗star✨，您的star是我们持续更新的动力！
+> 🚀项目持续优化迭代，欢迎大家提ISSUE和PR！麻烦大家能给一颗star✨，您的star是我们持续更新的动力！
 
 github项目地址：[https://github.com/LianjiaTech/retrofit-spring-boot-starter](https://github.com/LianjiaTech/retrofit-spring-boot-starter)
 
@@ -53,8 +51,6 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
    <version>2.3.3</version>
 </dependency>
 ```
-
-> **强烈建议使用最新版本，稳定无bug！**
 
 **本项目依赖Retrofit-2.9.0，okhttp-3.14.9，okio-1.17.5版本，如果冲突，烦请手动引入相关jar包**。完整依赖如下：
 
@@ -143,7 +139,7 @@ public class TestService {
 
 ## 配置项说明
 
-`retrofit-spring-boot-starter`支持了多个可配置的属性，用来应对不同的业务场景，具体可支持的配置项及默认值如下：
+组件支持了多个可配置的属性，用来应对不同的业务场景，具体可支持的配置项及默认值如下：
 
 **注意：应用只需要配置要更改的配置项！**
 
@@ -208,7 +204,7 @@ retrofit:
 ### 自定义OkHttpClient属性
 
 通过实现`SourceOkHttpClientRegistrar`接口，可以实现自定义注册。然后使用`@RetrofitClient`的`sourceOkHttpClient`属性指定`源OkHttpClient`。
-系统会基于该`OkHttpClient`创建当前接口使用的`OkHttpClient`。可以配置超时时间、代理、连接池、分发等等属性。
+组件会基于该`OkHttpClient`创建当前接口使用的`OkHttpClient`。可以配置超时时间、代理、连接池、分发等等属性。
 
 ```java
 
@@ -240,7 +236,7 @@ public class CustomSourceOkHttpClientRegistrar implements SourceOkHttpClientRegi
 
 ### 注解式拦截器
 
-很多时候，我们希望某个接口下的某些http请求执行统一的拦截处理逻辑。为了支持这个功能，`retrofit-spring-boot-starter`提供了**注解式拦截器**，做到了**基于url路径的匹配拦截**。使用的步骤主要分为2步：
+很多时候，我们希望某个接口下的某些http请求执行统一的拦截处理逻辑。为了支持这个功能，组件提供了**注解式拦截器**，做到了**基于url路径的匹配拦截**。使用的步骤主要分为2步：
 
 1. 继承`BasePathMatchInterceptor`编写拦截处理器；
 2. 接口上使用`@Intercept`进行标注。如需配置多个拦截器，在接口上标注多个`@Intercept`注解即可！
@@ -403,7 +399,7 @@ public interface HttpApi {
 
 ### 日志打印
 
-`retrofit-spring-boot-starter`支持支持全局日志打印和声明式日志打印。
+组件支持支持全局日志打印和声明式日志打印。
 
 #### 全局日志打印
 
@@ -438,7 +434,7 @@ retrofit:
 
 ### 请求重试
 
-`retrofit-spring-boot-starter`支持支持全局重试和声明式重试。
+组件支持支持全局重试和声明式重试。
 
 #### 全局重试
 
@@ -698,7 +694,8 @@ public interface ErrorDecoder {
 
 #### 配置`ServiceInstanceChooser`为`Spring`容器`Bean`
 
-用户可以自行实现`ServiceInstanceChooser`接口，完成服务实例的选取逻辑，并将其配置成`Spring`容器的`Bean`。对于`Spring Cloud`应用，`retrofit-spring-boot-starter`提供了`SpringCloudServiceInstanceChooser`实现，用户只需将其配置成`Spring`的`Bean`即可。
+用户可以自行实现`ServiceInstanceChooser`接口，完成服务实例的选取逻辑，并将其配置成`Spring`容器的`Bean`。对于`Spring Cloud`
+应用，组件提供了`SpringCloudServiceInstanceChooser`实现，用户只需将其配置成`Spring`的`Bean`即可。
 
 ```java
 @Bean
@@ -755,7 +752,7 @@ public class SourceGlobalInterceptor implements GlobalInterceptor {
 
 ### 调用适配器
 
-`Retrofit`可以通过调用适配器`CallAdapterFactory`将`Call<T>`对象适配成接口方法的返回值类型。`retrofit-spring-boot-starter`扩展2种`CallAdapterFactory`
+`Retrofit`可以通过调用适配器`CallAdapterFactory`将`Call<T>`对象适配成接口方法的返回值类型。组件扩展2种`CallAdapterFactory`
 实现：
 
 1. `BodyCallAdapterFactory`
@@ -827,7 +824,8 @@ public class SourceGlobalInterceptor implements GlobalInterceptor {
 
 **我们也可以通过继承`CallAdapter.Factory`扩展实现自己的`CallAdapter`**！
 
-`retrofit-spring-boot-starter`支持通过`retrofit.global-call-adapter-factories`配置全局调用适配器工厂，工厂实例优先从Spring容器获取，如果没有获取到，则反射创建。默认的全局调用适配器工厂是`[BodyCallAdapterFactory, ResponseCallAdapterFactory]`！
+组件支持通过`retrofit.global-call-adapter-factories`
+配置全局调用适配器工厂，工厂实例优先从Spring容器获取，如果没有获取到，则反射创建。默认的全局调用适配器工厂是`[BodyCallAdapterFactory, ResponseCallAdapterFactory]`！
 
 ```yaml
 retrofit:
@@ -855,7 +853,7 @@ retrofit:
 - [JAXB](https://docs.oracle.com/javase/tutorial/jaxb/intro/index.html): com.squareup.retrofit2:converter-jaxb
 - fastJson：com.alibaba.fastjson.support.retrofit.Retrofit2ConverterFactory
 
-`retrofit-spring-boot-starter`支持通过`retrofit.global-converter-factories`配置全局数据转换器工厂，转换器工厂实例优先从Spring容器获取，如果没有获取到，则反射创建。
+组件支持通过`retrofit.global-converter-factories`配置全局数据转换器工厂，转换器工厂实例优先从Spring容器获取，如果没有获取到，则反射创建。
 默认的全局数据转换器工厂是`retrofit2.converter.jackson.JacksonConverterFactory`。如果需要修改jackson配置，自行覆盖`JacksonConverterFactory`的`bean`
 配置即可。
 
