@@ -544,27 +544,21 @@ retrofit:
 
 ```java
 
-@Slf4j
 @Component
-public class CustomSourceOkHttpClientRegistrar implements SourceOkHttpClientRegistrar {
+public class CustomCircuitBreakerConfigRegistrar implements CircuitBreakerConfigRegistrar {
 
    @Override
-   public void register(SourceOkHttpClientRegistry registry) {
+   public void register(CircuitBreakerConfigRegistry registry) {
 
-      // 替换默认的SourceOkHttpClient
-      registry.register(Constants.DEFAULT_SOURCE_OK_HTTP_CLIENT, new OkHttpClient.Builder()
-              .addInterceptor(chain -> {
-                 log.info("============替换默认的SourceOkHttpClient=============");
-                 return chain.proceed(chain.request());
-              })
-              .build());
+      // 替换默认的CircuitBreakerConfig
+      registry.register(Constants.DEFAULT_CIRCUIT_BREAKER_CONFIG, CircuitBreakerConfig.ofDefaults());
 
-      // 添加新的SourceOkHttpClient
-      registry.register("testSourceOkHttpClient", new OkHttpClient.Builder()
-              .addInterceptor(chain -> {
-                 log.info("============使用testSourceOkHttpClient=============");
-                 return chain.proceed(chain.request());
-              })
+      // 注册其它的CircuitBreakerConfig
+      registry.register("testCircuitBreakerConfig", CircuitBreakerConfig.custom()
+              .slidingWindowType(CircuitBreakerConfig.SlidingWindowType.TIME_BASED)
+              .failureRateThreshold(20)
+              .minimumNumberOfCalls(5)
+              .permittedNumberOfCallsInHalfOpenState(5)
               .build());
    }
 }
