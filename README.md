@@ -48,7 +48,7 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-   <version>2.3.3</version>
+   <version>2.3.4</version>
 </dependency>
 ```
 
@@ -59,7 +59,7 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-   <version>2.3.3</version>
+   <version>2.3.4</version>
 </dependency>
  <dependency>
     <groupId>com.squareup.okhttp3</groupId>
@@ -431,6 +431,17 @@ retrofit:
 #### 日志打印自定义扩展
 
 如果需要修改日志打印行为，继承`LoggingInterceptor`，并将其配置成Spring bean即可！
+
+#### 聚合日志打印
+
+如果需要将同一个请求的日志聚合在一起打印，可配置`AggregateLoggingInterceptor`。
+
+```java
+ @Bean
+public LoggingInterceptor loggingInterceptor(RetrofitProperties retrofitProperties){
+        return new AggregateLoggingInterceptor(retrofitProperties.getGlobalLog());
+        }
+```
 
 ### 请求重试
 
