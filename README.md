@@ -437,10 +437,10 @@ retrofit:
 如果需要将同一个请求的日志聚合在一起打印，可配置`AggregateLoggingInterceptor`。
 
 ```java
- @Bean
+@Bean
 public LoggingInterceptor loggingInterceptor(RetrofitProperties retrofitProperties){
-        return new AggregateLoggingInterceptor(retrofitProperties.getGlobalLog());
-        }
+    return new AggregateLoggingInterceptor(retrofitProperties.getGlobalLog());
+}
 ```
 
 ### 请求重试
