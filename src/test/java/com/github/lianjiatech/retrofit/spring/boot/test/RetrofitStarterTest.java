@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.IntStream;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -19,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.lianjiatech.retrofit.spring.boot.test.entity.Person;
@@ -105,6 +107,40 @@ public class RetrofitStarterTest {
                 .setName("xx");
         Result<Person> personBody = httpApi2.getPersonBody(person);
         System.out.println(personBody);
+    }
+
+    @Test
+    public void testAggregateLoggingInterceptor() {
+        IntStream.range(1, 1000)
+                .parallel()
+                .forEach(i -> {
+                    // mock
+                    Person mockPerson = new Person().setId(1L)
+                            .setName("test")
+                            .setAge(10);
+                    Result mockResult = new Result<>()
+                            .setCode(0)
+                            .setMsg("ok")
+                            .setData(mockPerson);
+                    MockResponse response = null;
+                    try {
+                        response = new MockResponse()
+                                .setResponseCode(200)
+                                .addHeader("Content-Type", "application/json; charset=utf-8")
+                                .addHeader("Cache-Control", "no-cache")
+                                .setBody(objectMapper.writeValueAsString(mockResult));
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                    }
+                    server.enqueue(response);
+
+                    Person person = new Person();
+                    person.setId(100L)
+                            .setAge(10)
+                            .setName("xx");
+                    Result<Person> personBody = httpApi2.getPersonBody(person);
+                    System.out.println(personBody);
+                });
     }
 
     @Test

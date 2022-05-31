@@ -8,7 +8,6 @@ import com.github.lianjiatech.retrofit.spring.boot.util.AnnotationExtendUtils;
 
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Interceptor;
-import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Invocation;
@@ -28,17 +27,20 @@ public class LoggingInterceptor implements Interceptor {
 
     @Override
     public Response intercept(Chain chain) throws IOException {
-        Request request = chain.request();
-        Method method = Objects.requireNonNull(request.tag(Invocation.class)).method();
-        Logging logging = AnnotationExtendUtils.findMergedAnnotation(method, method.getDeclaringClass(), Logging.class);
+        Logging logging = findLogging(chain);
         if (!needLog(logging)) {
-            return chain.proceed(request);
+            return chain.proceed(chain.request());
         }
         LogLevel logLevel = logging == null ? globalLogProperty.getLogLevel() : logging.logLevel();
         LogStrategy logStrategy = logging == null ? globalLogProperty.getLogStrategy() : logging.logStrategy();
-        HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor(matchLogger(logLevel));
-        httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.valueOf(logStrategy.name()));
+        HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor(matchLogger(logLevel))
+                .setLevel(HttpLoggingInterceptor.Level.valueOf(logStrategy.name()));
         return httpLoggingInterceptor.intercept(chain);
+    }
+
+    protected Logging findLogging(Chain chain) {
+        Method method = Objects.requireNonNull(chain.request().tag(Invocation.class)).method();
+        return AnnotationExtendUtils.findMergedAnnotation(method, method.getDeclaringClass(), Logging.class);
     }
 
     protected boolean needLog(Logging logging) {
