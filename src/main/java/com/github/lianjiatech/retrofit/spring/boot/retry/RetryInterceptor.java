@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.github.lianjiatech.retrofit.spring.boot.exception.RetryFailedException;
 import com.github.lianjiatech.retrofit.spring.boot.util.AnnotationExtendUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -80,7 +81,7 @@ public class RetryInterceptor implements Interceptor {
                 } else {
                     if (!retryStrategy.shouldRetry()) {
                         // 最后一次还没成功，抛出异常
-                        throw new RuntimeException("Retry Failed: Total " + maxRetries
+                        throw new RetryFailedException("Retry Failed: Total " + maxRetries
                                 + " attempts made at interval " + intervalMs
                                 + "ms");
                     }
