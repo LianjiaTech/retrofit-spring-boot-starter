@@ -988,7 +988,7 @@ public class DownloadTest {
 
 ### 动态URL
 
-使用`@url`注解可实现动态URL。
+使用`@url`注解可实现动态URL。此时，`baseUrl`配置任意合法url即可。例如： `http://github.com/` 。运行时只会根据`@Url`地址发起请求。
 
 **注意：`@url`必须放在方法参数的第一个位置。原有定义`@GET`、`@POST`等注解上，不需要定义端点路径**！
 
