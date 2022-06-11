@@ -145,10 +145,10 @@ public class TestService {
 
 ```yaml
 retrofit:
-   # 全局转换器工厂(已经内置了组件扩展的转换器工厂，这里请勿重复配置)
+   # 全局转换器工厂(组件扩展的转换器工厂已经内置，这里请勿重复配置)
    global-converter-factories:
       - retrofit2.converter.jackson.JacksonConverterFactory
-   # 全局调用适配器工厂(已经内置了组件扩展的调用适配器工厂，这里请勿重复配置)
+   # 全局调用适配器工厂(组件扩展的调用适配器工厂已经内置，这里请勿重复配置)
    global-call-adapter-factories:
 
    # 全局日志打印配置
@@ -846,15 +846,12 @@ public interface HttpApi {
 
 **我们也可以通过继承`CallAdapter.Factory`扩展实现自己的`CallAdapter`**！
 
-组件支持通过`retrofit.global-call-adapter-factories`
-配置全局调用适配器工厂，工厂实例优先从Spring容器获取，如果没有获取到，则反射创建。默认的全局调用适配器工厂是`[BodyCallAdapterFactory, ResponseCallAdapterFactory]`！
-
+组件支持通过`retrofit.global-call-adapter-factories`配置全局调用适配器工厂，工厂实例优先从Spring容器获取，如果没有获取到，则反射创建。
 ```yaml
 retrofit:
-  # 全局调用适配器工厂
+  # 全局转换器工厂(组件扩展的转换器工厂已经内置，这里请勿重复配置)
   global-call-adapter-factories:
-    - com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory
-    - com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory
+    # ...
 ```
 
 针对每个Java接口，还可以通过`@RetrofitClient`注解的`callAdapterFactories()`指定当前接口采用的`CallAdapter.Factory`，指定的工厂实例依然优先从Spring容器获取。
@@ -881,9 +878,8 @@ retrofit:
 
 ```yaml
 retrofit:
-   # 全局转换器工厂
+   # 全局调用适配器工厂(组件扩展的调用适配器工厂已经内置，这里请勿重复配置)
    global-converter-factories:
-      - com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory
       - retrofit2.converter.jackson.JacksonConverterFactory
 ```
 
