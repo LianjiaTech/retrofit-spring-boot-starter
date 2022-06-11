@@ -1,12 +1,9 @@
 retrofit:
   # 全局转换器工厂
   global-converter-factories:
-    - com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory
     - retrofit2.converter.jackson.JacksonConverterFactory
   # 全局调用适配器工厂
   global-call-adapter-factories:
-    - com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory
-    - com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory
 
   # 全局日志打印配置
   global-log:

@@ -12,6 +12,9 @@ import com.github.lianjiatech.retrofit.spring.boot.test.interceptor.Sign;
 import com.github.lianjiatech.retrofit.spring.boot.test.interceptor.TimeStamp2Interceptor;
 import com.github.lianjiatech.retrofit.spring.boot.test.interceptor.TimeStampInterceptor;
 
+import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.Single;
+import reactor.core.publisher.Mono;
 import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.http.Body;
@@ -29,47 +32,59 @@ import retrofit2.http.Query;
 public interface HttpApi {
 
     /**
-     * 其他任意Java类型 <br>
-     * 将响应体内容适配成一个对应的Java类型对象返回，如果http状态码不是2xx，直接抛错！<br>
-     *
-     * @param id id
-     * @return 其他任意Java类型
+     * 基础类型(`String`/`Long`/`Integer`/`Boolean`/`Float`/`Double`)：直接将响应内容转换为上述基础类型。
+     */
+    @POST("getString")
+    String getString(@Body Person person);
+
+    /**
+     * 其它任意POJO类型： 将响应体内容适配成一个对应的POJO类型对象返回，如果http状态码不是2xx，直接抛错！
      */
     @GET("person")
     Result<Person> getPerson(@Query("id") Long id);
 
     /**
-     * CompletableFuture<T> <br>
-     * 将响应体内容适配成CompletableFuture<T>对象返回，异步调用
-     *
-     * @param id id
-     * @return CompletableFuture<T>
+     * `CompletableFuture<T>` ：将响应体内容适配成CompletableFuture<T>对象返回，异步调用
      */
     @GET("person")
     CompletableFuture<Result<Person>> getPersonCompletableFuture(@Query("id") Long id);
 
     /**
-     * Response<T> <br>
-     * 将响应内容适配成Response<T>对象返回
-     *
-     * @param id id
-     * @return Response<T> .
+     * `Void`: 不关注返回类型可以使用`Void`，如果http状态码不是2xx，直接抛错！
+     */
+    @POST("savePerson")
+    Void savePersonVoid(@Body Person person);
+
+    /**
+     * `Response<T>`：将响应内容适配成Response<T>对象返回
      */
     @GET("person")
     Response<Result<Person>> getPersonResponse(@Query("id") Long id);
 
     /**
-     * Call<T> <br>
-     * 不执行适配处理，直接返回Call<T>对象
-     *
-     * @param id id
-     * @return Call<T>实例
+     * `Call<T>`：不执行适配处理，直接返回Call<T>对象
      */
     @GET("person")
     Call<Result<Person>> getPersonCall(@Query("id") Long id);
 
-    @POST("savePerson")
-    Void savePersonVoid(@Body Person person);
+
+    /**
+     * `Mono<T>` : project-reactor响应式返回类型
+     */
+    @GET("person")
+    Mono<Result<Person>> monoPerson(@Query("id") Long id);
+
+    /**
+     * `Single<T>`：rxjava响应式返回类型（支持rxjava2/rxjava3）
+     */
+    @GET("person")
+    Single<Result<Person>> singlePerson(@Query("id") Long id);
+
+    /**
+     * `Completable`：rxjava响应式返回类型，http请求没有响应体（支持rxjava2/rxjava3）
+     */
+    @GET("ping")
+    Completable ping();
 
     @POST("savePerson")
     Result<Void> savePerson(@Body Person person);
@@ -79,9 +94,6 @@ public interface HttpApi {
 
     @POST("savePersonList")
     Result<Void> savePersonList(@Body List<Person> personList);
-
-    @POST("getString")
-    String getString(@Body Person person);
 
     @POST("getBoolean")
     Boolean getBoolean(@Body Person person);

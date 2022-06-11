@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Converter;
@@ -12,7 +14,10 @@ import retrofit2.Retrofit;
 /**
  * @author 陈添明
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class BasicTypeConverterFactory extends Converter.Factory {
+
+    public static final BasicTypeConverterFactory INSTANCE = new BasicTypeConverterFactory();
 
     @Override
     public Converter<?, RequestBody> requestBodyConverter(Type type, Annotation[] parameterAnnotations,
