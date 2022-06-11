@@ -22,6 +22,8 @@ import org.springframework.util.Assert;
 
 import com.github.lianjiatech.retrofit.spring.boot.exception.RetrofitException;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import okhttp3.Request;
 import retrofit2.Call;
 import retrofit2.CallAdapter;
@@ -34,7 +36,10 @@ import retrofit2.Retrofit;
  *
  * @author 陈添明
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ResponseCallAdapterFactory extends CallAdapter.Factory {
+
+    public static final ResponseCallAdapterFactory INSTANCE = new ResponseCallAdapterFactory();
 
     @Override
     public CallAdapter<?, ?> get(Type returnType, Annotation[] annotations, Retrofit retrofit) {

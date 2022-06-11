@@ -15,12 +15,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.lianjiatech.retrofit.spring.boot.core.AutoConfiguredRetrofitScannerRegistrar;
-import com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory;
-import com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory;
 import com.github.lianjiatech.retrofit.spring.boot.core.Constants;
 import com.github.lianjiatech.retrofit.spring.boot.core.ErrorDecoder;
 import com.github.lianjiatech.retrofit.spring.boot.core.PathMatchInterceptorBdfProcessor;
-import com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory;
 import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitFactoryBean;
 import com.github.lianjiatech.retrofit.spring.boot.core.ServiceInstanceChooser;
 import com.github.lianjiatech.retrofit.spring.boot.core.SourceOkHttpClientRegistrar;
@@ -68,24 +65,6 @@ public class RetrofitAutoConfiguration {
     public SourceOkHttpClientRegistry sourceOkHttpClientRegistry(
             @Autowired(required = false) List<SourceOkHttpClientRegistrar> sourceOkHttpClientRegistrars) {
         return new SourceOkHttpClientRegistry(sourceOkHttpClientRegistrars);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public BodyCallAdapterFactory bodyCallAdapterFactory() {
-        return new BodyCallAdapterFactory();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public ResponseCallAdapterFactory responseCallAdapterFactory() {
-        return new ResponseCallAdapterFactory();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public BasicTypeConverterFactory basicTypeConverterFactory() {
-        return new BasicTypeConverterFactory();
     }
 
     @Bean

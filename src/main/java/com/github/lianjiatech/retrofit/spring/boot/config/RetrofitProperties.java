@@ -3,10 +3,7 @@ package com.github.lianjiatech.retrofit.spring.boot.config;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
-import com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory;
-import com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory;
 import com.github.lianjiatech.retrofit.spring.boot.core.Constants;
-import com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeProperty;
 import com.github.lianjiatech.retrofit.spring.boot.log.GlobalLogProperty;
 import com.github.lianjiatech.retrofit.spring.boot.retry.GlobalRetryProperty;
@@ -49,15 +46,13 @@ public class RetrofitProperties {
      * global converter factories, The converter instance is first obtained from the Spring container. If it is not obtained, it is created by reflection.
      */
     @SuppressWarnings("unchecked")
-    private Class<? extends Converter.Factory>[] globalConverterFactories = (Class<
-            ? extends Converter.Factory>[])new Class[] {BasicTypeConverterFactory.class, JacksonConverterFactory.class};
+    private Class<? extends Converter.Factory>[] globalConverterFactories =
+            (Class<? extends Converter.Factory>[])new Class[] {JacksonConverterFactory.class};
 
     /**
      * 全局调用适配器工厂，转换器实例优先从Spring容器获取，如果没有获取到，则反射创建。
      * global call adapter factories, The  callAdapter instance is first obtained from the Spring container. If it is not obtained, it is created by reflection.
      */
     @SuppressWarnings("unchecked")
-    private Class<? extends CallAdapter.Factory>[] globalCallAdapterFactories =
-            (Class<? extends CallAdapter.Factory>[])new Class[] {BodyCallAdapterFactory.class,
-                ResponseCallAdapterFactory.class};
+    private Class<? extends CallAdapter.Factory>[] globalCallAdapterFactories = new Class[0];
 }

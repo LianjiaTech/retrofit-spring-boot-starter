@@ -48,7 +48,7 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-   <version>2.3.4</version>
+   <version>2.3.5</version>
 </dependency>
 ```
 
@@ -59,7 +59,7 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-   <version>2.3.4</version>
+   <version>2.3.5</version>
 </dependency>
  <dependency>
     <groupId>com.squareup.okhttp3</groupId>
@@ -145,14 +145,11 @@ public class TestService {
 
 ```yaml
 retrofit:
-   # 全局转换器工厂
+   # 全局转换器工厂(已经内置了组件扩展的转换器工厂，这里请勿重复配置)
    global-converter-factories:
-      - com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory
       - retrofit2.converter.jackson.JacksonConverterFactory
-   # 全局调用适配器工厂
+   # 全局调用适配器工厂(已经内置了组件扩展的调用适配器工厂，这里请勿重复配置)
    global-call-adapter-factories:
-      - com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory
-      - com.github.lianjiatech.retrofit.spring.boot.core.ResponseCallAdapterFactory
 
    # 全局日志打印配置
    global-log:
@@ -778,52 +775,72 @@ public class SourceGlobalInterceptor implements GlobalInterceptor {
 - `Response<T>`: 将响应内容适配成`Response<T>`对象返回！（不推荐）
 - `Call<T>`: 不执行适配处理，直接返回`Call<T>`对象！（不推荐）
 
+**响应式编程支持**：
+
+- `Mono<T>`: project-reactor响应式返回类型
+- `Single<T>`：rxjava响应式返回类型（支持rxjava2/rxjava3）
+- `Completable`：rxjava响应式返回类型，http请求没有响应体（支持rxjava2/rxjava3）
+
+
 ```java
+@RetrofitClient(baseUrl = "${test.baseUrl}")
+public interface HttpApi {
 
-    /**
-     * 其他任意Java类型
-     * 将响应体内容适配成一个对应的Java类型对象返回，如果http状态码不是2xx，直接抛错！
-     * @param id
-     * @return
-     */
-    @GET("person")
-    Result<Person> getPerson(@Query("id") Long id);
+   /**
+    * 基础类型(`String`/`Long`/`Integer`/`Boolean`/`Float`/`Double`)：直接将响应内容转换为上述基础类型。
+    */
+   @POST("getString")
+   String getString(@Body Person person);
 
-    /**
-     *  CompletableFuture<T>
-     *  将响应体内容适配成CompletableFuture<T>对象返回
-     * @param id
-     * @return
-     */
-    @GET("person")
-    CompletableFuture<Result<Person>> getPersonCompletableFuture(@Query("id") Long id);
+   /**
+    * 其它任意POJO类型： 将响应体内容适配成一个对应的POJO类型对象返回，如果http状态码不是2xx，直接抛错！
+    */
+   @GET("person")
+   Result<Person> getPerson(@Query("id") Long id);
 
-    /**
-     * Void
-     * 不关注返回类型可以使用Void。如果http状态码不是2xx，直接抛错！
-     * @param id
-     * @return
-     */
-    @GET("person")
-    Void getPersonVoid(@Query("id") Long id);
+   /**
+    * `CompletableFuture<T>` ：将响应体内容适配成CompletableFuture<T>对象返回，异步调用
+    */
+   @GET("person")
+   CompletableFuture<Result<Person>> getPersonCompletableFuture(@Query("id") Long id);
 
-    /**
-     *  Response<T>
-     *  将响应内容适配成Response<T>对象返回
-     * @param id
-     * @return
-     */
-    @GET("person")
-    Response<Result<Person>> getPersonResponse(@Query("id") Long id);
+   /**
+    * `Void`: 不关注返回类型可以使用`Void`，如果http状态码不是2xx，直接抛错！
+    */
+   @POST("savePerson")
+   Void savePersonVoid(@Body Person person);
 
-    /**
-     * Call<T>
-     * 不执行适配处理，直接返回Call<T>对象
-     * @param id
-     * @return
-     */
-    @GET("person")
-    Call<Result<Person>> getPersonCall(@Query("id") Long id);
+   /**
+    * `Response<T>`：将响应内容适配成Response<T>对象返回
+    */
+   @GET("person")
+   Response<Result<Person>> getPersonResponse(@Query("id") Long id);
+
+   /**
+    * `Call<T>`：不执行适配处理，直接返回Call<T>对象
+    */
+   @GET("person")
+   Call<Result<Person>> getPersonCall(@Query("id") Long id);
+
+
+   /**
+    * `Mono<T>` : project-reactor响应式返回类型
+    */
+   @GET("person")
+   Mono<Result<Person>> monoPerson(@Query("id") Long id);
+
+   /**
+    * `Single<T>`：rxjava响应式返回类型（支持rxjava2/rxjava3）
+    */
+   @GET("person")
+   Single<Result<Person>> singlePerson(@Query("id") Long id);
+
+   /**
+    * `Completable`：rxjava响应式返回类型，http请求没有响应体（支持rxjava2/rxjava3）
+    */
+   @GET("ping")
+   Completable ping();
+}
 
 ```
 

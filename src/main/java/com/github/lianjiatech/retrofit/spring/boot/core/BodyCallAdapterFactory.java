@@ -20,6 +20,8 @@ import java.util.concurrent.CompletableFuture;
 
 import com.github.lianjiatech.retrofit.spring.boot.exception.RetrofitException;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import okhttp3.Request;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -35,7 +37,10 @@ import retrofit2.Retrofit;
  *
  * @author 陈添明
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class BodyCallAdapterFactory extends CallAdapter.Factory {
+
+    public static final BodyCallAdapterFactory INSTANCE = new BodyCallAdapterFactory();
 
     @Override
     public CallAdapter<?, ?> get(Type returnType, Annotation[] annotations, Retrofit retrofit) {

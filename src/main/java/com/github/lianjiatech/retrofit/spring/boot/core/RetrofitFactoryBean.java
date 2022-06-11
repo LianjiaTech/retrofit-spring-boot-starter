@@ -21,6 +21,11 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitConfigBean;
+import com.github.lianjiatech.retrofit.spring.boot.core.reactive.MonoCallAdapterFactory;
+import com.github.lianjiatech.retrofit.spring.boot.core.reactive.Rxjava2CompletableCallAdapterFactory;
+import com.github.lianjiatech.retrofit.spring.boot.core.reactive.Rxjava2SingleCallAdapterFactory;
+import com.github.lianjiatech.retrofit.spring.boot.core.reactive.Rxjava3CompletableCallAdapterFactory;
+import com.github.lianjiatech.retrofit.spring.boot.core.reactive.Rxjava3SingleCallAdapterFactory;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeProxy;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitDegrade;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.BasePathMatchInterceptor;
@@ -162,10 +167,56 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
 
         combineAndCreate(retrofitClient.callAdapterFactories(), retrofitConfigBean.getGlobalCallAdapterFactoryClasses())
                 .forEach(retrofitBuilder::addCallAdapterFactory);
+        addReactiveCallAdapterFactory(retrofitBuilder);
+        retrofitBuilder.addCallAdapterFactory(ResponseCallAdapterFactory.INSTANCE);
+        retrofitBuilder.addCallAdapterFactory(BodyCallAdapterFactory.INSTANCE);
 
+        retrofitBuilder.addConverterFactory(BasicTypeConverterFactory.INSTANCE);
         combineAndCreate(retrofitClient.converterFactories(), retrofitConfigBean.getGlobalConverterFactoryClasses())
                 .forEach(retrofitBuilder::addConverterFactory);
+
         return retrofitBuilder.build();
+    }
+
+    private void addReactiveCallAdapterFactory(Retrofit.Builder retrofitBuilder) {
+        if (reactor3ClassExist()) {
+            retrofitBuilder.addCallAdapterFactory(MonoCallAdapterFactory.INSTANCE);
+        }
+        if (rxjava2CalssExist()) {
+            retrofitBuilder.addCallAdapterFactory(Rxjava2SingleCallAdapterFactory.INSTANCE);
+            retrofitBuilder.addCallAdapterFactory(Rxjava2CompletableCallAdapterFactory.INSTANCE);
+        }
+        if (rxjava3ClassExist()) {
+            retrofitBuilder.addCallAdapterFactory(Rxjava3SingleCallAdapterFactory.INSTANCE);
+            retrofitBuilder.addCallAdapterFactory(Rxjava3CompletableCallAdapterFactory.INSTANCE);
+        }
+    }
+
+    private boolean rxjava3ClassExist() {
+        try {
+            Class.forName("io.reactivex.rxjava3.core.Single");
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
+
+    private boolean rxjava2CalssExist() {
+        try {
+            Class.forName("io.reactivex.Single");
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
+
+    private boolean reactor3ClassExist() {
+        try {
+            Class.forName("reactor.core.publisher.Mono");
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
     }
 
     private <E> List<E> combineAndCreate(Class<? extends E>[] clz, Class<? extends E>[] globalClz) {
