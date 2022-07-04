@@ -1,5 +1,6 @@
 package com.github.lianjiatech.retrofit.spring.boot.config;
 
+import com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
@@ -47,7 +48,8 @@ public class RetrofitProperties {
      */
     @SuppressWarnings("unchecked")
     private Class<? extends Converter.Factory>[] globalConverterFactories =
-            (Class<? extends Converter.Factory>[])new Class[] {JacksonConverterFactory.class};
+            (Class<? extends Converter.Factory>[])new Class[] {BasicTypeConverterFactory.class,
+                JacksonConverterFactory.class};
 
     /**
      * 全局调用适配器工厂，转换器实例优先从Spring容器获取，如果没有获取到，则反射创建。

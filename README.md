@@ -49,7 +49,7 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-   <version>2.3.5</version>
+   <version>2.3.6</version>
 </dependency>
 ```
 
@@ -60,7 +60,7 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-   <version>2.3.5</version>
+   <version>2.3.6</version>
 </dependency>
  <dependency>
     <groupId>com.squareup.okhttp3</groupId>
@@ -148,8 +148,9 @@ public class TestService {
 
 ```yaml
 retrofit:
-   # 全局转换器工厂(组件扩展的转换器工厂已经内置，这里请勿重复配置)
+   # 全局转换器工厂
    global-converter-factories:
+      - com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory
       - retrofit2.converter.jackson.JacksonConverterFactory
    # 全局调用适配器工厂(组件扩展的调用适配器工厂已经内置，这里请勿重复配置)
    global-call-adapter-factories:
@@ -775,8 +776,9 @@ retrofit:
 
 ```yaml
 retrofit:
-   # 全局转换器工厂(组件扩展的转换器工厂已经内置，这里请勿重复配置)
+   # 全局转换器工厂
    global-converter-factories:
+      - com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory
       - retrofit2.converter.jackson.JacksonConverterFactory
 ```
 

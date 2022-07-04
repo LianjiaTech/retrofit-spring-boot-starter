@@ -171,7 +171,6 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         retrofitBuilder.addCallAdapterFactory(ResponseCallAdapterFactory.INSTANCE);
         retrofitBuilder.addCallAdapterFactory(BodyCallAdapterFactory.INSTANCE);
 
-        retrofitBuilder.addConverterFactory(BasicTypeConverterFactory.INSTANCE);
         combineAndCreate(retrofitClient.converterFactories(), retrofitConfigBean.getGlobalConverterFactoryClasses())
                 .forEach(retrofitBuilder::addConverterFactory);
 
@@ -182,7 +181,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         if (reactor3ClassExist()) {
             retrofitBuilder.addCallAdapterFactory(MonoCallAdapterFactory.INSTANCE);
         }
-        if (rxjava2CalssExist()) {
+        if (rxjava2ClassExist()) {
             retrofitBuilder.addCallAdapterFactory(Rxjava2SingleCallAdapterFactory.INSTANCE);
             retrofitBuilder.addCallAdapterFactory(Rxjava2CompletableCallAdapterFactory.INSTANCE);
         }
@@ -201,7 +200,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         }
     }
 
-    private boolean rxjava2CalssExist() {
+    private boolean rxjava2ClassExist() {
         try {
             Class.forName("io.reactivex.Single");
             return true;

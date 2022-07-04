@@ -57,12 +57,6 @@ public class RetrofitStarterTest {
     @Autowired
     private HttpApi3 httpApi3;
 
-    @Autowired
-    private InterceptApi interceptApi;
-
-    @Autowired
-    private DownloadApi downloadApi;
-
     private static final ObjectMapper objectMapper =
             new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                     .setSerializationInclusion(JsonInclude.Include.NON_NULL);
