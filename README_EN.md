@@ -178,23 +178,32 @@ retrofit:
    @Slf4j
    @Component
    public class CustomSourceOkHttpClientRegistrar implements SourceOkHttpClientRegistrar {
-      @Override
-      public void register(SourceOkHttpClientRegistry registry) {
-      
-            registry.register(Constants.DEFAULT_SOURCE_OK_HTTP_CLIENT, new OkHttpClient.Builder()
-                    .addInterceptor(chain -> {
-                       log.info("============Replace the default SourceOkHttpClient=============");
+   
+       @Override
+       public void register(SourceOkHttpClientRegistry registry) {
+   
+           // replace default SourceOkHttpClient. Can be used to modify global `Okhttp Client` settings
+           registry.register(Constants.DEFAULT_SOURCE_OK_HTTP_CLIENT, new OkHttpClient.Builder()
+                   .connectTimeout(Duration.ofSeconds(5))
+                   .writeTimeout(Duration.ofSeconds(5))
+                   .readTimeout(Duration.ofSeconds(5))
+                   .addInterceptor(chain -> {
+                       log.info("============replace default SourceOkHttpClient=============");
                        return chain.proceed(chain.request());
-                    })
-                    .build());
-      
-            registry.register("testSourceOkHttpClient", new OkHttpClient.Builder()
-                    .addInterceptor(chain -> {
-                       log.info("============testSourceOkHttpClient=============");
+                   })
+                   .build());
+   
+           // add testSourceOkHttpClient
+           registry.register("testSourceOkHttpClient", new OkHttpClient.Builder()
+                   .connectTimeout(Duration.ofSeconds(3))
+                   .writeTimeout(Duration.ofSeconds(3))
+                   .readTimeout(Duration.ofSeconds(3))
+                   .addInterceptor(chain -> {
+                       log.info("============use testSourceOkHttpClient=============");
                        return chain.proceed(chain.request());
-                    })
-                    .build());
-      }
+                   })
+                   .build());
+       }
    }
    ```
 
