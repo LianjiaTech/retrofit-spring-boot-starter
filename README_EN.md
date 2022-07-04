@@ -37,7 +37,7 @@
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-   <version>2.3.5</version>
+   <version>2.3.6</version>
 </dependency>
 ```
 
@@ -47,7 +47,7 @@
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-   <version>2.3.5</version>
+   <version>2.3.6</version>
 </dependency>
  <dependency>
     <groupId>com.squareup.okhttp3</groupId>
@@ -137,6 +137,7 @@ The component supports multiple configurable properties to deal with different b
 ```yaml
 retrofit:
    global-converter-factories:
+      - com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory
       - retrofit2.converter.jackson.JacksonConverterFactory
    global-call-adapter-factories:
    global-log:
@@ -721,8 +722,8 @@ If you need to modify the `Jackson` configuration, you can override the `bean` c
 
 ```yaml
 retrofit:
-   # The `Converter.Factory` of the component extension has been built in, please do not repeat the configuration here
    global-converter-factories:
+      - com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory
       - retrofit2.converter.jackson.JacksonConverterFactory
 ```
 

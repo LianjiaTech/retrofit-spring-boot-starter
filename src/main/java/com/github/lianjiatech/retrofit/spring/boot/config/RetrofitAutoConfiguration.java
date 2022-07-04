@@ -2,6 +2,7 @@ package com.github.lianjiatech.retrofit.spring.boot.config;
 
 import java.util.List;
 
+import com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -58,6 +59,11 @@ public class RetrofitAutoConfiguration {
         public static PathMatchInterceptorBdfProcessor prototypeInterceptorBdfProcessor() {
             return new PathMatchInterceptorBdfProcessor();
         }
+    }
+
+    @Bean
+    public BasicTypeConverterFactory basicTypeConverterFactory() {
+        return BasicTypeConverterFactory.INSTANCE;
     }
 
     @Bean
