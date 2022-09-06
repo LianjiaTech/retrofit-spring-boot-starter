@@ -58,7 +58,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
     }
 
     @Override
-    public T getObject() throws Exception {
+    public T getObject() {
         T source = createRetrofit().create(retrofitInterface);
         if (!isEnableDegrade(retrofitInterface)) {
             return source;

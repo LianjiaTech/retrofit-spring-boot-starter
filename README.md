@@ -49,45 +49,11 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-   <version>2.3.6</version>
+   <version>2.3.7</version>
 </dependency>
 ```
 
-**本项目依赖Retrofit-2.9.0，okhttp-3.14.9，okio-1.17.5版本，如果启动失败，可尝试手动引入完整依赖**：
-
-
-```xml
-<dependency>
-    <groupId>com.github.lianjiatech</groupId>
-   <artifactId>retrofit-spring-boot-starter</artifactId>
-   <version>2.3.6</version>
-</dependency>
- <dependency>
-    <groupId>com.squareup.okhttp3</groupId>
-    <artifactId>logging-interceptor</artifactId>
-    <version>3.14.9</version>
-</dependency>
-<dependency>
-    <groupId>com.squareup.okhttp3</groupId>
-    <artifactId>okhttp</artifactId>
-    <version>3.14.9</version>
-</dependency>
-<dependency>
-    <groupId>com.squareup.okio</groupId>
-    <artifactId>okio</artifactId>
-    <version>1.17.5</version>
-</dependency>
-<dependency>
-    <groupId>com.squareup.retrofit2</groupId>
-    <artifactId>retrofit</artifactId>
-    <version>2.9.0</version>
-</dependency>
-<dependency>
-    <groupId>com.squareup.retrofit2</groupId>
-    <artifactId>converter-jackson</artifactId>
-    <version>2.9.0</version>
-</dependency>
-```
+**如果启动失败，大概率是依赖冲突，烦请引入或者排除相关依赖**。
 
 ### 定义HTTP接口
 
@@ -144,7 +110,7 @@ public class TestService {
 
 组件支持了多个可配置的属性，用来应对不同的业务场景，具体可支持的配置属性及默认值如下：
 
-**注意：应用只需要配置要更改的配置项！**
+**注意：应用只需要配置要更改的配置项**!
 
 ```yaml
 retrofit:
