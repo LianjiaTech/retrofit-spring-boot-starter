@@ -901,5 +901,5 @@ public class DownloadTest {
 
 群号：806714302
 
-![QQ群图片](https://github.com/LianjiaTech/retrofit-spring-boot-starter/blob/master/qun.png)
+![QQ群图片](https://github.com/LianjiaTech/retrofit-spring-boot-starter/blob/master/group.png)
 
