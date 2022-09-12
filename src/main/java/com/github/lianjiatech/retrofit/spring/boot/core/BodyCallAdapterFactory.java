@@ -38,7 +38,7 @@ import retrofit2.Retrofit;
  * @author 陈添明
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class BodyCallAdapterFactory extends CallAdapter.Factory {
+public final class BodyCallAdapterFactory extends CallAdapter.Factory implements InternalCallAdapterFactory {
 
     public static final BodyCallAdapterFactory INSTANCE = new BodyCallAdapterFactory();
 

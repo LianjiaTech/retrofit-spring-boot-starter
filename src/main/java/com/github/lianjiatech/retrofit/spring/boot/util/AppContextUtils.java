@@ -24,7 +24,7 @@ public final class AppContextUtils {
         } catch (Exception e1) {
             try {
                 log.warn("Failed to get bean from applicationContext！", e1);
-                return clz.newInstance();
+                return clz.getDeclaredConstructor().newInstance();
             } catch (Exception e2) {
                 log.warn("Failed to create instance by reflection.", e2);
                 try {

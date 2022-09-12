@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
+import com.github.lianjiatech.retrofit.spring.boot.core.InternalCallAdapterFactory;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.annotations.NonNull;
@@ -21,7 +22,7 @@ import retrofit2.Retrofit;
  * @since 2022/6/10 8:08 上午
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class Rxjava2SingleCallAdapterFactory extends CallAdapter.Factory {
+public class Rxjava2SingleCallAdapterFactory extends CallAdapter.Factory implements InternalCallAdapterFactory {
 
     public static final Rxjava2SingleCallAdapterFactory INSTANCE = new Rxjava2SingleCallAdapterFactory();
 

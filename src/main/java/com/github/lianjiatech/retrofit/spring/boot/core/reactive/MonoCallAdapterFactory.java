@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
+import com.github.lianjiatech.retrofit.spring.boot.core.InternalCallAdapterFactory;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import reactor.core.publisher.Mono;
@@ -20,7 +21,7 @@ import retrofit2.Retrofit;
  * @since 2022/6/9 8:53 下午
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class MonoCallAdapterFactory extends CallAdapter.Factory {
+public class MonoCallAdapterFactory extends CallAdapter.Factory implements InternalCallAdapterFactory {
 
     public static final MonoCallAdapterFactory INSTANCE = new MonoCallAdapterFactory();
 

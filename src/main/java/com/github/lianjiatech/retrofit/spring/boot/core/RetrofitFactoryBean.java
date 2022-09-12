@@ -38,6 +38,8 @@ import com.github.lianjiatech.retrofit.spring.boot.util.RetrofitUtils;
 
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
+import retrofit2.CallAdapter;
+import retrofit2.Converter;
 import retrofit2.Retrofit;
 
 /**
@@ -165,14 +167,26 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
                 .validateEagerly(retrofitClient.validateEagerly())
                 .client(client);
 
-        combineAndCreate(retrofitClient.callAdapterFactories(), retrofitConfigBean.getGlobalCallAdapterFactoryClasses())
-                .forEach(retrofitBuilder::addCallAdapterFactory);
+        // 添加配置或者指定的CallAdapterFactory
+        List<Class<? extends CallAdapter.Factory>> callAdapterFactories = new ArrayList<>(2);
+        callAdapterFactories.addAll(Arrays.asList(retrofitClient.callAdapterFactories()));
+        callAdapterFactories.addAll(Arrays.asList(retrofitConfigBean.getGlobalCallAdapterFactoryClasses()));
+        callAdapterFactories.stream()
+                // 过滤掉内置的CallAdapterFactory，因为后续会指定add
+                .filter(adapterFactoryClass -> !InternalCallAdapterFactory.class.isAssignableFrom(adapterFactoryClass))
+                .forEach(adapterFactoryClass -> retrofitBuilder
+                        .addCallAdapterFactory(AppContextUtils.getBeanOrNew(applicationContext, adapterFactoryClass)));
+
         addReactiveCallAdapterFactory(retrofitBuilder);
         retrofitBuilder.addCallAdapterFactory(ResponseCallAdapterFactory.INSTANCE);
         retrofitBuilder.addCallAdapterFactory(BodyCallAdapterFactory.INSTANCE);
 
-        combineAndCreate(retrofitClient.converterFactories(), retrofitConfigBean.getGlobalConverterFactoryClasses())
-                .forEach(retrofitBuilder::addConverterFactory);
+        // 添加配置或者指定的ConverterFactory
+        List<Class<? extends Converter.Factory>> converterFactories = new ArrayList<>(4);
+        converterFactories.addAll(Arrays.asList(retrofitClient.converterFactories()));
+        converterFactories.addAll(Arrays.asList(retrofitConfigBean.getGlobalConverterFactoryClasses()));
+        converterFactories.forEach(converterFactoryClass -> retrofitBuilder
+                        .addConverterFactory(AppContextUtils.getBeanOrNew(applicationContext, converterFactoryClass)));
 
         return retrofitBuilder.build();
     }
@@ -216,21 +230,6 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         } catch (ClassNotFoundException e) {
             return false;
         }
-    }
-
-    private <E> List<E> combineAndCreate(Class<? extends E>[] clz, Class<? extends E>[] globalClz) {
-        if (clz.length == 0 && globalClz.length == 0) {
-            return Collections.emptyList();
-        }
-        List<Class<? extends E>> combineClz = new ArrayList<>(clz.length + globalClz.length);
-        combineClz.addAll(Arrays.asList(clz));
-        combineClz.addAll(Arrays.asList(globalClz));
-
-        List<E> result = new ArrayList<>(combineClz.size());
-        for (Class<? extends E> aClass : combineClz) {
-            result.add(AppContextUtils.getBeanOrNew(applicationContext, aClass));
-        }
-        return result;
     }
 
     @Override

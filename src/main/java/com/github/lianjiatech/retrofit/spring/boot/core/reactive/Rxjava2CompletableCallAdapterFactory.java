@@ -3,6 +3,7 @@ package com.github.lianjiatech.retrofit.spring.boot.core.reactive;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 
+import com.github.lianjiatech.retrofit.spring.boot.core.InternalCallAdapterFactory;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.annotations.NonNull;
@@ -20,7 +21,7 @@ import retrofit2.Retrofit;
  * @since 2022/6/10 8:08 上午
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class Rxjava2CompletableCallAdapterFactory extends CallAdapter.Factory {
+public class Rxjava2CompletableCallAdapterFactory extends CallAdapter.Factory implements InternalCallAdapterFactory {
 
     public static final Rxjava2CompletableCallAdapterFactory INSTANCE = new Rxjava2CompletableCallAdapterFactory();
 
