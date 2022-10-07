@@ -9,8 +9,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -32,10 +35,9 @@ import okhttp3.mockwebserver.MockWebServer;
 @SpringBootTest(classes = RetrofitTestApplication.class)
 @RunWith(SpringRunner.class)
 @Slf4j
-public class DegradeSentinelTest {
+public class DegradeSentinelTest implements ApplicationContextAware {
 
-    @Autowired
-    private DegradeSentinelApi degradeSentinelApi;
+    private ApplicationContext applicationContext;
 
     private static final ObjectMapper objectMapper =
             new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
@@ -75,7 +77,7 @@ public class DegradeSentinelTest {
                         .setBody(objectMapper.writeValueAsString(mockResult))
                         .setBodyDelay(5, TimeUnit.SECONDS);
                 server.enqueue(response);
-                return degradeSentinelApi.getPerson1(2L).getCode();
+                return applicationContext.getBean(DegradeSentinelApi.class).getPerson1(2L).getCode();
             } catch (Exception e) {
                 return 100;
             }
@@ -85,4 +87,8 @@ public class DegradeSentinelTest {
 
     }
 
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+    }
 }

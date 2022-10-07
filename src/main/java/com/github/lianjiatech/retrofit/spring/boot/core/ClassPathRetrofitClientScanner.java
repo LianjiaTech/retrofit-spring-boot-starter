@@ -72,6 +72,7 @@ public class ClassPathRetrofitClientScanner extends ClassPathBeanDefinitionScann
                     .addGenericArgumentValue(Objects.requireNonNull(definition.getBeanClassName()));
             // beanClass全部设置为RetrofitFactoryBean
             definition.setBeanClass(RetrofitFactoryBean.class);
+            definition.setPrimary(true);
         }
     }
 }
