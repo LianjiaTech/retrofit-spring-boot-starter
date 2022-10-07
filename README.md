@@ -186,7 +186,7 @@ retrofit:
 
 ### 自定义OkHttpClient
 
-If you need to modify other configuration of `OkHttpClient`, you can do it by customizing `OkHttpClient`, the steps are as follows:
+如果需要修改`OkHttpClient`其它配置，可以通过自定义`OkHttpClient`来实现，步骤如下：
 
 1. 实现`SourceOkHttpClientRegistrar`接口，调用`SourceOkHttpClientRegistry#register()`方法注册`OkHttpClient`。
    

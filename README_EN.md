@@ -147,6 +147,8 @@ If you only need to modify the timeout time of `OkHttpClient`, you can modify it
 
 ### Customize OkHttpClient
 
+If you need to modify other configuration of `OkHttpClient`, you can do it by customizing `OkHttpClient`, the steps are as follows:
+
 1. Implement the `SourceOkHttpClientRegistrar` interface and call the `SourceOkHttpClientRegistry#register()` method to register the `OkHttpClient`.
 
    ```java
