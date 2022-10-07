@@ -92,6 +92,42 @@ public @interface RetrofitClient {
     /**
      * 原始OkHttpClient，根据该名称到#{@link SourceOkHttpClientRegistry}查找对应的OkHttpClient来构建当前接口的OkhttpClient。
      */
-    String sourceOkHttpClient() default Constants.DEFAULT_SOURCE_OK_HTTP_CLIENT;
+    String sourceOkHttpClient() default Constants.NO_SOURCE_OK_HTTP_CLIENT;
+
+
+    /*===============以下属性只有在sourceOkHttpClient为NO_SOURCE_OK_HTTP_CLIENT时才有效=================*/
+
+    /**
+     * Sets the default connect timeout for new connections. A value of 0 means no timeout,
+     * otherwise values must be between 1 and Integer.MAX_VALUE when converted to milliseconds.
+     * If it is configured as -1, the global default configuration is used.
+     *
+     */
+    int connectTimeoutMs() default Constants.INVALID_TIMEOUT_VALUE;
+
+    /**
+     * Sets the default read timeout for new connections. A value of 0 means no timeout,
+     * otherwise values must be between 1 and Integer.MAX_VALUE when converted to milliseconds.
+     * If it is configured as -1, the global default configuration is used.
+     *
+     */
+    int readTimeoutMs() default Constants.INVALID_TIMEOUT_VALUE;
+
+    /**
+     * Sets the default write timeout for new connections. A value of 0 means no timeout,
+     * otherwise values must be between 1 and Integer.MAX_VALUE when converted to milliseconds.
+     * If it is configured as -1, the global default configuration is used.
+     *
+     */
+    int writeTimeoutMs() default Constants.INVALID_TIMEOUT_VALUE;
+
+
+    /**
+     * Sets the default timeout for complete calls. A value of 0 means no timeout,
+     * otherwise values must be between 1 and Integer.MAX_VALUE when converted to milliseconds.
+     * If it is configured as -1, the global default configuration is used.
+     *
+     */
+    int callTimeoutMs() default Constants.INVALID_TIMEOUT_VALUE;
 
 }

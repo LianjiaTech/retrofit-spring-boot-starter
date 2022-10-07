@@ -23,8 +23,7 @@ public class SourceOkHttpClientRegistry {
 
     public SourceOkHttpClientRegistry(List<SourceOkHttpClientRegistrar> registrars) {
         this.registrars = registrars;
-        this.okHttpClientMap = new HashMap<>(8);
-        this.okHttpClientMap.put(Constants.DEFAULT_SOURCE_OK_HTTP_CLIENT, new OkHttpClient());
+        this.okHttpClientMap = new HashMap<>(4);
     }
 
     @PostConstruct

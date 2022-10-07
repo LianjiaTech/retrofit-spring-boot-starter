@@ -8,7 +8,7 @@ public interface Constants {
 
     String STR_EMPTY = "";
 
-    String DEFAULT_SOURCE_OK_HTTP_CLIENT = "defaultSourceOkHttpClient";
+    String NO_SOURCE_OK_HTTP_CLIENT = "";
 
     String SPH_U_CLASS_NAME = "com.alibaba.csp.sentinel.SphU";
 
@@ -19,4 +19,6 @@ public interface Constants {
     String RETROFIT = "retrofit";
 
     String DEFAULT_CIRCUIT_BREAKER_CONFIG = "defaultCircuitBreakerConfig";
+
+    int INVALID_TIMEOUT_VALUE = -1;
 }

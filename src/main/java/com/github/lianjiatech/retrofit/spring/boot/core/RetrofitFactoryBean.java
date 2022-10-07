@@ -8,7 +8,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
+import com.github.lianjiatech.retrofit.spring.boot.config.GlobalTimeoutProperty;
+import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitProperties;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.ApplicationContext;
@@ -90,9 +93,32 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
     private OkHttpClient createOkHttpClient() {
         RetrofitClient retrofitClient =
                 AnnotatedElementUtils.findMergedAnnotation(retrofitInterface, RetrofitClient.class);
-        OkHttpClient sourceOkHttpClient = retrofitConfigBean.getSourceOkHttpClientRegistry()
-                .get(Objects.requireNonNull(retrofitClient).sourceOkHttpClient());
-        OkHttpClient.Builder okHttpClientBuilder = sourceOkHttpClient.newBuilder();
+
+        OkHttpClient.Builder okHttpClientBuilder;
+        if (Constants.NO_SOURCE_OK_HTTP_CLIENT.equals(Objects.requireNonNull(retrofitClient).sourceOkHttpClient())) {
+            // 使用默认超时时间创建OkHttpClient
+            GlobalTimeoutProperty globalTimeout = retrofitConfigBean.getRetrofitProperties().getGlobalTimeout();
+
+            int connectTimeoutMs = retrofitClient.connectTimeoutMs() == Constants.INVALID_TIMEOUT_VALUE
+                    ? globalTimeout.getConnectTimeoutMs() : retrofitClient.connectTimeoutMs();
+            int readTimeoutMs = retrofitClient.readTimeoutMs() == Constants.INVALID_TIMEOUT_VALUE
+                    ? globalTimeout.getReadTimeoutMs() : retrofitClient.readTimeoutMs();
+            int writeTimeoutMs = retrofitClient.writeTimeoutMs() == Constants.INVALID_TIMEOUT_VALUE
+                    ? globalTimeout.getWriteTimeoutMs() : retrofitClient.writeTimeoutMs();
+            int callTimeoutMs = retrofitClient.callTimeoutMs() == Constants.INVALID_TIMEOUT_VALUE
+                    ? globalTimeout.getCallTimeoutMs() : retrofitClient.callTimeoutMs();
+
+            okHttpClientBuilder = new OkHttpClient.Builder()
+                    .connectTimeout(connectTimeoutMs, TimeUnit.MILLISECONDS)
+                    .readTimeout(readTimeoutMs, TimeUnit.MILLISECONDS)
+                    .writeTimeout(writeTimeoutMs, TimeUnit.MILLISECONDS)
+                    .callTimeout(callTimeoutMs, TimeUnit.MILLISECONDS);
+        } else {
+            OkHttpClient sourceOkHttpClient = retrofitConfigBean.getSourceOkHttpClientRegistry()
+                    .get(retrofitClient.sourceOkHttpClient());
+            okHttpClientBuilder = sourceOkHttpClient.newBuilder();
+        }
+
         if (isEnableDegrade(retrofitInterface)) {
             okHttpClientBuilder.addInterceptor(retrofitConfigBean.getRetrofitDegrade());
         }
@@ -159,7 +185,8 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
     private Retrofit createRetrofit() {
         RetrofitClient retrofitClient =
                 AnnotatedElementUtils.findMergedAnnotation(retrofitInterface, RetrofitClient.class);
-        String baseUrl = RetrofitUtils.convertBaseUrl(retrofitClient, retrofitClient.baseUrl(), environment);
+        String baseUrl = RetrofitUtils.convertBaseUrl(retrofitClient, Objects.requireNonNull(retrofitClient).baseUrl(),
+                environment);
 
         OkHttpClient client = createOkHttpClient();
         Retrofit.Builder retrofitBuilder = new Retrofit.Builder()
@@ -186,7 +213,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         converterFactories.addAll(Arrays.asList(retrofitClient.converterFactories()));
         converterFactories.addAll(Arrays.asList(retrofitConfigBean.getGlobalConverterFactoryClasses()));
         converterFactories.forEach(converterFactoryClass -> retrofitBuilder
-                        .addConverterFactory(AppContextUtils.getBeanOrNew(applicationContext, converterFactoryClass)));
+                .addConverterFactory(AppContextUtils.getBeanOrNew(applicationContext, converterFactoryClass)));
 
         return retrofitBuilder.build();
     }

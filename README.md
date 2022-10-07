@@ -49,7 +49,7 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-   <version>2.3.7</version>
+   <version>2.3.8</version>
 </dependency>
 ```
 
@@ -143,6 +143,17 @@ retrofit:
          - response_status_not_2xx
          - occur_io_exception
 
+   # 全局超时时间配置
+   global-timeout:
+      # 全局读取超时时间
+      read-timeout-ms: 10000
+      # 全局写入超时时间
+      write-timeout-ms: 10000
+      # 全局连接超时时间
+      connect-timeout-ms: 10000
+      # 全局完整调用超时时间
+      call-timeout-ms: 0
+
    # 熔断降级配置
    degrade:
       # 熔断降级类型。默认none，表示不启用熔断降级
@@ -168,7 +179,14 @@ retrofit:
 
 ## 高级功能
 
+### 超时时间配置
+
+如果仅仅需要修改`OkHttpClient`的超时时间，可以通过`@RetrofitClient`相关字段修改，或者全局超时配置修改。
+
+
 ### 自定义OkHttpClient
+
+If you need to modify other configuration of `OkHttpClient`, you can do it by customizing `OkHttpClient`, the steps are as follows:
 
 1. 实现`SourceOkHttpClientRegistrar`接口，调用`SourceOkHttpClientRegistry#register()`方法注册`OkHttpClient`。
    
@@ -179,17 +197,6 @@ retrofit:
    
        @Override
        public void register(SourceOkHttpClientRegistry registry) {
-   
-           // 替换默认的SourceOkHttpClient，可以用来修改全局OkhttpClient设置
-           registry.register(Constants.DEFAULT_SOURCE_OK_HTTP_CLIENT, new OkHttpClient.Builder()
-                   .connectTimeout(Duration.ofSeconds(5))
-                   .writeTimeout(Duration.ofSeconds(5))
-                   .readTimeout(Duration.ofSeconds(5))
-                   .addInterceptor(chain -> {
-                       log.info("============replace default SourceOkHttpClient=============");
-                       return chain.proceed(chain.request());
-                   })
-                   .build());
    
            // 添加testSourceOkHttpClient
            registry.register("testSourceOkHttpClient", new OkHttpClient.Builder()

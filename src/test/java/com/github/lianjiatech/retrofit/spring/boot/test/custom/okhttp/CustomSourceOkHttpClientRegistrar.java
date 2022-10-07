@@ -22,18 +22,7 @@ public class CustomSourceOkHttpClientRegistrar implements SourceOkHttpClientRegi
     @Override
     public void register(SourceOkHttpClientRegistry registry) {
 
-        // 替换默认的SourceOkHttpClient，可以用来修改全局OkhttpClient设置
-        registry.register(Constants.DEFAULT_SOURCE_OK_HTTP_CLIENT, new OkHttpClient.Builder()
-                .connectTimeout(Duration.ofSeconds(5))
-                .writeTimeout(Duration.ofSeconds(5))
-                .readTimeout(Duration.ofSeconds(5))
-                .addInterceptor(chain -> {
-                    log.info("============replace default SourceOkHttpClient=============");
-                    return chain.proceed(chain.request());
-                })
-                .build());
-
-        // 添加testSourceOkHttpClient
+        // 注册testSourceOkHttpClient
         registry.register("testSourceOkHttpClient", new OkHttpClient.Builder()
                 .connectTimeout(Duration.ofSeconds(3))
                 .writeTimeout(Duration.ofSeconds(3))

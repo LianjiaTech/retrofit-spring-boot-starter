@@ -37,7 +37,7 @@
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-   <version>2.3.7</version>
+   <version>2.3.8</version>
 </dependency>
 ```
 
@@ -118,6 +118,11 @@ retrofit:
          - response_status_not_2xx
          - occur_io_exception
 
+   global-timeout:
+      read-timeout-ms: 10000
+      write-timeout-ms: 10000
+      connect-timeout-ms: 10000
+      call-timeout-ms: 0
    degrade:
       degrade-type: none
       global-sentinel-degrade:
@@ -135,6 +140,10 @@ retrofit:
 ```
 
 ## Advanced Features
+
+### Timeout config
+
+If you only need to modify the timeout time of `OkHttpClient`, you can modify it through the relevant fields of `@RetrofitClient`, or modify the global timeout configuration.
 
 ### Customize OkHttpClient
 
