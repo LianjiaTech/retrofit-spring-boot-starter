@@ -44,7 +44,7 @@
         <spring-boot.version>2.0.9.RELEASE</spring-boot.version>
         <okhttp.version>3.14.9</okhttp.version>
         <sentinel.version>1.6.3</sentinel.version>
-        <jackson.version>2.13.4.1</jackson.version>
+        <jackson.version>2.13.4.2</jackson.version>
         <lombok.version>1.18.24</lombok.version>
     </properties>
 
@@ -204,6 +204,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.6.2</version>
                 <configuration>
                     <compilerArgument>-parameters</compilerArgument>
                     <encoding>UTF-8</encoding>
