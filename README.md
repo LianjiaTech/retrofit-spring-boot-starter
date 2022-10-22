@@ -609,13 +609,31 @@ public class HttpDegradeFallbackFactory implements FallbackFactory<HttpDegradeAp
 #### 继承`ServiceInstanceChooser`
 
 用户可以自行实现`ServiceInstanceChooser`接口，完成服务实例的选取逻辑，并将其配置成`Spring Bean`。对于`Spring Cloud`
-应用，组件提供了`SpringCloudServiceInstanceChooser`实现，用户只需将其配置成`Spring Bean`即可。
+应用，可以使用如下实现。
 
 ```java
-@Bean
-@Autowired
-public ServiceInstanceChooser serviceInstanceChooser(LoadBalancerClient loadBalancerClient) {
-    return new SpringCloudServiceInstanceChooser(loadBalancerClient);
+@Service
+public class SpringCloudServiceInstanceChooser implements ServiceInstanceChooser {
+    
+   private LoadBalancerClient loadBalancerClient;
+
+   @Autowired
+   public SpringCloudServiceInstanceChooser(LoadBalancerClient loadBalancerClient) {
+      this.loadBalancerClient = loadBalancerClient;
+   }
+
+   /**
+    * Chooses a ServiceInstance URI from the LoadBalancer for the specified service.
+    *
+    * @param serviceId The service ID to look up the LoadBalancer.
+    * @return Return the uri of ServiceInstance
+    */
+   @Override
+   public URI choose(String serviceId) {
+      ServiceInstance serviceInstance = loadBalancerClient.choose(serviceId);
+      Assert.notNull(serviceInstance, "can not found service instance! serviceId=" + serviceId);
+      return serviceInstance.getUri();
+   }
 }
 ```
 
@@ -623,7 +641,7 @@ public ServiceInstanceChooser serviceInstanceChooser(LoadBalancerClient loadBala
 
 ```java
 
-@RetrofitClient(serviceId = "${jy-helicarrier-api.serviceId}", path = "/m/count", errorDecoder = HelicarrierErrorDecoder.class)
+@RetrofitClient(serviceId = "${jy-helicarrier-api.serviceId}", path = "/m/count")
 public interface ApiCountService {}
 ```
 

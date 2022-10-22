@@ -560,13 +560,31 @@ Specifies the error decoder of the current interface. Custom error decoders need
 #### Inherit `ServiceInstanceChooser`
 
 Users can implement the `ServiceInstanceChooser` interface by themselves, complete the selection logic of service instances, and configure them as `Spring Bean`. For `Spring Cloud`
-Application, component provides `SpringCloudServiceInstanceChooser` implementation, users only need to configure it as `Spring Bean`.
+Application, it can be implemented using the following.
 
 ```java
-@Bean
-@Autowired
-public ServiceInstanceChooser serviceInstanceChooser(LoadBalancerClient loadBalancerClient) {
-    return new SpringCloudServiceInstanceChooser(loadBalancerClient);
+@Service
+public class SpringCloudServiceInstanceChooser implements ServiceInstanceChooser {
+
+   private LoadBalancerClient loadBalancerClient;
+
+   @Autowired
+   public SpringCloudServiceInstanceChooser(LoadBalancerClient loadBalancerClient) {
+      this.loadBalancerClient = loadBalancerClient;
+   }
+
+   /**
+    * Chooses a ServiceInstance URI from the LoadBalancer for the specified service.
+    *
+    * @param serviceId The service ID to look up the LoadBalancer.
+    * @return Return the uri of ServiceInstance
+    */
+   @Override
+   public URI choose(String serviceId) {
+      ServiceInstance serviceInstance = loadBalancerClient.choose(serviceId);
+      Assert.notNull(serviceInstance, "can not found service instance! serviceId=" + serviceId);
+      return serviceInstance.getUri();
+   }
 }
 ```
 
@@ -574,7 +592,7 @@ public ServiceInstanceChooser serviceInstanceChooser(LoadBalancerClient loadBala
 
 ```java
 
-@RetrofitClient(serviceId = "${jy-helicarrier-api.serviceId}", path = "/m/count", errorDecoder = HelicarrierErrorDecoder.class)
+@RetrofitClient(serviceId = "${jy-helicarrier-api.serviceId}", path = "/m/count")
 public interface ApiCountService {}
 ```
 
