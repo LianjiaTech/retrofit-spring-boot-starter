@@ -11,7 +11,9 @@
 
 [中文文档](https://github.com/LianjiaTech/retrofit-spring-boot-starter/blob/master/README.md)
 
-**`retrofit-spring-boot-starter` realizes the rapid integration of `Retrofit` and `spring-boot` framework, and supports many functional enhancements, which greatly simplifies development**.
+**A spring-boot starter for retrofit, supports rapid integration and feature enhancements.**
+
+> Open source is not easy, please give me a star⭐️
 
 
 ## Features
