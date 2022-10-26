@@ -35,9 +35,10 @@ import okhttp3.mockwebserver.MockWebServer;
 @SpringBootTest(classes = RetrofitTestApplication.class)
 @RunWith(SpringRunner.class)
 @Slf4j
-public class DegradeSentinelTest implements ApplicationContextAware {
+public class DegradeSentinelTest {
 
-    private ApplicationContext applicationContext;
+    @Autowired
+    private DegradeSentinelApi degradeSentinelApi;
 
     private static final ObjectMapper objectMapper =
             new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
@@ -77,7 +78,7 @@ public class DegradeSentinelTest implements ApplicationContextAware {
                         .setBody(objectMapper.writeValueAsString(mockResult))
                         .setBodyDelay(5, TimeUnit.SECONDS);
                 server.enqueue(response);
-                return applicationContext.getBean(DegradeSentinelApi.class).getPerson1(2L).getCode();
+                return degradeSentinelApi.getPerson1(2L).getCode();
             } catch (Exception e) {
                 return 100;
             }
@@ -85,10 +86,5 @@ public class DegradeSentinelTest implements ApplicationContextAware {
         System.out.println(count);
         Assert.assertTrue(count > 80L);
 
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
     }
 }
