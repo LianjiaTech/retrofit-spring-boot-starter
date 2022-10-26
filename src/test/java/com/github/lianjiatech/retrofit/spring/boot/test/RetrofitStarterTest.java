@@ -25,11 +25,9 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.lianjiatech.retrofit.spring.boot.test.entity.Person;
 import com.github.lianjiatech.retrofit.spring.boot.test.entity.Result;
-import com.github.lianjiatech.retrofit.spring.boot.test.http.DownloadApi;
 import com.github.lianjiatech.retrofit.spring.boot.test.http.HttpApi;
 import com.github.lianjiatech.retrofit.spring.boot.test.http.HttpApi2;
 import com.github.lianjiatech.retrofit.spring.boot.test.http.HttpApi3;
-import com.github.lianjiatech.retrofit.spring.boot.test.http.InterceptApi;
 
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Request;
