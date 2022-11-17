@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import com.alibaba.csp.sentinel.Tracer;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 
 import com.alibaba.csp.sentinel.Entry;
@@ -104,6 +105,9 @@ public class SentinelRetrofitDegrade extends BaseRetrofitDegrade {
             return chain.proceed(request);
         } catch (BlockException e) {
             throw new RetrofitBlockException(e);
+        } catch (Throwable t) {
+            Tracer.trace(t);
+            throw t;
         } finally {
             if (entry != null) {
                 entry.exit();

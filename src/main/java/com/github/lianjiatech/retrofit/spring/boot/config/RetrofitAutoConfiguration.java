@@ -56,7 +56,7 @@ public class RetrofitAutoConfiguration {
 
         @Bean
         @ConditionalOnMissingBean
-        public static PathMatchInterceptorBdfProcessor prototypeInterceptorBdfProcessor() {
+        public static PathMatchInterceptorBdfProcessor pathMatchInterceptorBdfProcessor() {
             return new PathMatchInterceptorBdfProcessor();
         }
     }
@@ -75,43 +75,43 @@ public class RetrofitAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public ErrorDecoder.DefaultErrorDecoder defaultErrorDecoder() {
+    public ErrorDecoder.DefaultErrorDecoder retrofitDefaultErrorDecoder() {
         return new ErrorDecoder.DefaultErrorDecoder();
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public ErrorDecoderInterceptor errorDecoderInterceptor() {
+    public ErrorDecoderInterceptor retrofitErrorDecoderInterceptor() {
         return new ErrorDecoderInterceptor();
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public RetryInterceptor retryInterceptor() {
+    public RetryInterceptor retrofitRetryInterceptor() {
         return new RetryInterceptor(retrofitProperties.getGlobalRetry());
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public LoggingInterceptor loggingInterceptor() {
+    public LoggingInterceptor retrofitLoggingInterceptor() {
         return new LoggingInterceptor(retrofitProperties.getGlobalLog());
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public ServiceInstanceChooser serviceInstanceChooser() {
+    public ServiceInstanceChooser retrofitServiceInstanceChooser() {
         return new ServiceInstanceChooser.NoValidServiceInstanceChooser();
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public ServiceChooseInterceptor serviceChooseInterceptor(@Autowired ServiceInstanceChooser serviceInstanceChooser) {
+    public ServiceChooseInterceptor retrofitServiceChooseInterceptor(@Autowired ServiceInstanceChooser serviceInstanceChooser) {
         return new ServiceChooseInterceptor(serviceInstanceChooser);
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public JacksonConverterFactory jacksonConverterFactory() {
+    public JacksonConverterFactory retrofitJacksonConverterFactory() {
         ObjectMapper objectMapper = new ObjectMapper()
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                 .setSerializationInclusion(JsonInclude.Include.NON_NULL);
@@ -160,14 +160,14 @@ public class RetrofitAutoConfiguration {
 
         @Bean
         @ConditionalOnMissingBean
-        public CircuitBreakerConfigRegistry circuitBreakerConfigRegistry(
+        public CircuitBreakerConfigRegistry retrofitCircuitBreakerConfigRegistry(
                 @Autowired(required = false) List<CircuitBreakerConfigRegistrar> circuitBreakerConfigRegistrars) {
             return new CircuitBreakerConfigRegistry(circuitBreakerConfigRegistrars);
         }
 
         @Bean
         @ConditionalOnMissingBean
-        public RetrofitDegrade resilience4jRetrofitDegrade(CircuitBreakerConfigRegistry circuitBreakerConfigRegistry) {
+        public RetrofitDegrade retrofitResilience4jRetrofitDegrade(CircuitBreakerConfigRegistry circuitBreakerConfigRegistry) {
             return new Resilience4jRetrofitDegrade(CircuitBreakerRegistry.ofDefaults(),
                     properties.getDegrade().getGlobalResilience4jDegrade(), circuitBreakerConfigRegistry);
         }
@@ -186,7 +186,7 @@ public class RetrofitAutoConfiguration {
 
             @Bean
             @ConditionalOnMissingBean
-            public RetrofitDegrade sentinelRetrofitDegrade() {
+            public RetrofitDegrade retrofitSentinelRetrofitDegrade() {
                 return new SentinelRetrofitDegrade(properties.getDegrade().getGlobalSentinelDegrade());
             }
         }
