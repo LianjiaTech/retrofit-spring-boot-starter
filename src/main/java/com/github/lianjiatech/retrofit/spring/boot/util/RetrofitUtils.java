@@ -38,7 +38,7 @@ public final class RetrofitUtils {
      *
      * @param response response
      * @return ResponseBody String
-     * @throws IOException
+     * @throws ReadResponseBodyException ReadResponseBodyException
      */
     public static String readResponseBody(Response response) throws ReadResponseBodyException {
         try {

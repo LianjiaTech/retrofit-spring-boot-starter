@@ -23,6 +23,7 @@ public class RetrofitProperties {
 
     /**
      * 全局重试配置
+     * <p>
      * retry config
      */
     @NestedConfigurationProperty
@@ -30,6 +31,7 @@ public class RetrofitProperties {
 
     /**
      * 熔断降级配置
+     * <p>
      * degrade config
      */
     @NestedConfigurationProperty
@@ -37,6 +39,7 @@ public class RetrofitProperties {
 
     /**
      * 全局日志配置
+     * <p>
      * log config
      */
     @NestedConfigurationProperty
@@ -50,6 +53,7 @@ public class RetrofitProperties {
 
     /**
      * 全局转换器工厂，转换器实例优先从Spring容器获取，如果没有获取到，则反射创建。
+     * <p>
      * global converter factories, The converter instance is first obtained from the Spring container. If it is not obtained, it is created by reflection.
      */
     @SuppressWarnings("unchecked")
@@ -59,6 +63,7 @@ public class RetrofitProperties {
 
     /**
      * 全局调用适配器工厂，转换器实例优先从Spring容器获取，如果没有获取到，则反射创建。
+     * <p>
      * global call adapter factories, The  callAdapter instance is first obtained from the Spring container. If it is not obtained, it is created by reflection.
      */
     @SuppressWarnings("unchecked")

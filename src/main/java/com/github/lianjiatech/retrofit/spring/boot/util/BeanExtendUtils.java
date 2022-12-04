@@ -15,7 +15,8 @@ import lombok.experimental.UtilityClass;
 public final class BeanExtendUtils {
 
     /**
-     * 使用map填充bean实例的属性值
+     * 使用map填充bean实例的属性值。
+     * <p>
      * Use map to fill in the attribute values of the bean instance
      *
      * @param bean       需要填充的实例bean。The instance bean that needs to be filled
@@ -41,6 +42,7 @@ public final class BeanExtendUtils {
 
     /**
      * 为指定实例对象的指定属性赋值，待赋值的属性字段必须提供setter方法。
+     * <p>
      * Assign a value to the specified attribute of the specified instance object, the attribute field to be assigned must provide a setter method.
      *
      * @param bean  需要设置属性的示例对象。the object that needs to set properties

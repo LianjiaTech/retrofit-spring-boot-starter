@@ -3,15 +3,12 @@ package com.github.lianjiatech.retrofit.spring.boot.core;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import com.github.lianjiatech.retrofit.spring.boot.config.GlobalTimeoutProperty;
-import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitProperties;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.ApplicationContext;
@@ -23,6 +20,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
+import com.github.lianjiatech.retrofit.spring.boot.config.GlobalTimeoutProperty;
 import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitConfigBean;
 import com.github.lianjiatech.retrofit.spring.boot.core.reactive.MonoCallAdapterFactory;
 import com.github.lianjiatech.retrofit.spring.boot.core.reactive.Rxjava2CompletableCallAdapterFactory;

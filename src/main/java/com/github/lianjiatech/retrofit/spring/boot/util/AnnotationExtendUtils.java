@@ -16,6 +16,7 @@ public class AnnotationExtendUtils {
 
     /**
      * 查找方法及其类上的指定注解，优先返回方法上的。
+     *
      * @param <A> 注解泛型参数
      * @param method 方法
      * @param clazz 类型
@@ -33,6 +34,7 @@ public class AnnotationExtendUtils {
 
     /**
      * 判断某个类及其公有方法上是否存在指定注解。
+     *
      * @param <A> 注解泛型参数
      * @param clazz 类
      * @param annotationType 注解类型

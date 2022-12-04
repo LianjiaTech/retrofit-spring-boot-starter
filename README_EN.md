@@ -12,6 +12,8 @@
 [中文文档](https://github.com/LianjiaTech/retrofit-spring-boot-starter/blob/master/README.md)
 
 **A spring-boot starter for retrofit, supports rapid integration and feature enhancements.**
+1. *Spring Boot 3.x project，please use retrofit-spring-boot-starter 3.x*。
+2. *Spring Boot 1.x/2.x project，please use retrofit-spring-boot-starter 2.x*。
 
 > Open source is not easy, please give me a star⭐️
 
@@ -39,7 +41,7 @@
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-   <version>2.3.10</version>
+   <version>2.3.11</version>
 </dependency>
 ```
 

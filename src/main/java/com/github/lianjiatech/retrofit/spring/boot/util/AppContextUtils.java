@@ -16,6 +16,11 @@ public final class AppContextUtils {
 
     /**
      * 优先从Spring容器获取实例，如果获取失败，调用无参方法创建，如果再失败，尝试调用无参create静态方法创建
+     *
+     * @param context spring context
+     * @param clz 对象类型
+     * @param <T> 泛型参数
+     * @return spring context实例，或者反射创建的实例。
      */
     @SuppressWarnings("unchecked")
     public static <T> T getBeanOrNew(ApplicationContext context, Class<T> clz) {

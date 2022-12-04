@@ -31,7 +31,8 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 
 /**
- * 同步调用，如果返回的http状态码是是成功，返回responseBody 反序列化之后的对象。否则，抛出异常！异常信息中包含请求和响应相关信息。<br></>
+ * 同步调用，如果返回的http状态码是是成功，返回responseBody 反序列化之后的对象。否则，抛出异常！异常信息中包含请求和响应相关信息。
+ * <p>
  * Synchronous call, if the returned http status code is successful, return the responseBody object after deserialization.
  * Otherwise, throw an exception! The exception information includes request and response related information.
  *

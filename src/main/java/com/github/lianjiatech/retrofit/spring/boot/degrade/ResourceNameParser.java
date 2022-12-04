@@ -19,12 +19,14 @@ public interface ResourceNameParser {
     /**
      * 解析资源名称
      * @param method 方法
+     *
      * @return 资源名称
      */
     String parseResourceName(Method method);
 
     /**
      * 解析方法路径
+     *
      * @param method 方法
      * @return 方法路径
      */

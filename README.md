@@ -13,6 +13,8 @@
 [English Document](https://github.com/LianjiaTech/retrofit-spring-boot-starter/blob/master/README_EN.md)
 
 **适用于retrofit的spring-boot启动器，支持快速集成和功能增强**。
+1. *Spring Boot 3.x 项目，请使用retrofit-spring-boot-starter 3.x*。
+2. *Spring Boot 1.x/2.x 项目，请使用retrofit-spring-boot-starter 2.x*。
 
 > 🚀项目持续优化迭代，欢迎大家提ISSUE和PR！麻烦大家能给一颗star✨，您的star是我们持续更新的动力！
 
@@ -49,7 +51,7 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-   <version>2.3.10</version>
+   <version>2.3.11</version>
 </dependency>
 ```
 

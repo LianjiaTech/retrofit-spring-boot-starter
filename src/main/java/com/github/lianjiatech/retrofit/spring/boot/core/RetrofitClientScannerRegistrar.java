@@ -50,11 +50,6 @@ public class RetrofitClientScannerRegistrar
         scanner.doScan(basePackages);
     }
 
-    /**
-     * 获取扫描的基础包路径
-     *
-     * @return 基础包路径
-     */
     private String[] getPackagesToScan(AnnotationAttributes attributes) {
         String[] value = attributes.getStringArray("value");
         String[] basePackages = attributes.getStringArray("basePackages");

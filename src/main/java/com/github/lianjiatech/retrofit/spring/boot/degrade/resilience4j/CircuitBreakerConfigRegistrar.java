@@ -8,6 +8,7 @@ public interface CircuitBreakerConfigRegistrar {
 
     /**
      * 向#{@link CircuitBreakerConfigRegistry}注册数据
+     *
      * @param registry CircuitBreakerConfigRegistry
      */
     void register(CircuitBreakerConfigRegistry registry);

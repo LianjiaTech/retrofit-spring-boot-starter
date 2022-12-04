@@ -31,7 +31,8 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 
 /**
- * 同步调用执行，直接返回 #{@link Response} 对象。<br/>
+ * 同步调用执行，直接返回 #{@link Response} 对象。
+ * <p>
  * Synchronous call execution, directly return #{@link Response} object
  *
  * @author 陈添明

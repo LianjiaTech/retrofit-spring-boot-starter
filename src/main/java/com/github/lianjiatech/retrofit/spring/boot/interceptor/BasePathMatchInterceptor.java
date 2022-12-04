@@ -50,7 +50,7 @@ public abstract class BasePathMatchInterceptor implements Interceptor {
     protected abstract Response doIntercept(Chain chain) throws IOException;
 
     /**
-     * 当前http的url路径是否与指定的patterns匹配。<br></>
+     * 当前http的url路径是否与指定的patterns匹配。
      * Whether the current http URL path matches the specified patterns
      *
      * @param patterns the specified patterns

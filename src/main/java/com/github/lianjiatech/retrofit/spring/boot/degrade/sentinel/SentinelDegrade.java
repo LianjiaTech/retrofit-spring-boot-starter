@@ -18,21 +18,29 @@ public @interface SentinelDegrade {
 
     /**
      * 是否开启
+     *
+     * @return 是否开启
      */
     boolean enable() default true;
 
     /**
      * 各降级策略对应的阈值。平均响应时间(ms)，异常比例(0-1)，异常数量(1-N)
+     *
+     * @return 阈值
      */
     double count() default 1000;
 
     /**
      * 熔断时长，单位为 s
+     *
+     * @return 熔断时长
      */
     int timeWindow() default 5;
 
     /**
      * 降级策略（0：平均响应时间；1：异常比例；2：异常数量）
+     *
+     * @return 降级策略
      */
     int grade() default 0;
 }

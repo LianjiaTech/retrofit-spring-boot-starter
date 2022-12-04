@@ -20,11 +20,15 @@ public @interface Resilience4jDegrade {
 
     /**
      * 是否开启
+     *
+     * @return enable
      */
     boolean enable() default true;
 
     /**
      * 根据该名称从#{@link CircuitBreakerConfigRegistry}中获取CircuitBreakerConfig，作为当前接口或者方法的熔断配置
+     *
+     * @return circuitBreakerConfigName
      */
     String circuitBreakerConfigName() default Constants.CIRCUIT_BREAKER_CLASS_NAME;
 }

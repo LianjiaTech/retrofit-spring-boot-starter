@@ -14,6 +14,7 @@ public interface RetrofitDegrade extends Interceptor {
 
     /**
      * 对于指定Retrofit接口，是否允许降级
+     *
      * @param retrofitInterface Retrofit接口
      * @return 是否允许降级
      */
@@ -21,6 +22,7 @@ public interface RetrofitDegrade extends Interceptor {
 
     /**
      * 加载指定Retrofit接口下的降级规则
+     *
      * @param retrofitInterface Retrofit接口
      */
     void loadDegradeRules(Class<?> retrofitInterface);
