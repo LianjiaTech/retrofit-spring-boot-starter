@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -41,7 +42,7 @@ import retrofit2.converter.jackson.JacksonConverterFactory;
 /**
  * @author 陈添明
  */
-@Configuration
+@AutoConfiguration
 @EnableConfigurationProperties(RetrofitProperties.class)
 public class RetrofitAutoConfiguration {
 

@@ -51,7 +51,7 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-   <version>2.3.11</version>
+   <version>3.0.0</version>
 </dependency>
 ```
 

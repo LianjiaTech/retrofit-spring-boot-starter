@@ -41,7 +41,7 @@
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-   <version>2.3.11</version>
+   <version>3.0.0</version>
 </dependency>
 ```
 
