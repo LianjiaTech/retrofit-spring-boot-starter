@@ -12,7 +12,7 @@
 
 [English Document](https://github.com/LianjiaTech/retrofit-spring-boot-starter/blob/master/README_EN.md)
 
-**适用于retrofit的spring-boot启动器，支持快速集成和功能增强**。
+**适用于retrofit的spring-boot-starter，支持快速集成和功能增强**。
 1. *Spring Boot 3.x 项目，请使用retrofit-spring-boot-starter 3.x*。
 2. *Spring Boot 1.x/2.x 项目，请使用retrofit-spring-boot-starter 2.x*。
 
