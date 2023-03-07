@@ -56,7 +56,8 @@ public class RetrofitAutoConfiguration {
     public static class RetrofitAdvanceConfiguration {
 
         @Bean
-        @ConditionalOnMissingBean
+        @ConditionalOnProperty(prefix = "retrofit", name = "auto-set-prototype-scope-for-path-math-interceptor",
+                matchIfMissing = true)
         public static PathMatchInterceptorBdfProcessor pathMatchInterceptorBdfProcessor() {
             return new PathMatchInterceptorBdfProcessor();
         }
@@ -106,7 +107,8 @@ public class RetrofitAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public ServiceChooseInterceptor retrofitServiceChooseInterceptor(@Autowired ServiceInstanceChooser serviceInstanceChooser) {
+    public ServiceChooseInterceptor
+            retrofitServiceChooseInterceptor(@Autowired ServiceInstanceChooser serviceInstanceChooser) {
         return new ServiceChooseInterceptor(serviceInstanceChooser);
     }
 
@@ -168,7 +170,8 @@ public class RetrofitAutoConfiguration {
 
         @Bean
         @ConditionalOnMissingBean
-        public RetrofitDegrade retrofitResilience4jRetrofitDegrade(CircuitBreakerConfigRegistry circuitBreakerConfigRegistry) {
+        public RetrofitDegrade
+                retrofitResilience4jRetrofitDegrade(CircuitBreakerConfigRegistry circuitBreakerConfigRegistry) {
             return new Resilience4jRetrofitDegrade(CircuitBreakerRegistry.ofDefaults(),
                     properties.getDegrade().getGlobalResilience4jDegrade(), circuitBreakerConfigRegistry);
         }
@@ -179,17 +182,17 @@ public class RetrofitAutoConfiguration {
     @EnableConfigurationProperties(RetrofitProperties.class)
     public static class SentinelConfiguration {
 
-            private final RetrofitProperties properties;
+        private final RetrofitProperties properties;
 
-            public SentinelConfiguration(RetrofitProperties properties) {
-                this.properties = properties;
-            }
-
-            @Bean
-            @ConditionalOnMissingBean
-            public RetrofitDegrade retrofitSentinelRetrofitDegrade() {
-                return new SentinelRetrofitDegrade(properties.getDegrade().getGlobalSentinelDegrade());
-            }
+        public SentinelConfiguration(RetrofitProperties properties) {
+            this.properties = properties;
         }
+
+        @Bean
+        @ConditionalOnMissingBean
+        public RetrofitDegrade retrofitSentinelRetrofitDegrade() {
+            return new SentinelRetrofitDegrade(properties.getDegrade().getGlobalSentinelDegrade());
+        }
+    }
 
 }

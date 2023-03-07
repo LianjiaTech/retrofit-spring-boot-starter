@@ -22,6 +22,11 @@ import retrofit2.converter.jackson.JacksonConverterFactory;
 public class RetrofitProperties {
 
     /**
+     * 自动设置PathMathInterceptor的scope为prototype
+     */
+    private boolean autoSetPrototypeScopeForPathMathInterceptor = true;
+
+    /**
      * 全局重试配置
      * <p>
      * retry config

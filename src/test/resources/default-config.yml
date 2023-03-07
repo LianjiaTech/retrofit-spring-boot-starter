@@ -60,3 +60,5 @@ retrofit:
       enable: false
       # 根据该名称从#{@link CircuitBreakerConfigRegistry}获取CircuitBreakerConfig，作为全局熔断配置
       circuit-breaker-config-name: defaultCircuitBreakerConfig
+  # 自动设置PathMathInterceptor的scope为prototype
+  auto-set-prototype-scope-for-path-math-interceptor: true

@@ -51,7 +51,7 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-   <version>3.0.0</version>
+   <version>3.0.1</version>
 </dependency>
 ```
 
@@ -177,6 +177,8 @@ retrofit:
          enable: false
          # 根据该名称从#{@link CircuitBreakerConfigRegistry}获取CircuitBreakerConfig，作为全局熔断配置
          circuit-breaker-config-name: defaultCircuitBreakerConfig
+   # 自动设置PathMathInterceptor的scope为prototype
+   auto-set-prototype-scope-for-path-math-interceptor: true
 ```
 
 ## 高级功能
@@ -260,7 +262,21 @@ public class TimeStampInterceptor extends BasePathMatchInterceptor {
         return chain.proceed(newRequest);
     }
 }
+```
 
+默认情况下，**组件会自动将`BasePathMatchInterceptor`的`scope`设置为`prototype`**。
+可通过`retrofit.auto-set-prototype-scope-for-path-math-interceptor=false`关闭该功能。关闭之后，需要手动将`scope`设置为`prototype`。
+
+```java
+@Component
+@Scope("prototype")
+public class TimeStampInterceptor extends BasePathMatchInterceptor {
+
+   @Override
+   public Response doIntercept(Chain chain) throws IOException {
+      // ...
+   }
+}
 ```
 
 #### 接口上使用`@Intercept`进行标注
@@ -280,6 +296,8 @@ public interface HttpApi {
 ```
 
 上面的`@Intercept`配置表示：拦截`HttpApi`接口下`/api/**`路径下（排除`/api/test/savePerson`）的请求，拦截处理器使用`TimeStampInterceptor`。
+
+
 
 ### 自定义拦截注解
 
