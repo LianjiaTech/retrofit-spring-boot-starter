@@ -41,7 +41,7 @@
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-   <version>2.3.11</version>
+   <version>2.3.12</version>
 </dependency>
 ```
 
@@ -141,6 +141,7 @@ retrofit:
          enable: false
          # Get CircuitBreakerConfig from {@link CircuitBreakerConfigRegistry} based on this name as a global circuit breaker configuration
          circuit-breaker-config-name: defaultCircuitBreakerConfig
+   auto-set-prototype-scope-for-path-math-interceptor: true
 ```
 
 ## Advanced Features
@@ -234,7 +235,21 @@ public class TimeStampInterceptor extends BasePathMatchInterceptor {
         return chain.proceed(newRequest);
     }
 }
+```
 
+By default, **component will automatically set `scope` of `BasePathMatchInterceptor` to `prototype`**.
+This feature can be turned off by `retrofit.auto-set-prototype-scope-for-path-math-interceptor=false`. After closing, you need to manually set `scope` to `prototype`.
+
+```java
+@Component
+@Scope("prototype")
+public class TimeStampInterceptor extends BasePathMatchInterceptor {
+
+   @Override
+   public Response doIntercept(Chain chain) throws IOException {
+      // ...
+   }
+}
 ```
 
 #### Use the `@Intercept` annotation to specify the interceptor to use
