@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
+import com.github.lianjiatech.retrofit.spring.boot.test.custom.okhttp.CustomOkHttpTestApi;
+import com.github.lianjiatech.retrofit.spring.boot.test.http.HttpApi;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -39,6 +41,12 @@ public class DegradeSentinelTest {
 
     @Autowired
     private DegradeSentinelApi degradeSentinelApi;
+
+    @Autowired
+    private CustomOkHttpTestApi customOkHttpTestApi;
+
+    @Autowired
+    private HttpApi httpApi;
 
     private static final ObjectMapper objectMapper =
             new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)

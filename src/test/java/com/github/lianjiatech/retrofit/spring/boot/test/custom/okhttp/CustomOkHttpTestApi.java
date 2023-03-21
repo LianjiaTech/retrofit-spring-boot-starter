@@ -1,6 +1,7 @@
 package com.github.lianjiatech.retrofit.spring.boot.test.custom.okhttp;
 
 import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClient;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.sentinel.SentinelDegrade;
 import com.github.lianjiatech.retrofit.spring.boot.test.entity.Person;
 import com.github.lianjiatech.retrofit.spring.boot.test.entity.Result;
 
@@ -12,6 +13,7 @@ import retrofit2.http.Query;
  * @author 陈添明
  */
 @RetrofitClient(baseUrl = "${test.baseUrl}", sourceOkHttpClient = "testSourceOkHttpClient")
+@SentinelDegrade
 public interface CustomOkHttpTestApi {
 
     @GET("person")

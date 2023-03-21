@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
+import com.github.lianjiatech.retrofit.spring.boot.test.http.HttpApi2;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -34,6 +35,9 @@ public class DegradeR4jTest {
 
     @Autowired
     private DegradeR4jApi degradeR4jApi;
+
+    @Autowired
+    private HttpApi2 httpApi2;
 
     private static final ObjectMapper objectMapper =
             new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)

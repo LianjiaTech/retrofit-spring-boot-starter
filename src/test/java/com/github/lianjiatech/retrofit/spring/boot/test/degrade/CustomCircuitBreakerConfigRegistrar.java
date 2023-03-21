@@ -28,5 +28,13 @@ public class CustomCircuitBreakerConfigRegistrar implements CircuitBreakerConfig
                 .minimumNumberOfCalls(5)
                 .permittedNumberOfCallsInHalfOpenState(5)
                 .build());
+
+
+        registry.register("testCircuitBreakerConfig2", CircuitBreakerConfig.custom()
+                .slidingWindowType(CircuitBreakerConfig.SlidingWindowType.TIME_BASED)
+                .failureRateThreshold(100)
+                .minimumNumberOfCalls(5000)
+                .permittedNumberOfCallsInHalfOpenState(5000)
+                .build());
     }
 }

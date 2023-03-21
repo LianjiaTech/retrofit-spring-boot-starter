@@ -2,17 +2,16 @@ package com.github.lianjiatech.retrofit.spring.boot.degrade.sentinel;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
 import java.util.Objects;
 
-import com.alibaba.csp.sentinel.Tracer;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 
 import com.alibaba.csp.sentinel.Entry;
 import com.alibaba.csp.sentinel.EntryType;
 import com.alibaba.csp.sentinel.ResourceTypeConstants;
 import com.alibaba.csp.sentinel.SphU;
+import com.alibaba.csp.sentinel.Tracer;
 import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.alibaba.csp.sentinel.slots.block.degrade.DegradeRule;
 import com.alibaba.csp.sentinel.slots.block.degrade.DegradeRuleManager;
@@ -52,7 +51,6 @@ public class SentinelRetrofitDegrade extends BaseRetrofitDegrade {
     @Override
     public void loadDegradeRules(Class<?> retrofitInterface) {
         Method[] methods = retrofitInterface.getMethods();
-        List<DegradeRule> rules = new ArrayList<>();
         for (Method method : methods) {
             if (isDefaultOrStatic(method)) {
                 continue;
@@ -72,10 +70,10 @@ public class SentinelRetrofitDegrade extends BaseRetrofitDegrade {
                             : sentinelDegrade.timeWindow())
                     .setGrade(sentinelDegrade == null ? globalSentinelDegradeProperty.getGrade()
                             : sentinelDegrade.grade());
-            degradeRule.setResource(parseResourceName(method));
-            rules.add(degradeRule);
+            String resourceName = parseResourceName(method);
+            degradeRule.setResource(resourceName);
+            DegradeRuleManager.setRulesForResource(resourceName, Collections.singleton(degradeRule));
         }
-        DegradeRuleManager.loadRules(rules);
     }
 
     protected boolean needDegrade(SentinelDegrade sentinelDegrade) {
@@ -114,5 +112,4 @@ public class SentinelRetrofitDegrade extends BaseRetrofitDegrade {
             }
         }
     }
-
 }
