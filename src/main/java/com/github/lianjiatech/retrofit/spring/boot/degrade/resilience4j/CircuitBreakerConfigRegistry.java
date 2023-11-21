@@ -1,16 +1,13 @@
 package com.github.lianjiatech.retrofit.spring.boot.degrade.resilience4j;
 
+import com.github.lianjiatech.retrofit.spring.boot.core.Constants;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
+import jakarta.annotation.PostConstruct;
+import org.springframework.util.Assert;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.annotation.PostConstruct;
-
-import org.springframework.util.Assert;
-
-import com.github.lianjiatech.retrofit.spring.boot.core.Constants;
-
-import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 
 /**
  * @author 陈添明
