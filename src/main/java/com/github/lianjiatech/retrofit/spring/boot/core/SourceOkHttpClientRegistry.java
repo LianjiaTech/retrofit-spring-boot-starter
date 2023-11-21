@@ -1,14 +1,12 @@
 package com.github.lianjiatech.retrofit.spring.boot.core;
 
+import jakarta.annotation.PostConstruct;
+import okhttp3.OkHttpClient;
+import org.springframework.util.Assert;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.annotation.PostConstruct;
-
-import org.springframework.util.Assert;
-
-import okhttp3.OkHttpClient;
 
 /**
  * SourceOkHttpClient注册中心
