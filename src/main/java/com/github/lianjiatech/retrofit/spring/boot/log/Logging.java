@@ -43,4 +43,10 @@ public @interface Logging {
      * @return 日志打印策略
      */
     LogStrategy logStrategy() default LogStrategy.BASIC;
+
+    /**
+     * 是否聚合打印请求日志
+     * @return 是否聚合打印请求日志
+     */
+    boolean aggregate() default true;
 }

@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import com.github.lianjiatech.retrofit.spring.boot.exception.RetryFailedException;
 import com.github.lianjiatech.retrofit.spring.boot.util.AnnotationExtendUtils;
 
+import com.github.lianjiatech.retrofit.spring.boot.util.RetrofitUtils;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Interceptor;
 import okhttp3.Request;
@@ -31,7 +32,10 @@ public class RetryInterceptor implements Interceptor {
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
-        Method method = Objects.requireNonNull(request.tag(Invocation.class)).method();
+        Method method = RetrofitUtils.getMethodFormRequest(request);
+        if (method == null) {
+            return chain.proceed(request);
+        }
         // 获取重试配置
         Retry retry = AnnotationExtendUtils.findMergedAnnotation(method, method.getDeclaringClass(), Retry.class);
         if (!needRetry(retry)) {
@@ -58,9 +62,9 @@ public class RetryInterceptor implements Interceptor {
     protected Response retryIntercept(int maxRetries, int intervalMs, RetryRule[] retryRules, Chain chain) {
         HashSet<RetryRule> retryRuleSet = (HashSet<RetryRule>)Arrays.stream(retryRules).collect(Collectors.toSet());
         RetryStrategy retryStrategy = new RetryStrategy(maxRetries, intervalMs);
+        Request request = chain.request();
         while (true) {
             try {
-                Request request = chain.request();
                 Response response = chain.proceed(request);
                 // 如果响应状态码是2xx就不用重试，直接返回 response
                 if (!retryRuleSet.contains(RetryRule.RESPONSE_STATUS_NOT_2XX) || response.isSuccessful()) {
@@ -72,7 +76,8 @@ public class RetryInterceptor implements Interceptor {
                     }
                     // 执行重试
                     retryStrategy.retry();
-                    log.debug("The response fails, retry is performed! The response code is " + response.code());
+                    log.warn("The response fails, retry is performed! The request is {}, Response is {}", request,
+                            response);
                     response.close();
                 }
             } catch (Exception e) {
@@ -81,11 +86,12 @@ public class RetryInterceptor implements Interceptor {
                 } else {
                     if (!retryStrategy.shouldRetry()) {
                         // 最后一次还没成功，抛出异常
-                        throw new RetryFailedException("Retry Failed: Total " + maxRetries
-                                + " attempts made at interval " + intervalMs
-                                + "ms");
+                        throw new RetryFailedException(
+                                "Retry Failed: Total " + maxRetries + " attempts made at interval " + intervalMs + "ms",
+                                e);
                     }
                     retryStrategy.retry();
+                    log.warn("The response fails, retry is performed! The request is {} ", request, e);
                 }
             }
         }

@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
+import com.github.lianjiatech.retrofit.spring.boot.util.RetrofitUtils;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 
 import com.github.lianjiatech.retrofit.spring.boot.degrade.BaseRetrofitDegrade;
@@ -85,7 +86,10 @@ public class Resilience4jRetrofitDegrade extends BaseRetrofitDegrade {
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
-        Method method = Objects.requireNonNull(request.tag(Invocation.class)).method();
+        Method method = RetrofitUtils.getMethodFormRequest(request);
+        if (method == null) {
+            return chain.proceed(request);
+        }
         CircuitBreaker circuitBreaker =
                 circuitBreakerRegistry.find(parseResourceName(method)).orElse(null);
         if (Objects.isNull(circuitBreaker)) {

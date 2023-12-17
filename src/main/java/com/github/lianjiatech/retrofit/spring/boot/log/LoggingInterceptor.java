@@ -6,6 +6,7 @@ import java.util.Objects;
 
 import com.github.lianjiatech.retrofit.spring.boot.util.AnnotationExtendUtils;
 
+import com.github.lianjiatech.retrofit.spring.boot.util.RetrofitUtils;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Interceptor;
 import okhttp3.Response;
@@ -33,13 +34,23 @@ public class LoggingInterceptor implements Interceptor {
         }
         LogLevel logLevel = logging == null ? globalLogProperty.getLogLevel() : logging.logLevel();
         LogStrategy logStrategy = logging == null ? globalLogProperty.getLogStrategy() : logging.logStrategy();
-        HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor(matchLogger(logLevel))
+        boolean aggregate = logging == null ? globalLogProperty.isAggregate() : logging.aggregate();
+        HttpLoggingInterceptor.Logger matchLogger = matchLogger(logLevel);
+        HttpLoggingInterceptor.Logger logger = aggregate ? new BufferingLogger(matchLogger) : matchLogger;
+        HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor(logger)
                 .setLevel(HttpLoggingInterceptor.Level.valueOf(logStrategy.name()));
-        return httpLoggingInterceptor.intercept(chain);
+        Response response = httpLoggingInterceptor.intercept(chain);
+        if (aggregate) {
+            ((BufferingLogger)logger).flush();
+        }
+        return response;
     }
 
     protected Logging findLogging(Chain chain) {
-        Method method = Objects.requireNonNull(chain.request().tag(Invocation.class)).method();
+        Method method = RetrofitUtils.getMethodFormRequest(chain.request());
+        if (method == null) {
+            return null;
+        }
         return AnnotationExtendUtils.findMergedAnnotation(method, method.getDeclaringClass(), Logging.class);
     }
 
@@ -67,5 +78,26 @@ public class LoggingInterceptor implements Interceptor {
             return log::trace;
         }
         throw new UnsupportedOperationException("We don't support this log level currently.");
+    }
+
+    private static class BufferingLogger implements HttpLoggingInterceptor.Logger {
+
+        private StringBuilder buffer = new StringBuilder(System.lineSeparator());
+
+        private final HttpLoggingInterceptor.Logger delegate;
+
+        public BufferingLogger(HttpLoggingInterceptor.Logger delegate) {
+            this.delegate = delegate;
+        }
+
+        @Override
+        public void log(String message) {
+            buffer.append(message).append(System.lineSeparator());
+        }
+
+        public void flush() {
+            delegate.log(buffer.toString());
+            buffer = new StringBuilder(System.lineSeparator());
+        }
     }
 }

@@ -41,7 +41,7 @@
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-   <version>3.0.2</version>
+   <version>3.0.3</version>
 </dependency>
 ```
 
@@ -51,10 +51,13 @@
 
 ```java
 @RetrofitClient(baseUrl = "${test.baseUrl}")
-public interface HttpApi {
+public interface UserService {
 
-    @GET("person")
-    Result<Person> getPerson(@Query("id") Long id);
+   /**
+    * 根据id查询用户姓名
+    */
+   @POST("getName")
+   String getName(@Query("id") Long id);
 }
 ```
 
@@ -68,14 +71,14 @@ public interface HttpApi {
 
 ```java
 @Service
-public class TestService {
+public class BusinessService {
 
-    @Autowired
-    private HttpApi httpApi;
+   @Autowired
+   private UserService userService;
 
-    public void test() {
-        // Use `httpApi` to initiate HTTP requests
-    }
+   public void doBusiness() {
+      // call userService
+   }
 }
 ```
 
@@ -113,6 +116,7 @@ retrofit:
       enable: true
       log-level: info
       log-strategy: basic
+      aggregate: true
 
    global-retry:
       enable: false
@@ -154,51 +158,38 @@ If you only need to modify the timeout time of `OkHttpClient`, you can modify it
 
 If you need to modify other configuration of `OkHttpClient`, you can do it by customizing `OkHttpClient`, the steps are as follows:
 
-1. Implement the `SourceOkHttpClientRegistrar` interface and call the `SourceOkHttpClientRegistry#register()` method to register the `OkHttpClient`.
+Implement the `SourceOkHttpClientRegistrar` interface and call the `SourceOkHttpClientRegistry#register()` method to register the `OkHttpClient`.
 
-   ```java
-   @Slf4j
-   @Component
-   public class CustomSourceOkHttpClientRegistrar implements SourceOkHttpClientRegistrar {
-   
-       @Override
-       public void register(SourceOkHttpClientRegistry registry) {
-   
-           // replace default SourceOkHttpClient. Can be used to modify global `Okhttp Client` settings
-           registry.register(Constants.DEFAULT_SOURCE_OK_HTTP_CLIENT, new OkHttpClient.Builder()
-                   .connectTimeout(Duration.ofSeconds(5))
-                   .writeTimeout(Duration.ofSeconds(5))
-                   .readTimeout(Duration.ofSeconds(5))
-                   .addInterceptor(chain -> {
-                       log.info("============replace default SourceOkHttpClient=============");
-                       return chain.proceed(chain.request());
-                   })
-                   .build());
-   
-           // add testSourceOkHttpClient
-           registry.register("testSourceOkHttpClient", new OkHttpClient.Builder()
-                   .connectTimeout(Duration.ofSeconds(3))
-                   .writeTimeout(Duration.ofSeconds(3))
-                   .readTimeout(Duration.ofSeconds(3))
-                   .addInterceptor(chain -> {
-                       log.info("============use testSourceOkHttpClient=============");
-                       return chain.proceed(chain.request());
-                   })
-                   .build());
-       }
+```java
+@Component
+public class CustomOkHttpClientRegistrar implements SourceOkHttpClientRegistrar {
+
+   @Override
+   public void register(SourceOkHttpClientRegistry registry) {
+      // 注册customOkHttpClient，超时时间设置为1s
+      registry.register("customOkHttpClient", new OkHttpClient.Builder()
+              .connectTimeout(Duration.ofSeconds(1))
+              .writeTimeout(Duration.ofSeconds(1))
+              .readTimeout(Duration.ofSeconds(1))
+              .addInterceptor(chain -> chain.proceed(chain.request()))
+              .build());
    }
-   ```
+}
+```
 
 2. Specify the `OkHttpClient` to be used by the current interface through `@RetrofitClient.sourceOkHttpClient`.
 
-   ```java
-   @RetrofitClient(baseUrl = "${test.baseUrl}", sourceOkHttpClient = "testSourceOkHttpClient")
-   public interface CustomOkHttpTestApi {
-   
-       @GET("person")
-       Result<Person> getPerson(@Query("id") Long id);
-   }
-   ```
+```java
+@RetrofitClient(baseUrl = "${test.baseUrl}", sourceOkHttpClient = "customOkHttpClient")
+public interface CustomOkHttpUserService {
+
+   /**
+    * 根据id查询用户信息
+    */
+   @GET("getUser")
+   User getUser(@Query("id") Long id);
+}
+```
 
 > Note: The component will not use the specified `OkHttpClient` directly, but will create a new one based on that `OkHttpClient`.
 
@@ -219,21 +210,13 @@ The following is an example of "splicing timestamp behind the specified request 
 
 ```java
 @Component
-public class TimeStampInterceptor extends BasePathMatchInterceptor {
-
-    @Override
-    public Response doIntercept(Chain chain) throws IOException {
-        Request request = chain.request();
-        HttpUrl url = request.url();
-        long timestamp = System.currentTimeMillis();
-        HttpUrl newUrl = url.newBuilder()
-                .addQueryParameter("timestamp", String.valueOf(timestamp))
-                .build();
-        Request newRequest = request.newBuilder()
-                .url(newUrl)
-                .build();
-        return chain.proceed(newRequest);
-    }
+public class PathMatchInterceptor extends BasePathMatchInterceptor {
+   @Override
+   protected Response doIntercept(Chain chain) throws IOException {
+      Response response = chain.proceed(chain.request());
+      // response的Header加上path.match
+      return response.newBuilder().header("path.match", "true").build();
+   }
 }
 ```
 
@@ -243,12 +226,8 @@ This feature can be turned off by `retrofit.auto-set-prototype-scope-for-path-ma
 ```java
 @Component
 @Scope("prototype")
-public class TimeStampInterceptor extends BasePathMatchInterceptor {
+public class PathMatchInterceptor extends BasePathMatchInterceptor {
 
-   @Override
-   public Response doIntercept(Chain chain) throws IOException {
-      // ...
-   }
 }
 ```
 
@@ -256,15 +235,22 @@ public class TimeStampInterceptor extends BasePathMatchInterceptor {
 
 ```java
 @RetrofitClient(baseUrl = "${test.baseUrl}")
-@Intercept(handler = TimeStampInterceptor.class, include = {"/api/**"}, exclude = "/api/test/savePerson")
-@Intercept(handler = TimeStamp2Interceptor.class) // Need more than one, just add it directly
-public interface HttpApi {
+@Intercept(handler = PathMatchInterceptor.class, include = {"/api/user/**"}, exclude = "/api/user/getUser")
+// @Intercept() 如果需要使用多个路径匹配拦截器，继续添加@Intercept即可
+public interface InterceptorUserService {
 
-    @GET("person")
-    Result<Person> getPerson(@Query("id") Long id);
+   /**
+    * 根据id查询用户姓名
+    */
+   @POST("getName")
+   Response<String> getName(@Query("id") Long id);
 
-    @POST("savePerson")
-    Result<Person> savePerson(@Body Person person);
+   /**
+    * 根据id查询用户信息
+    */
+   @GET("getUser")
+   Response<User> getUser(@Query("id") Long id);
+
 }
 ```
 
@@ -305,29 +291,24 @@ The interceptor specified in the `@Sign` annotation is `SignInterceptor`.
 
 ```java
 @Component
+@Setter
 public class SignInterceptor extends BasePathMatchInterceptor {
 
-    private String accessKeyId;
+   private String accessKeyId;
 
-    private String accessKeySecret;
+   private String accessKeySecret;
 
-    public void setAccessKeyId(String accessKeyId) {
-        this.accessKeyId = accessKeyId;
-    }
-
-    public void setAccessKeySecret(String accessKeySecret) {
-        this.accessKeySecret = accessKeySecret;
-    }
-
-    @Override
-    public Response doIntercept(Chain chain) throws IOException {
-        Request request = chain.request();
-        Request newReq = request.newBuilder()
-                .addHeader("accessKeyId", accessKeyId)
-                .addHeader("accessKeySecret", accessKeySecret)
-                .build();
-        return chain.proceed(newReq);
-    }
+   @Override
+   public Response doIntercept(Chain chain) throws IOException {
+      Request request = chain.request();
+      Request newReq = request.newBuilder()
+              .addHeader("accessKeyId", accessKeyId)
+              .addHeader("accessKeySecret", accessKeySecret)
+              .build();
+      Response response = chain.proceed(newReq);
+      return response.newBuilder().addHeader("accessKeyId", accessKeyId)
+              .addHeader("accessKeySecret", accessKeySecret).build();
+   }
 }
 ```
 
@@ -339,14 +320,15 @@ The `accessKeyId` and `accessKeySecret` field values of the interceptor will be 
 
 ```java
 @RetrofitClient(baseUrl = "${test.baseUrl}")
-@Sign(accessKeyId = "${test.accessKeyId}", accessKeySecret = "${test.accessKeySecret}", exclude = {"/api/test/person"})
-public interface HttpApi {
+@Sign(accessKeyId = "${test.accessKeyId}", accessKeySecret = "${test.accessKeySecret}", include = "/api/user/getAll")
+public interface InterceptorUserService {
 
-    @GET("person")
-    Result<Person> getPerson(@Query("id") Long id);
+   /**
+    * 查询所有用户信息
+    */
+   @GET("getAll")
+   Response<List<User>> getAll();
 
-    @POST("savePerson")
-    Result<Person> savePerson(@Body Person person);
 }
 ```
 
@@ -364,6 +346,7 @@ retrofit:
       enable: true
       log-level: info
       log-strategy: basic
+      aggregate: true
 ```
 
 The meanings of the four log printing strategies are as follows:
@@ -380,17 +363,6 @@ If only some requests are required to print the log, you can use the `@Logging` 
 #### Log printing custom extension
 
 If you need to modify the log printing behavior, you can inherit `LoggingInterceptor` and configure it as a `Spring bean`.
-
-#### Aggregate log printing
-
-If the logs of the same request need to be aggregated and printed together, `AggregateLoggingInterceptor` can be configured.
-
-```java
-@Bean
-public LoggingInterceptor loggingInterceptor(RetrofitProperties retrofitProperties){
-    return new AggregateLoggingInterceptor(retrofitProperties.getGlobalLog());
-}
-```
 
 ### Request Retry
 
@@ -491,27 +463,27 @@ retrofit:
 
 Circuit breaker configuration management：
 
-1. Implement the `CircuitBreakerConfigRegistrar` interface and register the `CircuitBreakerConfig`.
+Implement the `CircuitBreakerConfigRegistrar` interface and register the `CircuitBreakerConfig`.
 
-   ```java
-   @Component
-   public class CustomCircuitBreakerConfigRegistrar implements CircuitBreakerConfigRegistrar {
-      @Override
-      public void register(CircuitBreakerConfigRegistry registry) {
-      
-            registry.register(Constants.DEFAULT_CIRCUIT_BREAKER_CONFIG, CircuitBreakerConfig.ofDefaults());
-      
-            registry.register("testCircuitBreakerConfig", CircuitBreakerConfig.custom()
-                    .slidingWindowType(CircuitBreakerConfig.SlidingWindowType.TIME_BASED)
-                    .failureRateThreshold(20)
-                    .minimumNumberOfCalls(5)
-                    .permittedNumberOfCallsInHalfOpenState(5)
-                    .build());
-      }
+```java
+@Component
+public class CustomCircuitBreakerConfigRegistrar implements CircuitBreakerConfigRegistrar {
+   @Override
+   public void register(CircuitBreakerConfigRegistry registry) {
+   
+         registry.register(Constants.DEFAULT_CIRCUIT_BREAKER_CONFIG, CircuitBreakerConfig.ofDefaults());
+   
+         registry.register("testCircuitBreakerConfig", CircuitBreakerConfig.custom()
+                 .slidingWindowType(CircuitBreakerConfig.SlidingWindowType.TIME_BASED)
+                 .failureRateThreshold(20)
+                 .minimumNumberOfCalls(5)
+                 .permittedNumberOfCallsInHalfOpenState(5)
+                 .build());
    }
-    ```
+}
+ ```
 
-2. Specify the `CircuitBreakerConfig` via `circuitBreakerConfigName`. Include `retrofit.degrade.global-resilience4j-degrade.circuit-breaker-config-name` or `@Resilience4jDegrade.circuitBreakerConfigName`
+Specify the `CircuitBreakerConfig` via `circuitBreakerConfigName`. Include `retrofit.degrade.global-resilience4j-degrade.circuit-breaker-config-name` or `@Resilience4jDegrade.circuitBreakerConfigName`
 
 
 #### Extended circuit breaker degrade
@@ -528,7 +500,6 @@ Implementation class, the generic parameter type is the current interface type. 
 The main difference between `fallbackFactory` and `fallback` is that it can perceive the abnormal cause (cause) of each fuse. The reference example is as follows:
 
 ```java
-
 @Slf4j
 @Service
 public class HttpDegradeFallback implements HttpDegradeApi {
@@ -608,9 +579,15 @@ public class SpringCloudServiceInstanceChooser implements ServiceInstanceChooser
 #### Specify `serviceId` and `path`
 
 ```java
+@RetrofitClient(serviceId = "user", path = "/api/user")
+public interface ChooserOkHttpUserService {
 
-@RetrofitClient(serviceId = "${jy-helicarrier-api.serviceId}", path = "/m/count")
-public interface ApiCountService {}
+   /**
+    * 根据id查询用户信息
+    */
+   @GET("getUser")
+   User getUser(@Query("id") Long id);
+}
 ```
 
 ## Global Interceptor
@@ -621,19 +598,12 @@ If we need to perform unified interception processing for `HTTP` requests of the
 
 ```java
 @Component
-public class SourceGlobalInterceptor implements GlobalInterceptor {
-
-   @Autowired
-   private TestService testService;
-
+public class MyGlobalInterceptor implements GlobalInterceptor {
    @Override
    public Response intercept(Chain chain) throws IOException {
-      Request request = chain.request();
-      Request newReq = request.newBuilder()
-              .addHeader("source", "test")
-              .build();
-      testService.test();
-      return chain.proceed(newReq);
+      Response response = chain.proceed(chain.request());
+      // response的Header加上global
+      return response.newBuilder().header("global", "true").build();
    }
 }
 ```
@@ -667,39 +637,6 @@ Implement the `NetworkInterceptor` interface and configure it as a `spring Bean`
 - `Single<T>`: `Rxjava` reactive return type (supports `Rxjava2/Rxjava3`)
 - `Completable`: `Rxjava` reactive return type, `HTTP` request has no response body (supports `Rxjava2/Rxjava3`)
 
-```java
-@RetrofitClient(baseUrl = "${test.baseUrl}")
-public interface HttpApi {
-
-   @POST("getString")
-   String getString(@Body Person person);
-
-   @GET("person")
-   Result<Person> getPerson(@Query("id") Long id);
-
-   @GET("person")
-   CompletableFuture<Result<Person>> getPersonCompletableFuture(@Query("id") Long id);
-
-   @POST("savePerson")
-   Void savePersonVoid(@Body Person person);
-
-   @GET("person")
-   Response<Result<Person>> getPersonResponse(@Query("id") Long id);
-
-   @GET("person")
-   Call<Result<Person>> getPersonCall(@Query("id") Long id);
-
-   @GET("person")
-   Mono<Result<Person>> monoPerson(@Query("id") Long id);
-   
-   @GET("person")
-   Single<Result<Person>> singlePerson(@Query("id") Long id);
-   
-   @GET("ping")
-   Completable ping();
-}
-
-```
 
 `CallAdapter` can be extended by extending `CallAdapter.Factory`.
 

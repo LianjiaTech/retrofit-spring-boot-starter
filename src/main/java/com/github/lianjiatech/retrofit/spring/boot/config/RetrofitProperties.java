@@ -67,7 +67,7 @@ public class RetrofitProperties {
                 JacksonConverterFactory.class};
 
     /**
-     * 全局调用适配器工厂，转换器实例优先从Spring容器获取，如果没有获取到，则反射创建。
+     * 全局调用适配器工厂，适配器实例优先从Spring容器获取，如果没有获取到，则反射创建。
      * <p>
      * global call adapter factories, The  callAdapter instance is first obtained from the Spring container. If it is not obtained, it is created by reflection.
      */

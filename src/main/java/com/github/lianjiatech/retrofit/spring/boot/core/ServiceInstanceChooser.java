@@ -22,7 +22,8 @@ public interface ServiceInstanceChooser {
 
         @Override
         public URI choose(String serviceId) {
-            throw new ServiceInstanceChooseException("No valid service instance selector, Please configure it!");
+            throw new ServiceInstanceChooseException(
+                    "No valid service instance selector, Please configure it! serviceId=" + serviceId);
         }
     }
 
