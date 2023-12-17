@@ -817,7 +817,7 @@ public interface DownloadApi {
 #### `HTTP`下载使用
 
 ```java
-@SpringBootTest(classes = {RetrofitBootApplication.class})(classes = RetrofitTestApplication.class)
+@SpringBootTest(classes = {RetrofitBootApplication.class})
 @RunWith(SpringRunner.class)
 public class DownloadTest {
     @Autowired

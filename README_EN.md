@@ -759,7 +759,7 @@ public interface DownloadApi {
 #### `HTTP` Download Using
 
 ```java
-@SpringBootTest(classes = {RetrofitBootApplication.class})(classes = RetrofitTestApplication.class)
+@SpringBootTest(classes = {RetrofitBootApplication.class})
 @RunWith(SpringRunner.class)
 public class DownloadTest {
     @Autowired
