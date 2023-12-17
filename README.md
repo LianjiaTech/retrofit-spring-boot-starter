@@ -51,7 +51,7 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-   <version>2.3.13</version>
+   <version>2.3.14</version>
 </dependency>
 ```
 
@@ -63,10 +63,13 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 
 ```java
 @RetrofitClient(baseUrl = "${test.baseUrl}")
-public interface HttpApi {
+public interface UserService {
 
-    @GET("person")
-    Result<Person> getPerson(@Query("id") Long id);
+   /**
+    * 根据id查询用户姓名
+    */
+   @POST("getName")
+   String getName(@Query("id") Long id);
 }
 ```
 
@@ -78,13 +81,13 @@ public interface HttpApi {
 
 ```java
 @Service
-public class TestService {
+public class BusinessService {
 
     @Autowired
-    private HttpApi httpApi;
+    private UserService userService;
 
-    public void test() {
-       // 使用`httpApi`发起HTTP请求
+    public void doBusiness() {
+       // call userService
     }
 }
 ```
@@ -131,6 +134,8 @@ retrofit:
       log-level: info
       # 全局日志打印策略
       log-strategy: basic
+      # 是否聚合打印请求日志
+      aggregate: true
 
    # 全局重试配置
    global-retry:
@@ -192,44 +197,40 @@ retrofit:
 
 如果需要修改`OkHttpClient`其它配置，可以通过自定义`OkHttpClient`来实现，步骤如下：
 
-1. 实现`SourceOkHttpClientRegistrar`接口，调用`SourceOkHttpClientRegistry#register()`方法注册`OkHttpClient`。
+**实现`SourceOkHttpClientRegistrar`接口，调用`SourceOkHttpClientRegistry#register()`方法注册`OkHttpClient`**
    
-   ```java
-   @Slf4j
-   @Component
-   public class CustomSourceOkHttpClientRegistrar implements SourceOkHttpClientRegistrar {
-   
-       @Override
-       public void register(SourceOkHttpClientRegistry registry) {
-   
-           // 添加testSourceOkHttpClient
-           registry.register("testSourceOkHttpClient", new OkHttpClient.Builder()
-                   .connectTimeout(Duration.ofSeconds(3))
-                   .writeTimeout(Duration.ofSeconds(3))
-                   .readTimeout(Duration.ofSeconds(3))
-                   .addInterceptor(chain -> {
-                       log.info("============use testSourceOkHttpClient=============");
-                       return chain.proceed(chain.request());
-                   })
-                   .build());
-       }
-   }
-   ```
+```java
+@Component
+public class CustomOkHttpClientRegistrar implements SourceOkHttpClientRegistrar {
 
-2. 通过`@RetrofitClient.sourceOkHttpClient`指定当前接口要使用的`OkHttpClient`。
-
-   ```java
-   @RetrofitClient(baseUrl = "${test.baseUrl}", sourceOkHttpClient = "testSourceOkHttpClient")
-   public interface CustomOkHttpTestApi {
-   
-       @GET("person")
-       Result<Person> getPerson(@Query("id") Long id);
+   @Override
+   public void register(SourceOkHttpClientRegistry registry) {
+      // 注册customOkHttpClient，超时时间设置为1s
+      registry.register("customOkHttpClient", new OkHttpClient.Builder()
+              .connectTimeout(Duration.ofSeconds(1))
+              .writeTimeout(Duration.ofSeconds(1))
+              .readTimeout(Duration.ofSeconds(1))
+              .addInterceptor(chain -> chain.proceed(chain.request()))
+              .build());
    }
-   ```
+}
+```
+
+**通过`@RetrofitClient.sourceOkHttpClient`指定当前接口要使用的`OkHttpClient`**
+
+```java
+@RetrofitClient(baseUrl = "${test.baseUrl}", sourceOkHttpClient = "customOkHttpClient")
+public interface CustomOkHttpUserService {
+
+   /**
+    * 根据id查询用户信息
+    */
+   @GET("getUser")
+   User getUser(@Query("id") Long id);
+}
+```
 
 > 注意：组件不会直接使用指定的`OkHttpClient`，而是基于该`OkHttpClient`创建一个新的。
-
-
 
 ### 注解式拦截器
 
@@ -240,27 +241,17 @@ retrofit:
 
 > 如果需要使用多个拦截器，在接口上标注多个`@Intercept`注解即可。
 
-下面以"给指定请求的url后面拼接timestamp时间戳"为例，介绍下如何使用注解式拦截器。
-
 #### 继承`BasePathMatchInterceptor`编写拦截处理器
 
 ```java
 @Component
-public class TimeStampInterceptor extends BasePathMatchInterceptor {
-
-    @Override
-    public Response doIntercept(Chain chain) throws IOException {
-        Request request = chain.request();
-        HttpUrl url = request.url();
-        long timestamp = System.currentTimeMillis();
-        HttpUrl newUrl = url.newBuilder()
-                .addQueryParameter("timestamp", String.valueOf(timestamp))
-                .build();
-        Request newRequest = request.newBuilder()
-                .url(newUrl)
-                .build();
-        return chain.proceed(newRequest);
-    }
+public class PathMatchInterceptor extends BasePathMatchInterceptor {
+   @Override
+   protected Response doIntercept(Chain chain) throws IOException {
+      Response response = chain.proceed(chain.request());
+      // response的Header加上path.match
+      return response.newBuilder().header("path.match", "true").build();
+   }
 }
 ```
 
@@ -270,12 +261,8 @@ public class TimeStampInterceptor extends BasePathMatchInterceptor {
 ```java
 @Component
 @Scope("prototype")
-public class TimeStampInterceptor extends BasePathMatchInterceptor {
-
-   @Override
-   public Response doIntercept(Chain chain) throws IOException {
-      // ...
-   }
+public class PathMatchInterceptor extends BasePathMatchInterceptor {
+    
 }
 ```
 
@@ -283,20 +270,26 @@ public class TimeStampInterceptor extends BasePathMatchInterceptor {
 
 ```java
 @RetrofitClient(baseUrl = "${test.baseUrl}")
-@Intercept(handler = TimeStampInterceptor.class, include = {"/api/**"}, exclude = "/api/test/savePerson")
-@Intercept(handler = TimeStamp2Interceptor.class) // 需要多个，直接添加即可
-public interface HttpApi {
+@Intercept(handler = PathMatchInterceptor.class, include = {"/api/user/**"}, exclude = "/api/user/getUser")
+// @Intercept() 如果需要使用多个路径匹配拦截器，继续添加@Intercept即可
+public interface InterceptorUserService {
 
-    @GET("person")
-    Result<Person> getPerson(@Query("id") Long id);
+   /**
+    * 根据id查询用户姓名
+    */
+   @POST("getName")
+   Response<String> getName(@Query("id") Long id);
 
-    @POST("savePerson")
-    Result<Person> savePerson(@Body Person person);
+   /**
+    * 根据id查询用户信息
+    */
+   @GET("getUser")
+   Response<User> getUser(@Query("id") Long id);
+
 }
 ```
 
-上面的`@Intercept`配置表示：拦截`HttpApi`接口下`/api/**`路径下（排除`/api/test/savePerson`）的请求，拦截处理器使用`TimeStampInterceptor`。
-
+上面的`@Intercept`配置表示：拦截`InterceptorUserService`接口下`/api/user/**`路径下（排除`/api/user/getUser`）的请求，拦截处理器使用`PathMatchInterceptor`。
 
 
 ### 自定义拦截注解
@@ -337,29 +330,24 @@ public @interface Sign {
 
 ```java
 @Component
+@Setter
 public class SignInterceptor extends BasePathMatchInterceptor {
 
-    private String accessKeyId;
+   private String accessKeyId;
 
-    private String accessKeySecret;
+   private String accessKeySecret;
 
-    public void setAccessKeyId(String accessKeyId) {
-        this.accessKeyId = accessKeyId;
-    }
-
-    public void setAccessKeySecret(String accessKeySecret) {
-        this.accessKeySecret = accessKeySecret;
-    }
-
-    @Override
-    public Response doIntercept(Chain chain) throws IOException {
-        Request request = chain.request();
-        Request newReq = request.newBuilder()
-                .addHeader("accessKeyId", accessKeyId)
-                .addHeader("accessKeySecret", accessKeySecret)
-                .build();
-        return chain.proceed(newReq);
-    }
+   @Override
+   public Response doIntercept(Chain chain) throws IOException {
+      Request request = chain.request();
+      Request newReq = request.newBuilder()
+              .addHeader("accessKeyId", accessKeyId)
+              .addHeader("accessKeySecret", accessKeySecret)
+              .build();
+      Response response = chain.proceed(newReq);
+      return response.newBuilder().addHeader("accessKeyId", accessKeyId)
+              .addHeader("accessKeySecret", accessKeySecret).build();
+   }
 }
 ```
 
@@ -371,14 +359,15 @@ public class SignInterceptor extends BasePathMatchInterceptor {
 
 ```java
 @RetrofitClient(baseUrl = "${test.baseUrl}")
-@Sign(accessKeyId = "${test.accessKeyId}", accessKeySecret = "${test.accessKeySecret}", exclude = {"/api/test/person"})
-public interface HttpApi {
+@Sign(accessKeyId = "${test.accessKeyId}", accessKeySecret = "${test.accessKeySecret}", include = "/api/user/getAll")
+public interface InterceptorUserService {
 
-    @GET("person")
-    Result<Person> getPerson(@Query("id") Long id);
+   /**
+    * 查询所有用户信息
+    */
+   @GET("getAll")
+   Response<List<User>> getAll();
 
-    @POST("savePerson")
-    Result<Person> savePerson(@Body Person person);
 }
 ```
 
@@ -400,6 +389,8 @@ retrofit:
       log-level: info
       # 全局日志打印策略
       log-strategy: basic
+      # 是否聚合打印请求日志
+      aggregate: true
 ```
 
 四种日志打印策略含义如下：
@@ -416,17 +407,6 @@ retrofit:
 #### 日志打印自定义扩展
 
 如果需要修改日志打印行为，可以继承`LoggingInterceptor`，并将其配置成`Spring bean`。
-
-#### 聚合日志打印
-
-如果需要将同一个请求的日志聚合在一起打印，可配置`AggregateLoggingInterceptor`。
-
-```java
-@Bean
-public LoggingInterceptor loggingInterceptor(RetrofitProperties retrofitProperties){
-    return new AggregateLoggingInterceptor(retrofitProperties.getGlobalLog());
-}
-```
 
 ### 请求重试
 
@@ -541,31 +521,29 @@ retrofit:
 
 熔断配置管理：
 
-1. 实现`CircuitBreakerConfigRegistrar`接口，注册`CircuitBreakerConfig`。
+实现`CircuitBreakerConfigRegistrar`接口，注册`CircuitBreakerConfig`。
 
-   ```java
-   @Component
-   public class CustomCircuitBreakerConfigRegistrar implements CircuitBreakerConfigRegistrar {
-      @Override
-      public void register(CircuitBreakerConfigRegistry registry) {
-      
-            // 替换默认的CircuitBreakerConfig
-            registry.register(Constants.DEFAULT_CIRCUIT_BREAKER_CONFIG, CircuitBreakerConfig.ofDefaults());
-      
-            // 注册其它的CircuitBreakerConfig
-            registry.register("testCircuitBreakerConfig", CircuitBreakerConfig.custom()
-                    .slidingWindowType(CircuitBreakerConfig.SlidingWindowType.TIME_BASED)
-                    .failureRateThreshold(20)
-                    .minimumNumberOfCalls(5)
-                    .permittedNumberOfCallsInHalfOpenState(5)
-                    .build());
-      }
-   }
-    ```
+```java
+@Component
+public class CustomCircuitBreakerConfigRegistrar implements CircuitBreakerConfigRegistrar {
+   @Override
+   public void register(CircuitBreakerConfigRegistry registry) {
    
-2. 通过`circuitBreakerConfigName`指定`CircuitBreakerConfig`。包括`retrofit.degrade.global-resilience4j-degrade.circuit-breaker-config-name`或者`@Resilience4jDegrade.circuitBreakerConfigName`
-
-
+         // 替换默认的CircuitBreakerConfig
+         registry.register(Constants.DEFAULT_CIRCUIT_BREAKER_CONFIG, CircuitBreakerConfig.ofDefaults());
+   
+         // 注册其它的CircuitBreakerConfig
+         registry.register("testCircuitBreakerConfig", CircuitBreakerConfig.custom()
+                 .slidingWindowType(CircuitBreakerConfig.SlidingWindowType.TIME_BASED)
+                 .failureRateThreshold(20)
+                 .minimumNumberOfCalls(5)
+                 .permittedNumberOfCallsInHalfOpenState(5)
+                 .build());
+   }
+}
+ ```
+   
+通过`circuitBreakerConfigName`指定`CircuitBreakerConfig`。包括`retrofit.degrade.global-resilience4j-degrade.circuit-breaker-config-name`或者`@Resilience4jDegrade.circuitBreakerConfigName`
 
 #### 扩展熔断降级
 
@@ -581,7 +559,6 @@ retrofit:
 `fallbackFactory`相对于`fallback`，主要差别在于能够感知每次熔断的异常原因(cause)，参考示例如下：
 
 ```java
-
 @Slf4j
 @Service
 public class HttpDegradeFallback implements HttpDegradeApi {
@@ -660,9 +637,15 @@ public class SpringCloudServiceInstanceChooser implements ServiceInstanceChooser
 #### 指定`serviceId`和`path`
 
 ```java
+@RetrofitClient(serviceId = "user", path = "/api/user")
+public interface ChooserOkHttpUserService {
 
-@RetrofitClient(serviceId = "${jy-helicarrier-api.serviceId}", path = "/m/count")
-public interface ApiCountService {}
+   /**
+    * 根据id查询用户信息
+    */
+   @GET("getUser")
+   User getUser(@Query("id") Long id);
+}
 ```
 
 ## 全局拦截器
@@ -673,19 +656,12 @@ public interface ApiCountService {}
 
 ```java
 @Component
-public class SourceGlobalInterceptor implements GlobalInterceptor {
-
-   @Autowired
-   private TestService testService;
-
+public class MyGlobalInterceptor implements GlobalInterceptor {
    @Override
    public Response intercept(Chain chain) throws IOException {
-      Request request = chain.request();
-      Request newReq = request.newBuilder()
-              .addHeader("source", "test")
-              .build();
-      testService.test();
-      return chain.proceed(newReq);
+      Response response = chain.proceed(chain.request());
+      // response的Header加上global
+      return response.newBuilder().header("global", "true").build();
    }
 }
 ```
@@ -719,39 +695,6 @@ public class SourceGlobalInterceptor implements GlobalInterceptor {
 - `Single<T>`：`Rxjava`响应式返回类型（支持`Rxjava2/Rxjava3`）
 - `Completable`：`Rxjava`响应式返回类型，`HTTP`请求没有响应体（支持`Rxjava2/Rxjava3`）
 
-```java
-@RetrofitClient(baseUrl = "${test.baseUrl}")
-public interface HttpApi {
-
-   @POST("getString")
-   String getString(@Body Person person);
-
-   @GET("person")
-   Result<Person> getPerson(@Query("id") Long id);
-
-   @GET("person")
-   CompletableFuture<Result<Person>> getPersonCompletableFuture(@Query("id") Long id);
-
-   @POST("savePerson")
-   Void savePersonVoid(@Body Person person);
-
-   @GET("person")
-   Response<Result<Person>> getPersonResponse(@Query("id") Long id);
-
-   @GET("person")
-   Call<Result<Person>> getPersonCall(@Query("id") Long id);
-
-   @GET("person")
-   Mono<Result<Person>> monoPerson(@Query("id") Long id);
-   
-   @GET("person")
-   Single<Result<Person>> singlePerson(@Query("id") Long id);
-   
-   @GET("ping")
-   Completable ping();
-}
-
-```
 
 可以通过继承`CallAdapter.Factory`扩展`CallAdapter`。
 
@@ -766,7 +709,6 @@ retrofit:
 针对每个Java接口，还可以通过`@RetrofitClient.callAdapterFactories`指定当前接口采用的`CallAdapter.Factory`。
 
 > 建议：将`CallAdapter.Factory`配置成`Spring Bean`
-
 
 ### 数据转码器
 
@@ -875,7 +817,7 @@ public interface DownloadApi {
 #### `HTTP`下载使用
 
 ```java
-@SpringBootTest(classes = RetrofitTestApplication.class)
+@SpringBootTest(classes = {RetrofitBootApplication.class})(classes = RetrofitTestApplication.class)
 @RunWith(SpringRunner.class)
 public class DownloadTest {
     @Autowired

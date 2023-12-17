@@ -30,5 +30,5 @@ public @interface Resilience4jDegrade {
      *
      * @return circuitBreakerConfigName
      */
-    String circuitBreakerConfigName() default Constants.CIRCUIT_BREAKER_CLASS_NAME;
+    String circuitBreakerConfigName() default Constants.DEFAULT_CIRCUIT_BREAKER_CONFIG;
 }

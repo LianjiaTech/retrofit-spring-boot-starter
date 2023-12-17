@@ -4,6 +4,8 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
+import com.github.lianjiatech.retrofit.spring.boot.util.AppContextUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 
@@ -13,6 +15,7 @@ import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClient;
  * @author 陈添明
  * @since 2022/4/30 2:27 下午
  */
+@Slf4j
 public class DegradeProxy implements InvocationHandler {
 
     private final Object source;
@@ -28,12 +31,13 @@ public class DegradeProxy implements InvocationHandler {
         Class<?> fallbackClass = retrofitClient.fallback();
         Object fallback = null;
         if (!void.class.isAssignableFrom(fallbackClass)) {
-            fallback = applicationContext.getBean(fallbackClass);
+            fallback = AppContextUtils.getBeanOrNew(applicationContext, fallbackClass);
         }
         Class<?> fallbackFactoryClass = retrofitClient.fallbackFactory();
         FallbackFactory<?> fallbackFactory = null;
         if (!void.class.isAssignableFrom(fallbackFactoryClass)) {
-            fallbackFactory = (FallbackFactory<?>)applicationContext.getBean(fallbackFactoryClass);
+            fallbackFactory =
+                    (FallbackFactory<?>)AppContextUtils.getBeanOrNew(applicationContext, fallbackFactoryClass);
         }
         DegradeProxy degradeProxy = new DegradeProxy(source, fallback, fallbackFactory);
         return (T)Proxy.newProxyInstance(retrofitInterface.getClassLoader(),
@@ -56,6 +60,7 @@ public class DegradeProxy implements InvocationHandler {
             if (cause instanceof RetrofitBlockException) {
                 Object fallbackObject = getFallbackObject(cause);
                 if (fallbackObject != null) {
+                    log.error("call fallback! method={}, args={}", method, args, cause);
                     return method.invoke(fallbackObject, args);
                 }
             }

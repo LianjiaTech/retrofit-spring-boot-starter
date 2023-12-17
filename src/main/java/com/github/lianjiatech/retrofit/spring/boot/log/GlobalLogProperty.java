@@ -10,7 +10,7 @@ import lombok.Data;
 public class GlobalLogProperty {
 
     /**
-     * 是否启用
+     * 是否启用日志
      */
     private boolean enable = true;
 
@@ -25,4 +25,9 @@ public class GlobalLogProperty {
      * Log printing strategy, see {@link LogStrategy} for supported log printing strategies
      */
     private LogStrategy logStrategy = LogStrategy.BASIC;
+
+    /**
+     * 是否聚合打印请求日志
+     */
+    private boolean aggregate = true;
 }

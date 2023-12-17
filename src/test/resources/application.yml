@@ -4,9 +4,9 @@ retrofit:
   global-converter-factories:
     - com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory
     - retrofit2.converter.jackson.JacksonConverterFactory
-  # 全局调用适配器工厂(组件扩展的调用适配器工厂已经内置，这里请勿重复配置)
+  # 全局适配器工厂(组件扩展的`CallAdaptorFactory`工厂已经内置，这里请勿重复配置)
   global-call-adapter-factories:
-    - com.github.lianjiatech.retrofit.spring.boot.core.BodyCallAdapterFactory
+
   # 全局日志打印配置
   global-log:
     # 启用全局日志打印
@@ -14,17 +14,18 @@ retrofit:
     # 全局日志打印级别
     log-level: info
     # 全局日志打印策略
-    log-strategy: body
-
+    log-strategy: basic
+    # 是否聚合打印请求日志
+    aggregate: true
 
   # 全局重试配置
   global-retry:
     # 是否启用全局重试
-    enable: true
+    enable: false
     # 全局重试间隔时间
-    interval-ms: 1
+    interval-ms: 100
     # 全局最大重试次数
-    max-retries: 1
+    max-retries: 2
     # 全局重试规则
     retry-rules:
       - response_status_not_2xx
@@ -67,6 +68,6 @@ retrofit:
   auto-set-prototype-scope-for-path-math-interceptor: true
 
 test:
-  baseUrl: http://localhost:8080/api/test/
+  baseUrl: http://localhost:8080/api/user/
   accessKeyId: root
   accessKeySecret: 123456
