@@ -32,7 +32,10 @@ public class RetryInterceptor implements Interceptor {
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
-        Method method = Objects.requireNonNull(request.tag(Invocation.class)).method();
+        Method method = RetrofitUtils.getMethodFormRequest(request);
+        if (method == null) {
+            return chain.proceed(request);
+        }
         // 获取重试配置
         Retry retry = AnnotationExtendUtils.findMergedAnnotation(method, method.getDeclaringClass(), Retry.class);
         if (!needRetry(retry)) {

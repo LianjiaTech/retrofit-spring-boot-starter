@@ -6,6 +6,7 @@ import java.util.Objects;
 
 import com.github.lianjiatech.retrofit.spring.boot.util.AnnotationExtendUtils;
 
+import com.github.lianjiatech.retrofit.spring.boot.util.RetrofitUtils;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Interceptor;
 import okhttp3.Response;
@@ -46,7 +47,10 @@ public class LoggingInterceptor implements Interceptor {
     }
 
     protected Logging findLogging(Chain chain) {
-        Method method = Objects.requireNonNull(chain.request().tag(Invocation.class)).method();
+        Method method = RetrofitUtils.getMethodFormRequest(chain.request());
+        if (method == null) {
+            return null;
+        }
         return AnnotationExtendUtils.findMergedAnnotation(method, method.getDeclaringClass(), Logging.class);
     }
 
