@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Objects;
 
+import com.github.lianjiatech.retrofit.spring.boot.util.RetrofitUtils;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 
 import com.alibaba.csp.sentinel.Entry;
@@ -90,7 +91,10 @@ public class SentinelRetrofitDegrade extends BaseRetrofitDegrade {
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
-        Method method = Objects.requireNonNull(request.tag(Invocation.class)).method();
+        Method method = RetrofitUtils.getMethodFormRequest(request);
+        if (method == null) {
+            return chain.proceed(request);
+        }
         SentinelDegrade sentinelDegrade = AnnotationExtendUtils.findMergedAnnotation(method, method.getDeclaringClass(),
                 SentinelDegrade.class);
         if (!needDegrade(sentinelDegrade)) {

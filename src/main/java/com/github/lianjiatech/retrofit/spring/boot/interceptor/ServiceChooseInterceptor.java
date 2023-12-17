@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.Objects;
 
+import com.github.lianjiatech.retrofit.spring.boot.util.RetrofitUtils;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.util.StringUtils;
 
@@ -31,7 +32,10 @@ public class ServiceChooseInterceptor implements Interceptor {
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
-        Method method = Objects.requireNonNull(request.tag(Invocation.class)).method();
+        Method method = RetrofitUtils.getMethodFormRequest(request);
+        if (method == null) {
+            return chain.proceed(request);
+        }
         Class<?> declaringClass = method.getDeclaringClass();
         RetrofitClient retrofitClient =
                 AnnotatedElementUtils.findMergedAnnotation(declaringClass, RetrofitClient.class);

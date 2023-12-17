@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Objects;
 
+import com.github.lianjiatech.retrofit.spring.boot.util.RetrofitUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -30,7 +31,10 @@ public class ErrorDecoderInterceptor implements Interceptor, ApplicationContextA
     @SneakyThrows
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
-        Method method = Objects.requireNonNull(request.tag(Invocation.class)).method();
+        Method method = RetrofitUtils.getMethodFormRequest(request);
+        if (method == null) {
+            return chain.proceed(request);
+        }
         RetrofitClient retrofitClient =
                 AnnotatedElementUtils.findMergedAnnotation(method.getDeclaringClass(), RetrofitClient.class);
         ErrorDecoder errorDecoder =
