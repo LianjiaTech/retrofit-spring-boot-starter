@@ -96,6 +96,9 @@ public class LoggingInterceptor implements Interceptor {
         }
 
         public void flush() {
+            if(buffer.toString().equals(System.lineSeparator())){
+                return;
+            }
             delegate.log(buffer.toString());
             buffer = new StringBuilder(System.lineSeparator());
         }
