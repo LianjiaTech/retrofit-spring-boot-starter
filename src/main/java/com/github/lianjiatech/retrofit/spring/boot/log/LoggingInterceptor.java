@@ -29,8 +29,11 @@ public class LoggingInterceptor implements Interceptor {
         if (!needLog(logging)) {
             return chain.proceed(chain.request());
         }
-        LogLevel logLevel = logging == null ? globalLogProperty.getLogLevel() : logging.logLevel();
         LogStrategy logStrategy = logging == null ? globalLogProperty.getLogStrategy() : logging.logStrategy();
+        if (logStrategy == LogStrategy.NONE) {
+            return chain.proceed(chain.request());
+        }
+        LogLevel logLevel = logging == null ? globalLogProperty.getLogLevel() : logging.logLevel();
         boolean aggregate = logging == null ? globalLogProperty.isAggregate() : logging.aggregate();
         HttpLoggingInterceptor.Logger matchLogger = matchLogger(logLevel);
         HttpLoggingInterceptor.Logger logger = aggregate ? new BufferingLogger(matchLogger) : matchLogger;
