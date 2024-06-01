@@ -1,22 +1,17 @@
 package com.github.lianjiatech.retrofit.spring.boot.interceptor;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.net.URI;
-import java.util.Objects;
-
-import com.github.lianjiatech.retrofit.spring.boot.util.RetrofitUtils;
-import org.springframework.core.annotation.AnnotatedElementUtils;
-import org.springframework.util.StringUtils;
-
 import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClient;
 import com.github.lianjiatech.retrofit.spring.boot.core.ServiceInstanceChooser;
-
 import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.springframework.core.annotation.AnnotatedElementUtils;
+import org.springframework.util.StringUtils;
 import retrofit2.Invocation;
+
+import java.io.IOException;
+import java.net.URI;
 
 /**
  * @author 陈添明
@@ -32,13 +27,12 @@ public class ServiceChooseInterceptor implements Interceptor {
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
-        Method method = RetrofitUtils.getMethodFormRequest(request);
-        if (method == null) {
+        Invocation invocation = request.tag(Invocation.class);
+        if (invocation == null) {
             return chain.proceed(request);
         }
-        Class<?> declaringClass = method.getDeclaringClass();
         RetrofitClient retrofitClient =
-                AnnotatedElementUtils.findMergedAnnotation(declaringClass, RetrofitClient.class);
+                AnnotatedElementUtils.findMergedAnnotation(invocation.service(), RetrofitClient.class);
         String baseUrl = retrofitClient.baseUrl();
         if (StringUtils.hasText(baseUrl)) {
             return chain.proceed(request);

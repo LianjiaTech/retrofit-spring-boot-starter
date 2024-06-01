@@ -1,16 +1,15 @@
 package com.github.lianjiatech.retrofit.spring.boot.degrade;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
+import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClient;
+import com.github.lianjiatech.retrofit.spring.boot.util.RetrofitUtils;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.env.Environment;
 
-import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClient;
-import com.github.lianjiatech.retrofit.spring.boot.util.RetrofitUtils;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author 陈添明
@@ -25,13 +24,13 @@ public abstract class BaseRetrofitDegrade implements RetrofitDegrade, ResourceNa
     protected Environment environment;
 
     @Override
-    public String parseResourceName(Method method) {
+    public String parseResourceName(Method method, Class<?> service) {
         String resourceName = RESOURCE_NAME_CACHE.get(method);
         if (resourceName != null) {
             return resourceName;
         }
         RetrofitClient retrofitClient =
-                AnnotatedElementUtils.findMergedAnnotation(method.getDeclaringClass(), RetrofitClient.class);
+                AnnotatedElementUtils.findMergedAnnotation(service, RetrofitClient.class);
         String baseUrl = RetrofitUtils.convertBaseUrl(retrofitClient, retrofitClient.baseUrl(), environment);
         HttpMethodPath httpMethodPath = parseHttpMethodPath(method);
         resourceName = formatResourceName(baseUrl, httpMethodPath);

@@ -1,17 +1,7 @@
 package com.github.lianjiatech.retrofit.spring.boot.util;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-
-import okhttp3.Request;
-import org.springframework.core.env.Environment;
-import org.springframework.util.StringUtils;
-
 import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClient;
 import com.github.lianjiatech.retrofit.spring.boot.exception.ReadResponseBodyException;
-
 import lombok.experimental.UtilityClass;
 import okhttp3.Headers;
 import okhttp3.MediaType;
@@ -20,7 +10,11 @@ import okhttp3.ResponseBody;
 import okio.Buffer;
 import okio.BufferedSource;
 import okio.GzipSource;
-import retrofit2.Invocation;
+import org.springframework.core.env.Environment;
+import org.springframework.util.StringUtils;
+
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author 陈添明
@@ -106,16 +100,5 @@ public final class RetrofitUtils {
             baseUrl = environment.resolveRequiredPlaceholders(baseUrl);
         }
         return baseUrl;
-    }
-
-    public Method getMethodFormRequest(Request request) {
-        if (request == null) {
-            return null;
-        }
-        Invocation invocation = request.tag(Invocation.class);
-        if (invocation == null) {
-            return null;
-        }
-        return invocation.method();
     }
 }

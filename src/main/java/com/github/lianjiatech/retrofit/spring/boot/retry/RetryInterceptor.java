@@ -1,21 +1,17 @@
 package com.github.lianjiatech.retrofit.spring.boot.retry;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
 import com.github.lianjiatech.retrofit.spring.boot.exception.RetryFailedException;
 import com.github.lianjiatech.retrofit.spring.boot.util.AnnotationExtendUtils;
-
-import com.github.lianjiatech.retrofit.spring.boot.util.RetrofitUtils;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
 import retrofit2.Invocation;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.stream.Collectors;
 
 /**
  * @author 陈添明
@@ -32,12 +28,12 @@ public class RetryInterceptor implements Interceptor {
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
-        Method method = RetrofitUtils.getMethodFormRequest(request);
-        if (method == null) {
+        Invocation invocation = request.tag(Invocation.class);
+        if (invocation == null) {
             return chain.proceed(request);
         }
         // 获取重试配置
-        Retry retry = AnnotationExtendUtils.findMergedAnnotation(method, method.getDeclaringClass(), Retry.class);
+        Retry retry = AnnotationExtendUtils.findMergedAnnotation(invocation.method(), invocation.service(), Retry.class);
         if (!needRetry(retry)) {
             return chain.proceed(request);
         }

@@ -1,24 +1,21 @@
 package com.github.lianjiatech.retrofit.spring.boot.degrade.resilience4j;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
-
-import com.github.lianjiatech.retrofit.spring.boot.util.RetrofitUtils;
-import org.springframework.core.annotation.AnnotatedElementUtils;
-
 import com.github.lianjiatech.retrofit.spring.boot.degrade.BaseRetrofitDegrade;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitBlockException;
 import com.github.lianjiatech.retrofit.spring.boot.util.AnnotationExtendUtils;
-
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.core.StopWatch;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 import retrofit2.Invocation;
+
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author 陈添明
@@ -59,15 +56,14 @@ public class Resilience4jRetrofitDegrade extends BaseRetrofitDegrade {
                 continue;
             }
             Resilience4jDegrade resilience4jDegrade =
-                    AnnotationExtendUtils.findMergedAnnotation(method, method.getDeclaringClass(),
-                            Resilience4jDegrade.class);
+                    AnnotationExtendUtils.findMergedAnnotation(method, retrofitInterface, Resilience4jDegrade.class);
             if (!needDegrade(resilience4jDegrade)) {
                 continue;
             }
             String circuitBreakerConfigName =
                     resilience4jDegrade == null ? globalResilience4jDegradeProperty.getCircuitBreakerConfigName()
                             : resilience4jDegrade.circuitBreakerConfigName();
-            circuitBreakerRegistry.circuitBreaker(parseResourceName(method),
+            circuitBreakerRegistry.circuitBreaker(parseResourceName(method, retrofitInterface),
                     circuitBreakerConfigRegistry.get(circuitBreakerConfigName));
         }
     }
@@ -86,12 +82,12 @@ public class Resilience4jRetrofitDegrade extends BaseRetrofitDegrade {
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
-        Method method = RetrofitUtils.getMethodFormRequest(request);
-        if (method == null) {
+        Invocation invocation = request.tag(Invocation.class);
+        if (invocation == null) {
             return chain.proceed(request);
         }
         CircuitBreaker circuitBreaker =
-                circuitBreakerRegistry.find(parseResourceName(method)).orElse(null);
+                circuitBreakerRegistry.find(parseResourceName(invocation.method(), invocation.service())).orElse(null);
         if (Objects.isNull(circuitBreaker)) {
             // 断路器为空则直接调用返回
             return chain.proceed(request);
