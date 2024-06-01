@@ -1,24 +1,19 @@
 package com.github.lianjiatech.retrofit.spring.boot.interceptor;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.util.Objects;
-
-import com.github.lianjiatech.retrofit.spring.boot.util.RetrofitUtils;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.core.annotation.AnnotatedElementUtils;
-
 import com.github.lianjiatech.retrofit.spring.boot.core.ErrorDecoder;
 import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClient;
 import com.github.lianjiatech.retrofit.spring.boot.util.AppContextUtils;
-
 import lombok.SneakyThrows;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 import retrofit2.Invocation;
+
+import java.io.IOException;
 
 /**
  * @author 陈添明
@@ -31,12 +26,12 @@ public class ErrorDecoderInterceptor implements Interceptor, ApplicationContextA
     @SneakyThrows
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
-        Method method = RetrofitUtils.getMethodFormRequest(request);
-        if (method == null) {
+        Invocation invocation = request.tag(Invocation.class);
+        if (invocation == null) {
             return chain.proceed(request);
         }
         RetrofitClient retrofitClient =
-                AnnotatedElementUtils.findMergedAnnotation(method.getDeclaringClass(), RetrofitClient.class);
+                AnnotatedElementUtils.findMergedAnnotation(invocation.service(), RetrofitClient.class);
         ErrorDecoder errorDecoder =
                 AppContextUtils.getBeanOrNew(applicationContext, retrofitClient.errorDecoder());
         boolean decoded = false;

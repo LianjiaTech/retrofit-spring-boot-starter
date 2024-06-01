@@ -1,17 +1,14 @@
 package com.github.lianjiatech.retrofit.spring.boot.log;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.util.Objects;
-
 import com.github.lianjiatech.retrofit.spring.boot.util.AnnotationExtendUtils;
-
-import com.github.lianjiatech.retrofit.spring.boot.util.RetrofitUtils;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Interceptor;
+import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Invocation;
+
+import java.io.IOException;
 
 /**
  * @author 陈添明
@@ -41,17 +38,18 @@ public class LoggingInterceptor implements Interceptor {
                 .setLevel(HttpLoggingInterceptor.Level.valueOf(logStrategy.name()));
         Response response = httpLoggingInterceptor.intercept(chain);
         if (aggregate) {
-            ((BufferingLogger)logger).flush();
+            ((BufferingLogger) logger).flush();
         }
         return response;
     }
 
     protected Logging findLogging(Chain chain) {
-        Method method = RetrofitUtils.getMethodFormRequest(chain.request());
-        if (method == null) {
+        Request request = chain.request();
+        Invocation invocation = request.tag(Invocation.class);
+        if (invocation == null) {
             return null;
         }
-        return AnnotationExtendUtils.findMergedAnnotation(method, method.getDeclaringClass(), Logging.class);
+        return AnnotationExtendUtils.findMergedAnnotation(invocation.method(), invocation.service(), Logging.class);
     }
 
     protected boolean needLog(Logging logging) {
