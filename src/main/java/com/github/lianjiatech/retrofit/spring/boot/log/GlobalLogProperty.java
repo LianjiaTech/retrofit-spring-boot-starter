@@ -15,6 +15,11 @@ public class GlobalLogProperty {
     private boolean enable = true;
 
     /**
+     * logger 名字，默认为{@link LoggingInterceptor} 的全类名
+     */
+    private String logger = LoggingInterceptor.class.getName();
+
+    /**
      * 日志打印级别，支持的日志级别参见{@link LogLevel}
      * Log printing level, see {@link LogLevel} for supported log levels
      */
