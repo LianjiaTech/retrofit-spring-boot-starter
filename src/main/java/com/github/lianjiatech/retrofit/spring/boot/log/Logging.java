@@ -25,6 +25,16 @@ public @interface Logging {
     boolean enable() default true;
 
     /**
+     * 设置 logger 名字，效果相当于 {@code LoggerFactory.getLogger(logger)}。
+     * <p>
+     * 默认值为 {@link LoggingInterceptor} 的全类名。
+     * <p>如果为空，使用默认值。</p>
+     *
+     * @return logger 名字
+     */
+    String logger() default "";
+
+    /**
      * 日志打印级别，支持的日志级别参见{@link LogLevel}
      * 如果为NULL，则取全局日志打印级别
      * <p>
