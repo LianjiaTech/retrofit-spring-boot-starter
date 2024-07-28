@@ -68,8 +68,8 @@ public class LoggingInterceptor implements Interceptor {
         }
     }
 
-    protected HttpLoggingInterceptor.Logger matchLogger(String loggerName, LogLevel level) {
-        Logger log = LoggerFactory.getLogger(loggerName);
+    protected HttpLoggingInterceptor.Logger matchLogger(String logName, LogLevel level) {
+        Logger log = LoggerFactory.getLogger(logName);
         if (level == LogLevel.DEBUG) {
             return log::debug;
         } else if (level == LogLevel.ERROR) {

@@ -347,6 +347,7 @@ retrofit:
       log-level: info
       log-strategy: basic
       aggregate: true
+      logName: com.github.lianjiatech.retrofit.spring.boot.log.LoggingInterceptor
 ```
 
 The meanings of the four log printing strategies are as follows:
