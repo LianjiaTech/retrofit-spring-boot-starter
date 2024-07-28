@@ -1,11 +1,6 @@
 package com.github.lianjiatech.retrofit.spring.boot.log;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * @author 陈添明
@@ -25,14 +20,14 @@ public @interface Logging {
     boolean enable() default true;
 
     /**
-     * 设置 logger 名字，效果相当于 {@code LoggerFactory.getLogger(logger)}。
+     * 设置日志名称，效果相当于 {@code LoggerFactory.getLogger(logger)}。
      * <p>
      * 默认值为 {@link LoggingInterceptor} 的全类名。
      * <p>如果为空，使用默认值。</p>
      *
-     * @return logger 名字
+     * @return 日志名称
      */
-    String logger() default "";
+    String logName() default "";
 
     /**
      * 日志打印级别，支持的日志级别参见{@link LogLevel}

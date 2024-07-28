@@ -41,7 +41,7 @@
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-   <version>2.4.1</version>
+   <version>2.4.2</version>
 </dependency>
 ```
 
@@ -347,6 +347,7 @@ retrofit:
       log-level: info
       log-strategy: basic
       aggregate: true
+      logName: com.github.lianjiatech.retrofit.spring.boot.log.LoggingInterceptor
 ```
 
 The meanings of the four log printing strategies are as follows:

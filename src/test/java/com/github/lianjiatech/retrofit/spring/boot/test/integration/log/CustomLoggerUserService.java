@@ -8,15 +8,13 @@ import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Query;
 
-import java.util.List;
-
 /**
  * 测试自定义 logger 的客户端
  *
  * @author Hason
  */
 @RetrofitClient(baseUrl = "${test.baseUrl}")
-@Logging(logger = CustomLoggerUserService.LOGGER)
+@Logging(logName = CustomLoggerUserService.LOGGER)
 public interface CustomLoggerUserService {
 
     String LOGGER = "CustomLoggerUserService";
@@ -31,7 +29,7 @@ public interface CustomLoggerUserService {
      * 根据id查询用户信息
      */
     @GET("getUser")
-    @Logging(logStrategy = LogStrategy.BODY, logger = CustomLoggerUserService.LOGGER + ".getUser")
+    @Logging(logStrategy = LogStrategy.BODY, logName = CustomLoggerUserService.LOGGER + ".getUser")
     User getUser(@Query("id") Long id);
 
 }

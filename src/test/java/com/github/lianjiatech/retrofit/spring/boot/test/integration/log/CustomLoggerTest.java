@@ -19,7 +19,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Tests for {@link Logging#logger()} based on logback
+ * Tests for {@link Logging#logName()} based on logback
  *
  * @author Hason
  */
@@ -44,7 +44,7 @@ public class CustomLoggerTest extends MockWebServerTest {
     public void shouldEqualsDefaultLogger() {
         // given
         GlobalLogProperty property = new GlobalLogProperty();
-        Logger logger = (Logger) LoggerFactory.getLogger(property.getLogger());
+        Logger logger = (Logger) LoggerFactory.getLogger(property.getLogName());
         logger.addAppender(testAppender);
         testAppender.start();
 
@@ -54,7 +54,7 @@ public class CustomLoggerTest extends MockWebServerTest {
         defaultLoggerUserService.getName(Long100);
 
         // then 应当使用类的logger打印日志
-        assertEquals(property.getLogger(), testAppender.lastEvent.getLoggerName());
+        assertEquals(property.getLogName(), testAppender.lastEvent.getLoggerName());
     }
 
     @Test

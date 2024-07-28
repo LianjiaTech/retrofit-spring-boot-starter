@@ -36,8 +36,8 @@ public class LoggingInterceptor implements Interceptor {
 
         LogLevel logLevel = logging == null ? globalLogProperty.getLogLevel() : logging.logLevel();
         boolean aggregate = logging == null ? globalLogProperty.isAggregate() : logging.aggregate();
-        String loggerName = logging == null || logging.logger().isEmpty() ? globalLogProperty.getLogger() : logging.logger();
-        HttpLoggingInterceptor.Logger matchLogger = matchLogger(loggerName, logLevel);
+        String logName = logging == null || logging.logName().isEmpty() ? globalLogProperty.getLogName() : logging.logName();
+        HttpLoggingInterceptor.Logger matchLogger = matchLogger(logName, logLevel);
         HttpLoggingInterceptor.Logger logger = aggregate ? new BufferingLogger(matchLogger) : matchLogger;
         HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor(logger)
                 .setLevel(HttpLoggingInterceptor.Level.valueOf(logStrategy.name()));
@@ -68,8 +68,8 @@ public class LoggingInterceptor implements Interceptor {
         }
     }
 
-    protected HttpLoggingInterceptor.Logger matchLogger(String loggerName, LogLevel level) {
-        Logger log = LoggerFactory.getLogger(loggerName);
+    protected HttpLoggingInterceptor.Logger matchLogger(String logName, LogLevel level) {
+        Logger log = LoggerFactory.getLogger(logName);
         if (level == LogLevel.DEBUG) {
             return log::debug;
         } else if (level == LogLevel.ERROR) {
