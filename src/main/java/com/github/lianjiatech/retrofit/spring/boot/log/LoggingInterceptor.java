@@ -1,11 +1,12 @@
 package com.github.lianjiatech.retrofit.spring.boot.log;
 
 import com.github.lianjiatech.retrofit.spring.boot.util.AnnotationExtendUtils;
-import lombok.extern.slf4j.Slf4j;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import retrofit2.Invocation;
 
 import java.io.IOException;
@@ -14,7 +15,6 @@ import java.io.IOException;
  * @author 陈添明
  * @since 2022/4/30 8:21 下午
  */
-@Slf4j
 public class LoggingInterceptor implements Interceptor {
 
     protected final GlobalLogProperty globalLogProperty;
@@ -33,9 +33,11 @@ public class LoggingInterceptor implements Interceptor {
         if (logStrategy == LogStrategy.NONE) {
             return chain.proceed(chain.request());
         }
+
         LogLevel logLevel = logging == null ? globalLogProperty.getLogLevel() : logging.logLevel();
         boolean aggregate = logging == null ? globalLogProperty.isAggregate() : logging.aggregate();
-        HttpLoggingInterceptor.Logger matchLogger = matchLogger(logLevel);
+        String logName = logging == null || logging.logName().isEmpty() ? globalLogProperty.getLogName() : logging.logName();
+        HttpLoggingInterceptor.Logger matchLogger = matchLogger(logName, logLevel);
         HttpLoggingInterceptor.Logger logger = aggregate ? new BufferingLogger(matchLogger) : matchLogger;
         HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor(logger)
                 .setLevel(HttpLoggingInterceptor.Level.valueOf(logStrategy.name()));
@@ -66,7 +68,8 @@ public class LoggingInterceptor implements Interceptor {
         }
     }
 
-    protected HttpLoggingInterceptor.Logger matchLogger(LogLevel level) {
+    protected HttpLoggingInterceptor.Logger matchLogger(String loggerName, LogLevel level) {
+        Logger log = LoggerFactory.getLogger(loggerName);
         if (level == LogLevel.DEBUG) {
             return log::debug;
         } else if (level == LogLevel.ERROR) {

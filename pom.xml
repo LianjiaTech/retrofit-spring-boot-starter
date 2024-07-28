@@ -6,7 +6,7 @@
 
     <groupId>com.github.lianjiatech</groupId>
     <artifactId>retrofit-spring-boot-starter</artifactId>
-    <version>3.1.1</version>
+    <version>3.1.2</version>
 
     <name>retrofit-spring-boot-starter</name>
     <description>retrofit-spring-boot-starter</description>
