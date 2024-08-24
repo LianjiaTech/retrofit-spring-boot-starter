@@ -40,11 +40,18 @@ public class ServiceChooseInterceptor implements Interceptor {
         // serviceId服务发现
         String serviceId = retrofitClient.serviceId();
         URI uri = serviceInstanceChooser.choose(serviceId);
+
         HttpUrl url = request.url();
+        int port = uri.getPort();
+        String scheme = uri.getScheme();
+        if (port <= 0 || port > 65535) {
+            port = HttpUrl.defaultPort(scheme);
+        }
+
         HttpUrl newUrl = url.newBuilder()
-                .scheme(uri.getScheme())
+                .scheme(scheme)
                 .host(uri.getHost())
-                .port(uri.getPort())
+                .port(port)
                 .build();
         Request newReq = request.newBuilder()
                 .url(newUrl)
