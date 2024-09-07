@@ -59,9 +59,10 @@ public class RetryInterceptor implements Interceptor {
         HashSet<RetryRule> retryRuleSet = (HashSet<RetryRule>)Arrays.stream(retryRules).collect(Collectors.toSet());
         RetryStrategy retryStrategy = new RetryStrategy(maxRetries, intervalMs);
         Request request = chain.request();
+        Response response = null;
         while (true) {
             try {
-                Response response = chain.proceed(request);
+                response = chain.proceed(request);
                 // 如果响应状态码是2xx就不用重试，直接返回 response
                 if (!retryRuleSet.contains(RetryRule.RESPONSE_STATUS_NOT_2XX) || response.isSuccessful()) {
                     return response;
@@ -88,6 +89,9 @@ public class RetryInterceptor implements Interceptor {
                     }
                     retryStrategy.retry();
                     log.warn("The response fails, retry is performed! The request is {} ", request, e);
+                    if (response != null && response.body() != null) {
+                        response.close();
+                    }
                 }
             }
         }
