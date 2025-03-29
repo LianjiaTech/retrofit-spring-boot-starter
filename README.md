@@ -31,6 +31,7 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 ## 功能特性
 
 - [x] [自定义OkHttpClient](#自定义OkHttpClient)
+- [x] [自定义BaseUrl解析器](#自定义BaseUrl解析器)
 - [x] [注解式拦截器](#注解式拦截器)
 - [x] [日志打印](#日志打印)
 - [x] [请求重试](#请求重试)
@@ -51,7 +52,7 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-   <version>2.4.4</version>
+   <version>2.4.5</version>
 </dependency>
 ```
 
@@ -231,6 +232,10 @@ public interface CustomOkHttpUserService {
 ```
 
 > 注意：组件不会直接使用指定的`OkHttpClient`，而是基于该`OkHttpClient`创建一个新的。
+
+### 自定义BaseUrl解析器
+组件支持自定义BaseUrl解析，通过`@RetrofitClient`的`baseUrl()`指定，默认为`DefaultBaseUrlParser`。
+
 
 ### 注解式拦截器
 

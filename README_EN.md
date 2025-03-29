@@ -21,6 +21,7 @@
 ## Features
 
 - [x] [Customize OkHttpClient](#Customize-OkHttpClient)
+- [x] [Custom BaseUrl Parser](#Custom-BaseUrl-Parser)
 - [x] [Annotation Interceptor](#Annotation-Interceptor)
 - [x] [Log Print](#Log-Print)
 - [x] [Request Retry](#Request-Retry)
@@ -41,7 +42,7 @@
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-   <version>2.4.4</version>
+   <version>2.4.5</version>
 </dependency>
 ```
 
@@ -193,7 +194,9 @@ public interface CustomOkHttpUserService {
 
 > Note: The component will not use the specified `OkHttpClient` directly, but will create a new one based on that `OkHttpClient`.
 
+### Custom BaseUrl Parser
 
+The component supports custom BaseUrl parsing, which is specified by `baseUrl()` of `@RetrofitClient`. The default is `DefaultBaseUrlParser`.
 
 ### Annotation Interceptor
 

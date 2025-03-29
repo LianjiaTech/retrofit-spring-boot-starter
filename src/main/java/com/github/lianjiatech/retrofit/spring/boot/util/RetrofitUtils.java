@@ -1,7 +1,10 @@
 package com.github.lianjiatech.retrofit.spring.boot.util;
 
-import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClient;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+
 import com.github.lianjiatech.retrofit.spring.boot.exception.ReadResponseBodyException;
+
 import lombok.experimental.UtilityClass;
 import okhttp3.Headers;
 import okhttp3.MediaType;
@@ -10,11 +13,6 @@ import okhttp3.ResponseBody;
 import okio.Buffer;
 import okio.BufferedSource;
 import okio.GzipSource;
-import org.springframework.core.env.Environment;
-import org.springframework.util.StringUtils;
-
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 
 /**
  * @author 陈添明
@@ -26,9 +24,6 @@ public final class RetrofitUtils {
     public static final String GZIP = "gzip";
     public static final String CONTENT_ENCODING = "Content-Encoding";
     public static final String IDENTITY = "identity";
-
-    private static final String SUFFIX = "/";
-    public static final String HTTP_PREFIX = "http://";
 
     /**
      * read ResponseBody as String
@@ -81,24 +76,5 @@ public final class RetrofitUtils {
         return contentEncoding != null
                 && !IDENTITY.equalsIgnoreCase(contentEncoding)
                 && !GZIP.equalsIgnoreCase(contentEncoding);
-    }
-
-    public static String convertBaseUrl(RetrofitClient retrofitClient, String baseUrl, Environment environment) {
-        if (StringUtils.hasText(baseUrl)) {
-            baseUrl = environment.resolveRequiredPlaceholders(baseUrl);
-            // 解析baseUrl占位符
-            if (!baseUrl.endsWith(SUFFIX)) {
-                baseUrl += SUFFIX;
-            }
-        } else {
-            String serviceId = retrofitClient.serviceId();
-            String path = retrofitClient.path();
-            if (!path.endsWith(SUFFIX)) {
-                path += SUFFIX;
-            }
-            baseUrl = HTTP_PREFIX + (serviceId + SUFFIX + path).replaceAll("/+", SUFFIX);
-            baseUrl = environment.resolveRequiredPlaceholders(baseUrl);
-        }
-        return baseUrl;
     }
 }
