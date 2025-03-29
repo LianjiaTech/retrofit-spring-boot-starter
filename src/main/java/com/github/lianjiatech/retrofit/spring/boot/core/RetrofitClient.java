@@ -1,11 +1,6 @@
 package com.github.lianjiatech.retrofit.spring.boot.core;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 import retrofit2.CallAdapter;
 import retrofit2.Converter;
@@ -47,6 +42,11 @@ public @interface RetrofitClient {
      * @return 服务路径前缀
      */
     String path() default Constants.STR_EMPTY;
+
+    /**
+     * 当前接口的BaseUrl解析器，用于将`@Retrofit`上的信息解析成发起HTTP请求的BaseUrl，默认DefaultBaseUrlParser，优先从Spring容器获取，如果没有获取到，则反射创建。
+     */
+    Class<? extends BaseUrlParser> baseUrlParser() default DefaultBaseUrlParser.class;
 
     /**
      * 适用于当前接口的转换器工厂，优先级比全局转换器工厂更高。转换器实例优先从Spring容器获取，如果没有获取到，则反射创建。
@@ -113,7 +113,6 @@ public @interface RetrofitClient {
      */
     String sourceOkHttpClient() default Constants.NO_SOURCE_OK_HTTP_CLIENT;
 
-
     /*===============以下属性只有在sourceOkHttpClient为NO_SOURCE_OK_HTTP_CLIENT时才有效=================*/
 
     /**
@@ -144,7 +143,6 @@ public @interface RetrofitClient {
      * @return writeTimeoutMs
      */
     int writeTimeoutMs() default Constants.INVALID_TIMEOUT_VALUE;
-
 
     /**
      * Sets the default timeout for complete calls. A value of 0 means no timeout,

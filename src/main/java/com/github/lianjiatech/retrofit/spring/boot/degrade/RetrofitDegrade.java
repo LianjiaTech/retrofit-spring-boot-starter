@@ -24,7 +24,8 @@ public interface RetrofitDegrade extends Interceptor {
      * 加载指定Retrofit接口下的降级规则
      *
      * @param retrofitInterface Retrofit接口
+     * @param baseUrl HTTP接口的baseURL
      */
-    void loadDegradeRules(Class<?> retrofitInterface);
+    void loadDegradeRules(Class<?> retrofitInterface, String baseUrl);
 
 }

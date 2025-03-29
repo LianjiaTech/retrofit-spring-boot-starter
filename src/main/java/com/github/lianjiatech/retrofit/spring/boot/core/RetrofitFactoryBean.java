@@ -1,12 +1,8 @@
 package com.github.lianjiatech.retrofit.spring.boot.core;
 
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.BeansException;
@@ -22,11 +18,7 @@ import org.springframework.util.StringUtils;
 
 import com.github.lianjiatech.retrofit.spring.boot.config.GlobalTimeoutProperty;
 import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitConfigBean;
-import com.github.lianjiatech.retrofit.spring.boot.core.reactive.MonoCallAdapterFactory;
-import com.github.lianjiatech.retrofit.spring.boot.core.reactive.Rxjava2CompletableCallAdapterFactory;
-import com.github.lianjiatech.retrofit.spring.boot.core.reactive.Rxjava2SingleCallAdapterFactory;
-import com.github.lianjiatech.retrofit.spring.boot.core.reactive.Rxjava3CompletableCallAdapterFactory;
-import com.github.lianjiatech.retrofit.spring.boot.core.reactive.Rxjava3SingleCallAdapterFactory;
+import com.github.lianjiatech.retrofit.spring.boot.core.reactive.*;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeProxy;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitDegrade;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.BasePathMatchInterceptor;
@@ -35,7 +27,6 @@ import com.github.lianjiatech.retrofit.spring.boot.interceptor.InterceptMark;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.Intercepts;
 import com.github.lianjiatech.retrofit.spring.boot.util.AppContextUtils;
 import com.github.lianjiatech.retrofit.spring.boot.util.BeanExtendUtils;
-import com.github.lianjiatech.retrofit.spring.boot.util.RetrofitUtils;
 
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -56,17 +47,24 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
 
     private ApplicationContext applicationContext;
 
+    public static final ConcurrentHashMap<Class<?>, String> BASE_URL_MAP = new ConcurrentHashMap<>();
+
     public RetrofitFactoryBean(Class<T> retrofitInterface) {
         this.retrofitInterface = retrofitInterface;
     }
 
     @Override
     public T getObject() {
-        T source = createRetrofit().create(retrofitInterface);
+        RetrofitClient retrofitClient =
+                AnnotatedElementUtils.findMergedAnnotation(retrofitInterface, RetrofitClient.class);
+        BaseUrlParser baseUrlParser = AppContextUtils.getBeanOrNew(applicationContext, retrofitClient.baseUrlParser());
+        String baseUrl = baseUrlParser.parse(retrofitClient, environment);
+        BASE_URL_MAP.put(retrofitInterface, baseUrl);
+        T source = createRetrofit(retrofitClient, baseUrl).create(retrofitInterface);
         if (!isEnableDegrade(retrofitInterface)) {
             return source;
         }
-        retrofitConfigBean.getRetrofitDegrade().loadDegradeRules(retrofitInterface);
+        retrofitConfigBean.getRetrofitDegrade().loadDegradeRules(retrofitInterface, baseUrl);
         return DegradeProxy.create(source, retrofitInterface, applicationContext);
     }
 
@@ -180,11 +178,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         return interceptors;
     }
 
-    private Retrofit createRetrofit() {
-        RetrofitClient retrofitClient =
-                AnnotatedElementUtils.findMergedAnnotation(retrofitInterface, RetrofitClient.class);
-        String baseUrl = RetrofitUtils.convertBaseUrl(retrofitClient, Objects.requireNonNull(retrofitClient).baseUrl(),
-                environment);
+    private Retrofit createRetrofit(RetrofitClient retrofitClient, String baseUrl) {
 
         OkHttpClient client = createOkHttpClient();
         Retrofit.Builder retrofitBuilder = new Retrofit.Builder()

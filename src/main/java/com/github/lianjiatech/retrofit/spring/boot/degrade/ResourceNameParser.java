@@ -1,8 +1,8 @@
 package com.github.lianjiatech.retrofit.spring.boot.degrade;
 
-import retrofit2.http.*;
-
 import java.lang.reflect.Method;
+
+import retrofit2.http.*;
 
 /**
  * @author 陈添明
@@ -14,10 +14,10 @@ public interface ResourceNameParser {
      * 解析资源名称
      *
      * @param method  方法
-     * @param service 接口类
+     * @param baseUrl HTTP接口的baseUrl
      * @return 资源名称
      */
-    String parseResourceName(Method method, Class<?> service);
+    String parseResourceName(Method method, String baseUrl);
 
     /**
      * 解析方法路径
