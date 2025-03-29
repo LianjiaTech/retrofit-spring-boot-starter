@@ -4,13 +4,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
-
 import org.springframework.util.Assert;
 
 import com.github.lianjiatech.retrofit.spring.boot.core.Constants;
 
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
+import jakarta.annotation.PostConstruct;
 
 /**
  * @author 陈添明

@@ -4,10 +4,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
-
 import org.springframework.util.Assert;
 
+import jakarta.annotation.PostConstruct;
 import okhttp3.OkHttpClient;
 
 /**
