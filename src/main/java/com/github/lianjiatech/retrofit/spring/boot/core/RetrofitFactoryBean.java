@@ -126,7 +126,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         retrofitConfigBean.getGlobalInterceptors().forEach(okHttpClientBuilder::addInterceptor);
         okHttpClientBuilder.addInterceptor(retrofitConfigBean.getRetryInterceptor());
         okHttpClientBuilder.addInterceptor(retrofitConfigBean.getLoggingInterceptor());
-        retrofitConfigBean.getNetworkInterceptors().forEach(okHttpClientBuilder::addInterceptor);
+        retrofitConfigBean.getNetworkInterceptors().forEach(okHttpClientBuilder::addNetworkInterceptor);
         return okHttpClientBuilder.build();
     }
 
