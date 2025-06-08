@@ -42,7 +42,7 @@
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-   <version>3.1.6</version>
+   <version>3.1.7</version>
 </dependency>
 ```
 
@@ -763,7 +763,7 @@ public interface DownloadApi {
 #### `HTTP` Download Using
 
 ```java
-@SpringBootTest(classes = RetrofitTestApplication.class)
+@SpringBootTest(classes = {RetrofitBootApplication.class})
 @RunWith(SpringRunner.class)
 public class DownloadTest {
     @Autowired

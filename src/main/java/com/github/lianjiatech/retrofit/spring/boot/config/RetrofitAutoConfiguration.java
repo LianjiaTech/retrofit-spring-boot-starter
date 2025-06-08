@@ -2,7 +2,6 @@ package com.github.lianjiatech.retrofit.spring.boot.config;
 
 import java.util.List;
 
-import com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -16,14 +15,7 @@ import org.springframework.context.annotation.Import;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.lianjiatech.retrofit.spring.boot.core.AutoConfiguredRetrofitScannerRegistrar;
-import com.github.lianjiatech.retrofit.spring.boot.core.Constants;
-import com.github.lianjiatech.retrofit.spring.boot.core.ErrorDecoder;
-import com.github.lianjiatech.retrofit.spring.boot.core.PathMatchInterceptorBdfProcessor;
-import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitFactoryBean;
-import com.github.lianjiatech.retrofit.spring.boot.core.ServiceInstanceChooser;
-import com.github.lianjiatech.retrofit.spring.boot.core.SourceOkHttpClientRegistrar;
-import com.github.lianjiatech.retrofit.spring.boot.core.SourceOkHttpClientRegistry;
+import com.github.lianjiatech.retrofit.spring.boot.core.*;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitDegrade;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.resilience4j.CircuitBreakerConfigRegistrar;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.resilience4j.CircuitBreakerConfigRegistry;
@@ -91,6 +83,12 @@ public class RetrofitAutoConfiguration {
     @ConditionalOnMissingBean
     public RetryInterceptor retrofitRetryInterceptor() {
         return new RetryInterceptor(retrofitProperties.getGlobalRetry());
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public DefaultBaseUrlParser defaultBaseUrlParser() {
+        return new DefaultBaseUrlParser();
     }
 
     @Bean
