@@ -22,6 +22,8 @@ public class ClassPathRetrofitClientScanner extends ClassPathBeanDefinitionScann
 
     private final ClassLoader classLoader;
 
+    private static final String FACTORY_BEAN_OBJECT_TYPE = "factoryBeanObjectType";
+
     public ClassPathRetrofitClientScanner(BeanDefinitionRegistry registry, ClassLoader classLoader) {
         super(registry, false);
         this.classLoader = classLoader;
@@ -68,6 +70,8 @@ public class ClassPathRetrofitClientScanner extends ClassPathBeanDefinitionScann
                 log.debug("Creating RetrofitClientBean with name '" + holder.getBeanName()
                         + "' and '" + definition.getBeanClassName() + "' Interface");
             }
+            String beanClassName = definition.getBeanClassName();
+            definition.setAttribute(FACTORY_BEAN_OBJECT_TYPE, beanClassName);
             definition.getConstructorArgumentValues()
                     .addGenericArgumentValue(Objects.requireNonNull(definition.getBeanClassName()));
             // beanClass全部设置为RetrofitFactoryBean
