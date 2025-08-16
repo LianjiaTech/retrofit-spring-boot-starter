@@ -52,7 +52,7 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-   <version>2.4.7</version>
+   <version>2.4.8</version>
 </dependency>
 ```
 
@@ -185,6 +185,8 @@ retrofit:
          circuit-breaker-config-name: defaultCircuitBreakerConfig
    # 自动设置PathMathInterceptor的scope为prototype
    auto-set-prototype-scope-for-path-math-interceptor: true
+   # 是否开启ErrorDecoder功能
+   enable-error-decoder: true
 ```
 
 ## 高级功能
@@ -606,7 +608,7 @@ public class HttpDegradeFallbackFactory implements FallbackFactory<HttpDegradeAp
 ### 错误解码器
 
 在`HTTP`发生请求错误(包括发生异常或者响应数据不符合预期)的时候，错误解码器可将`HTTP`相关信息解码到自定义异常中。你可以在`@RetrofitClient`注解的`errorDecoder()`
-指定当前接口的错误解码器，自定义错误解码器需要实现`ErrorDecoder`接口：
+指定当前接口的错误解码器，自定义错误解码器需要实现`ErrorDecoder`接口。 可以通过配置`retrofit.enable-error-decoder=false`配置关闭ErrorDecoder功能。
 
 ### 微服务之间的HTTP调用
 

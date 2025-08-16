@@ -42,7 +42,7 @@
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-   <version>2.4.7</version>
+   <version>2.4.8</version>
 </dependency>
 ```
 
@@ -147,6 +147,7 @@ retrofit:
          # Get CircuitBreakerConfig from {@link CircuitBreakerConfigRegistry} based on this name as a global circuit breaker configuration
          circuit-breaker-config-name: defaultCircuitBreakerConfig
    auto-set-prototype-scope-for-path-math-interceptor: true
+   enable-error-decoder: true
 ```
 
 ## Advanced Features
@@ -544,7 +545,7 @@ public class HttpDegradeFallbackFactory implements FallbackFactory<HttpDegradeAp
 ### Error Decoder
 
 When a request error occurs in `HTTP` (including an exception or the response data does not meet expectations), the error decoder can decode the `HTTP` related information into a custom exception. You can use `errorDecoder()` in the `@RetrofitClient` annotation
-Specifies the error decoder of the current interface. Custom error decoders need to implement the `ErrorDecoder` interface:
+Specifies the error decoder of the current interface. Custom error decoders need to implement the `ErrorDecoder` interface. You can disable the ErrorDecoder function by configuring `retrofit.enable-error-decoder=false`.
 
 
 ### HTTP Calls Between Microservices

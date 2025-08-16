@@ -1,9 +1,9 @@
 package com.github.lianjiatech.retrofit.spring.boot.config;
 
-import com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
+import com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory;
 import com.github.lianjiatech.retrofit.spring.boot.core.Constants;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeProperty;
 import com.github.lianjiatech.retrofit.spring.boot.log.GlobalLogProperty;
@@ -25,6 +25,11 @@ public class RetrofitProperties {
      * 自动设置PathMathInterceptor的scope为prototype
      */
     private boolean autoSetPrototypeScopeForPathMathInterceptor = true;
+
+    /**
+     * 是否开启ErrorDecoder功能
+     */
+    private boolean enableErrorDecoder = true;
 
     /**
      * 全局重试配置
