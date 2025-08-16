@@ -121,7 +121,9 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         if (StringUtils.hasText(retrofitClient.serviceId())) {
             okHttpClientBuilder.addInterceptor(retrofitConfigBean.getServiceChooseInterceptor());
         }
-        okHttpClientBuilder.addInterceptor(retrofitConfigBean.getErrorDecoderInterceptor());
+        if (retrofitConfigBean.getRetrofitProperties().isEnableErrorDecoder()) {
+            okHttpClientBuilder.addInterceptor(retrofitConfigBean.getErrorDecoderInterceptor());
+        }
         findInterceptorByAnnotation().forEach(okHttpClientBuilder::addInterceptor);
         retrofitConfigBean.getGlobalInterceptors().forEach(okHttpClientBuilder::addInterceptor);
         okHttpClientBuilder.addInterceptor(retrofitConfigBean.getRetryInterceptor());
