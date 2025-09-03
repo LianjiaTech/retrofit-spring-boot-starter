@@ -1,10 +1,24 @@
 package com.github.lianjiatech.retrofit.spring.boot.core;
 
-import java.lang.annotation.Annotation;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-
+import com.github.lianjiatech.retrofit.spring.boot.config.GlobalTimeoutProperty;
+import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitConfigBean;
+import com.github.lianjiatech.retrofit.spring.boot.core.reactive.MonoCallAdapterFactory;
+import com.github.lianjiatech.retrofit.spring.boot.core.reactive.Rxjava2CompletableCallAdapterFactory;
+import com.github.lianjiatech.retrofit.spring.boot.core.reactive.Rxjava2SingleCallAdapterFactory;
+import com.github.lianjiatech.retrofit.spring.boot.core.reactive.Rxjava3CompletableCallAdapterFactory;
+import com.github.lianjiatech.retrofit.spring.boot.core.reactive.Rxjava3SingleCallAdapterFactory;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeProxy;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitDegrade;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.BasePathMatchInterceptor;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.GlobalInterceptor;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.Intercept;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.InterceptMark;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.Intercepts;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.NetworkInterceptor;
+import com.github.lianjiatech.retrofit.spring.boot.util.AppContextUtils;
+import com.github.lianjiatech.retrofit.spring.boot.util.BeanExtendUtils;
+import okhttp3.Interceptor;
+import okhttp3.OkHttpClient;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.ApplicationContext;
@@ -14,25 +28,21 @@ import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.env.Environment;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-
-import com.github.lianjiatech.retrofit.spring.boot.config.GlobalTimeoutProperty;
-import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitConfigBean;
-import com.github.lianjiatech.retrofit.spring.boot.core.reactive.*;
-import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeProxy;
-import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitDegrade;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.BasePathMatchInterceptor;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.Intercept;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.InterceptMark;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.Intercepts;
-import com.github.lianjiatech.retrofit.spring.boot.util.AppContextUtils;
-import com.github.lianjiatech.retrofit.spring.boot.util.BeanExtendUtils;
-
-import okhttp3.Interceptor;
-import okhttp3.OkHttpClient;
 import retrofit2.CallAdapter;
 import retrofit2.Converter;
 import retrofit2.Retrofit;
+
+import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author 陈添明
@@ -125,10 +135,16 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
             okHttpClientBuilder.addInterceptor(retrofitConfigBean.getErrorDecoderInterceptor());
         }
         findInterceptorByAnnotation().forEach(okHttpClientBuilder::addInterceptor);
-        retrofitConfigBean.getGlobalInterceptors().forEach(okHttpClientBuilder::addInterceptor);
+        List<GlobalInterceptor> globalInterceptors = retrofitConfigBean.getGlobalInterceptors();
+        if (!CollectionUtils.isEmpty(globalInterceptors)) {
+            globalInterceptors.forEach(okHttpClientBuilder::addInterceptor);
+        }
         okHttpClientBuilder.addInterceptor(retrofitConfigBean.getRetryInterceptor());
         okHttpClientBuilder.addInterceptor(retrofitConfigBean.getLoggingInterceptor());
-        retrofitConfigBean.getNetworkInterceptors().forEach(okHttpClientBuilder::addNetworkInterceptor);
+        List<NetworkInterceptor> networkInterceptors = retrofitConfigBean.getNetworkInterceptors();
+        if (!CollectionUtils.isEmpty(networkInterceptors)) {
+            networkInterceptors.forEach(okHttpClientBuilder::addNetworkInterceptor);
+        }
         return okHttpClientBuilder.build();
     }
 
@@ -190,8 +206,16 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
 
         // 添加配置或者指定的CallAdapterFactory
         List<Class<? extends CallAdapter.Factory>> callAdapterFactories = new ArrayList<>(2);
-        callAdapterFactories.addAll(Arrays.asList(retrofitClient.callAdapterFactories()));
-        callAdapterFactories.addAll(Arrays.asList(retrofitConfigBean.getGlobalCallAdapterFactoryClasses()));
+        Class<? extends CallAdapter.Factory>[] retrofitCallAdapterFactories = retrofitClient.callAdapterFactories();
+        if (retrofitCallAdapterFactories != null) {
+            callAdapterFactories.addAll(Arrays.asList(retrofitCallAdapterFactories));
+        }
+        Class<? extends CallAdapter.Factory>[] globalCallAdapterFactoryClasses =
+                retrofitConfigBean.getGlobalCallAdapterFactoryClasses();
+        if (globalCallAdapterFactoryClasses != null) {
+            callAdapterFactories.addAll(Arrays.asList(globalCallAdapterFactoryClasses));
+        }
+
         callAdapterFactories.stream()
                 // 过滤掉内置的CallAdapterFactory，因为后续会指定add
                 .filter(adapterFactoryClass -> !InternalCallAdapterFactory.class.isAssignableFrom(adapterFactoryClass))
@@ -204,8 +228,15 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
 
         // 添加配置或者指定的ConverterFactory
         List<Class<? extends Converter.Factory>> converterFactories = new ArrayList<>(4);
-        converterFactories.addAll(Arrays.asList(retrofitClient.converterFactories()));
-        converterFactories.addAll(Arrays.asList(retrofitConfigBean.getGlobalConverterFactoryClasses()));
+        Class<? extends Converter.Factory>[] retrofitConverterFactories = retrofitClient.converterFactories();
+        if (retrofitConverterFactories != null) {
+            converterFactories.addAll(Arrays.asList(retrofitConverterFactories));
+        }
+        Class<? extends Converter.Factory>[] globalConverterFactoryClasses =
+                retrofitConfigBean.getGlobalConverterFactoryClasses();
+        if (globalConverterFactoryClasses != null) {
+            converterFactories.addAll(Arrays.asList(globalConverterFactoryClasses));
+        }
         converterFactories.forEach(converterFactoryClass -> retrofitBuilder
                 .addConverterFactory(AppContextUtils.getBeanOrNew(applicationContext, converterFactoryClass)));
 

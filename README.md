@@ -6,7 +6,7 @@
 [![Maven central](https://maven-badges.herokuapp.com/maven-central/com.github.lianjiatech/retrofit-spring-boot-starter/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.lianjiatech/retrofit-spring-boot-starter)
 [![GitHub release](https://img.shields.io/github/v/release/lianjiatech/retrofit-spring-boot-starter.svg)](https://github.com/LianjiaTech/retrofit-spring-boot-starter/releases)
 [![License](https://img.shields.io/badge/JDK-1.8+-4EB1BA.svg)](https://docs.oracle.com/javase/8/docs/index.html)
-[![License](https://img.shields.io/badge/SpringBoot-1.5+-green.svg)](https://docs.spring.io/spring-boot/docs/2.1.5.RELEASE/reference/htmlsingle/)
+[![License](https://img.shields.io/badge/SpringBoot-1.4.2+-green.svg)](https://docs.spring.io/spring-boot/docs/2.1.5.RELEASE/reference/htmlsingle/)
 [![Author](https://img.shields.io/badge/Author-chentianming-orange.svg?style=flat-square)](https://juejin.im/user/3562073404738584/posts)
 [![QQ-Group](https://img.shields.io/badge/QQ%E7%BE%A4-806714302-orange.svg?style=flat-square) ](https://img.ljcdn.com/hc-picture/6302d742-ebc8-4649-95cf-62ccf57a1add)
 
@@ -52,11 +52,30 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-   <version>2.4.8</version>
+   <version>2.4.9</version>
 </dependency>
 ```
 
-**如果启动失败，大概率是依赖冲突，烦请引入或者排除相关依赖**。
+对于绝大部分Spring-Boot项目，引入依赖即可使用。如果引入依赖之后，组件无法正常工作，可尝试如下方案解决：
+
+#### 手动自动配置导入
+
+有些场景下RetrofitAutoConfiguration可能无法正常加载执行，可以尝试手动配置导入，代码如下：
+
+```java
+
+@Configuration
+@ImportAutoConfiguration({RetrofitAutoConfiguration.class})
+public class SpringBootAutoConfigBridge {
+}
+```
+
+如果项目仍然采用Spring XML配置文件，需要在XML配置文件加上SpringBoot自动配置类。
+
+```xml
+<!-- 导入SpringBoot自动配置类 -->
+<bean class="com.yourpackage.config.SpringBootAutoConfig"/>
+```
 
 ### 定义HTTP接口
 
@@ -124,8 +143,6 @@ retrofit:
    global-converter-factories:
       - com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory
       - retrofit2.converter.jackson.JacksonConverterFactory
-   # 全局调用适配器工厂(组件扩展的调用适配器工厂已经内置，这里请勿重复配置)
-   global-call-adapter-factories:
 
    # 全局日志打印配置
    global-log:
@@ -187,6 +204,22 @@ retrofit:
    auto-set-prototype-scope-for-path-math-interceptor: true
    # 是否开启ErrorDecoder功能
    enable-error-decoder: true
+```
+
+绝大部分场景下，在Spring Boot配置文件（application.yml或者application.properties）中加上上述配置，即可自定义修改组件功能。
+
+**如果Spring Boot配置文件无法生效，可以手动配置RetrofitProperties Bean**，代码如下：
+
+```java
+
+@Bean
+public RetrofitProperties retrofitProperties() {
+   RetrofitProperties retrofitProperties = new RetrofitProperties();
+   GlobalLogProperty globalLog = retrofitProperties.getGlobalLog();
+   globalLog.setLogLevel(LogLevel.WARN);
+   globalLog.setLogStrategy(LogStrategy.NONE);
+   return retrofitProperties;
+}
 ```
 
 ## 高级功能
@@ -563,7 +596,7 @@ public class CustomCircuitBreakerConfigRegistrar implements CircuitBreakerConfig
 如果`@RetrofitClient`不设置`fallback`或者`fallbackFactory`，当触发熔断时，会直接抛出`RetrofitBlockException`异常。 用户可以通过设置`fallback`或者`fallbackFactory`来定制熔断时的方法返回值。
 
 > 注意：`fallback`类必须是当前接口的实现类，`fallbackFactory`必须是`FallbackFactory<T>`
-实现类，泛型参数类型为当前接口类型。另外，`fallback`和`fallbackFactory`实例必须配置成`Spring Bean`。
+> 实现类，泛型参数类型为当前接口类型。另外，`fallback`和`fallbackFactory`实例必须配置成`Spring Bean`。
 
 `fallbackFactory`相对于`fallback`，主要差别在于能够感知每次熔断的异常原因(cause)，参考示例如下：
 
