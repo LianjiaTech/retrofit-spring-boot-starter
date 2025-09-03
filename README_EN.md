@@ -5,7 +5,7 @@
 [![Maven central](https://maven-badges.herokuapp.com/maven-central/com.github.lianjiatech/retrofit-spring-boot-starter/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.lianjiatech/retrofit-spring-boot-starter)
 [![GitHub release](https://img.shields.io/github/v/release/lianjiatech/retrofit-spring-boot-starter.svg)](https://github.com/LianjiaTech/retrofit-spring-boot-starter/releases)
 [![License](https://img.shields.io/badge/JDK-1.8+-4EB1BA.svg)](https://docs.oracle.com/javase/8/docs/index.html)
-[![License](https://img.shields.io/badge/SpringBoot-1.5+-green.svg)](https://docs.spring.io/spring-boot/docs/2.1.5.RELEASE/reference/htmlsingle/)
+[![License](https://img.shields.io/badge/SpringBoot-1.4.2+-green.svg)](https://docs.spring.io/spring-boot/docs/2.1.5.RELEASE/reference/htmlsingle/)
 [![Author](https://img.shields.io/badge/Author-chentianming-orange.svg?style=flat-square)](https://juejin.im/user/3562073404738584/posts)
 [![QQ-Group](https://img.shields.io/badge/QQ%E7%BE%A4-806714302-orange.svg?style=flat-square) ](https://img.ljcdn.com/hc-picture/6302d742-ebc8-4649-95cf-62ccf57a1add)
 
@@ -44,6 +44,30 @@
    <artifactId>retrofit-spring-boot-starter</artifactId>
    <version>3.1.8</version>
 </dependency>
+```
+
+For most Spring-Boot projects, you can just import dependencies and use them. If the component does not work properly
+after importing the dependencies, you can try the following solutions:
+
+#### Manually Importing Auto-Configuration
+
+In some scenarios, RetrofitAutoConfiguration may not load and execute properly. You can try manually importing the
+configuration as follows:
+
+```java
+
+@Configuration
+@ImportAutoConfiguration({RetrofitAutoConfiguration.class})
+public class SpringBootAutoConfigBridge {
+}
+```
+
+If the project still uses Spring XML configuration files, you need to add SpringBoot automatic configuration classes to
+the XML configuration files.
+
+```xml
+
+<bean class="com.yourpackage.config.SpringBootAutoConfig"/>
 ```
 
 ### Define HTTP Interface
@@ -148,6 +172,23 @@ retrofit:
          circuit-breaker-config-name: defaultCircuitBreakerConfig
    auto-set-prototype-scope-for-path-math-interceptor: true
    enable-error-decoder: true
+```
+
+In most scenarios, you can customize component functionality by adding the above configuration to the Spring Boot
+configuration file (application.yml or application.properties).
+
+If the Spring Boot configuration file doesn't work, you can manually configure the RetrofitProperties Bean as follows:
+
+```java
+
+@Bean
+public RetrofitProperties retrofitProperties() {
+   RetrofitProperties retrofitProperties = new RetrofitProperties();
+   GlobalLogProperty globalLog = retrofitProperties.getGlobalLog();
+   globalLog.setLogLevel(LogLevel.WARN);
+   globalLog.setLogStrategy(LogStrategy.NONE);
+   return retrofitProperties;
+}
 ```
 
 ## Advanced Features
@@ -500,7 +541,8 @@ If the user needs to use another circuit breaker degrade implementation, inherit
 If `@RetrofitClient` does not set `fallback` or `fallbackFactory`, when a circuit breaker is triggered, a `RetrofitBlockException` exception will be thrown directly. Users can customize the method return value when blown by setting `fallback` or `fallbackFactory`.
 
 > Note: `fallback` class must be the implementation class of the current interface, `fallbackFactory` must be `FallbackFactory<T>`
-Implementation class, the generic parameter type is the current interface type. In addition, `fallback` and `fallbackFactory` instances must be configured as `Spring Bean`.
+> Implementation class, the generic parameter type is the current interface type. In addition, `fallback`
+> and `fallbackFactory` instances must be configured as `Spring Bean`.
 
 The main difference between `fallbackFactory` and `fallback` is that it can perceive the abnormal cause (cause) of each fuse. The reference example is as follows:
 

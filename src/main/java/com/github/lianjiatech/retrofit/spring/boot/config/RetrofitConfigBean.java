@@ -1,8 +1,5 @@
 package com.github.lianjiatech.retrofit.spring.boot.config;
 
-import java.util.Collections;
-import java.util.List;
-
 import com.github.lianjiatech.retrofit.spring.boot.core.SourceOkHttpClientRegistry;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitDegrade;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.ErrorDecoderInterceptor;
@@ -11,10 +8,11 @@ import com.github.lianjiatech.retrofit.spring.boot.interceptor.NetworkIntercepto
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.ServiceChooseInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.log.LoggingInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.retry.RetryInterceptor;
-
 import lombok.Data;
 import retrofit2.CallAdapter;
 import retrofit2.Converter;
+
+import java.util.List;
 
 /**
  * @author 陈添明
@@ -46,19 +44,5 @@ public class RetrofitConfigBean {
 
     public RetrofitConfigBean(RetrofitProperties retrofitProperties) {
         this.retrofitProperties = retrofitProperties;
-    }
-
-    public List<GlobalInterceptor> getGlobalInterceptors() {
-        if (globalInterceptors == null) {
-            return Collections.emptyList();
-        }
-        return globalInterceptors;
-    }
-
-    public List<NetworkInterceptor> getNetworkInterceptors() {
-        if (networkInterceptors == null) {
-            return Collections.emptyList();
-        }
-        return networkInterceptors;
     }
 }

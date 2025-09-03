@@ -4,9 +4,6 @@ retrofit:
   global-converter-factories:
     - com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory
     - retrofit2.converter.jackson.JacksonConverterFactory
-  # 全局适配器工厂(组件扩展的`CallAdaptorFactory`工厂已经内置，这里请勿重复配置)
-  global-call-adapter-factories:
-
   # 全局日志打印配置
   global-log:
     # 启用全局日志打印
