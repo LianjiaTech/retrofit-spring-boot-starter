@@ -11,8 +11,8 @@
 
 **A spring-boot starter for retrofit, supports rapid integration and feature enhancements.**
 
-- <span style="color:red">Spring Boot 3.x project，please use retrofit-spring-boot-starter 3.x</span>
-- <span style="color:red">Spring Boot 1.x/2.x project，please use retrofit-spring-boot-starter 2.x</span>, Support
+- **Spring Boot 3.x project，please use retrofit-spring-boot-starter 3.x**
+- **Spring Boot 1.x/2.x project，please use retrofit-spring-boot-starter 2.x**, Supporting
   Spring Boot 1.4.2 and above
 
 > Open source is not easy, please give me a star⭐️
