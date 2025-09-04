@@ -7,12 +7,14 @@
 [![Author](https://img.shields.io/badge/Author-chentianming-orange.svg?style=flat-square)](https://juejin.im/user/3562073404738584/posts)
 [![QQ-Group](https://img.shields.io/badge/QQ_Group-806714302-orange.svg?style=flat-square) ](https://img.ljcdn.com/hc-picture/6302d742-ebc8-4649-95cf-62ccf57a1add)
 
-[中文文档](https://github.com/LianjiaTech/retrofit-spring-boot-starter/blob/master/README.md)
+[中文文档](https://github.com/LianjiaTech/retrofit-spring-boot-starter/tree/master)
 
 **A spring-boot starter for retrofit, supports rapid integration and feature enhancements.**
 
 - **Spring Boot 3.x project，please use retrofit-spring-boot-starter 3.x**
-- **Spring Boot 1.x/2.x project，please use retrofit-spring-boot-starter 2.x**, Supporting
+- **Spring Boot 1.x/2.x project，please
+  use [retrofit-spring-boot-starter 2.x](https://github.com/LianjiaTech/retrofit-spring-boot-starter/tree/2.x)**,
+  Supporting
   Spring Boot 1.4.2 and above
 
 > Open source is not easy, please give me a star⭐️
