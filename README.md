@@ -8,12 +8,14 @@
 [![Author](https://img.shields.io/badge/Author-chentianming-orange.svg?style=flat-square)](https://juejin.im/user/3562073404738584/posts)
 [![QQ-Group](https://img.shields.io/badge/QQ_Group-806714302-orange.svg?style=flat-square) ](https://img.ljcdn.com/hc-picture/6302d742-ebc8-4649-95cf-62ccf57a1add)
 
-[English Document](https://github.com/LianjiaTech/retrofit-spring-boot-starter/blob/master/README_EN.md)
+[English Document](https://github.com/LianjiaTech/retrofit-spring-boot-starter/blob/2.x/README_EN.md)
 
 **适用于retrofit的spring-boot-starter，支持快速集成和功能增强**
 
 - **Spring Boot 3.x 项目，请使用retrofit-spring-boot-starter 3.x**
-- **Spring Boot 1.x/2.x 项目，请使用retrofit-spring-boot-starter 2.x**，支持Spring Boot
+- **Spring Boot 1.x/2.x
+  项目，请使用[retrofit-spring-boot-starter 2.x](https://github.com/LianjiaTech/retrofit-spring-boot-starter/tree/2.x)**
+  ，支持Spring Boot
   1.4.2及以上版本。
 
 > 🚀项目持续优化迭代，欢迎大家提ISSUE和PR！麻烦大家能给一颗star✨，您的star是我们持续更新的动力！
