@@ -18,7 +18,7 @@ public class DefaultBaseUrlParser implements BaseUrlParser {
     public String parse(RetrofitClient retrofitClient, Environment environment) {
         String baseUrl = Objects.requireNonNull(retrofitClient).baseUrl();
         if (StringUtils.hasText(baseUrl)) {
-            baseUrl = environment.resolveRequiredPlaceholders(baseUrl);
+            baseUrl = environment.resolvePlaceholders(baseUrl);
             // 解析baseUrl占位符
             if (!baseUrl.endsWith(SUFFIX)) {
                 baseUrl += SUFFIX;
@@ -30,7 +30,7 @@ public class DefaultBaseUrlParser implements BaseUrlParser {
                 path += SUFFIX;
             }
             baseUrl = HTTP_PREFIX + (serviceId + SUFFIX + path).replaceAll("/+", SUFFIX);
-            baseUrl = environment.resolveRequiredPlaceholders(baseUrl);
+            baseUrl = environment.resolvePlaceholders(baseUrl);
         }
         return baseUrl;
     }
