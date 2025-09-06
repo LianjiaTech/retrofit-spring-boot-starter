@@ -1,5 +1,5 @@
 
-## retrofit-spring-boot-starter
+# retrofit-spring-boot-starter
 
 [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 ![Maven Central](https://img.shields.io/maven-central/v/com.github.lianjiatech/retrofit-spring-boot-starter.svg?label=Maven)
@@ -10,7 +10,7 @@
 
 [English Document](https://github.com/LianjiaTech/retrofit-spring-boot-starter/blob/master/README_EN.md)
 
-**适用于retrofit的spring-boot-starter，支持快速集成和功能增强**
+**[retrofit](https://square.github.io/retrofit/)支持将HTTP API转化成JAVA接口，本组件将Retrofit和SpringBoot深度整合，并支持了多种实用功能增强，最大化简化调用HTTP API开发。**
 
 - **Spring Boot 3.x 项目，请使用retrofit-spring-boot-starter 3.x**
 - **Spring Boot 1.x/2.x
@@ -18,28 +18,11 @@
   ，支持Spring Boot
   1.4.2及以上版本。
 
-> 🚀项目持续优化迭代，欢迎大家提ISSUE和PR！麻烦大家能给一颗star✨，您的star是我们持续更新的动力！
+> 🚀项目持续优化迭代，欢迎大家提ISSUE和PR！麻烦大家能给一颗star⭐️，您的star是我们持续更新的动力！
 
 github项目地址：[https://github.com/LianjiaTech/retrofit-spring-boot-starter](https://github.com/LianjiaTech/retrofit-spring-boot-starter)
 
 gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter](https://gitee.com/lianjiatech/retrofit-spring-boot-starter)
-
-
-## 功能特性
-
-- [x] [自定义OkHttpClient](#自定义OkHttpClient)
-- [x] [自定义BaseUrl解析器](#自定义BaseUrl解析器)
-- [x] [注解式拦截器](#注解式拦截器)
-- [x] [日志打印](#日志打印)
-- [x] [请求重试](#请求重试)
-- [x] [熔断降级](#熔断降级)
-- [x] [错误解码器](#错误解码器)
-- [x] [微服务之间的HTTP调用](#微服务之间的HTTP调用)
-- [x] [全局拦截器](#全局拦截器)
-- [x] [调用适配器](#调用适配器)
-- [x] [数据转换器](#数据转码器)
-- [x] [元注解](#元注解)
-- [x] [其他功能示例](#其他功能示例)
 
 ## 快速开始
 
@@ -74,12 +57,12 @@ public class SpringBootAutoConfigBridge {
 <bean class="com.yourpackage.config.SpringBootAutoConfig"/>
 ```
 
-### 定义HTTP接口
+### 定义HTTP JAVA接口
 
-**接口必须使用`@RetrofitClient`注解标记**！HTTP相关注解可参考官方文档：[retrofit官方文档](https://square.github.io/retrofit/)。
+**接口必须使用`@RetrofitClient`注解标记！**
 
 ```java
-@RetrofitClient(baseUrl = "${test.baseUrl}")
+@RetrofitClient(baseUrl = "http://localhost:8080/api/user/")
 public interface UserService {
 
    /**
@@ -109,7 +92,7 @@ public class BusinessService {
 }
 ```
 
-**默认情况下，自动使用`SpringBoot`扫描路径进行`RetrofitClient`注册**。你也可以在配置类加上`@RetrofitScan`手工指定扫描路径。
+**默认情况下，自动使用`SpringBoot`扫描路径进行`RetrofitClient`注册**，你也可以在配置类加上`@RetrofitScan`手动指定扫描路径。
 
 ## HTTP请求相关注解
 
@@ -128,11 +111,61 @@ public class BusinessService {
 
 > 详细信息可参考官方文档：[retrofit官方文档](https://square.github.io/retrofit/)
 
-## 配置属性
+## 功能特性
 
-组件支持了多个可配置的属性，用来应对不同的业务场景，具体可支持的配置属性及默认值如下：
+### HTTP响应结果自动适配JAVA接口返回类型
 
-**注意：应用只需要配置要更改的配置项**!
+本组件会将HTTP响应结果自动适配成JAVA接口定义的返回类型，目前支持以下几种返回类型：
+
+- `Call<T>`: 不执行适配处理，直接返回`Call<T>`对象
+- `String`：将`Response Body`适配成`String`返回。
+- 基础类型(`Long`/`Integer`/`Boolean`/`Float`/`Double`)：将`Response Body`适配成上述基础类型
+- `CompletableFuture<T>`: 将`Response Body`适配成`CompletableFuture<T>`对象返回
+- `Void`: 不关注返回类型可以使用`Void`
+- `Response<T>`: 将`Response`适配成`Response<T>`对象返回
+- `Mono<T>`: `Project Reactor`响应式返回类型
+- `Single<T>`：`Rxjava`响应式返回类型（支持`Rxjava2/Rxjava3`）
+- `Completable`：`Rxjava`响应式返回类型，`HTTP`请求没有响应体（支持`Rxjava2/Rxjava3`）
+- 任意`POJO`类型： 将`Response Body`适配成对应的`POJO`对象返回
+
+#### 适配实现方式
+
+`Retrofit`底层是通过`CallAdapterFactory`将`Call<T>`对象适配成接口方法的返回值类型，本组件扩展了一些`CallAdapterFactory`实现：
+
+-  `BodyCallAdapterFactory`
+    - 同步执行`HTTP`请求，将响应体内容适配成方法的返回值类型。
+    - 任意方法返回值类型都可以使用`BodyCallAdapterFactory`，优先级最低。
+-  `ResponseCallAdapterFactory`
+    - 同步执行`HTTP`请求，将响应体内容适配成`Retrofit.Response<T>`返回。
+    - 只有方法返回值类型为`Retrofit.Response<T>`，才可以使用`ResponseCallAdapterFactory`。
+-  响应式编程相关`CallAdapterFactory`
+
+通过继承`CallAdapter.Factory`，可以实现任何方式的HTTP响应报文到JAVA接口返回类型的适配处理。 组件支持通过`retrofit.global-call-adapter-factories`配置全局调用适配器工厂：
+```yaml
+retrofit:
+  # 全局适配器工厂(组件扩展的`CallAdaptorFactory`工厂已经内置，这里请勿重复配置)
+  global-call-adapter-factories:
+    # ...
+```
+
+针对每个JAVA接口，还可以通过`@RetrofitClient.callAdapterFactories`指定当前接口采用的`CallAdapter.Factory`。
+
+### 自定义数据转换器
+
+`Retrofit`使用`Converter`将`@Body`注解的对象转换成HTTP请求体，将HTTP响应体转换成一个`Java`对象，支持以下几种`Converter`：
+
+- [Gson](https://github.com/google/gson): com.squareup.Retrofit:converter-gson
+- [Jackson](https://github.com/FasterXML/jackson): com.squareup.Retrofit:converter-jackson
+- [Moshi](https://github.com/square/moshi/): com.squareup.Retrofit:converter-moshi
+- [Protobuf](https://developers.google.com/protocol-buffers/): com.squareup.Retrofit:converter-protobuf
+- [Wire](https://github.com/square/wire): com.squareup.Retrofit:converter-wire
+- [Simple XML](http://simple.sourceforge.net/): com.squareup.Retrofit:converter-simplexml
+- [JAXB](https://docs.oracle.com/javase/tutorial/jaxb/intro/index.html): com.squareup.retrofit2:converter-jaxb
+- fastJson：com.alibaba.fastjson.support.retrofit.Retrofit2ConverterFactory
+
+组件支持通过`retrofit.global-converter-factories`配置全局`Converter.Factory`，默认的是`retrofit2.converter.jackson.JacksonConverterFactory`。
+
+如果需要修改`Jackson`配置，自行覆盖`JacksonConverterFactory`的`bean`配置即可。
 
 ```yaml
 retrofit:
@@ -140,97 +173,15 @@ retrofit:
    global-converter-factories:
       - com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory
       - retrofit2.converter.jackson.JacksonConverterFactory
-
-   # 全局日志打印配置
-   global-log:
-      # 启用日志打印
-      enable: true
-      # 全局日志打印级别
-      log-level: info
-      # 全局日志打印策略
-      log-strategy: basic
-      # 是否聚合打印请求日志
-      aggregate: true
-
-   # 全局重试配置
-   global-retry:
-      # 是否启用全局重试
-      enable: false
-      # 全局重试间隔时间
-      interval-ms: 100
-      # 全局最大重试次数
-      max-retries: 2
-      # 全局重试规则
-      retry-rules:
-         - response_status_not_2xx
-         - occur_io_exception
-
-   # 全局超时时间配置
-   global-timeout:
-      # 全局读取超时时间
-      read-timeout-ms: 10000
-      # 全局写入超时时间
-      write-timeout-ms: 10000
-      # 全局连接超时时间
-      connect-timeout-ms: 10000
-      # 全局完整调用超时时间
-      call-timeout-ms: 0
-
-   # 熔断降级配置
-   degrade:
-      # 熔断降级类型。默认none，表示不启用熔断降级
-      degrade-type: none
-      # 全局sentinel降级配置
-      global-sentinel-degrade:
-         # 是否开启
-         enable: false
-         # 各降级策略对应的阈值。平均响应时间(ms)，异常比例(0-1)，异常数量(1-N)
-         count: 1000
-         # 熔断时长，单位为 s
-         time-window: 5
-         # 降级策略（0：平均响应时间；1：异常比例；2：异常数量）
-         grade: 0
-
-      # 全局resilience4j降级配置
-      global-resilience4j-degrade:
-         # 是否开启
-         enable: false
-         # 根据该名称从#{@link CircuitBreakerConfigRegistry}获取CircuitBreakerConfig，作为全局熔断配置
-         circuit-breaker-config-name: defaultCircuitBreakerConfig
-   # 自动设置PathMathInterceptor的scope为prototype
-   auto-set-prototype-scope-for-path-math-interceptor: true
-   # 是否开启ErrorDecoder功能
-   enable-error-decoder: true
 ```
 
-绝大部分场景下，在Spring Boot配置文件（application.yml或者application.properties）中加上上述配置，即可自定义修改组件功能。
-
-**如果Spring Boot配置文件无法生效，可以手动配置RetrofitProperties Bean**，代码如下：
-
-```java
-
-@Bean
-public RetrofitProperties retrofitProperties() {
-   RetrofitProperties retrofitProperties = new RetrofitProperties();
-   GlobalLogProperty globalLog = retrofitProperties.getGlobalLog();
-   globalLog.setLogLevel(LogLevel.WARN);
-   globalLog.setLogStrategy(LogStrategy.NONE);
-   return retrofitProperties;
-}
-```
-
-## 高级功能
-
-### 超时时间配置
-
-如果仅仅需要修改`OkHttpClient`的超时时间，可以通过`@RetrofitClient`相关字段修改，或者全局超时配置修改。
-
+针对每个`Java`接口，还可以通过`@RetrofitClient.converterFactories`指定当前接口采用的`Converter.Factory`。
 
 ### 自定义OkHttpClient
 
-如果需要修改`OkHttpClient`其它配置，可以通过自定义`OkHttpClient`来实现，步骤如下：
+对于OkHttpClient超时相关配置，可以通过配置文件或者`@RetrofitClient`设置。但是如果需要修改更灵活复杂的`OkHttpClient`配置，推荐通过自定义`OkHttpClient`来实现，步骤如下：
 
-**实现`SourceOkHttpClientRegistrar`接口，调用`SourceOkHttpClientRegistry#register()`方法注册`OkHttpClient`**
+### 实现`SourceOkHttpClientRegistrar`接口
    
 ```java
 @Component
@@ -249,7 +200,7 @@ public class CustomOkHttpClientRegistrar implements SourceOkHttpClientRegistrar 
 }
 ```
 
-**通过`@RetrofitClient.sourceOkHttpClient`指定当前接口要使用的`OkHttpClient`**
+### 通过`@RetrofitClient.sourceOkHttpClient`指定当前接口要使用的`OkHttpClient`
 
 ```java
 @RetrofitClient(baseUrl = "${test.baseUrl}", sourceOkHttpClient = "customOkHttpClient")
@@ -260,151 +211,6 @@ public interface CustomOkHttpUserService {
     */
    @GET("getUser")
    User getUser(@Query("id") Long id);
-}
-```
-
-> 注意：组件不会直接使用指定的`OkHttpClient`，而是基于该`OkHttpClient`创建一个新的。
-
-### 自定义BaseUrl解析器
-组件支持自定义BaseUrl解析，通过`@RetrofitClient`的`baseUrl()`指定，默认为`DefaultBaseUrlParser`。
-
-
-### 注解式拦截器
-
-组件提供了**注解式拦截器**，支持基于url路径匹配拦截，使用的步骤如下：
-
-1. 继承`BasePathMatchInterceptor`
-2. 使用`@Intercept`注解指定要使用的拦截器
-
-> 如果需要使用多个拦截器，在接口上标注多个`@Intercept`注解即可。
-
-#### 继承`BasePathMatchInterceptor`编写拦截处理器
-
-```java
-@Component
-public class PathMatchInterceptor extends BasePathMatchInterceptor {
-   @Override
-   protected Response doIntercept(Chain chain) throws IOException {
-      Response response = chain.proceed(chain.request());
-      // response的Header加上path.match
-      return response.newBuilder().header("path.match", "true").build();
-   }
-}
-```
-
-默认情况下，**组件会自动将`BasePathMatchInterceptor`的`scope`设置为`prototype`**。
-可通过`retrofit.auto-set-prototype-scope-for-path-math-interceptor=false`关闭该功能。关闭之后，需要手动将`scope`设置为`prototype`。
-
-```java
-@Component
-@Scope("prototype")
-public class PathMatchInterceptor extends BasePathMatchInterceptor {
-    
-}
-```
-
-#### 接口上使用`@Intercept`进行标注
-
-```java
-@RetrofitClient(baseUrl = "${test.baseUrl}")
-@Intercept(handler = PathMatchInterceptor.class, include = {"/api/user/**"}, exclude = "/api/user/getUser")
-// @Intercept() 如果需要使用多个路径匹配拦截器，继续添加@Intercept即可
-public interface InterceptorUserService {
-
-   /**
-    * 根据id查询用户姓名
-    */
-   @POST("getName")
-   Response<String> getName(@Query("id") Long id);
-
-   /**
-    * 根据id查询用户信息
-    */
-   @GET("getUser")
-   Response<User> getUser(@Query("id") Long id);
-
-}
-```
-
-上面的`@Intercept`配置表示：拦截`InterceptorUserService`接口下`/api/user/**`路径下（排除`/api/user/getUser`）的请求，拦截处理器使用`PathMatchInterceptor`。
-
-
-### 自定义拦截注解
-
-有的时候，我们需要在"拦截注解"动态传入一些参数，然后在拦截的时候使用这些参数。 这时候，我们可以使用"自定义拦截注解"，步骤如下：
-
-1. 自定义注解。必须使用`@InterceptMark`标记，并且注解中必须包括`include、exclude、handler`字段。
-2. 继承`BasePathMatchInterceptor`编写拦截处理器
-3. 接口上使用自定义注解
-
-例如，我们需要"在请求头里面动态加入`accessKeyId`、`accessKeySecret`签名信息才能再发起HTTP请求"，这时候可以自定义`@Sign`注解来实现。
-
-
-#### 自定义`@Sign`注解
-
-```java
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-@Documented
-@InterceptMark
-public @interface Sign {
-    
-    String accessKeyId();
-
-    String accessKeySecret();
-
-    String[] include() default {"/**"};
-
-    String[] exclude() default {};
-
-    Class<? extends BasePathMatchInterceptor> handler() default SignInterceptor.class;
-}
-```
-
-在`@Sign`注解中指定了使用的拦截器是`SignInterceptor`。
-
-#### 实现`SignInterceptor`
-
-```java
-@Component
-@Setter
-public class SignInterceptor extends BasePathMatchInterceptor {
-
-   private String accessKeyId;
-
-   private String accessKeySecret;
-
-   @Override
-   public Response doIntercept(Chain chain) throws IOException {
-      Request request = chain.request();
-      Request newReq = request.newBuilder()
-              .addHeader("accessKeyId", accessKeyId)
-              .addHeader("accessKeySecret", accessKeySecret)
-              .build();
-      Response response = chain.proceed(newReq);
-      return response.newBuilder().addHeader("accessKeyId", accessKeyId)
-              .addHeader("accessKeySecret", accessKeySecret).build();
-   }
-}
-```
-
-> 注意：`accessKeyId`和`accessKeySecret`字段必须提供`setter`方法。
-
-拦截器的`accessKeyId`和`accessKeySecret`字段值会依据`@Sign`注解的`accessKeyId()`和`accessKeySecret()`值自动注入，如果`@Sign`指定的是占位符形式的字符串，则会取配置属性值进行注入。
-
-#### 接口上使用`@Sign`
-
-```java
-@RetrofitClient(baseUrl = "${test.baseUrl}")
-@Sign(accessKeyId = "${test.accessKeyId}", accessKeySecret = "${test.accessKeySecret}", include = "/api/user/getAll")
-public interface InterceptorUserService {
-
-   /**
-    * 查询所有用户信息
-    */
-   @GET("getAll")
-   Response<List<User>> getAll();
-
 }
 ```
 
@@ -484,6 +290,148 @@ retrofit:
 #### 请求重试自定义扩展
 
 如果需要修改请求重试行为，可以继承`RetryInterceptor`，并将其配置成`Spring bean`。
+
+### 全局应用拦截器
+
+如果我们需要对整个系统的的`HTTP`请求执行统一的拦截处理，可以实现全局拦截器`GlobalInterceptor`, 并配置成`spring Bean`。
+
+```java
+@Component
+public class MyGlobalInterceptor implements GlobalInterceptor {
+   @Override
+   public Response intercept(Chain chain) throws IOException {
+      Response response = chain.proceed(chain.request());
+      // response的Header加上global
+      return response.newBuilder().header("global", "true").build();
+   }
+}
+```
+
+### 全局网络拦截器
+
+实现`NetworkInterceptor`接口，并配置成`spring Bean`。
+
+### url路径匹配拦截器
+
+很多场景下，我们需要仅针对某些HTTP接口做一些特殊逻辑，此时可以使用url路径匹配拦截器，优雅实现该功能，使用的步骤如下：
+
+#### 继承`BasePathMatchInterceptor`编写拦截处理器
+
+```java
+@Component
+public class PathMatchInterceptor extends BasePathMatchInterceptor {
+   @Override
+   protected Response doIntercept(Chain chain) throws IOException {
+      Response response = chain.proceed(chain.request());
+      // response的Header加上path.match
+      return response.newBuilder().header("path.match", "true").build();
+   }
+}
+```
+
+#### 接口上使用`@Intercept`进行标注
+
+```java
+@RetrofitClient(baseUrl = "${test.baseUrl}")
+@Intercept(handler = PathMatchInterceptor.class, include = {"/api/user/**"}, exclude = "/api/user/getUser")
+// @Intercept() 如果需要使用多个路径匹配拦截器，继续添加@Intercept即可
+public interface InterceptorUserService {
+
+   /**
+    * 根据id查询用户姓名
+    */
+   @POST("getName")
+   Response<String> getName(@Query("id") Long id);
+
+   /**
+    * 根据id查询用户信息
+    */
+   @GET("getUser")
+   Response<User> getUser(@Query("id") Long id);
+
+}
+```
+
+上面的`@Intercept`配置表示：拦截`InterceptorUserService`接口下`/api/user/**`路径下（排除`/api/user/getUser`）的请求，拦截处理器使用`PathMatchInterceptor`。如果需要使用多个拦截器，在接口上标注多个`@Intercept`注解即可。
+
+### 自定义拦截器注解
+
+有的时候，我们需要在"拦截注解"动态传入一些参数，然后在拦截的时候使用这些参数。 这时候，我们可以使用"自定义拦截注解"，步骤如下：
+
+1. 自定义注解。必须使用`@InterceptMark`标记，并且注解中必须包括`include、exclude、handler`字段。
+2. 继承`BasePathMatchInterceptor`编写拦截处理器
+3. 接口上使用自定义注解
+
+例如，我们需要"在请求头里面动态加入`accessKeyId`、`accessKeySecret`签名信息才能再发起HTTP请求"，这时候可以自定义`@Sign`注解来实现。
+
+
+#### 自定义`@Sign`注解
+
+```java
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+@Documented
+@InterceptMark
+public @interface Sign {
+    
+    String accessKeyId();
+
+    String accessKeySecret();
+
+    String[] include() default {"/**"};
+
+    String[] exclude() default {};
+
+    Class<? extends BasePathMatchInterceptor> handler() default SignInterceptor.class;
+}
+```
+
+在`@Sign`注解中指定了使用的拦截器是`SignInterceptor`。
+
+#### 实现`SignInterceptor`
+
+```java
+@Component
+@Setter
+public class SignInterceptor extends BasePathMatchInterceptor {
+
+   private String accessKeyId;
+
+   private String accessKeySecret;
+
+   @Override
+   public Response doIntercept(Chain chain) throws IOException {
+      Request request = chain.request();
+      Request newReq = request.newBuilder()
+              .addHeader("accessKeyId", accessKeyId)
+              .addHeader("accessKeySecret", accessKeySecret)
+              .build();
+      Response response = chain.proceed(newReq);
+      return response.newBuilder().addHeader("accessKeyId", accessKeyId)
+              .addHeader("accessKeySecret", accessKeySecret).build();
+   }
+}
+```
+
+> 注意：`accessKeyId`和`accessKeySecret`字段必须提供`setter`方法。
+
+拦截器的`accessKeyId`和`accessKeySecret`字段值会依据`@Sign`注解的`accessKeyId()`和`accessKeySecret()`值自动注入，如果`@Sign`指定的是占位符形式的字符串，则会取配置属性值进行注入。
+
+#### 接口上使用`@Sign`
+
+```java
+@RetrofitClient(baseUrl = "${test.baseUrl}")
+@Sign(accessKeyId = "${test.accessKeyId}", accessKeySecret = "${test.accessKeySecret}", include = "/api/user/getAll")
+public interface InterceptorUserService {
+
+   /**
+    * 查询所有用户信息
+    */
+   @GET("getAll")
+   Response<List<User>> getAll();
+
+}
+```
 
 ### 熔断降级
 
@@ -687,100 +635,12 @@ public interface ChooserOkHttpUserService {
 }
 ```
 
-## 全局拦截器
 
-### 全局应用拦截器
+### 自定义RetrofitClient注解
 
-如果我们需要对整个系统的的`HTTP`请求执行统一的拦截处理，可以实现全局拦截器`GlobalInterceptor`, 并配置成`spring Bean`。
+有些时候，JAVA接口上的`@RetrofitClient`、`@Retry`、`@Logging`、`@Resilience4jDegrade`等注解上的默认值不符合业务需要。 此时一种方式是每个接口都修改对应注解属性，但是会导致很多接口都要做相同的逻辑，不够优雅。 另外一种方式就是自定义RetrofitClient注解，后续其他接口只需要使用自定义注解即可。
 
-```java
-@Component
-public class MyGlobalInterceptor implements GlobalInterceptor {
-   @Override
-   public Response intercept(Chain chain) throws IOException {
-      Response response = chain.proceed(chain.request());
-      // response的Header加上global
-      return response.newBuilder().header("global", "true").build();
-   }
-}
-```
-
-### 全局网络拦截器
-
-实现`NetworkInterceptor`接口，并配置成`spring Bean`。
-
-## 调用适配器
-
-`Retrofit`可以通过`CallAdapterFactory`将`Call<T>`对象适配成接口方法的返回值类型。组件扩展了一些`CallAdapterFactory`实现：
-
-1. `BodyCallAdapterFactory`
-   - 同步执行`HTTP`请求，将响应体内容适配成方法的返回值类型。
-   - 任意方法返回值类型都可以使用`BodyCallAdapterFactory`，优先级最低。
-2. `ResponseCallAdapterFactory`
-    - 同步执行`HTTP`请求，将响应体内容适配成`Retrofit.Response<T>`返回。
-    - 只有方法返回值类型为`Retrofit.Response<T>`，才可以使用`ResponseCallAdapterFactory`。
-3. 响应式编程相关`CallAdapterFactory`
-
-**`Retrofit`会根据方法返回值类型选择对应的`CallAdapterFactory`执行适配处理**，目前支持的返回值类型如下：
-
-- `String`：将`Response Body`适配成`String`返回。
-- 基础类型(`Long`/`Integer`/`Boolean`/`Float`/`Double`)：将`Response Body`适配成上述基础类型
-- 任意`Java`类型： 将`Response Body`适配成对应的`Java`对象返回
-- `CompletableFuture<T>`: 将`Response Body`适配成`CompletableFuture<T>`对象返回
-- `Void`: 不关注返回类型可以使用`Void`
-- `Response<T>`: 将`Response`适配成`Response<T>`对象返回
-- `Call<T>`: 不执行适配处理，直接返回`Call<T>`对象
-- `Mono<T>`: `Project Reactor`响应式返回类型
-- `Single<T>`：`Rxjava`响应式返回类型（支持`Rxjava2/Rxjava3`）
-- `Completable`：`Rxjava`响应式返回类型，`HTTP`请求没有响应体（支持`Rxjava2/Rxjava3`）
-
-
-可以通过继承`CallAdapter.Factory`扩展`CallAdapter`。
-
-组件支持通过`retrofit.global-call-adapter-factories`配置全局调用适配器工厂：
-```yaml
-retrofit:
-  # 全局转换器工厂(组件扩展的`CallAdaptorFactory`工厂已经内置，这里请勿重复配置)
-  global-call-adapter-factories:
-    # ...
-```
-
-针对每个Java接口，还可以通过`@RetrofitClient.callAdapterFactories`指定当前接口采用的`CallAdapter.Factory`。
-
-> 建议：将`CallAdapter.Factory`配置成`Spring Bean`
-
-### 数据转码器
-
-`Retrofit`使用`Converter`将`@Body`注解的对象转换成`Request Body`，将`Response Body`转换成一个`Java`对象，可以选用以下几种`Converter`：
-
-- [Gson](https://github.com/google/gson): com.squareup.Retrofit:converter-gson
-- [Jackson](https://github.com/FasterXML/jackson): com.squareup.Retrofit:converter-jackson
-- [Moshi](https://github.com/square/moshi/): com.squareup.Retrofit:converter-moshi
-- [Protobuf](https://developers.google.com/protocol-buffers/): com.squareup.Retrofit:converter-protobuf
-- [Wire](https://github.com/square/wire): com.squareup.Retrofit:converter-wire
-- [Simple XML](http://simple.sourceforge.net/): com.squareup.Retrofit:converter-simplexml
-- [JAXB](https://docs.oracle.com/javase/tutorial/jaxb/intro/index.html): com.squareup.retrofit2:converter-jaxb
-- fastJson：com.alibaba.fastjson.support.retrofit.Retrofit2ConverterFactory
-
-组件支持通过`retrofit.global-converter-factories`配置全局`Converter.Factory`，默认的是`retrofit2.converter.jackson.JacksonConverterFactory`。
-
-如果需要修改`Jackson`配置，自行覆盖`JacksonConverterFactory`的`bean`配置即可。
-
-```yaml
-retrofit:
-   # 全局转换器工厂
-   global-converter-factories:
-      - com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory
-      - retrofit2.converter.jackson.JacksonConverterFactory
-```
-
-针对每个`Java`接口，还可以通过`@RetrofitClient.converterFactories`指定当前接口采用的`Converter.Factory`。
-
-> 建议：将`Converter.Factory`配置成`Spring Bean`。
-
-### 元注解
-
-`@RetrofitClient`、`@Retry`、`@Logging`、`@Resilience4jDegrade`等注解支持元注解、继承以及`@AliasFor`。 
+比如下面代码定义了自定义注解`@MyRetrofitClient`：
 
 ```java
 
@@ -798,6 +658,90 @@ public @interface MyRetrofitClient {
 
    @AliasFor(annotation = Logging.class, attribute = "logStrategy")
    LogStrategy logStrategy() default LogStrategy.BODY;
+}
+```
+
+## 配置属性
+
+组件支持了多个可配置的属性，用来应对不同的业务场景。具体可支持的配置属性及默认值如下：
+
+```yaml
+retrofit:
+   # 全局转换器工厂
+   global-converter-factories:
+      - com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory
+      - retrofit2.converter.jackson.JacksonConverterFactory
+
+   # 全局日志打印配置
+   global-log:
+      # 启用日志打印
+      enable: true
+      # 全局日志打印级别
+      log-level: info
+      # 全局日志打印策略
+      log-strategy: basic
+      # 是否聚合打印请求日志
+      aggregate: true
+
+   # 全局重试配置
+   global-retry:
+      # 是否启用全局重试
+      enable: false
+      # 全局重试间隔时间
+      interval-ms: 100
+      # 全局最大重试次数
+      max-retries: 2
+      # 全局重试规则
+      retry-rules:
+         - response_status_not_2xx
+         - occur_io_exception
+
+   # 全局超时时间配置
+   global-timeout:
+      # 全局读取超时时间
+      read-timeout-ms: 10000
+      # 全局写入超时时间
+      write-timeout-ms: 10000
+      # 全局连接超时时间
+      connect-timeout-ms: 10000
+      # 全局完整调用超时时间
+      call-timeout-ms: 0
+
+   # 熔断降级配置
+   degrade:
+      # 熔断降级类型。默认none，表示不启用熔断降级
+      degrade-type: none
+      # 全局sentinel降级配置
+      global-sentinel-degrade:
+         # 是否开启
+         enable: false
+         # 各降级策略对应的阈值。平均响应时间(ms)，异常比例(0-1)，异常数量(1-N)
+         count: 1000
+         # 熔断时长，单位为 s
+         time-window: 5
+         # 降级策略（0：平均响应时间；1：异常比例；2：异常数量）
+         grade: 0
+
+      # 全局resilience4j降级配置
+      global-resilience4j-degrade:
+         # 是否开启
+         enable: false
+         # 根据该名称从#{@link CircuitBreakerConfigRegistry}获取CircuitBreakerConfig，作为全局熔断配置
+         circuit-breaker-config-name: defaultCircuitBreakerConfig
+   # 自动设置PathMathInterceptor的scope为prototype
+   auto-set-prototype-scope-for-path-math-interceptor: true
+   # 是否开启ErrorDecoder功能
+   enable-error-decoder: true
+```
+绝大部分场景下，在Spring Boot配置文件（application.yml或者application.properties）中加上上述配置，即可自定义修改组件功能。
+
+**如果Spring Boot配置文件无法生效，可以手动配置RetrofitProperties Bean**，代码如下：
+```java
+@Bean
+public RetrofitProperties retrofitProperties() {
+   RetrofitProperties retrofitProperties = new RetrofitProperties();
+   // 手动修改retrofitProperties各项配置值
+   return retrofitProperties;
 }
 ```
 
