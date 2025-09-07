@@ -28,9 +28,9 @@ Gitee project link: [https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>  
     <groupId>com.github.lianjiatech</groupId>  
     <artifactId>retrofit-spring-boot-starter</artifactId>  
-    <version>2.4.9</version>  
+    <version>2.4.10</version>  
 </dependency>  
-```  
+```
 
 For most Spring Boot projects, adding the dependency is sufficient. If the component fails to work after dependency injection, try the following solutions:
 

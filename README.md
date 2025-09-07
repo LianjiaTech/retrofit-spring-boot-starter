@@ -32,7 +32,7 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-   <version>2.4.9</version>
+   <version>2.4.10</version>
 </dependency>
 ```
 
@@ -311,7 +311,7 @@ public class MyGlobalInterceptor implements GlobalInterceptor {
 
 实现`NetworkInterceptor`接口，并配置成`spring Bean`。
 
-### url路径匹配拦截器
+### 注解式url路径匹配拦截器
 
 很多场景下，我们需要仅针对某些HTTP接口做一些特殊逻辑，此时可以使用url路径匹配拦截器，优雅实现该功能，使用的步骤如下：
 
