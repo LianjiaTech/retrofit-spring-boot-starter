@@ -1,15 +1,17 @@
 package com.github.lianjiatech.retrofit.spring.boot.log;
 
+import java.io.IOException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.github.lianjiatech.retrofit.spring.boot.util.AnnotationExtendUtils;
+
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import retrofit2.Invocation;
-
-import java.io.IOException;
 
 /**
  * @author 陈添明
@@ -36,14 +38,27 @@ public class LoggingInterceptor implements Interceptor {
 
         LogLevel logLevel = logging == null ? globalLogProperty.getLogLevel() : logging.logLevel();
         boolean aggregate = logging == null ? globalLogProperty.isAggregate() : logging.aggregate();
-        String logName = logging == null || logging.logName().isEmpty() ? globalLogProperty.getLogName() : logging.logName();
+        String logName =
+                logging == null || logging.logName().isEmpty() ? globalLogProperty.getLogName() : logging.logName();
         HttpLoggingInterceptor.Logger matchLogger = matchLogger(logName, logLevel);
         HttpLoggingInterceptor.Logger logger = aggregate ? new BufferingLogger(matchLogger) : matchLogger;
         HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor(logger)
                 .setLevel(HttpLoggingInterceptor.Level.valueOf(logStrategy.name()));
+
+        String[] globalRedactHeaders = globalLogProperty.getRedactHeaders();
+        if (globalRedactHeaders != null) {
+            for (String redactHeader : globalRedactHeaders) {
+                httpLoggingInterceptor.redactHeader(redactHeader);
+            }
+        }
+        if (logging != null && logging.redactHeaders() != null) {
+            for (String redactHeader : logging.redactHeaders()) {
+                httpLoggingInterceptor.redactHeader(redactHeader);
+            }
+        }
         Response response = httpLoggingInterceptor.intercept(chain);
         if (aggregate) {
-            ((BufferingLogger) logger).flush();
+            ((BufferingLogger)logger).flush();
         }
         return response;
     }

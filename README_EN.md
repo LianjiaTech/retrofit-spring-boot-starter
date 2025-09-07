@@ -28,7 +28,7 @@ Gitee project link: [https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>  
     <groupId>com.github.lianjiatech</groupId>  
     <artifactId>retrofit-spring-boot-starter</artifactId>  
-    <version>2.4.10</version>  
+    <version>2.5.0</version>  
 </dependency>  
 ```
 
@@ -244,7 +244,8 @@ retrofit:
     # Aggregate request logs  
     aggregate: true  
     # Logger name (default: fully qualified class name of LoggingInterceptor)  
-    logName: com.github.lianjiatech.retrofit.spring.boot.log.LoggingInterceptor  
+    logName: com.github.lianjiatech.retrofit.spring.boot.log.LoggingInterceptor
+    redact-headers: 
 ```  
 
 Logging strategies:

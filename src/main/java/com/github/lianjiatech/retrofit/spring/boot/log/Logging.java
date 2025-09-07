@@ -54,4 +54,9 @@ public @interface Logging {
      * @return 是否聚合打印请求日志
      */
     boolean aggregate() default true;
+
+    /**
+     * 日志中需要隐藏的敏感请求头
+     */
+    String[] redactHeaders() default {};
 }

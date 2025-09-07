@@ -35,4 +35,9 @@ public class GlobalLogProperty {
      * 是否聚合打印请求日志
      */
     private boolean aggregate = true;
+
+    /**
+     * 日志中需要隐藏的敏感请求头
+     */
+    private String[] redactHeaders = {};
 }

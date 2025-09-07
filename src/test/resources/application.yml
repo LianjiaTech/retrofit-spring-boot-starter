@@ -14,6 +14,9 @@ retrofit:
     log-strategy: basic
     # 是否聚合打印请求日志
     aggregate: true
+    # 日志中需要隐藏的敏感请求头
+    redact-headers:
+      - Authorization
 
   # 全局重试配置
   global-retry:

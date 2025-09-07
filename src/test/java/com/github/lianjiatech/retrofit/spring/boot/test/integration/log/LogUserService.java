@@ -1,15 +1,16 @@
 package com.github.lianjiatech.retrofit.spring.boot.test.integration.log;
 
+import java.util.List;
+
 import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClient;
 import com.github.lianjiatech.retrofit.spring.boot.log.LogStrategy;
 import com.github.lianjiatech.retrofit.spring.boot.log.Logging;
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.entity.User;
 
 import retrofit2.http.GET;
+import retrofit2.http.Header;
 import retrofit2.http.POST;
 import retrofit2.http.Query;
-
-import java.util.List;
 
 /**
  * @author 陈添明
@@ -38,4 +39,12 @@ public interface LogUserService {
     @GET("getAll")
     @Logging(logStrategy = LogStrategy.BODY, aggregate = false)
     List<User> getAll();
+
+    /**
+     * 根据id查询用户姓名
+     */
+    @POST("getNameWithHeader")
+    @Logging(logStrategy = LogStrategy.BODY, redactHeaders = {"Token"})
+    String getNameWithHeader(@Query("id") Long id, @Header("Authorization") String authorizationHeader,
+            @Header("Token") String tokenHeader);
 }

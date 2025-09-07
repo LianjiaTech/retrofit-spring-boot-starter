@@ -32,7 +32,7 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-   <version>2.4.10</version>
+   <version>2.5.0</version>
 </dependency>
 ```
 
@@ -236,6 +236,8 @@ retrofit:
       aggregate: true
       # 日志名称，默认为{@link LoggingInterceptor} 的全类名
       logName: com.github.lianjiatech.retrofit.spring.boot.log.LoggingInterceptor
+     # 日志中需要隐藏的敏感请求头
+      redact-headers: 
 ```
 
 四种日志打印策略含义如下：
