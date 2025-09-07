@@ -49,7 +49,7 @@ If the project still uses Spring XML configuration files, add the Spring Boot au
 
 ```xml  
 <!-- Import Spring Boot auto-configuration class -->  
-<bean class="com.yourpackage.config.SpringBootAutoConfig"/>  
+<bean class="com.yourpackage.config.SpringBootAutoConfig"/>
 ```  
 
 
@@ -175,11 +175,11 @@ Configure global `Converter.Factory` via `retrofit.global-converter-factories` (
 To customize Jackson configuration, override the `JacksonConverterFactory` bean:
 
 ```yaml  
-retrofit:  
-  # Global converter factories  
-  global-converter-factories:  
-    - com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory  
-    - retrofit2.converter.jackson.JacksonConverterFactory  
+retrofit:
+  # Global converter factories
+  global-converter-factories:
+    - com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory
+    - retrofit2.converter.jackson.JacksonConverterFactory
 ```  
 
 For individual interfaces, specify `Converter.Factory` using `@RetrofitClient.converterFactories`.
@@ -231,22 +231,22 @@ The component supports global and declarative logging.
 
 Global logging is enabled by default with the following configuration:
 
-```yaml  
-retrofit:  
-  # Global logging configuration  
-  global-log:  
-    # Enable logging  
-    enable: true  
-    # Global log level  
-    log-level: info  
-    # Global log strategy  
-    log-strategy: basic  
-    # Aggregate request logs  
-    aggregate: true  
-    # Logger name (default: fully qualified class name of LoggingInterceptor)  
+```yaml
+retrofit:
+  # Global logging configuration
+  global-log:
+    # Enable logging
+    enable: true
+    # Global log level
+    log-level: info
+    # Global log strategy
+    log-strategy: basic
+    # Aggregate request logs
+    aggregate: true
+    # Logger name (default: fully qualified class name of LoggingInterceptor)
     logName: com.github.lianjiatech.retrofit.spring.boot.log.LoggingInterceptor
     redact-headers: 
-```  
+```
 
 Logging strategies:
 
@@ -273,19 +273,19 @@ The component supports global and declarative retries.
 Global retries are disabled by default:
 
 ```yaml  
-retrofit:  
-  # Global retry configuration  
-  global-retry:  
-    # Enable global retries  
-    enable: false  
-    # Retry interval (ms)  
-    interval-ms: 100  
-    # Max retries  
-    max-retries: 2  
-    # Retry rules  
+retrofit:
+  # Global retry configuration
+  global-retry:
+    # Enable global retries
+    enable: false
+    # Retry interval (ms)
+    interval-ms: 100
+    # Max retries
+    max-retries: 2
+    # Retry rules
     retry-rules:  
-      - response_status_not_2xx  
-      - occur_io_exception  
+      - response_status_not_2xx
+      - occur_io_exception
 ```  
 
 Retry rules:
@@ -449,11 +449,11 @@ public interface InterceptorUserService {
 Circuit breaking is disabled by default, with support for `sentinel` and `resilience4j`:
 
 ```yaml  
-retrofit:  
-  # Circuit breaking configuration  
-  degrade:  
-    # Circuit breaker type (default: none)  
-    degrade-type: sentinel  
+retrofit:
+  # Circuit breaking configuration
+  degrade:
+    # Circuit breaker type (default: none)
+    degrade-type: sentinel
 ```  
 
 #### Sentinel
@@ -470,37 +470,37 @@ Set `degrade-type: sentinel` and use `@SentinelDegrade` on interfaces/methods. A
 
 Enable global Sentinel circuit breaking:
 
-```yaml  
-retrofit:  
-  degrade:  
-    degrade-type: sentinel  
-    global-sentinel-degrade:  
-      enable: true  
-      # ... other Sentinel configurations  
+```yaml
+retrofit:
+  degrade:
+    degrade-type: sentinel
+    global-sentinel-degrade:
+      enable: true
+      # ... other Sentinel configurations
 ```  
 
 #### Resilience4j
 
 Set `degrade-type: resilience4j` and use `@Resilience4jDegrade` on interfaces/methods. Add the Resilience4j dependency:
 
-```xml  
+```xml
 <dependency>  
     <groupId>io.github.resilience4j</groupId>  
     <artifactId>resilience4j-circuitbreaker</artifactId>  
     <version>1.7.1</version>  
-</dependency>  
+</dependency>
 ```  
 
 Enable global Resilience4j circuit breaking:
 
-```yaml  
-retrofit:  
-  degrade:  
-    degrade-type: resilience4j  
-    global-resilience4j-degrade:  
-      enable: true  
-      circuit-breaker-config-name: defaultCircuitBreakerConfig  
-```  
+```yaml
+retrofit:
+  degrade:
+    degrade-type: resilience4j
+    global-resilience4j-degrade:
+      enable: true
+      circuit-breaker-config-name: defaultCircuitBreakerConfig
+```
 
 **Circuit Breaker Configuration Management**:
 
@@ -602,49 +602,48 @@ public @interface MyRetrofitClient {
 Customize component behavior via `application.yml` or `application.properties`:
 
 ```yaml  
-retrofit:  
-  # Global converter factories  
-  global-converter-factories:  
-    - com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory  
-    - retrofit2.converter.jackson.JacksonConverterFactory  
+retrofit:
+  # Global converter factories
+  global-converter-factories:
+    - com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory
+    - retrofit2.converter.jackson.JacksonConverterFactory
 
-  # Global logging  
-  global-log:  
-    enable: true  
-    log-level: info  
-    log-strategy: basic  
-    aggregate: true  
+  # Global logging
+  global-log:
+    enable: true
+    log-level: info
+    log-strategy: basic
+    aggregate: true
 
-  # Global retries  
-  global-retry:  
-    enable: false  
-    interval-ms: 100  
-    max-retries: 2  
-    retry-rules:  
-      - response_status_not_2xx  
-      - occur_io_exception  
+  # Global retries
+  global-retry:
+    enable: false
+    interval-ms: 100
+    max-retries: 2
+    retry-rules:
+      - response_status_not_2xx
+      - occur_io_exception
 
   # Global timeouts (ms)  
-  global-timeout:  
-    read-timeout-ms: 10000  
-    write-timeout-ms: 10000  
-    connect-timeout-ms: 10000  
-    call-timeout-ms: 0  
+  global-timeout:
+    read-timeout-ms: 10000
+    write-timeout-ms: 10000
+    connect-timeout-ms: 10000
+    call-timeout-ms: 0
 
   # Circuit breaking  
-  degrade:  
-    degrade-type: none  
-    global-sentinel-degrade:  
-      enable: false  
-      count: 1000  
-      time-window: 5  
-      grade: 0  
-    global-resilience4j-degrade:  
-      enable: false  
-      circuit-breaker-config-name: defaultCircuitBreakerConfig  
-
-  auto-set-prototype-scope-for-path-math-interceptor: true  
-  enable-error-decoder: true  
+  degrade:
+    degrade-type: none
+    global-sentinel-degrade:
+      enable: false
+      count: 1000
+      time-window: 5
+      grade: 0
+    global-resilience4j-degrade:
+      enable: false
+      circuit-breaker-config-name: defaultCircuitBreakerConfig
+  auto-set-prototype-scope-for-path-math-interceptor: true
+  enable-error-decoder: true
 ```  
 
 **Manual `RetrofitProperties` Configuration** (if YAML properties fail):
