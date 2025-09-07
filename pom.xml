@@ -6,7 +6,7 @@
 
     <groupId>com.github.lianjiatech</groupId>
     <artifactId>retrofit-spring-boot-starter</artifactId>
-    <version>3.1.8</version>
+    <version>3.2.0</version>
 
     <name>retrofit-spring-boot-starter</name>
     <description>retrofit-spring-boot-starter</description>
@@ -37,9 +37,9 @@
     </developers>
 
     <properties>
-        <retrofit.version>2.12.0</retrofit.version>
+        <retrofit.version>3.0.0</retrofit.version>
         <spring-boot.version>3.2.6</spring-boot.version>
-        <okhttp.version>3.14.9</okhttp.version>
+        <okhttp.version>4.12.0</okhttp.version>
         <sentinel.version>1.6.3</sentinel.version>
         <lombok.version>1.18.24</lombok.version>
     </properties>
