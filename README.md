@@ -236,6 +236,8 @@ retrofit:
       aggregate: true
       # 日志名称，默认为{@link LoggingInterceptor} 的全类名
       logName: com.github.lianjiatech.retrofit.spring.boot.log.LoggingInterceptor
+     # 日志中需要隐藏的敏感请求头
+      redact-headers: 
 ```
 
 四种日志打印策略含义如下：

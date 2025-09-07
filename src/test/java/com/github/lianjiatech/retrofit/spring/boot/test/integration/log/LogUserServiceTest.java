@@ -1,21 +1,19 @@
 package com.github.lianjiatech.retrofit.spring.boot.test.integration.log;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
-import com.github.lianjiatech.retrofit.spring.boot.test.integration.RetrofitBootApplication;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.github.lianjiatech.retrofit.spring.boot.test.integration.entity.User;
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.MockWebServerTest;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.github.lianjiatech.retrofit.spring.boot.test.integration.RetrofitBootApplication;
+import com.github.lianjiatech.retrofit.spring.boot.test.integration.entity.User;
 
 /**
  * @author 陈添明
@@ -23,7 +21,7 @@ import java.util.List;
  */
 @SpringBootTest(classes = {RetrofitBootApplication.class})
 @RunWith(SpringRunner.class)
-public class GlobalRetryUserServiceTest extends MockWebServerTest {
+public class LogUserServiceTest extends MockWebServerTest {
 
     @Autowired
     private LogUserService logUserService;
@@ -55,5 +53,12 @@ public class GlobalRetryUserServiceTest extends MockWebServerTest {
 
         List<User> all = logUserService.getAll();
         assertEquals(users, all);
+    }
+
+    @Test
+    public void getNameWithHeader() {
+        mockServerReturnString(MIKE);
+        String name = logUserService.getNameWithHeader(Long100, "ASDFASD", "AAAAXXXXX");
+        assertEquals(MIKE, name);
     }
 }

@@ -244,7 +244,8 @@ retrofit:
     # Aggregate request logs  
     aggregate: true  
     # Logger name (default: fully qualified class name of LoggingInterceptor)  
-    logName: com.github.lianjiatech.retrofit.spring.boot.log.LoggingInterceptor  
+    logName: com.github.lianjiatech.retrofit.spring.boot.log.LoggingInterceptor
+    redact-headers: 
 ```  
 
 Logging strategies:
