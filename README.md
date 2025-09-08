@@ -113,6 +113,21 @@ public class BusinessService {
 
 ## 功能特性
 
+- [x] [HTTP响应结果自动适配JAVA接口返回类型](#HTTP响应结果自动适配JAVA接口返回类型)
+- [x] [自定义数据转换器](#自定义数据转换器)
+- [x] [自定义OkHttpClient](#自定义OkHttpClient)
+- [x] [日志打印](#日志打印)
+- [x] [请求重试](#请求重试)
+- [x] [全局应用拦截器](#全局应用拦截器)
+- [x] [全局网络拦截器](#全局网络拦截器)
+- [x] [注解式url路径匹配拦截器](#注解式url路径匹配拦截器)
+- [x] [自定义拦截器注解](#自定义拦截器注解)
+- [x] [熔断降级](#熔断降级)
+- [x] [错误解码器](#错误解码器)
+- [x] [微服务之间的HTTP调用](#微服务之间的HTTP调用)
+- [x] [自定义RetrofitClient注解](#自定义RetrofitClient注解)
+- [x] [配置属性](#配置属性)
+
 ### HTTP响应结果自动适配JAVA接口返回类型
 
 本组件会将HTTP响应结果自动适配成JAVA接口定义的返回类型，目前支持以下几种返回类型：
@@ -181,7 +196,7 @@ retrofit:
 
 对于OkHttpClient超时相关配置，可以通过配置文件或者`@RetrofitClient`设置。但是如果需要修改更灵活复杂的`OkHttpClient`配置，推荐通过自定义`OkHttpClient`来实现，步骤如下：
 
-### 实现`SourceOkHttpClientRegistrar`接口
+#### 实现`SourceOkHttpClientRegistrar`接口
    
 ```java
 @Component
@@ -200,7 +215,7 @@ public class CustomOkHttpClientRegistrar implements SourceOkHttpClientRegistrar 
 }
 ```
 
-### 通过`@RetrofitClient.sourceOkHttpClient`指定当前接口要使用的`OkHttpClient`
+#### 通过`@RetrofitClient.sourceOkHttpClient`指定当前接口要使用的`OkHttpClient`
 
 ```java
 @RetrofitClient(baseUrl = "${test.baseUrl}", sourceOkHttpClient = "customOkHttpClient")
@@ -636,7 +651,6 @@ public interface ChooserOkHttpUserService {
    User getUser(@Query("id") Long id);
 }
 ```
-
 
 ### 自定义RetrofitClient注解
 

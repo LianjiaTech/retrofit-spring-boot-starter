@@ -1,4 +1,4 @@
-## retrofit-spring-boot-starter
+# retrofit-spring-boot-starter
 
 [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 ![Maven Central](https://img.shields.io/maven-central/v/com.github.lianjiatech/retrofit-spring-boot-starter.svg?label=Maven)
@@ -113,6 +113,21 @@ HTTP request-related annotations use Retrofit's native annotations. A brief over
 
 
 ## Feature Highlights
+
+- [x] [Automatic Adaptation of HTTP Responses to Java Return Types](#Automatic-Adaptation-of-HTTP-Responses-to-Java-Return-Types)
+- [x] [Custom Data Converters](#Custom-Data-Converters)
+- [x] [Custom OkHttpClient](#Custom-OkHttpClient)
+- [x] [Logging](#Logging)
+- [x] [Request Retries](#Request-Retries)
+- [x] [Global Application Interceptors](#Global-Application-Interceptors)
+- [x] [Global Network Interceptors](#Global-Network-Interceptors)
+- [x] [URL Path Matching Interceptors](#URL-Path-Matching-Interceptors)
+- [x] [Custom Interceptor Annotations](#Custom-Interceptor-Annotations)
+- [x] [Circuit Breaking](#Circuit-Breaking)
+- [x] [Error Decoding](#Error-Decoding)
+- [x] [HTTP Calls Between Microservices](#HTTP-Calls-Between-Microservices)
+- [x] [Custom RetrofitClient Annotations](#Custom-RetrofitClient-Annotations)
+- [x] [Configuration Properties](#Configuration-Properties)
 
 ### Automatic Adaptation of HTTP Responses to Java Return Types
 
@@ -573,8 +588,7 @@ public interface ChooserOkHttpUserService {
 }  
 ```  
 
-
-### Custom `@RetrofitClient` Annotations
+### Custom RetrofitClient Annotations
 
 Combine multiple annotations into a custom annotation for reusability:
 
