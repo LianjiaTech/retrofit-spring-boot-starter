@@ -17,6 +17,7 @@ import com.github.lianjiatech.retrofit.spring.boot.interceptor.Intercepts;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.NetworkInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.util.AppContextUtils;
 import com.github.lianjiatech.retrofit.spring.boot.util.BeanExtendUtils;
+import okhttp3.ConnectionPool;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import org.springframework.beans.BeansException;
@@ -115,6 +116,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
                     ? globalTimeout.getCallTimeoutMs() : retrofitClient.callTimeoutMs();
 
             okHttpClientBuilder = new OkHttpClient.Builder()
+                    .connectionPool(new ConnectionPool(retrofitClient.maxIdleConnections(), 5, TimeUnit.MINUTES))
                     .connectTimeout(connectTimeoutMs, TimeUnit.MILLISECONDS)
                     .readTimeout(readTimeoutMs, TimeUnit.MILLISECONDS)
                     .writeTimeout(writeTimeoutMs, TimeUnit.MILLISECONDS)
