@@ -2,6 +2,7 @@ package com.github.lianjiatech.retrofit.spring.boot.core;
 
 import java.lang.annotation.*;
 
+import okhttp3.ConnectionPool;
 import retrofit2.CallAdapter;
 import retrofit2.Converter;
 import retrofit2.Retrofit;
@@ -153,5 +154,14 @@ public @interface RetrofitClient {
      *
      */
     int callTimeoutMs() default Constants.INVALID_TIMEOUT_VALUE;
+
+    /**
+     * Sets the default max idle connections for client.
+     *
+     * @return maxIdleConnections
+     * @see ConnectionPool#ConnectionPool()
+     */
+    int maxIdleConnections() default Constants.MAX_IDLE_CONNECTIONS;
+
 
 }
