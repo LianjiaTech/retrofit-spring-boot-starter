@@ -26,8 +26,8 @@ Gitee project link: [https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 ```xml  
 <dependency>  
     <groupId>com.github.lianjiatech</groupId>  
-    <artifactId>retrofit-spring-boot-starter</artifactId>  
-    <version>3.2.0</version>  
+    <artifactId>retrofit-spring-boot-starter</artifactId>
+  <version>3.2.1</version>
 </dependency>  
 ```  
 
@@ -643,6 +643,10 @@ retrofit:
     write-timeout-ms: 10000
     connect-timeout-ms: 10000
     call-timeout-ms: 0
+
+  global-connection-pool:
+    max-idle-connections: 5
+    keep-alive-duration-ms: 300_000
 
   # Circuit breaking  
   degrade:

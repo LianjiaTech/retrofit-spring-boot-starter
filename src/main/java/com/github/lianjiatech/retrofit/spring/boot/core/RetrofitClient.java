@@ -1,10 +1,15 @@
 package com.github.lianjiatech.retrofit.spring.boot.core;
 
-import java.lang.annotation.*;
-
 import retrofit2.CallAdapter;
 import retrofit2.Converter;
 import retrofit2.Retrofit;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * @author 陈添明
@@ -123,7 +128,7 @@ public @interface RetrofitClient {
      * @return connectTimeoutMs
      *
      */
-    int connectTimeoutMs() default Constants.INVALID_TIMEOUT_VALUE;
+    int connectTimeoutMs() default Constants.INVALID_VALUE;
 
     /**
      * Sets the default read timeout for new connections. A value of 0 means no timeout,
@@ -133,7 +138,7 @@ public @interface RetrofitClient {
      * @return readTimeoutMs
      *
      */
-    int readTimeoutMs() default Constants.INVALID_TIMEOUT_VALUE;
+    int readTimeoutMs() default Constants.INVALID_VALUE;
 
     /**
      * Sets the default write timeout for new connections. A value of 0 means no timeout,
@@ -142,7 +147,7 @@ public @interface RetrofitClient {
      *
      * @return writeTimeoutMs
      */
-    int writeTimeoutMs() default Constants.INVALID_TIMEOUT_VALUE;
+    int writeTimeoutMs() default Constants.INVALID_VALUE;
 
     /**
      * Sets the default timeout for complete calls. A value of 0 means no timeout,
@@ -152,6 +157,20 @@ public @interface RetrofitClient {
      * @return callTimeoutMs
      *
      */
-    int callTimeoutMs() default Constants.INVALID_TIMEOUT_VALUE;
+    int callTimeoutMs() default Constants.INVALID_VALUE;
+
+    /**
+     * The maximum number of idle connections for each address.
+     * If it is configured as -1, the global default configuration is used.
+     * @return maxIdleConnections
+     */
+    int maxIdleConnections() default Constants.INVALID_VALUE;
+
+    /**
+     *  keep alive duration for each address.
+     *  If it is configured as -1, the global default configuration is used.
+     * @return keepAliveDurationMs
+     */
+    long keepAliveDurationMs() default Constants.INVALID_VALUE;
 
 }
