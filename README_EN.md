@@ -27,7 +27,7 @@ Gitee project link: [https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>  
     <groupId>com.github.lianjiatech</groupId>  
     <artifactId>retrofit-spring-boot-starter</artifactId>  
-    <version>2.5.1</version>  
+    <version>2.5.2</version>  
 </dependency>  
 ```
 

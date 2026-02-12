@@ -3,6 +3,7 @@ package com.github.lianjiatech.retrofit.spring.boot.core;
 import java.net.URI;
 
 import com.github.lianjiatech.retrofit.spring.boot.exception.ServiceInstanceChooseException;
+import okhttp3.Request;
 
 /**
  * @author 陈添明
@@ -14,14 +15,15 @@ public interface ServiceInstanceChooser {
      * Chooses a ServiceInstance URI from the LoadBalancer for the specified service.
      *
      * @param serviceId The service ID to look up the LoadBalancer.
+     * @param request An HTTP request.
      * @return Return the uri of ServiceInstance
      */
-    URI choose(String serviceId);
+    URI choose(String serviceId, Request request);
 
     class NoValidServiceInstanceChooser implements ServiceInstanceChooser {
 
         @Override
-        public URI choose(String serviceId) {
+        public URI choose(String serviceId, Request request) {
             throw new ServiceInstanceChooseException(
                     "No valid service instance selector, Please configure it! serviceId=" + serviceId);
         }
