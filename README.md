@@ -31,7 +31,7 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-   <version>2.5.0</version>
+   <version>2.5.1</version>
 </dependency>
 ```
 
@@ -722,6 +722,11 @@ retrofit:
       # 全局完整调用超时时间
       call-timeout-ms: 0
 
+  # 全局连接池配置
+   global-connection-pool:
+     # 最大空闲连接数
+     max-idle-connections: 5
+     keep-alive-duration-ms: 300_000
    # 熔断降级配置
    degrade:
       # 熔断降级类型。默认none，表示不启用熔断降级

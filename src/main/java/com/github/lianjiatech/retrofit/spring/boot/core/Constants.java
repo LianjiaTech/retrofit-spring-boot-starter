@@ -20,5 +20,5 @@ public interface Constants {
 
     String DEFAULT_CIRCUIT_BREAKER_CONFIG = "defaultCircuitBreakerConfig";
 
-    int INVALID_TIMEOUT_VALUE = -1;
+    int INVALID_VALUE = -1;
 }

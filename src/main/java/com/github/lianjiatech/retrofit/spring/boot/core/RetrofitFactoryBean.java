@@ -1,7 +1,9 @@
 package com.github.lianjiatech.retrofit.spring.boot.core;
 
+import com.github.lianjiatech.retrofit.spring.boot.config.GlobalConnectionPoolProperty;
 import com.github.lianjiatech.retrofit.spring.boot.config.GlobalTimeoutProperty;
 import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitConfigBean;
+import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitProperties;
 import com.github.lianjiatech.retrofit.spring.boot.core.reactive.MonoCallAdapterFactory;
 import com.github.lianjiatech.retrofit.spring.boot.core.reactive.Rxjava2CompletableCallAdapterFactory;
 import com.github.lianjiatech.retrofit.spring.boot.core.reactive.Rxjava2SingleCallAdapterFactory;
@@ -17,6 +19,7 @@ import com.github.lianjiatech.retrofit.spring.boot.interceptor.Intercepts;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.NetworkInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.util.AppContextUtils;
 import com.github.lianjiatech.retrofit.spring.boot.util.BeanExtendUtils;
+import okhttp3.ConnectionPool;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import org.springframework.beans.BeansException;
@@ -101,24 +104,31 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
                 AnnotatedElementUtils.findMergedAnnotation(retrofitInterface, RetrofitClient.class);
 
         OkHttpClient.Builder okHttpClientBuilder;
+        RetrofitProperties retrofitProperties = retrofitConfigBean.getRetrofitProperties();
         if (Constants.NO_SOURCE_OK_HTTP_CLIENT.equals(Objects.requireNonNull(retrofitClient).sourceOkHttpClient())) {
             // 使用默认超时时间创建OkHttpClient
-            GlobalTimeoutProperty globalTimeout = retrofitConfigBean.getRetrofitProperties().getGlobalTimeout();
-
-            int connectTimeoutMs = retrofitClient.connectTimeoutMs() == Constants.INVALID_TIMEOUT_VALUE
+            GlobalTimeoutProperty globalTimeout = retrofitProperties.getGlobalTimeout();
+            int connectTimeoutMs = retrofitClient.connectTimeoutMs() == Constants.INVALID_VALUE
                     ? globalTimeout.getConnectTimeoutMs() : retrofitClient.connectTimeoutMs();
-            int readTimeoutMs = retrofitClient.readTimeoutMs() == Constants.INVALID_TIMEOUT_VALUE
+            int readTimeoutMs = retrofitClient.readTimeoutMs() == Constants.INVALID_VALUE
                     ? globalTimeout.getReadTimeoutMs() : retrofitClient.readTimeoutMs();
-            int writeTimeoutMs = retrofitClient.writeTimeoutMs() == Constants.INVALID_TIMEOUT_VALUE
+            int writeTimeoutMs = retrofitClient.writeTimeoutMs() == Constants.INVALID_VALUE
                     ? globalTimeout.getWriteTimeoutMs() : retrofitClient.writeTimeoutMs();
-            int callTimeoutMs = retrofitClient.callTimeoutMs() == Constants.INVALID_TIMEOUT_VALUE
+            int callTimeoutMs = retrofitClient.callTimeoutMs() == Constants.INVALID_VALUE
                     ? globalTimeout.getCallTimeoutMs() : retrofitClient.callTimeoutMs();
+
+            GlobalConnectionPoolProperty globalConnectionPool = retrofitProperties.getGlobalConnectionPool();
+            int maxIdleConnections = retrofitClient.maxIdleConnections() == Constants.INVALID_VALUE
+                    ? globalConnectionPool.getMaxIdleConnections() : retrofitClient.maxIdleConnections();
+            long keepAliveDurationMs = retrofitClient.keepAliveDurationMs() == Constants.INVALID_VALUE
+                    ? globalConnectionPool.getKeepAliveDurationMs() : retrofitClient.keepAliveDurationMs();
 
             okHttpClientBuilder = new OkHttpClient.Builder()
                     .connectTimeout(connectTimeoutMs, TimeUnit.MILLISECONDS)
                     .readTimeout(readTimeoutMs, TimeUnit.MILLISECONDS)
                     .writeTimeout(writeTimeoutMs, TimeUnit.MILLISECONDS)
-                    .callTimeout(callTimeoutMs, TimeUnit.MILLISECONDS);
+                    .callTimeout(callTimeoutMs, TimeUnit.MILLISECONDS)
+                    .connectionPool(new ConnectionPool(maxIdleConnections, keepAliveDurationMs, TimeUnit.MILLISECONDS));
         } else {
             OkHttpClient sourceOkHttpClient = retrofitConfigBean.getSourceOkHttpClientRegistry()
                     .get(retrofitClient.sourceOkHttpClient());
@@ -131,7 +141,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         if (StringUtils.hasText(retrofitClient.serviceId())) {
             okHttpClientBuilder.addInterceptor(retrofitConfigBean.getServiceChooseInterceptor());
         }
-        if (retrofitConfigBean.getRetrofitProperties().isEnableErrorDecoder()) {
+        if (retrofitProperties.isEnableErrorDecoder()) {
             okHttpClientBuilder.addInterceptor(retrofitConfigBean.getErrorDecoderInterceptor());
         }
         findInterceptorByAnnotation().forEach(okHttpClientBuilder::addInterceptor);

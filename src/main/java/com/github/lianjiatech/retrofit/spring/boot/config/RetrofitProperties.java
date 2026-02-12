@@ -1,15 +1,13 @@
 package com.github.lianjiatech.retrofit.spring.boot.config;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.NestedConfigurationProperty;
-
 import com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory;
 import com.github.lianjiatech.retrofit.spring.boot.core.Constants;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeProperty;
 import com.github.lianjiatech.retrofit.spring.boot.log.GlobalLogProperty;
 import com.github.lianjiatech.retrofit.spring.boot.retry.GlobalRetryProperty;
-
 import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import retrofit2.CallAdapter;
 import retrofit2.Converter;
 import retrofit2.converter.jackson.JacksonConverterFactory;
@@ -60,6 +58,12 @@ public class RetrofitProperties {
      */
     @NestedConfigurationProperty
     private GlobalTimeoutProperty globalTimeout = new GlobalTimeoutProperty();
+
+    /**
+     * 全局线程池配置
+     */
+    @NestedConfigurationProperty
+    private GlobalConnectionPoolProperty globalConnectionPool = new GlobalConnectionPoolProperty();
 
     /**
      * 全局转换器工厂，转换器实例优先从Spring容器获取，如果没有获取到，则反射创建。

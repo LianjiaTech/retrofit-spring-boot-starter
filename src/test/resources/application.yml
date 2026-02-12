@@ -42,6 +42,12 @@ retrofit:
     # 全局完整调用超时时间
     call-timeout-ms: 0
 
+  # 全局连接池配置
+  global-connection-pool:
+    # 最大空闲连接数
+    max-idle-connections: 5
+    keep-alive-duration-ms: 300_000
+
 
   # 熔断降级配置
   degrade:
