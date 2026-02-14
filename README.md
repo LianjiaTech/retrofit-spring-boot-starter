@@ -11,7 +11,8 @@
 
 **[retrofit](https://square.github.io/retrofit/)支持将HTTP API转化成JAVA接口，本组件将Retrofit和SpringBoot深度整合，并支持了多种实用功能增强。**
 
-- **Spring Boot 3.x 项目，请使用retrofit-spring-boot-starter 3.x**
+- **Spring Boot 4.x 项目，请使用[retrofit-spring-boot-starter 4.x](https://github.com/LianjiaTech/retrofit-spring-boot-starter/tree/4.x)**
+- **Spring Boot 3.x 项目，请使用[retrofit-spring-boot-starter 3.x](https://github.com/LianjiaTech/retrofit-spring-boot-starter/tree/3.x)**
 - **Spring Boot 1.x/2.x
   项目，请使用[retrofit-spring-boot-starter 2.x](https://github.com/LianjiaTech/retrofit-spring-boot-starter/tree/2.x)**
   ，支持Spring Boot

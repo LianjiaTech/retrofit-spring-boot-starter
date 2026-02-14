@@ -10,7 +10,8 @@
 
 [retrofit](https://square.github.io/retrofit/) enables the conversion of HTTP APIs into Java interfaces. This component deeply integrates Retrofit with Spring Boot and supports various practical feature enhancements.
 
-- **For Spring Boot 3.x projects, use retrofit-spring-boot-starter 3.x**
+- **For Spring Boot 4.x projects, use [retrofit-spring-boot-starter 4.x](https://github.com/LianjiaTech/retrofit-spring-boot-starter/tree/4.x)**
+- **For Spring Boot 3.x projects, use [retrofit-spring-boot-starter 3.x](https://github.com/LianjiaTech/retrofit-spring-boot-starter/tree/3.x)**
 - **For Spring Boot 1.x/2.x projects, use [retrofit-spring-boot-starter 2.x](https://github.com/LianjiaTech/retrofit-spring-boot-starter/tree/2.x)**, which supports Spring Boot 1.4.2 and above.
 
 > 🚀 The project is continuously optimized and iterated. Contributions via ISSUES and PRs are welcome! Please consider giving a star⭐️—your support motivates our ongoing updates!
