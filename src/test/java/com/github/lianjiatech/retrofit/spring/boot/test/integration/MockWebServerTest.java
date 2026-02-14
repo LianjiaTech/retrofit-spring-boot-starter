@@ -6,12 +6,14 @@ import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.entity.User;
 
 import lombok.SneakyThrows;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
-import tools.jackson.databind.json.JsonMapper;
 
 /**
  * @author 陈添明
@@ -50,11 +52,13 @@ public class MockWebServerTest {
 
     public MockWebServer server;
 
-    public static final JsonMapper JSON_MAPPER = JsonMapper.builder().build();
+    public static final ObjectMapper OBJECT_MAPPER =
+            new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                    .setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
     @SneakyThrows
     public static String writeValueAsString(Object obj) {
-        return JSON_MAPPER.writeValueAsString(obj);
+        return OBJECT_MAPPER.writeValueAsString(obj);
     }
 
     @Before

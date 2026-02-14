@@ -1,7 +1,6 @@
 package com.github.lianjiatech.retrofit.spring.boot.config;
 
 import com.github.lianjiatech.retrofit.spring.boot.core.Constants;
-import com.github.lianjiatech.retrofit.spring.boot.core.converter.JacksonConverterFactory;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeProperty;
 import com.github.lianjiatech.retrofit.spring.boot.log.GlobalLogProperty;
 import com.github.lianjiatech.retrofit.spring.boot.retry.GlobalRetryProperty;
@@ -10,6 +9,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import retrofit2.CallAdapter;
 import retrofit2.Converter;
+import retrofit2.converter.jackson.JacksonConverterFactory;
 
 /**
  * @author 陈添明
