@@ -11,7 +11,8 @@
 
 **[retrofit](https://square.github.io/retrofit/)支持将HTTP API转化成JAVA接口，本组件将Retrofit和SpringBoot深度整合，并支持了多种实用功能增强。**
 
-- **Spring Boot 3.x 项目，请使用retrofit-spring-boot-starter 3.x**
+- **Spring Boot 4.x 项目，请使用[retrofit-spring-boot-starter 4.x](https://github.com/LianjiaTech/retrofit-spring-boot-starter/tree/4.x)**
+- **Spring Boot 3.x 项目，请使用[retrofit-spring-boot-starter 3.x](https://github.com/LianjiaTech/retrofit-spring-boot-starter/tree/3.x)**
 - **Spring Boot 1.x/2.x
   项目，请使用[retrofit-spring-boot-starter 2.x](https://github.com/LianjiaTech/retrofit-spring-boot-starter/tree/2.x)**
   ，支持Spring Boot
@@ -31,7 +32,7 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-    <version>3.2.2</version>
+    <version>4.0.0</version>
 </dependency>
 ```
 
@@ -177,7 +178,7 @@ retrofit:
 - [JAXB](https://docs.oracle.com/javase/tutorial/jaxb/intro/index.html): com.squareup.retrofit2:converter-jaxb
 - fastJson：com.alibaba.fastjson.support.retrofit.Retrofit2ConverterFactory
 
-组件支持通过`retrofit.global-converter-factories`配置全局`Converter.Factory`，默认的是`retrofit2.converter.jackson.JacksonConverterFactory`。
+组件支持通过`retrofit.global-converter-factories`配置全局`Converter.Factory`，默认的是`com.github.lianjiatech.retrofit.spring.boot.core.converter.JacksonConverterFactory`。
 
 如果需要修改`Jackson`配置，自行覆盖`JacksonConverterFactory`的`bean`配置即可。
 
@@ -186,7 +187,7 @@ retrofit:
    # 全局转换器工厂
    global-converter-factories:
       - com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory
-      - retrofit2.converter.jackson.JacksonConverterFactory
+      - com.github.lianjiatech.retrofit.spring.boot.core.converter.JacksonConverterFactory
 ```
 
 针对每个`Java`接口，还可以通过`@RetrofitClient.converterFactories`指定当前接口采用的`Converter.Factory`。
@@ -685,7 +686,7 @@ retrofit:
    # 全局转换器工厂
    global-converter-factories:
       - com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory
-      - retrofit2.converter.jackson.JacksonConverterFactory
+      - com.github.lianjiatech.retrofit.spring.boot.core.converter.JacksonConverterFactory
 
    # 全局日志打印配置
    global-log:

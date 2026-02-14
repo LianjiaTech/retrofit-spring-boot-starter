@@ -1,8 +1,5 @@
 package com.github.lianjiatech.retrofit.spring.boot.config;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.lianjiatech.retrofit.spring.boot.core.AutoConfiguredRetrofitScannerRegistrar;
 import com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory;
 import com.github.lianjiatech.retrofit.spring.boot.core.Constants;
@@ -13,6 +10,7 @@ import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitFactoryBean;
 import com.github.lianjiatech.retrofit.spring.boot.core.ServiceInstanceChooser;
 import com.github.lianjiatech.retrofit.spring.boot.core.SourceOkHttpClientRegistrar;
 import com.github.lianjiatech.retrofit.spring.boot.core.SourceOkHttpClientRegistry;
+import com.github.lianjiatech.retrofit.spring.boot.core.converter.JacksonConverterFactory;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitDegrade;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.resilience4j.CircuitBreakerConfigRegistrar;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.resilience4j.CircuitBreakerConfigRegistry;
@@ -34,7 +32,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import retrofit2.converter.jackson.JacksonConverterFactory;
 
 import java.util.List;
 
@@ -128,10 +125,7 @@ public class RetrofitAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public JacksonConverterFactory retrofitJacksonConverterFactory() {
-        ObjectMapper objectMapper = new ObjectMapper()
-                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                .setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        return JacksonConverterFactory.create(objectMapper);
+        return JacksonConverterFactory.create();
     }
 
     @Bean

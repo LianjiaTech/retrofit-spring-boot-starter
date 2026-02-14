@@ -3,7 +3,7 @@ retrofit:
   # 全局转换器工厂
   global-converter-factories:
     - com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory
-    - retrofit2.converter.jackson.JacksonConverterFactory
+    - com.github.lianjiatech.retrofit.spring.boot.core.converter.JacksonConverterFactory
   # 全局日志打印配置
   global-log:
     # 启用全局日志打印
