@@ -28,7 +28,7 @@ Gitee project link: [https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>  
     <groupId>com.github.lianjiatech</groupId>  
     <artifactId>retrofit-spring-boot-starter</artifactId>
-  <version>4.0.0</version>
+  <version>3.2.2</version>
 </dependency>  
 ```  
 
@@ -185,7 +185,7 @@ Retrofit uses `Converter` to convert `@Body`-annotated objects to HTTP request b
 - [JAXB](https://docs.oracle.com/javase/tutorial/jaxb/intro/index.html): `com.squareup.retrofit2:converter-jaxb`
 - FastJson: `com.alibaba.fastjson.support.retrofit.Retrofit2ConverterFactory`
 
-Configure global `Converter.Factory` via `retrofit.global-converter-factories` (default: `com.github.lianjiatech.retrofit.spring.boot.core.converter.JacksonConverterFactory`).
+Configure global `Converter.Factory` via `retrofit.global-converter-factories` (default: `retrofit2.converter.jackson.JacksonConverterFactory`).
 
 To customize Jackson configuration, override the `JacksonConverterFactory` bean:
 
@@ -193,8 +193,7 @@ To customize Jackson configuration, override the `JacksonConverterFactory` bean:
 retrofit:
   # Global converter factories
   global-converter-factories:
-    - com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory
-    - com.github.lianjiatech.retrofit.spring.boot.core.converter.JacksonConverterFactory
+    - retrofit2.converter.jackson.JacksonConverterFactory
 ```  
 
 For individual interfaces, specify `Converter.Factory` using `@RetrofitClient.converterFactories`.
@@ -619,8 +618,7 @@ Customize component behavior via `application.yml` or `application.properties`:
 retrofit:
   # Global converter factories
   global-converter-factories:
-    - com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory
-    - com.github.lianjiatech.retrofit.spring.boot.core.converter.JacksonConverterFactory
+    - retrofit2.converter.jackson.JacksonConverterFactory
 
   # Global logging
   global-log:

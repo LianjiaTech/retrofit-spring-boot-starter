@@ -32,7 +32,7 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-    <version>4.0.0</version>
+    <version>3.2.2</version>
 </dependency>
 ```
 
@@ -178,7 +178,7 @@ retrofit:
 - [JAXB](https://docs.oracle.com/javase/tutorial/jaxb/intro/index.html): com.squareup.retrofit2:converter-jaxb
 - fastJson：com.alibaba.fastjson.support.retrofit.Retrofit2ConverterFactory
 
-组件支持通过`retrofit.global-converter-factories`配置全局`Converter.Factory`，默认的是`com.github.lianjiatech.retrofit.spring.boot.core.converter.JacksonConverterFactory`。
+组件支持通过`retrofit.global-converter-factories`配置全局`Converter.Factory`，默认的是`retrofit2.converter.jackson.JacksonConverterFactory`。
 
 如果需要修改`Jackson`配置，自行覆盖`JacksonConverterFactory`的`bean`配置即可。
 
@@ -186,8 +186,7 @@ retrofit:
 retrofit:
    # 全局转换器工厂
    global-converter-factories:
-      - com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory
-      - com.github.lianjiatech.retrofit.spring.boot.core.converter.JacksonConverterFactory
+      - retrofit2.converter.jackson.JacksonConverterFactory
 ```
 
 针对每个`Java`接口，还可以通过`@RetrofitClient.converterFactories`指定当前接口采用的`Converter.Factory`。
@@ -685,8 +684,7 @@ public @interface MyRetrofitClient {
 retrofit:
    # 全局转换器工厂
    global-converter-factories:
-      - com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory
-      - com.github.lianjiatech.retrofit.spring.boot.core.converter.JacksonConverterFactory
+      - retrofit2.converter.jackson.JacksonConverterFactory
 
    # 全局日志打印配置
    global-log:

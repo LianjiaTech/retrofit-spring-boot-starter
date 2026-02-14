@@ -75,7 +75,7 @@ public class MockWebServerTest {
                 .setResponseCode(SUCCESS_CODE)
                 .addHeader("Content-Type", "application/json; charset=utf-8")
                 .addHeader("Cache-Control", "no-cache")
-                .setBody(String.valueOf(object));
+                .setBody(writeValueAsString(object));
         server.enqueue(response);
     }
 

@@ -1,7 +1,6 @@
 package com.github.lianjiatech.retrofit.spring.boot.config;
 
 import com.github.lianjiatech.retrofit.spring.boot.core.AutoConfiguredRetrofitScannerRegistrar;
-import com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory;
 import com.github.lianjiatech.retrofit.spring.boot.core.Constants;
 import com.github.lianjiatech.retrofit.spring.boot.core.DefaultBaseUrlParser;
 import com.github.lianjiatech.retrofit.spring.boot.core.ErrorDecoder;
@@ -66,11 +65,6 @@ public class RetrofitAutoConfiguration {
         public static PathMatchInterceptorBdfProcessor pathMatchInterceptorBdfProcessor() {
             return new PathMatchInterceptorBdfProcessor();
         }
-    }
-
-    @Bean
-    public BasicTypeConverterFactory basicTypeConverterFactory() {
-        return BasicTypeConverterFactory.INSTANCE;
     }
 
     @Bean
