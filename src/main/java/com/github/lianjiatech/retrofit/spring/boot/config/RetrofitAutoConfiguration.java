@@ -1,5 +1,6 @@
 package com.github.lianjiatech.retrofit.spring.boot.config;
 
+import com.alibaba.csp.sentinel.SphU;
 import com.github.lianjiatech.retrofit.spring.boot.core.AutoConfiguredRetrofitScannerRegistrar;
 import com.github.lianjiatech.retrofit.spring.boot.core.Constants;
 import com.github.lianjiatech.retrofit.spring.boot.core.DefaultBaseUrlParser;
@@ -9,7 +10,7 @@ import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitFactoryBean;
 import com.github.lianjiatech.retrofit.spring.boot.core.ServiceInstanceChooser;
 import com.github.lianjiatech.retrofit.spring.boot.core.SourceOkHttpClientRegistrar;
 import com.github.lianjiatech.retrofit.spring.boot.core.SourceOkHttpClientRegistry;
-import com.github.lianjiatech.retrofit.spring.boot.core.converter.JacksonConverterFactory;
+import com.github.lianjiatech.retrofit.spring.boot.core.jackson3.Jackson3ConverterFactory;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitDegrade;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.resilience4j.CircuitBreakerConfigRegistrar;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.resilience4j.CircuitBreakerConfigRegistry;
@@ -21,6 +22,7 @@ import com.github.lianjiatech.retrofit.spring.boot.interceptor.NetworkIntercepto
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.ServiceChooseInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.log.LoggingInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.retry.RetryInterceptor;
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -31,6 +33,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import retrofit2.converter.jackson.JacksonConverterFactory;
 
 import java.util.List;
 
@@ -118,8 +121,16 @@ public class RetrofitAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    @ConditionalOnClass(com.fasterxml.jackson.databind.ObjectMapper.class)
     public JacksonConverterFactory retrofitJacksonConverterFactory() {
         return JacksonConverterFactory.create();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnClass(tools.jackson.databind.ObjectMapper.class)
+    public Jackson3ConverterFactory retrofitJackson3ConverterFactory() {
+        return Jackson3ConverterFactory.create();
     }
 
     @Bean
@@ -149,7 +160,7 @@ public class RetrofitAutoConfiguration {
     }
 
     @Configuration
-    @ConditionalOnClass(name = Constants.CIRCUIT_BREAKER_CLASS_NAME)
+    @ConditionalOnClass(CircuitBreaker.class)
     @ConditionalOnProperty(name = Constants.DEGRADE_TYPE, havingValue = RetrofitDegrade.RESILIENCE4J)
     @EnableConfigurationProperties(RetrofitProperties.class)
     public static class Resilience4jConfiguration {
@@ -178,7 +189,7 @@ public class RetrofitAutoConfiguration {
         }
     }
 
-    @ConditionalOnClass(name = Constants.SPH_U_CLASS_NAME)
+    @ConditionalOnClass(SphU.class)
     @ConditionalOnProperty(name = Constants.DEGRADE_TYPE, havingValue = RetrofitDegrade.SENTINEL)
     @EnableConfigurationProperties(RetrofitProperties.class)
     public static class SentinelConfiguration {

@@ -6,7 +6,7 @@
 
     <groupId>com.github.lianjiatech</groupId>
     <artifactId>retrofit-spring-boot-starter</artifactId>
-    <version>4.0.0</version>
+    <version>3.3.0</version>
 
     <name>retrofit-spring-boot-starter</name>
     <description>retrofit-spring-boot-starter</description>
@@ -42,7 +42,6 @@
         <okhttp.version>4.12.0</okhttp.version>
         <sentinel.version>1.6.3</sentinel.version>
         <lombok.version>1.18.24</lombok.version>
-        <jackson.version>3.0.4</jackson.version>
     </properties>
 
     <dependencies>
@@ -116,14 +115,15 @@
             <version>${retrofit.version}</version>
         </dependency>
         <dependency>
-            <groupId>tools.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
+            <groupId>com.squareup.retrofit2</groupId>
+            <artifactId>converter-jackson</artifactId>
+            <version>${retrofit.version}</version>
         </dependency>
         <dependency>
             <groupId>tools.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>${jackson.version}</version>
+            <artifactId>jackson-databind</artifactId>
+            <version>3.0.4</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>jakarta.annotation</groupId>

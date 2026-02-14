@@ -11,8 +11,9 @@
 
 **[retrofit](https://square.github.io/retrofit/)支持将HTTP API转化成JAVA接口，本组件将Retrofit和SpringBoot深度整合，并支持了多种实用功能增强。**
 
-- **Spring Boot 4.x 项目，请使用[retrofit-spring-boot-starter 4.x](https://github.com/LianjiaTech/retrofit-spring-boot-starter/tree/4.x)**
-- **Spring Boot 3.x 项目，请使用[retrofit-spring-boot-starter 3.x](https://github.com/LianjiaTech/retrofit-spring-boot-starter/tree/3.x)**
+- **Spring Boot 3.x/4.x 项目，请使用retrofit-spring-boot-starter 3.x**
+  - 由于Spring Boot 4.x默认使用jackson3，但是本组件默认converter使用的是jackson3，因此**对于Spring Boot 4.x项目建议将全局converter设置为jackson3**
+  - 配置方式`retrofit.global-converter-factories=com.github.lianjiatech.retrofit.spring.boot.core.jackson3.Jackson3ConverterFactory`
 - **Spring Boot 1.x/2.x
   项目，请使用[retrofit-spring-boot-starter 2.x](https://github.com/LianjiaTech/retrofit-spring-boot-starter/tree/2.x)**
   ，支持Spring Boot
@@ -32,7 +33,7 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-    <version>3.2.2</version>
+    <version>3.3.0</version>
 </dependency>
 ```
 
@@ -171,6 +172,7 @@ retrofit:
 
 - [Gson](https://github.com/google/gson): com.squareup.Retrofit:converter-gson
 - [Jackson](https://github.com/FasterXML/jackson): com.squareup.Retrofit:converter-jackson
+- jackson3: com.github.lianjiatech.retrofit.spring.boot.core.jackson3.Jackson3ConverterFactory
 - [Moshi](https://github.com/square/moshi/): com.squareup.Retrofit:converter-moshi
 - [Protobuf](https://developers.google.com/protocol-buffers/): com.squareup.Retrofit:converter-protobuf
 - [Wire](https://github.com/square/wire): com.squareup.Retrofit:converter-wire
