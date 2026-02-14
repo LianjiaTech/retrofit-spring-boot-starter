@@ -10,7 +10,7 @@
 
 [retrofit](https://square.github.io/retrofit/) enables the conversion of HTTP APIs into Java interfaces. This component deeply integrates Retrofit with Spring Boot and supports various practical feature enhancements.
 
-- **For Spring Boot 3.x/4.x projects, use retrofit-spring-boot-starter 3.x**
+- **For Spring Boot 3.x/4.x projects, use retrofit-spring-boot-starter 4.x**
   - Since Spring Boot 4.x uses Jackson3 by default, and this component also uses Jackson2 as its default converter, **it is recommended to set the global converter to Jackson3 for Spring Boot 4.x projects.**
   - Configuration method: `retrofit.global-converter-factories=com.github.lianjiatech.retrofit.spring.boot.core.jackson3.Jackson3ConverterFactory`
 - **For Spring Boot 1.x/2.x projects, use [retrofit-spring-boot-starter 2.x](https://github.com/LianjiaTech/retrofit-spring-boot-starter/tree/2.x)**, which supports Spring Boot 1.4.2 and above.
@@ -29,7 +29,7 @@ Gitee project link: [https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>  
     <groupId>com.github.lianjiatech</groupId>  
     <artifactId>retrofit-spring-boot-starter</artifactId>
-  <version>3.3.0</version>
+  <version>4.0.1</version>
 </dependency>  
 ```  
 
