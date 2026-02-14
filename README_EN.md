@@ -193,7 +193,6 @@ To customize Jackson configuration, override the `JacksonConverterFactory` bean:
 retrofit:
   # Global converter factories
   global-converter-factories:
-    - com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory
     - retrofit2.converter.jackson.JacksonConverterFactory
 ```  
 
@@ -619,7 +618,6 @@ Customize component behavior via `application.yml` or `application.properties`:
 retrofit:
   # Global converter factories
   global-converter-factories:
-    - com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory
     - retrofit2.converter.jackson.JacksonConverterFactory
 
   # Global logging

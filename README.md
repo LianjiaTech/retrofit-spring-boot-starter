@@ -186,7 +186,6 @@ retrofit:
 retrofit:
    # 全局转换器工厂
    global-converter-factories:
-      - com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory
       - retrofit2.converter.jackson.JacksonConverterFactory
 ```
 
@@ -685,7 +684,6 @@ public @interface MyRetrofitClient {
 retrofit:
    # 全局转换器工厂
    global-converter-factories:
-      - com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory
       - retrofit2.converter.jackson.JacksonConverterFactory
 
    # 全局日志打印配置

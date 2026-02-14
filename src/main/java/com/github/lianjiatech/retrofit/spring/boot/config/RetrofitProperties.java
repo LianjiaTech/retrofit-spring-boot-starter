@@ -1,6 +1,5 @@
 package com.github.lianjiatech.retrofit.spring.boot.config;
 
-import com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory;
 import com.github.lianjiatech.retrofit.spring.boot.core.Constants;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeProperty;
 import com.github.lianjiatech.retrofit.spring.boot.log.GlobalLogProperty;
@@ -72,8 +71,7 @@ public class RetrofitProperties {
      */
     @SuppressWarnings("unchecked")
     private Class<? extends Converter.Factory>[] globalConverterFactories =
-            (Class<? extends Converter.Factory>[])new Class[] {BasicTypeConverterFactory.class,
-                JacksonConverterFactory.class};
+            (Class<? extends Converter.Factory>[])new Class[] {JacksonConverterFactory.class};
 
     /**
      * 全局调用适配器工厂，适配器实例优先从Spring容器获取，如果没有获取到，则反射创建。
