@@ -1,8 +1,6 @@
 package com.github.lianjiatech.retrofit.spring.boot.config;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.alibaba.csp.sentinel.SphU;
 import com.github.lianjiatech.retrofit.spring.boot.core.AutoConfiguredRetrofitScannerRegistrar;
 import com.github.lianjiatech.retrofit.spring.boot.core.Constants;
 import com.github.lianjiatech.retrofit.spring.boot.core.DefaultBaseUrlParser;
@@ -23,6 +21,7 @@ import com.github.lianjiatech.retrofit.spring.boot.interceptor.NetworkIntercepto
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.ServiceChooseInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.log.LoggingInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.retry.RetryInterceptor;
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -120,11 +119,9 @@ public class RetrofitAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    @ConditionalOnClass(com.fasterxml.jackson.databind.ObjectMapper.class)
     public JacksonConverterFactory retrofitJacksonConverterFactory() {
-        ObjectMapper objectMapper = new ObjectMapper()
-                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                .setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        return JacksonConverterFactory.create(objectMapper);
+        return JacksonConverterFactory.create();
     }
 
     @Bean
@@ -154,7 +151,7 @@ public class RetrofitAutoConfiguration {
     }
 
     @Configuration
-    @ConditionalOnClass(name = Constants.CIRCUIT_BREAKER_CLASS_NAME)
+    @ConditionalOnClass(CircuitBreaker.class)
     @ConditionalOnProperty(name = Constants.DEGRADE_TYPE, havingValue = RetrofitDegrade.RESILIENCE4J)
     @EnableConfigurationProperties(RetrofitProperties.class)
     public static class Resilience4jConfiguration {
@@ -183,7 +180,7 @@ public class RetrofitAutoConfiguration {
         }
     }
 
-    @ConditionalOnClass(name = Constants.SPH_U_CLASS_NAME)
+    @ConditionalOnClass(SphU.class)
     @ConditionalOnProperty(name = Constants.DEGRADE_TYPE, havingValue = RetrofitDegrade.SENTINEL)
     @EnableConfigurationProperties(RetrofitProperties.class)
     public static class SentinelConfiguration {

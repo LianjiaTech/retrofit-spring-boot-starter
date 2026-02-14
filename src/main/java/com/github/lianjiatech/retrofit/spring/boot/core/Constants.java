@@ -10,11 +10,7 @@ public interface Constants {
 
     String NO_SOURCE_OK_HTTP_CLIENT = "";
 
-    String SPH_U_CLASS_NAME = "com.alibaba.csp.sentinel.SphU";
-
     String DEGRADE_TYPE = "retrofit.degrade.degrade-type";
-
-    String CIRCUIT_BREAKER_CLASS_NAME = "io.github.resilience4j.circuitbreaker.CircuitBreaker";
 
     String RETROFIT = "retrofit";
 
