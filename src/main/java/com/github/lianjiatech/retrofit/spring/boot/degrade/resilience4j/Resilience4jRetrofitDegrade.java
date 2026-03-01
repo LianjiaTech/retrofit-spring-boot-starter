@@ -5,8 +5,6 @@ import java.lang.reflect.Method;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import org.springframework.core.annotation.AnnotatedElementUtils;
-
 import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitFactoryBean;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.BaseRetrofitDegrade;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitBlockException;
@@ -43,15 +41,10 @@ public class Resilience4jRetrofitDegrade extends BaseRetrofitDegrade {
     @Override
     public boolean isEnableDegrade(Class<?> retrofitInterface) {
         if (globalResilience4jDegradeProperty.isEnable()) {
-            Resilience4jDegrade resilience4jDegrade =
-                    AnnotatedElementUtils.findMergedAnnotation(retrofitInterface, Resilience4jDegrade.class);
-            if (resilience4jDegrade == null) {
-                return true;
-            }
-            return resilience4jDegrade.enable();
-        } else {
-            return AnnotationExtendUtils.isAnnotationPresentIncludeMethod(retrofitInterface, Resilience4jDegrade.class);
+            return true;
         }
+        return AnnotationExtendUtils.isAnnotationPresentIncludeMethod(retrofitInterface, Resilience4jDegrade.class);
+
     }
 
     @Override

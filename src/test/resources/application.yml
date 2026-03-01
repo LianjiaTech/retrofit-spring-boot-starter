@@ -1,4 +1,3 @@
-
 retrofit:
   # 全局转换器工厂
   global-converter-factories:
@@ -56,12 +55,19 @@ retrofit:
     global-sentinel-degrade:
       # 是否开启
       enable: false
-      # 各降级策略对应的阈值。平均响应时间(ms)，异常比例(0-1)，异常数量(1-N)
-      count: 1000
-      # 熔断时长，单位为 s
-      time-window: 5
-      # 降级策略（0：平均响应时间；1：异常比例；2：异常数量）
-      grade: 0
+      rules:
+        # 降级策略（0：平均响应时间；1：异常比例；2：异常数量）
+        - grade: 0
+          # 各降级策略对应的阈值。平均响应时间(ms)，异常比例(0-1)，异常数量(1-N)
+          count: 1000,
+          # 熔断时长，单位为 s
+          time-window: 5
+          # （在有效统计时间范围内）能够触发熔断的最小请求数
+          min-request-amount: 5
+          # RT 模式下慢请求率的阈值
+          slow-ratio-threshold: 1.0
+          # 时间间隔统计持续时间，单位为毫秒
+          stat-interval-ms: 1000
 
     # 全局resilience4j降级配置
     global-resilience4j-degrade:

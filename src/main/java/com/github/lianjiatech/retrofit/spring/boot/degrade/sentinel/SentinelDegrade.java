@@ -1,11 +1,6 @@
 package com.github.lianjiatech.retrofit.spring.boot.degrade.sentinel;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * @author 陈添明
@@ -24,23 +19,9 @@ public @interface SentinelDegrade {
     boolean enable() default true;
 
     /**
-     * 各降级策略对应的阈值。平均响应时间(ms)，异常比例(0-1)，异常数量(1-N)
+     * 降级规则
      *
-     * @return 阈值
+     * @return 降级规则
      */
-    double count() default 1000;
-
-    /**
-     * 熔断时长，单位为 s
-     *
-     * @return 熔断时长
-     */
-    int timeWindow() default 5;
-
-    /**
-     * 降级策略（0：平均响应时间；1：异常比例；2：异常数量）
-     *
-     * @return 降级策略
-     */
-    int grade() default 0;
+    SentinelDegradeRule[] rules() default {};
 }

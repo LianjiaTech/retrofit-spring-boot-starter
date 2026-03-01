@@ -23,7 +23,7 @@ public class RetrofitException extends RuntimeException {
     }
 
     public static RetrofitException errorStatus(Request request, Response response) {
-        String msg = String.format("invalid Response! request=%s, response=%s", request, response);
+        String msg = "invalid Response! request=" + request + ", response=" + response;
         try {
             String responseBody = RetrofitUtils.readResponseBody(response);
             if (StringUtils.hasText(responseBody)) {
@@ -31,7 +31,7 @@ public class RetrofitException extends RuntimeException {
             }
         } catch (ReadResponseBodyException e) {
             throw new RetrofitException(
-                    String.format("read ResponseBody error! request=%s, response=%s", request, response), e);
+                    "read ResponseBody error! request=" + request + ", response=" + response, e);
         } finally {
             response.close();
         }

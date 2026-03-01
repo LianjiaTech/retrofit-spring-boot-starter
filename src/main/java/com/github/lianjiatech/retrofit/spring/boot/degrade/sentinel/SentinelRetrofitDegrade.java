@@ -2,9 +2,11 @@ package com.github.lianjiatech.retrofit.spring.boot.degrade.sentinel;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
-import org.springframework.core.annotation.AnnotatedElementUtils;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.util.CollectionUtils;
 
 import com.alibaba.csp.sentinel.*;
 import com.alibaba.csp.sentinel.slots.block.BlockException;
@@ -27,6 +29,7 @@ import retrofit2.Invocation;
 public class SentinelRetrofitDegrade extends BaseRetrofitDegrade {
 
     protected final GlobalSentinelDegradeProperty globalSentinelDegradeProperty;
+    protected final Set<String> degradeResources = new HashSet<>();
 
     public SentinelRetrofitDegrade(GlobalSentinelDegradeProperty globalSentinelDegradeProperty) {
         this.globalSentinelDegradeProperty = globalSentinelDegradeProperty;
@@ -35,15 +38,9 @@ public class SentinelRetrofitDegrade extends BaseRetrofitDegrade {
     @Override
     public boolean isEnableDegrade(Class<?> retrofitInterface) {
         if (globalSentinelDegradeProperty.isEnable()) {
-            SentinelDegrade sentinelDegrade =
-                    AnnotatedElementUtils.findMergedAnnotation(retrofitInterface, SentinelDegrade.class);
-            if (sentinelDegrade == null) {
-                return true;
-            }
-            return sentinelDegrade.enable();
-        } else {
-            return AnnotationExtendUtils.isAnnotationPresentIncludeMethod(retrofitInterface, SentinelDegrade.class);
+            return true;
         }
+        return AnnotationExtendUtils.isAnnotationPresentIncludeMethod(retrofitInterface, SentinelDegrade.class);
     }
 
     @Override
@@ -54,35 +51,54 @@ public class SentinelRetrofitDegrade extends BaseRetrofitDegrade {
                 continue;
             }
             // 获取熔断配置
-            SentinelDegrade sentinelDegrade =
-                    AnnotationExtendUtils.findMergedAnnotation(method, retrofitInterface,
-                            SentinelDegrade.class);
-
-            if (!needDegrade(sentinelDegrade)) {
-                continue;
-            }
-            DegradeRule degradeRule = new DegradeRule()
-                    .setCount(sentinelDegrade == null ? globalSentinelDegradeProperty.getCount()
-                            : sentinelDegrade.count())
-                    .setTimeWindow(sentinelDegrade == null ? globalSentinelDegradeProperty.getTimeWindow()
-                            : sentinelDegrade.timeWindow())
-                    .setGrade(sentinelDegrade == null ? globalSentinelDegradeProperty.getGrade()
-                            : sentinelDegrade.grade());
             String resourceName = parseResourceName(method, baseUrl);
-            degradeRule.setResource(resourceName);
-            DegradeRuleManager.setRulesForResource(resourceName, Collections.singleton(degradeRule));
+            Set<DegradeRule> degradeRuleSet = parseDegradeRules(retrofitInterface, method, resourceName);
+            if (!CollectionUtils.isEmpty(degradeRuleSet)) {
+                DegradeRuleManager.setRulesForResource(resourceName, degradeRuleSet);
+                degradeResources.add(resourceName);
+            }
         }
     }
 
-    protected boolean needDegrade(SentinelDegrade sentinelDegrade) {
-        if (globalSentinelDegradeProperty.isEnable()) {
-            if (sentinelDegrade == null) {
-                return true;
+    @NotNull
+    private Set<DegradeRule> parseDegradeRules(Class<?> retrofitInterface, Method method, String resourceName) {
+        Set<DegradeRule> degradeRuleSet = new HashSet<>();
+        // 方法上有降级注解，以方法注解上的降级配置为准
+        SentinelDegrade sentinelDegrade = AnnotationExtendUtils.findMergedAnnotation(method, retrofitInterface,
+                SentinelDegrade.class);
+        if (sentinelDegrade != null) {
+            if (sentinelDegrade.enable()) {
+                SentinelDegradeRule[] rules = sentinelDegrade.rules();
+                for (SentinelDegradeRule rule : rules) {
+                    DegradeRule degradeRule = new DegradeRule()
+                            .setCount(rule.count())
+                            .setTimeWindow(rule.timeWindow())
+                            .setGrade(rule.grade())
+                            .setMinRequestAmount(rule.minRequestAmount())
+                            .setSlowRatioThreshold(rule.slowRatioThreshold())
+                            .setStatIntervalMs(rule.statIntervalMs());
+                    degradeRule.setResource(resourceName);
+                    degradeRuleSet.add(degradeRule);
+                }
             }
-            return sentinelDegrade.enable();
-        } else {
-            return sentinelDegrade != null && sentinelDegrade.enable();
+            return degradeRuleSet;
         }
+        // 否则以全局降级配置为准
+        if (globalSentinelDegradeProperty.isEnable()) {
+            SentinelDegradeRuleProperty[] sentinelDegradeRules = globalSentinelDegradeProperty.getRules();
+            for (SentinelDegradeRuleProperty sentinelDegradeRule : sentinelDegradeRules) {
+                DegradeRule degradeRule = new DegradeRule()
+                        .setCount(sentinelDegradeRule.getCount())
+                        .setTimeWindow(sentinelDegradeRule.getTimeWindow())
+                        .setGrade(sentinelDegradeRule.getGrade())
+                        .setMinRequestAmount(sentinelDegradeRule.getMinRequestAmount())
+                        .setSlowRatioThreshold(sentinelDegradeRule.getSlowRatioThreshold())
+                        .setStatIntervalMs(sentinelDegradeRule.getStatIntervalMs());
+                degradeRule.setResource(resourceName);
+                degradeRuleSet.add(degradeRule);
+            }
+        }
+        return degradeRuleSet;
     }
 
     @Override
@@ -94,16 +110,15 @@ public class SentinelRetrofitDegrade extends BaseRetrofitDegrade {
         }
         Method method = invocation.method();
         Class<?> service = invocation.service();
-        SentinelDegrade sentinelDegrade = AnnotationExtendUtils.findMergedAnnotation(method, service,
-                SentinelDegrade.class);
-        if (!needDegrade(sentinelDegrade)) {
-            return chain.proceed(request);
-        }
         String baseUrl = RetrofitFactoryBean.BASE_URL_MAP.get(service);
         if (baseUrl == null) {
             log.error("can't find find baseUrl, might hava a bug! service={}", service);
         }
         String resourceName = parseResourceName(method, baseUrl);
+        if (!degradeResources.contains(resourceName)) {
+            // 非熔断降级资源
+            return chain.proceed(request);
+        }
         Entry entry = null;
         try {
             entry = SphU.entry(resourceName, ResourceTypeConstants.COMMON_WEB, EntryType.OUT);
