@@ -28,7 +28,7 @@ public abstract class BaseRetrofitDegrade implements RetrofitDegrade, ResourceNa
     }
 
     protected String formatResourceName(String baseUrl, HttpMethodPath httpMethodPath) {
-        return String.format("%s:%s:%s", HTTP_OUT, httpMethodPath.getMethod(), baseUrl + httpMethodPath.getPath());
+        return HTTP_OUT + ":" + httpMethodPath.getMethod() + ":" + baseUrl + httpMethodPath.getPath();
     }
 
     protected boolean isDefaultOrStatic(Method method) {

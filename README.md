@@ -12,8 +12,8 @@
 **[retrofit](https://square.github.io/retrofit/)支持将HTTP API转化成JAVA接口，本组件将Retrofit和SpringBoot深度整合，并支持了多种实用功能增强。**
 
 - **Spring Boot 3.x/4.x 项目，请使用retrofit-spring-boot-starter 4.x**
-  - 由于Spring Boot 4.x默认使用jackson3，但是本组件默认converter使用的是jackson2，因此**对于Spring Boot 4.x项目建议将全局converter设置为jackson3**
-  - 配置方式`retrofit.global-converter-factories=com.github.lianjiatech.retrofit.spring.boot.core.jackson3.Jackson3ConverterFactory`
+    - 由于Spring Boot 4.x默认使用jackson3，但是本组件默认converter使用的是jackson2，因此**对于Spring Boot 4.x项目建议将全局converter设置为jackson3**
+    - 配置方式`retrofit.global-converter-factories=com.github.lianjiatech.retrofit.spring.boot.core.jackson3.Jackson3ConverterFactory`
 - **Spring Boot 1.x/2.x
   项目，请使用[retrofit-spring-boot-starter 2.x](https://github.com/LianjiaTech/retrofit-spring-boot-starter/tree/2.x)**
   ，支持Spring Boot
@@ -33,7 +33,7 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-    <version>4.0.1</version>
+    <version>4.0.2</version>
 </dependency>
 ```
 
@@ -465,89 +465,135 @@ retrofit:
 
 #### Sentinel
 
-配置`degrade-type=sentinel`开启，然后在相关接口或者方法上声明`@SentinelDegrade`注解即可。
+1. 手动引入`Sentinel`依赖
 
-记得手动引入`Sentinel`依赖：
+    ```xml
+    
+    <dependency>
+       <groupId>com.alibaba.csp</groupId>
+       <artifactId>sentinel-core</artifactId>
+       <version>1.8.6</version>
+    </dependency>
+    ```
 
-```xml
+2. 配置`degrade-type=sentinel`开启，然后在相关接口或者方法上声明`@SentinelDegrade`注解即可，例如：
+   ```java
+    @RetrofitClient(baseUrl = "${test.baseUrl}", fallback = SentinelFallbackUserService.class, connectTimeoutMs = 1,
+        readTimeoutMs = 1, writeTimeoutMs = 1)
+    @SentinelDegrade(rules = {@SentinelDegradeRule(grade = 0, count = 100, timeWindow = 4),
+    @SentinelDegradeRule(grade = 1, count = 0.01, timeWindow = 3)})
+    public interface SentinelUserService {
+    
+        /**
+         * 根据id查询用户姓名
+         */
+        @POST("getName")
+        String getName(@Query("id") Long id);
+    
+        /**
+         * 根据id查询用户信息
+         */
+        @GET("getUser")
+        @SentinelDegrade(rules = {@SentinelDegradeRule(grade = 2, count = 1, timeWindow = 6)})
+        User getUser(@Query("id") Long id);
+    
+    }
+   ```
 
-<dependency>
-   <groupId>com.alibaba.csp</groupId>
-   <artifactId>sentinel-core</artifactId>
-   <version>1.6.3</version>
-</dependency>
-```
-
-此外，还支持全局`Sentinel`熔断降级：
-
-```yaml
-retrofit:
-  # 熔断降级配置
-  degrade:
-    # 熔断降级类型。默认none，表示不启用熔断降级
-    degrade-type: sentinel
-    # 全局sentinel降级配置
-    global-sentinel-degrade:
-      # 是否开启
-      enable: true
-      # ...其他sentinel全局配置
-```
+3. 此外还支持全局`Sentinel`熔断降级：
+    ```yaml
+    retrofit:
+      # 全局sentinel降级配置
+      global-sentinel-degrade:
+        # 是否开启
+        enable: true
+        rules:
+          # 降级策略（0：平均响应时间；1：异常比例；2：异常数量）
+          - grade: 0
+            # 各降级策略对应的阈值。平均响应时间(ms)，异常比例(0-1)，异常数量(1-N)
+            count: 1000,
+            # 熔断时长，单位为 s
+            time-window: 5
+            # （在有效统计时间范围内）能够触发熔断的最小请求数
+            min-request-amount: 5
+            # RT 模式下慢请求率的阈值
+            slow-ratio-threshold: 1.0
+            # 时间间隔统计持续时间，单位为毫秒
+            stat-interval-ms: 1000
+    ```
 
 #### Resilience4j
 
-配置`degrade-type=resilience4j`开启。然后在相关接口或者方法上声明`@Resilience4jDegrade`即可。
+1. 手动引入`Resilience4j`依赖：
 
-记得手动引入`Resilience4j`依赖：
+    ```xml
+    
+    <dependency>
+       <groupId>io.github.resilience4j</groupId>
+       <artifactId>resilience4j-circuitbreaker</artifactId>
+       <version>1.7.1</version>
+    </dependency>
+    ```
 
-```xml
+2. 注册自定义熔断配置：实现`CircuitBreakerConfigRegistrar`接口，注册`CircuitBreakerConfig`
+    ```java
+    @Component
+    public class CustomCircuitBreakerConfigRegistrar implements CircuitBreakerConfigRegistrar {
+       @Override
+       public void register(CircuitBreakerConfigRegistry registry) {
+       
+             // 替换默认的CircuitBreakerConfig
+             registry.register(Constants.DEFAULT_CIRCUIT_BREAKER_CONFIG, CircuitBreakerConfig.ofDefaults());
+       
+             // 注册其它的CircuitBreakerConfig
+             registry.register("testCircuitBreakerConfig", CircuitBreakerConfig.custom()
+                     .slidingWindowType(CircuitBreakerConfig.SlidingWindowType.TIME_BASED)
+                     .failureRateThreshold(20)
+                     .minimumNumberOfCalls(5)
+                     .permittedNumberOfCallsInHalfOpenState(5)
+                     .build());
+       }
+    }
+     ```
+3. 配置`degrade-type=resilience4j`开启。然后在相关接口或者方法上声明`@Resilience4jDegrade`即可，例如
+    ```java
+    @RetrofitClient(baseUrl = "${test.baseUrl}", fallbackFactory = Resilience4jFallbackFactory.class, connectTimeoutMs = 1,
+            readTimeoutMs = 1, writeTimeoutMs = 1)
+    @Resilience4jDegrade(circuitBreakerConfigName = "testCircuitBreakerConfig")
+    public interface Resilience4jUserService {
+    
+        /**
+         * 根据id查询用户姓名
+         */
+        @POST("getName")
+        String getName(@Query("id") Long id);
+    
+        /**
+         * 根据id查询用户信息
+         */
+        @GET("getUser")
+        @Resilience4jDegrade(enable = false)
+        User getUser(@Query("id") Long id);
+    
+    }
+    ```
 
-<dependency>
-   <groupId>io.github.resilience4j</groupId>
-   <artifactId>resilience4j-circuitbreaker</artifactId>
-   <version>1.7.1</version>
-</dependency>
-```
+4. 通过以下配置可开启全局resilience4j熔断降级：
 
-通过以下配置可开启全局resilience4j熔断降级：
+    ```yaml
+    retrofit:
+       # 熔断降级配置
+       degrade:
+          # 熔断降级类型。默认none，表示不启用熔断降级
+          degrade-type: resilience4j
+          # 全局resilience4j降级配置
+          global-resilience4j-degrade:
+             # 是否开启
+             enable: true
+             # 根据该名称从#{@link CircuitBreakerConfigRegistry}获取CircuitBreakerConfig，作为全局熔断配置
+             circuit-breaker-config-name: defaultCircuitBreakerConfig
+    ```
 
-```yaml
-retrofit:
-   # 熔断降级配置
-   degrade:
-      # 熔断降级类型。默认none，表示不启用熔断降级
-      degrade-type: resilience4j
-      # 全局resilience4j降级配置
-      global-resilience4j-degrade:
-         # 是否开启
-         enable: true
-         # 根据该名称从#{@link CircuitBreakerConfigRegistry}获取CircuitBreakerConfig，作为全局熔断配置
-         circuit-breaker-config-name: defaultCircuitBreakerConfig
-```
-
-熔断配置管理：
-
-实现`CircuitBreakerConfigRegistrar`接口，注册`CircuitBreakerConfig`。
-
-```java
-@Component
-public class CustomCircuitBreakerConfigRegistrar implements CircuitBreakerConfigRegistrar {
-   @Override
-   public void register(CircuitBreakerConfigRegistry registry) {
-   
-         // 替换默认的CircuitBreakerConfig
-         registry.register(Constants.DEFAULT_CIRCUIT_BREAKER_CONFIG, CircuitBreakerConfig.ofDefaults());
-   
-         // 注册其它的CircuitBreakerConfig
-         registry.register("testCircuitBreakerConfig", CircuitBreakerConfig.custom()
-                 .slidingWindowType(CircuitBreakerConfig.SlidingWindowType.TIME_BASED)
-                 .failureRateThreshold(20)
-                 .minimumNumberOfCalls(5)
-                 .permittedNumberOfCallsInHalfOpenState(5)
-                 .build());
-   }
-}
- ```
-   
 通过`circuitBreakerConfigName`指定`CircuitBreakerConfig`。包括`retrofit.degrade.global-resilience4j-degrade.circuit-breaker-config-name`或者`@Resilience4jDegrade.circuitBreakerConfigName`
 
 #### 扩展熔断降级
@@ -736,12 +782,19 @@ retrofit:
       global-sentinel-degrade:
          # 是否开启
          enable: false
-         # 各降级策略对应的阈值。平均响应时间(ms)，异常比例(0-1)，异常数量(1-N)
-         count: 1000
-         # 熔断时长，单位为 s
-         time-window: 5
+         rules:
          # 降级策略（0：平均响应时间；1：异常比例；2：异常数量）
-         grade: 0
+         - grade: 0
+           # 各降级策略对应的阈值。平均响应时间(ms)，异常比例(0-1)，异常数量(1-N)
+           count: 1000,
+           # 熔断时长，单位为 s
+           time-window: 5
+           # （在有效统计时间范围内）能够触发熔断的最小请求数
+           min-request-amount: 5
+           # RT 模式下慢请求率的阈值
+           slow-ratio-threshold: 1.0
+           # 时间间隔统计持续时间，单位为毫秒
+           stat-interval-ms: 1000
 
       # 全局resilience4j降级配置
       global-resilience4j-degrade:

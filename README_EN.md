@@ -29,9 +29,9 @@ Gitee project link: [https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>  
     <groupId>com.github.lianjiatech</groupId>  
     <artifactId>retrofit-spring-boot-starter</artifactId>
-  <version>4.0.1</version>
+  <version>4.0.2</version>
 </dependency>  
-```  
+```
 
 For most Spring Boot projects, adding the dependency is sufficient. If the component fails to work after dependency injection, try the following solutions:
 
@@ -476,74 +476,116 @@ retrofit:
 
 Set `degrade-type: sentinel` and use `@SentinelDegrade` on interfaces/methods. Add the Sentinel dependency:
 
-```xml  
-<dependency>  
-    <groupId>com.alibaba.csp</groupId>  
-    <artifactId>sentinel-core</artifactId>  
-    <version>1.6.3</version>  
-</dependency>  
-```  
+1. Manually add the `Sentinel` dependency
 
-Enable global Sentinel circuit breaking:
+    ```xml
+    
+    <dependency>
+       <groupId>com.alibaba.csp</groupId>
+       <artifactId>sentinel-core</artifactId>
+       <version>1.8.6</version>
+    </dependency>
+    ```
+2. Enable `degrade-type=sentinel`, and then declare the `@SentinelDegrade` annotation on the relevant interface or method, for example:
 
-```yaml
-retrofit:
-  degrade:
-    degrade-type: sentinel
-    global-sentinel-degrade:
-      enable: true
-      # ... other Sentinel configurations
-```  
-
+   ```java
+    @RetrofitClient(baseUrl = "${test.baseUrl}", fallback = SentinelFallbackUserService.class, connectTimeoutMs = 1,
+        readTimeoutMs = 1, writeTimeoutMs = 1)
+    @SentinelDegrade(rules = {@SentinelDegradeRule(grade = 0, count = 100, timeWindow = 4),
+    @SentinelDegradeRule(grade = 1, count = 0.01, timeWindow = 3)})
+    public interface SentinelUserService {
+    
+        /**
+         * 根据id查询用户姓名
+         */
+        @POST("getName")
+        String getName(@Query("id") Long id);
+    
+        /**
+         * 根据id查询用户信息
+         */
+        @GET("getUser")
+        @SentinelDegrade(rules = {@SentinelDegradeRule(grade = 2, count = 1, timeWindow = 6)})
+        User getUser(@Query("id") Long id);
+    
+    }
+   ```
+3. In addition, it supports global `Sentinel` circuit breaker degradation:
+    ```yaml
+    retrofit:
+      global-sentinel-degrade:
+        enable: true
+        rules:
+          - grade: 0
+            count: 1000,
+            time-window: 5
+            min-request-amount: 5
+            slow-ratio-threshold: 1.0
+            stat-interval-ms: 1000
+    ```
+   
 #### Resilience4j
 
-Set `degrade-type: resilience4j` and use `@Resilience4jDegrade` on interfaces/methods. Add the Resilience4j dependency:
+1. Manually add the `Resilience4j` dependency
 
-```xml
-<dependency>  
-    <groupId>io.github.resilience4j</groupId>  
-    <artifactId>resilience4j-circuitbreaker</artifactId>  
-    <version>1.7.1</version>  
-</dependency>
-```  
+    ```xml
+    
+    <dependency>
+       <groupId>io.github.resilience4j</groupId>
+       <artifactId>resilience4j-circuitbreaker</artifactId>
+       <version>1.7.1</version>
+    </dependency>
+    ```
 
-Enable global Resilience4j circuit breaking:
+2. Register a custom circuit breaker configuration: Implement the `CircuitBreakerConfigRegistrar` interface and register `CircuitBreakerConfig`.
+    ```java
+    @Component
+    public class CustomCircuitBreakerConfigRegistrar implements CircuitBreakerConfigRegistrar {
+       @Override
+       public void register(CircuitBreakerConfigRegistry registry) {
+       
+             // 替换默认的CircuitBreakerConfig
+             registry.register(Constants.DEFAULT_CIRCUIT_BREAKER_CONFIG, CircuitBreakerConfig.ofDefaults());
+       
+             // 注册其它的CircuitBreakerConfig
+             registry.register("testCircuitBreakerConfig", CircuitBreakerConfig.custom()
+                     .slidingWindowType(CircuitBreakerConfig.SlidingWindowType.TIME_BASED)
+                     .failureRateThreshold(20)
+                     .minimumNumberOfCalls(5)
+                     .permittedNumberOfCallsInHalfOpenState(5)
+                     .build());
+       }
+    }
+     ```
+3. Enable `degrade-type=resilience4j`. Then declare `@Resilience4jDegrade` on the relevant interface or method, for example:
+    ```java
+    @RetrofitClient(baseUrl = "${test.baseUrl}", fallbackFactory = Resilience4jFallbackFactory.class, connectTimeoutMs = 1,
+            readTimeoutMs = 1, writeTimeoutMs = 1)
+    @Resilience4jDegrade(circuitBreakerConfigName = "testCircuitBreakerConfig")
+    public interface Resilience4jUserService {
+    
+        @POST("getName")
+        String getName(@Query("id") Long id);
+    
+        @GET("getUser")
+        @Resilience4jDegrade(enable = false)
+        User getUser(@Query("id") Long id);
+    
+    }
+    ```
 
-```yaml
-retrofit:
-  degrade:
-    degrade-type: resilience4j
-    global-resilience4j-degrade:
-      enable: true
-      circuit-breaker-config-name: defaultCircuitBreakerConfig
-```
+4. The following configuration enables global Resilience4j circuit breaker degradation:
 
-**Circuit Breaker Configuration Management**:
+    ```yaml
+    retrofit:
+       degrade:
+          degrade-type: resilience4j
+          global-resilience4j-degrade:
+             enable: true
+             circuit-breaker-config-name: defaultCircuitBreakerConfig
+    ```
 
-Implement `CircuitBreakerConfigRegistrar` to register `CircuitBreakerConfig`:
-
-```java  
-@Component  
-public class CustomCircuitBreakerConfigRegistrar implements CircuitBreakerConfigRegistrar {  
-    @Override  
-    public void register(CircuitBreakerConfigRegistry registry) {  
-        // Override default CircuitBreakerConfig  
-        registry.register(Constants.DEFAULT_CIRCUIT_BREAKER_CONFIG, CircuitBreakerConfig.ofDefaults());  
-
-        // Register custom configurations  
-        registry.register("testCircuitBreakerConfig", CircuitBreakerConfig.custom()  
-                .slidingWindowType(CircuitBreakerConfig.SlidingWindowType.TIME_BASED)  
-                .failureRateThreshold(20)  
-                .minimumNumberOfCalls(5)  
-                .permittedNumberOfCallsInHalfOpenState(5)  
-                .build());  
-    }  
-}  
-```  
-
-Specify `CircuitBreakerConfig` via `circuitBreakerConfigName` in global settings or `@Resilience4jDegrade`.
-
-
+Specify the `CircuitBreaker Config` via `circuitBreaker Config Name`. This includes `retrofit.degrade.global-resilience4j-degrade.circuit-breaker-config-name` or `@Resilience4jDegrade.circuitBreakerConfigName`.
 ### Error Decoding
 
 Customize error handling by implementing `ErrorDecoder` and specifying it via `@RetrofitClient.errorDecoder()`. Disable with `retrofit.enable-error-decoder=false`.
