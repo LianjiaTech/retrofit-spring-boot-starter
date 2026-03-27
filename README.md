@@ -33,7 +33,7 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-    <version>4.0.2</version>
+    <version>4.0.3</version>
 </dependency>
 ```
 
@@ -192,6 +192,8 @@ retrofit:
 ```
 
 针对每个`Java`接口，还可以通过`@RetrofitClient.converterFactories`指定当前接口采用的`Converter.Factory`。
+
+**注意：如果接口返回原始结果就是String文本，且无法用JSON转换器转换，可以使用`StringConverterFactory`，该转换器会直接将结果转为String返回**
 
 ### 自定义OkHttpClient
 

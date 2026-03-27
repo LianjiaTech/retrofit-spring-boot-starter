@@ -21,8 +21,10 @@ import com.github.lianjiatech.retrofit.spring.boot.test.integration.RetrofitBoot
  */
 @SpringBootTest(classes = {RetrofitBootApplication.class},
         properties = {"retrofit.degrade.degrade-type=sentinel", "retrofit.degrade.global-sentinel-degrade.enable=true",
-            "retrofit.degrade.global-sentinel-degrade.rules[0].grade=0", "retrofit.degrade.global-sentinel-degrade.rules[0].count=2",
-            "retrofit.degrade.global-sentinel-degrade.rules[0].time-window=5"})
+            "retrofit.degrade.global-sentinel-degrade.rules[0].grade=1",
+            "retrofit.degrade.global-sentinel-degrade.rules[0].count=0.01",
+            "retrofit.degrade.global-sentinel-degrade.rules[0].time-window=5",
+            "retrofit.degrade.global-sentinel-degrade.rules[0].min-request-amount=5"})
 @RunWith(SpringRunner.class)
 public class GlobalSentinelUserServiceTest extends MockWebServerTest {
 
