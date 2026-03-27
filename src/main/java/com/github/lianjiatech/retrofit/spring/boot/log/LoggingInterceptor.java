@@ -1,6 +1,8 @@
 package com.github.lianjiatech.retrofit.spring.boot.log;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +23,13 @@ public class LoggingInterceptor implements Interceptor {
 
     protected final GlobalLogProperty globalLogProperty;
 
+    /**
+     * 缓存非 aggregate 模式下每个 (method, service) 对应的 HttpLoggingInterceptor。
+     * 该拦截器的 Logger 是无状态的，可安全地并发复用；aggregate 模式需要有状态的 BufferingLogger，不缓存。
+     */
+    private final ConcurrentHashMap<Method, ConcurrentHashMap<Class<?>, HttpLoggingInterceptor>> interceptorCache =
+            new ConcurrentHashMap<>(64);
+
     public LoggingInterceptor(GlobalLogProperty globalLogProperty) {
         this.globalLogProperty = globalLogProperty;
     }
@@ -36,31 +45,52 @@ public class LoggingInterceptor implements Interceptor {
             return chain.proceed(chain.request());
         }
 
-        LogLevel logLevel = logging == null ? globalLogProperty.getLogLevel() : logging.logLevel();
         boolean aggregate = logging == null ? globalLogProperty.isAggregate() : logging.aggregate();
+        Invocation invocation = chain.request().tag(Invocation.class);
+
+        if (!aggregate && invocation != null) {
+            HttpLoggingInterceptor cached = interceptorCache
+                    .computeIfAbsent(invocation.method(), k -> new ConcurrentHashMap<>(4))
+                    .computeIfAbsent(invocation.service(), k -> buildInterceptor(logging, logStrategy));
+            return cached.intercept(chain);
+        }
+
+        // aggregate 模式：每次请求必须创建独立的 BufferingLogger 以避免并发串扰
+        LogLevel logLevel = logging == null ? globalLogProperty.getLogLevel() : logging.logLevel();
         String logName =
                 logging == null || logging.logName().isEmpty() ? globalLogProperty.getLogName() : logging.logName();
         HttpLoggingInterceptor.Logger matchLogger = matchLogger(logName, logLevel);
-        HttpLoggingInterceptor.Logger logger = aggregate ? new BufferingLogger(matchLogger) : matchLogger;
-        HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor(logger)
-                .setLevel(HttpLoggingInterceptor.Level.valueOf(logStrategy.name()));
+        BufferingLogger bufferingLogger = new BufferingLogger(matchLogger);
+        HttpLoggingInterceptor httpLoggingInterceptor =
+                buildInterceptorWithLogger(logging, logStrategy, bufferingLogger);
+        Response response = httpLoggingInterceptor.intercept(chain);
+        bufferingLogger.flush();
+        return response;
+    }
 
+    private HttpLoggingInterceptor buildInterceptor(Logging logging, LogStrategy logStrategy) {
+        LogLevel logLevel = logging == null ? globalLogProperty.getLogLevel() : logging.logLevel();
+        String logName =
+                logging == null || logging.logName().isEmpty() ? globalLogProperty.getLogName() : logging.logName();
+        return buildInterceptorWithLogger(logging, logStrategy, matchLogger(logName, logLevel));
+    }
+
+    private HttpLoggingInterceptor buildInterceptorWithLogger(Logging logging, LogStrategy logStrategy,
+            HttpLoggingInterceptor.Logger logger) {
+        HttpLoggingInterceptor interceptor =
+                new HttpLoggingInterceptor(logger).setLevel(HttpLoggingInterceptor.Level.valueOf(logStrategy.name()));
         String[] globalRedactHeaders = globalLogProperty.getRedactHeaders();
         if (globalRedactHeaders != null) {
             for (String redactHeader : globalRedactHeaders) {
-                httpLoggingInterceptor.redactHeader(redactHeader);
+                interceptor.redactHeader(redactHeader);
             }
         }
         if (logging != null && logging.redactHeaders() != null) {
             for (String redactHeader : logging.redactHeaders()) {
-                httpLoggingInterceptor.redactHeader(redactHeader);
+                interceptor.redactHeader(redactHeader);
             }
         }
-        Response response = httpLoggingInterceptor.intercept(chain);
-        if (aggregate) {
-            ((BufferingLogger)logger).flush();
-        }
-        return response;
+        return interceptor;
     }
 
     protected Logging findLogging(Chain chain) {

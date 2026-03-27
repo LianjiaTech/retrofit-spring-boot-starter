@@ -9,7 +9,8 @@ import retrofit2.http.Query;
  * @author 陈添明
  * @since 2023/12/17 12:47 下午
  */
-@RetrofitClient(baseUrl = "${test.baseUrl}", fallback = GlobalSentinelFallbackUserService.class)
+@RetrofitClient(baseUrl = "${test.baseUrl}", fallback = GlobalSentinelFallbackUserService.class,
+        connectTimeoutMs = 1, readTimeoutMs = 1, writeTimeoutMs = 1)
 public interface GlobalSentinelUserService {
 
     /**

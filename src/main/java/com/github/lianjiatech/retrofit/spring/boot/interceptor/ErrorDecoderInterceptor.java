@@ -1,19 +1,22 @@
 package com.github.lianjiatech.retrofit.spring.boot.interceptor;
 
-import com.github.lianjiatech.retrofit.spring.boot.core.ErrorDecoder;
-import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClient;
-import com.github.lianjiatech.retrofit.spring.boot.util.AppContextUtils;
-import lombok.SneakyThrows;
-import okhttp3.Interceptor;
-import okhttp3.Request;
-import okhttp3.Response;
+import java.io.IOException;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.annotation.AnnotatedElementUtils;
-import retrofit2.Invocation;
 
-import java.io.IOException;
+import com.github.lianjiatech.retrofit.spring.boot.core.ErrorDecoder;
+import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClient;
+import com.github.lianjiatech.retrofit.spring.boot.util.AppContextUtils;
+
+import lombok.SneakyThrows;
+import okhttp3.Interceptor;
+import okhttp3.Request;
+import okhttp3.Response;
+import retrofit2.Invocation;
 
 /**
  * @author 陈添明
@@ -21,6 +24,9 @@ import java.io.IOException;
 public class ErrorDecoderInterceptor implements Interceptor, ApplicationContextAware {
 
     protected ApplicationContext applicationContext;
+
+    /** 缓存每个 Retrofit 接口对应的 ErrorDecoder 实例，避免每次请求都进行 Spring 容器查找和反射。 */
+    private final ConcurrentHashMap<Class<?>, ErrorDecoder> errorDecoderCache = new ConcurrentHashMap<>(32);
 
     @Override
     @SneakyThrows
@@ -30,16 +36,14 @@ public class ErrorDecoderInterceptor implements Interceptor, ApplicationContextA
         if (invocation == null) {
             return chain.proceed(request);
         }
-        RetrofitClient retrofitClient =
-                AnnotatedElementUtils.findMergedAnnotation(invocation.service(), RetrofitClient.class);
-        ErrorDecoder errorDecoder =
-                AppContextUtils.getBeanOrNew(applicationContext, retrofitClient.errorDecoder());
+        ErrorDecoder errorDecoder = errorDecoderCache.computeIfAbsent(invocation.service(), serviceClass -> {
+            RetrofitClient retrofitClient =
+                    AnnotatedElementUtils.findMergedAnnotation(serviceClass, RetrofitClient.class);
+            return AppContextUtils.getBeanOrNew(applicationContext, retrofitClient.errorDecoder());
+        });
         boolean decoded = false;
         try {
             Response response = chain.proceed(request);
-            if (errorDecoder == null) {
-                return response;
-            }
             decoded = true;
             Exception exception = errorDecoder.invalidRespDecode(request, response);
             if (exception == null) {

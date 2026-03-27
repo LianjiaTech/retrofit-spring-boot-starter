@@ -1,27 +1,10 @@
 package com.github.lianjiatech.retrofit.spring.boot.core;
 
-import com.github.lianjiatech.retrofit.spring.boot.config.GlobalConnectionPoolProperty;
-import com.github.lianjiatech.retrofit.spring.boot.config.GlobalTimeoutProperty;
-import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitConfigBean;
-import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitProperties;
-import com.github.lianjiatech.retrofit.spring.boot.core.reactive.MonoCallAdapterFactory;
-import com.github.lianjiatech.retrofit.spring.boot.core.reactive.Rxjava2CompletableCallAdapterFactory;
-import com.github.lianjiatech.retrofit.spring.boot.core.reactive.Rxjava2SingleCallAdapterFactory;
-import com.github.lianjiatech.retrofit.spring.boot.core.reactive.Rxjava3CompletableCallAdapterFactory;
-import com.github.lianjiatech.retrofit.spring.boot.core.reactive.Rxjava3SingleCallAdapterFactory;
-import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeProxy;
-import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitDegrade;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.BasePathMatchInterceptor;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.GlobalInterceptor;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.Intercept;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.InterceptMark;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.Intercepts;
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.NetworkInterceptor;
-import com.github.lianjiatech.retrofit.spring.boot.util.AppContextUtils;
-import com.github.lianjiatech.retrofit.spring.boot.util.BeanExtendUtils;
-import okhttp3.ConnectionPool;
-import okhttp3.Interceptor;
-import okhttp3.OkHttpClient;
+import java.lang.annotation.Annotation;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.ApplicationContext;
@@ -31,21 +14,27 @@ import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.env.Environment;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+
+import com.github.lianjiatech.retrofit.spring.boot.config.GlobalConnectionPoolProperty;
+import com.github.lianjiatech.retrofit.spring.boot.config.GlobalTimeoutProperty;
+import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitConfigBean;
+import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitProperties;
+import com.github.lianjiatech.retrofit.spring.boot.core.reactive.*;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeProxy;
+import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitDegrade;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.*;
+import com.github.lianjiatech.retrofit.spring.boot.util.AppContextUtils;
+import com.github.lianjiatech.retrofit.spring.boot.util.BeanExtendUtils;
+
+import okhttp3.ConnectionPool;
+import okhttp3.Interceptor;
+import okhttp3.OkHttpClient;
 import retrofit2.CallAdapter;
 import retrofit2.Converter;
 import retrofit2.Retrofit;
-
-import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author 陈添明
@@ -60,7 +49,24 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
 
     private ApplicationContext applicationContext;
 
-    public static final ConcurrentHashMap<Class<?>, String> BASE_URL_MAP = new ConcurrentHashMap<>();
+    /**
+     * 类加载时一次性检测依赖是否存在，避免每次创建 Retrofit 实例都抛出 ClassNotFoundException。
+     */
+    private static final boolean RXJAVA3_PRESENT =
+            ClassUtils.isPresent("io.reactivex.rxjava3.core.Single", RetrofitFactoryBean.class.getClassLoader());
+    private static final boolean RXJAVA2_PRESENT =
+            ClassUtils.isPresent("io.reactivex.Single", RetrofitFactoryBean.class.getClassLoader());
+    private static final boolean REACTOR3_PRESENT =
+            ClassUtils.isPresent("reactor.core.publisher.Mono", RetrofitFactoryBean.class.getClassLoader());
+
+    private static final ConcurrentHashMap<Class<?>, String> BASE_URL_MAP = new ConcurrentHashMap<>();
+
+    /**
+     * 获取指定 Retrofit 接口对应的 baseUrl（只读访问）。
+     */
+    public static String getBaseUrl(Class<?> retrofitInterface) {
+        return BASE_URL_MAP.get(retrofitInterface);
+    }
 
     public RetrofitFactoryBean(Class<T> retrofitInterface) {
         this.retrofitInterface = retrofitInterface;
@@ -70,6 +76,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
     public T getObject() {
         RetrofitClient retrofitClient =
                 AnnotatedElementUtils.findMergedAnnotation(retrofitInterface, RetrofitClient.class);
+        Objects.requireNonNull(retrofitClient, "@RetrofitClient annotation not found on " + retrofitInterface.getName());
         BaseUrlParser baseUrlParser = AppContextUtils.getBeanOrNew(applicationContext, retrofitClient.baseUrlParser());
         String baseUrl = baseUrlParser.parse(retrofitClient, environment);
         BASE_URL_MAP.put(retrofitInterface, baseUrl);
@@ -99,10 +106,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         return true;
     }
 
-    private OkHttpClient createOkHttpClient() {
-        RetrofitClient retrofitClient =
-                AnnotatedElementUtils.findMergedAnnotation(retrofitInterface, RetrofitClient.class);
-
+    private OkHttpClient createOkHttpClient(RetrofitClient retrofitClient) {
         OkHttpClient.Builder okHttpClientBuilder;
         RetrofitProperties retrofitProperties = retrofitConfigBean.getRetrofitProperties();
         if (Constants.NO_SOURCE_OK_HTTP_CLIENT.equals(Objects.requireNonNull(retrofitClient).sourceOkHttpClient())) {
@@ -208,7 +212,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
 
     private Retrofit createRetrofit(RetrofitClient retrofitClient, String baseUrl) {
 
-        OkHttpClient client = createOkHttpClient();
+        OkHttpClient client = createOkHttpClient(retrofitClient);
         Retrofit.Builder retrofitBuilder = new Retrofit.Builder()
                 .baseUrl(baseUrl)
                 .validateEagerly(retrofitClient.validateEagerly())
@@ -254,43 +258,16 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
     }
 
     private void addReactiveCallAdapterFactory(Retrofit.Builder retrofitBuilder) {
-        if (reactor3ClassExist()) {
+        if (REACTOR3_PRESENT) {
             retrofitBuilder.addCallAdapterFactory(MonoCallAdapterFactory.INSTANCE);
         }
-        if (rxjava2ClassExist()) {
+        if (RXJAVA2_PRESENT) {
             retrofitBuilder.addCallAdapterFactory(Rxjava2SingleCallAdapterFactory.INSTANCE);
             retrofitBuilder.addCallAdapterFactory(Rxjava2CompletableCallAdapterFactory.INSTANCE);
         }
-        if (rxjava3ClassExist()) {
+        if (RXJAVA3_PRESENT) {
             retrofitBuilder.addCallAdapterFactory(Rxjava3SingleCallAdapterFactory.INSTANCE);
             retrofitBuilder.addCallAdapterFactory(Rxjava3CompletableCallAdapterFactory.INSTANCE);
-        }
-    }
-
-    private boolean rxjava3ClassExist() {
-        try {
-            Class.forName("io.reactivex.rxjava3.core.Single");
-            return true;
-        } catch (ClassNotFoundException e) {
-            return false;
-        }
-    }
-
-    private boolean rxjava2ClassExist() {
-        try {
-            Class.forName("io.reactivex.Single");
-            return true;
-        } catch (ClassNotFoundException e) {
-            return false;
-        }
-    }
-
-    private boolean reactor3ClassExist() {
-        try {
-            Class.forName("reactor.core.publisher.Mono");
-            return true;
-        } catch (ClassNotFoundException e) {
-            return false;
         }
     }
 

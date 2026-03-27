@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.jetbrains.annotations.NotNull;
 import org.springframework.util.CollectionUtils;
@@ -29,7 +30,7 @@ import retrofit2.Invocation;
 public class SentinelRetrofitDegrade extends BaseRetrofitDegrade {
 
     protected final GlobalSentinelDegradeProperty globalSentinelDegradeProperty;
-    protected final Set<String> degradeResources = new HashSet<>();
+    protected final Set<String> degradeResources = ConcurrentHashMap.newKeySet();
 
     public SentinelRetrofitDegrade(GlobalSentinelDegradeProperty globalSentinelDegradeProperty) {
         this.globalSentinelDegradeProperty = globalSentinelDegradeProperty;
@@ -110,9 +111,9 @@ public class SentinelRetrofitDegrade extends BaseRetrofitDegrade {
         }
         Method method = invocation.method();
         Class<?> service = invocation.service();
-        String baseUrl = RetrofitFactoryBean.BASE_URL_MAP.get(service);
+        String baseUrl = RetrofitFactoryBean.getBaseUrl(service);
         if (baseUrl == null) {
-            log.error("can't find find baseUrl, might hava a bug! service={}", service);
+            log.error("can't find baseUrl, might have a bug! service={}", service);
         }
         String resourceName = parseResourceName(method, baseUrl);
         if (!degradeResources.contains(resourceName)) {

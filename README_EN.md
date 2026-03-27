@@ -29,7 +29,7 @@ Gitee project link: [https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>  
     <groupId>com.github.lianjiatech</groupId>  
     <artifactId>retrofit-spring-boot-starter</artifactId>  
-    <version>2.5.3</version>  
+    <version>2.5.4</version>  
 </dependency>  
 ```
 
@@ -199,6 +199,7 @@ retrofit:
 
 For individual interfaces, specify `Converter.Factory` using `@RetrofitClient.converterFactories`.
 
+**Note: If the API returns a raw String text that cannot be converted using a JSON converter, you can use `StringConverterFactory`, which will directly convert the result to a String and return it**.
 
 ### Custom OkHttpClient
 

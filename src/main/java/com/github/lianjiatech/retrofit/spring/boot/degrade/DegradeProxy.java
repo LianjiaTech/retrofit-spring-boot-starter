@@ -1,15 +1,17 @@
 package com.github.lianjiatech.retrofit.spring.boot.degrade;
 
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
-import com.github.lianjiatech.retrofit.spring.boot.util.AppContextUtils;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 
 import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClient;
+import com.github.lianjiatech.retrofit.spring.boot.util.AppContextUtils;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author 陈添明
@@ -54,14 +56,18 @@ public class DegradeProxy implements InvocationHandler {
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         try {
             return method.invoke(source, args);
-        } catch (Throwable e) {
+        } catch (InvocationTargetException e) {
             Throwable cause = e.getCause();
             // 熔断逻辑
             if (cause instanceof RetrofitBlockException) {
                 Object fallbackObject = getFallbackObject(cause);
                 if (fallbackObject != null) {
                     log.error("call fallback! method={}, args={}", method, args, cause);
-                    return method.invoke(fallbackObject, args);
+                    try {
+                        return method.invoke(fallbackObject, args);
+                    } catch (InvocationTargetException fe) {
+                        throw fe.getCause();
+                    }
                 }
             }
             throw cause;

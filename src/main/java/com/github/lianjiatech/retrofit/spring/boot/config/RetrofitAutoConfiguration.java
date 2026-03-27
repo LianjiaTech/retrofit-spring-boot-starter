@@ -1,15 +1,18 @@
 package com.github.lianjiatech.retrofit.spring.boot.config;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+
 import com.alibaba.csp.sentinel.SphU;
-import com.github.lianjiatech.retrofit.spring.boot.core.AutoConfiguredRetrofitScannerRegistrar;
-import com.github.lianjiatech.retrofit.spring.boot.core.Constants;
-import com.github.lianjiatech.retrofit.spring.boot.core.DefaultBaseUrlParser;
-import com.github.lianjiatech.retrofit.spring.boot.core.ErrorDecoder;
-import com.github.lianjiatech.retrofit.spring.boot.core.PathMatchInterceptorBdfProcessor;
-import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitFactoryBean;
-import com.github.lianjiatech.retrofit.spring.boot.core.ServiceInstanceChooser;
-import com.github.lianjiatech.retrofit.spring.boot.core.SourceOkHttpClientRegistrar;
-import com.github.lianjiatech.retrofit.spring.boot.core.SourceOkHttpClientRegistry;
+import com.github.lianjiatech.retrofit.spring.boot.core.*;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitDegrade;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.resilience4j.CircuitBreakerConfigRegistrar;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.resilience4j.CircuitBreakerConfigRegistry;
@@ -21,19 +24,10 @@ import com.github.lianjiatech.retrofit.spring.boot.interceptor.NetworkIntercepto
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.ServiceChooseInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.log.LoggingInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.retry.RetryInterceptor;
+
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import retrofit2.converter.jackson.JacksonConverterFactory;
-
-import java.util.List;
 
 /**
  * @author 陈添明
@@ -52,6 +46,8 @@ public class RetrofitAutoConfiguration {
     private List<GlobalInterceptor> globalInterceptors;
     @Autowired(required = false)
     private List<NetworkInterceptor> networkInterceptors;
+    @Autowired(required = false)
+    private com.fasterxml.jackson.databind.ObjectMapper objectMapper;
 
     public RetrofitAutoConfiguration(RetrofitProperties retrofitProperties) {
         this.retrofitProperties = retrofitProperties;
@@ -121,7 +117,7 @@ public class RetrofitAutoConfiguration {
     @ConditionalOnMissingBean
     @ConditionalOnClass(com.fasterxml.jackson.databind.ObjectMapper.class)
     public JacksonConverterFactory retrofitJacksonConverterFactory() {
-        return JacksonConverterFactory.create();
+        return objectMapper != null ? JacksonConverterFactory.create(objectMapper) : JacksonConverterFactory.create();
     }
 
     @Bean
@@ -171,15 +167,26 @@ public class RetrofitAutoConfiguration {
             return new CircuitBreakerConfigRegistry(circuitBreakerConfigRegistrars);
         }
 
+        /**
+         * 默认 CircuitBreakerRegistry。若用户已在 Spring 容器中注册了自定义 CircuitBreakerRegistry（如通过
+         * resilience4j-spring-boot 自动配置），则 @ConditionalOnMissingBean 保证不会覆盖它。
+         */
         @Bean
         @ConditionalOnMissingBean
-        public RetrofitDegrade
-        retrofitResilience4jRetrofitDegrade(CircuitBreakerConfigRegistry circuitBreakerConfigRegistry) {
-            return new Resilience4jRetrofitDegrade(CircuitBreakerRegistry.ofDefaults(),
+        public CircuitBreakerRegistry retrofitCircuitBreakerRegistry() {
+            return CircuitBreakerRegistry.ofDefaults();
+        }
+
+        @Bean
+        @ConditionalOnMissingBean
+        public RetrofitDegrade retrofitResilience4jRetrofitDegrade(CircuitBreakerRegistry circuitBreakerRegistry,
+                CircuitBreakerConfigRegistry circuitBreakerConfigRegistry) {
+            return new Resilience4jRetrofitDegrade(circuitBreakerRegistry,
                     properties.getDegrade().getGlobalResilience4jDegrade(), circuitBreakerConfigRegistry);
         }
     }
 
+    @Configuration
     @ConditionalOnClass(SphU.class)
     @ConditionalOnProperty(name = Constants.DEGRADE_TYPE, havingValue = RetrofitDegrade.SENTINEL)
     @EnableConfigurationProperties(RetrofitProperties.class)
