@@ -111,7 +111,8 @@ public class SentinelRetrofitDegrade extends BaseRetrofitDegrade {
         Class<?> service = invocation.service();
         String baseUrl = RetrofitFactoryBean.getBaseUrl(service);
         if (baseUrl == null) {
-            log.error("can't find baseUrl, might have a bug! service={}", service);
+            log.error("can't find baseUrl, skip Sentinel degrade; service={}", service);
+            return chain.proceed(request);
         }
         String resourceName = parseResourceName(method, baseUrl);
         if (!degradeResources.contains(resourceName)) {

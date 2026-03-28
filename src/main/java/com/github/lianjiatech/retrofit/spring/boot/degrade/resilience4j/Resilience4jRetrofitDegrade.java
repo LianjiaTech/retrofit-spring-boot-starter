@@ -87,7 +87,8 @@ public class Resilience4jRetrofitDegrade extends BaseRetrofitDegrade {
         Class<?> service = invocation.service();
         String baseUrl = RetrofitFactoryBean.getBaseUrl(service);
         if (baseUrl == null) {
-            log.error("can't find baseUrl, might have a bug! service={}", service);
+            log.error("can't find baseUrl, skip Resilience4j degrade; service={}", service);
+            return chain.proceed(request);
         }
         CircuitBreaker circuitBreaker =
                 circuitBreakerRegistry.find(parseResourceName(invocation.method(), baseUrl)).orElse(null);

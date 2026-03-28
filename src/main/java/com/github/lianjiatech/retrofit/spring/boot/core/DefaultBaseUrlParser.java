@@ -11,8 +11,8 @@ import org.springframework.util.StringUtils;
  */
 public class DefaultBaseUrlParser implements BaseUrlParser {
 
-    String SUFFIX = "/";
-    String HTTP_PREFIX = "http://";
+    private static final String SUFFIX = "/";
+    private static final String HTTP_PREFIX = "http://";
 
     @Override
     public String parse(RetrofitClient retrofitClient, Environment environment) {

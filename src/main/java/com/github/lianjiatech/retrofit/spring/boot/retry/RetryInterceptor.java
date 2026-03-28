@@ -10,8 +10,8 @@ import retrofit2.Invocation;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.stream.Collectors;
+import java.util.EnumSet;
+import java.util.Set;
 
 /**
  * @author 陈添明
@@ -55,8 +55,9 @@ public class RetryInterceptor implements Interceptor {
         }
     }
 
-    protected Response retryIntercept(int maxRetries, int intervalMs, RetryRule[] retryRules, Chain chain) {
-        HashSet<RetryRule> retryRuleSet = (HashSet<RetryRule>)Arrays.stream(retryRules).collect(Collectors.toSet());
+    protected Response retryIntercept(int maxRetries, int intervalMs, RetryRule[] retryRules, Chain chain)
+            throws IOException {
+        Set<RetryRule> retryRuleSet = toRetryRuleSet(retryRules);
         RetryStrategy retryStrategy = new RetryStrategy(maxRetries, intervalMs);
         Request request = chain.request();
         Response response = null;
@@ -79,7 +80,7 @@ public class RetryInterceptor implements Interceptor {
                 }
             } catch (Exception e) {
                 if (shouldThrowEx(retryRuleSet, e)) {
-                    throw new RuntimeException(e);
+                    rethrowWithoutRetry(e);
                 } else {
                     if (!retryStrategy.shouldRetry()) {
                         // 最后一次还没成功，抛出异常
@@ -97,7 +98,7 @@ public class RetryInterceptor implements Interceptor {
         }
     }
 
-    protected boolean shouldThrowEx(HashSet<RetryRule> retryRuleSet, Exception e) {
+    protected boolean shouldThrowEx(Set<RetryRule> retryRuleSet, Exception e) {
         if (retryRuleSet.contains(RetryRule.OCCUR_EXCEPTION)) {
             return false;
         }
@@ -105,6 +106,26 @@ public class RetryInterceptor implements Interceptor {
             return !(e instanceof IOException);
         }
         return true;
+    }
+
+    private static Set<RetryRule> toRetryRuleSet(RetryRule[] retryRules) {
+        if (retryRules == null || retryRules.length == 0) {
+            return EnumSet.noneOf(RetryRule.class);
+        }
+        return EnumSet.copyOf(Arrays.asList(retryRules));
+    }
+
+    /**
+     * 不重试时直接向上传递：保留 {@link IOException} 与 {@link RuntimeException}，其它受检异常再包装。
+     */
+    private static void rethrowWithoutRetry(Exception e) throws IOException {
+        if (e instanceof IOException) {
+            throw (IOException)e;
+        }
+        if (e instanceof RuntimeException) {
+            throw (RuntimeException)e;
+        }
+        throw new RuntimeException(e);
     }
 
 }
