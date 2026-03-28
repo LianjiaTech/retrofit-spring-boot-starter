@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.jetbrains.annotations.NotNull;
 import org.springframework.util.CollectionUtils;
 
 import com.alibaba.csp.sentinel.*;
@@ -61,7 +60,6 @@ public class SentinelRetrofitDegrade extends BaseRetrofitDegrade {
         }
     }
 
-    @NotNull
     private Set<DegradeRule> parseDegradeRules(Class<?> retrofitInterface, Method method, String resourceName) {
         Set<DegradeRule> degradeRuleSet = new HashSet<>();
         // 方法上有降级注解，以方法注解上的降级配置为准
