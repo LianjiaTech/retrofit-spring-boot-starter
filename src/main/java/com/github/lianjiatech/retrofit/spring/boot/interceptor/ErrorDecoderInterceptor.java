@@ -12,7 +12,6 @@ import com.github.lianjiatech.retrofit.spring.boot.core.ErrorDecoder;
 import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClient;
 import com.github.lianjiatech.retrofit.spring.boot.util.AppContextUtils;
 
-import lombok.SneakyThrows;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -29,7 +28,6 @@ public class ErrorDecoderInterceptor implements Interceptor, ApplicationContextA
     private final ConcurrentHashMap<Class<?>, ErrorDecoder> errorDecoderCache = new ConcurrentHashMap<>(32);
 
     @Override
-    @SneakyThrows
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
         Invocation invocation = request.tag(Invocation.class);
