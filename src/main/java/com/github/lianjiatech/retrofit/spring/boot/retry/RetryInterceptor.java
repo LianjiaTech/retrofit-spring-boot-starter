@@ -61,40 +61,40 @@ public class RetryInterceptor implements Interceptor {
         Set<RetryRule> retryRuleSet = toRetryRuleSet(retryRules);
         RetryStrategy retryStrategy = new RetryStrategy(maxRetries, intervalMs);
         Request request = chain.request();
-        Response response = null;
         while (true) {
+            Response response = null;
             try {
                 response = chain.proceed(request);
                 // 如果响应状态码是2xx就不用重试，直接返回 response
                 if (!retryRuleSet.contains(RetryRule.RESPONSE_STATUS_NOT_2XX) || response.isSuccessful()) {
                     return response;
-                } else {
-                    if (!retryStrategy.shouldRetry()) {
-                        // 最后一次还没成功，返回最后一次response
-                        return response;
-                    }
-                    // 执行重试
-                    retryStrategy.retry();
-                    log.warn("The response fails, retry is performed! The request is {}, Response is {}", request,
-                            response);
+                }
+                if (!retryStrategy.shouldRetry()) {
+                    // 最后一次还没成功，返回最后一次response
+                    return response;
+                }
+                // 即将重试：先释放当前响应资源
+                response.close();
+                response = null;
+                retryStrategy.retry();
+                log.warn("The response fails, retry is performed! The request is {}", request);
+            } catch (Exception e) {
+                // 失败路径：异常发生时 chain.proceed 内部已释放连接，response 一定为 null；
+                // 仍兜底关闭以防自定义实现遗漏。
+                if (response != null) {
                     response.close();
                 }
-            } catch (Exception e) {
                 if (shouldThrowEx(retryRuleSet, e)) {
                     rethrowWithoutRetry(e);
-                } else {
-                    if (!retryStrategy.shouldRetry()) {
-                        // 最后一次还没成功，抛出异常
-                        throw new RetryFailedException(
-                                "Retry Failed: Total " + maxRetries + " attempts made at interval " + intervalMs + "ms",
-                                e);
-                    }
-                    retryStrategy.retry();
-                    log.warn("The response fails, retry is performed! The request is {} ", request, e);
-                    if (response != null && response.body() != null) {
-                        response.close();
-                    }
                 }
+                if (!retryStrategy.shouldRetry()) {
+                    // 最后一次还没成功，抛出异常
+                    throw new RetryFailedException(
+                            "Retry Failed: Total " + maxRetries + " attempts made at interval " + intervalMs + "ms",
+                            e);
+                }
+                retryStrategy.retry();
+                log.warn("The response fails, retry is performed! The request is {} ", request, e);
             }
         }
     }

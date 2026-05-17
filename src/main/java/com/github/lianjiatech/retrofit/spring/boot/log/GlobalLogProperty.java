@@ -28,8 +28,10 @@ public class GlobalLogProperty {
     /**
      * 日志打印策略，支持的日志打印策略参见{@link LogStrategy}
      * Log printing strategy, see {@link LogStrategy} for supported log printing strategies
+     * <p>
+     * 默认 {@link LogStrategy#NONE}，与 OkHttp {@code HttpLoggingInterceptor} 默认级别保持一致。
      */
-    private LogStrategy logStrategy = LogStrategy.BASIC;
+    private LogStrategy logStrategy = LogStrategy.NONE;
 
     /**
      * 是否聚合打印请求日志

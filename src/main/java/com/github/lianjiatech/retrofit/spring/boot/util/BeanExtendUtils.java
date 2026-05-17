@@ -7,11 +7,13 @@ import java.util.Map;
 import org.springframework.beans.BeanUtils;
 
 import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author 陈添明
  */
 @UtilityClass
+@Slf4j
 public final class BeanExtendUtils {
 
     /**
@@ -56,10 +58,16 @@ public final class BeanExtendUtils {
             return;
         }
         Method writeMethod = propertyDescriptor.getWriteMethod();
+        if (writeMethod == null) {
+            return;
+        }
         try {
             writeMethod.invoke(bean, value);
-        } catch (Exception e) {
-            // skip
+        } catch (ReflectiveOperationException | IllegalArgumentException e) {
+            log.warn("Failed to set property '{}' on {} (value type: {}): {}",
+                    name, beanClass.getName(),
+                    value == null ? "null" : value.getClass().getName(),
+                    e.getMessage());
         }
     }
 }

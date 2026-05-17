@@ -1,8 +1,12 @@
 package com.github.lianjiatech.retrofit.spring.boot.config;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -27,6 +31,9 @@ import com.github.lianjiatech.retrofit.spring.boot.retry.RetryInterceptor;
 
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
+import lombok.extern.slf4j.Slf4j;
+import okhttp3.ConnectionPool;
+import okhttp3.OkHttpClient;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
 /**
@@ -34,6 +41,7 @@ import retrofit2.converter.jackson.JacksonConverterFactory;
  */
 @Configuration
 @EnableConfigurationProperties(RetrofitProperties.class)
+@Slf4j
 public class RetrofitAutoConfiguration {
 
     private final RetrofitProperties retrofitProperties;
@@ -124,7 +132,8 @@ public class RetrofitAutoConfiguration {
     @ConditionalOnMissingBean
     public RetrofitConfigBean retrofitConfigBean(ServiceChooseInterceptor serviceChooseInterceptor,
             RetryInterceptor retryInterceptor, LoggingInterceptor loggingInterceptor,
-            ErrorDecoderInterceptor errorDecoderInterceptor, SourceOkHttpClientRegistry sourceOkHttpClientRegistry) {
+            ErrorDecoderInterceptor errorDecoderInterceptor, SourceOkHttpClientRegistry sourceOkHttpClientRegistry,
+            @Qualifier("retrofitBaseOkHttpClient") OkHttpClient baseOkHttpClient) {
 
         RetrofitConfigBean retrofitConfigBean = new RetrofitConfigBean(retrofitProperties);
         retrofitConfigBean.setGlobalInterceptors(globalInterceptors);
@@ -137,7 +146,71 @@ public class RetrofitAutoConfiguration {
         retrofitConfigBean.setGlobalCallAdapterFactoryClasses(retrofitProperties.getGlobalCallAdapterFactories());
         retrofitConfigBean.setGlobalConverterFactoryClasses(retrofitProperties.getGlobalConverterFactories());
         retrofitConfigBean.setSourceOkHttpClientRegistry(sourceOkHttpClientRegistry);
+        retrofitConfigBean.setBaseOkHttpClient(baseOkHttpClient);
         return retrofitConfigBean;
+    }
+
+    /**
+     * 共享的基础 {@link OkHttpClient}。所有未通过 {@code sourceOkHttpClient} 指定自定义客户端的
+     * {@code @RetrofitClient} 都会基于它派生，复用同一份 connectionPool 与 dispatcher，避免每个接口
+     * 独立持有线程池/连接池造成的资源浪费。
+     * <p>
+     * destroyMethod 留空，由 {@link OkHttpClientLifecycle} 显式负责关停，避免 Spring 误调用。
+     */
+    @Bean(name = "retrofitBaseOkHttpClient", destroyMethod = "")
+    @ConditionalOnMissingBean(name = "retrofitBaseOkHttpClient")
+    public OkHttpClient retrofitBaseOkHttpClient() {
+        GlobalTimeoutProperty t = retrofitProperties.getGlobalTimeout();
+        GlobalConnectionPoolProperty p = retrofitProperties.getGlobalConnectionPool();
+        return new OkHttpClient.Builder()
+                .connectTimeout(t.getConnectTimeoutMs(), TimeUnit.MILLISECONDS)
+                .readTimeout(t.getReadTimeoutMs(), TimeUnit.MILLISECONDS)
+                .writeTimeout(t.getWriteTimeoutMs(), TimeUnit.MILLISECONDS)
+                .callTimeout(t.getCallTimeoutMs(), TimeUnit.MILLISECONDS)
+                .connectionPool(new ConnectionPool(p.getMaxIdleConnections(),
+                        p.getKeepAliveDurationMs(), TimeUnit.MILLISECONDS))
+                .build();
+    }
+
+    @Bean
+    public OkHttpClientLifecycle retrofitOkHttpClientLifecycle(
+            @Qualifier("retrofitBaseOkHttpClient") OkHttpClient baseOkHttpClient) {
+        return new OkHttpClientLifecycle(baseOkHttpClient);
+    }
+
+    /**
+     * 在 ApplicationContext 关闭时停止 dispatcher 线程池、回收 connectionPool 中的空闲连接、
+     * 关闭 cache。所有通过 {@link OkHttpClient#newBuilder()} 派生的子 client 都共享这些资源，
+     * 因此只需对根 client 执行一次。
+     */
+    static class OkHttpClientLifecycle implements DisposableBean {
+
+        private final OkHttpClient baseClient;
+
+        OkHttpClientLifecycle(OkHttpClient baseClient) {
+            this.baseClient = baseClient;
+        }
+
+        @Override
+        public void destroy() {
+            try {
+                baseClient.dispatcher().executorService().shutdown();
+            } catch (Exception e) {
+                log.warn("Failed to shutdown OkHttp dispatcher executor", e);
+            }
+            try {
+                baseClient.connectionPool().evictAll();
+            } catch (Exception e) {
+                log.warn("Failed to evict OkHttp connection pool", e);
+            }
+            if (baseClient.cache() != null) {
+                try {
+                    baseClient.cache().close();
+                } catch (IOException e) {
+                    log.warn("Failed to close OkHttp cache", e);
+                }
+            }
+        }
     }
 
     @Configuration

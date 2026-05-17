@@ -12,7 +12,6 @@ import com.alibaba.csp.sentinel.*;
 import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.alibaba.csp.sentinel.slots.block.degrade.DegradeRule;
 import com.alibaba.csp.sentinel.slots.block.degrade.DegradeRuleManager;
-import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitFactoryBean;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.BaseRetrofitDegrade;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitBlockException;
 import com.github.lianjiatech.retrofit.spring.boot.util.AnnotationExtendUtils;
@@ -109,7 +108,7 @@ public class SentinelRetrofitDegrade extends BaseRetrofitDegrade {
         }
         Method method = invocation.method();
         Class<?> service = invocation.service();
-        String baseUrl = RetrofitFactoryBean.getBaseUrl(service);
+        String baseUrl = lookupBaseUrl(service);
         if (baseUrl == null) {
             log.error("can't find baseUrl, skip Sentinel degrade; service={}", service);
             return chain.proceed(request);

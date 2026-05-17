@@ -5,7 +5,6 @@ import java.lang.reflect.Method;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitFactoryBean;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.BaseRetrofitDegrade;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitBlockException;
 import com.github.lianjiatech.retrofit.spring.boot.util.AnnotationExtendUtils;
@@ -85,7 +84,7 @@ public class Resilience4jRetrofitDegrade extends BaseRetrofitDegrade {
             return chain.proceed(request);
         }
         Class<?> service = invocation.service();
-        String baseUrl = RetrofitFactoryBean.getBaseUrl(service);
+        String baseUrl = lookupBaseUrl(service);
         if (baseUrl == null) {
             log.error("can't find baseUrl, skip Resilience4j degrade; service={}", service);
             return chain.proceed(request);

@@ -39,13 +39,22 @@ public class RetrofitException extends RuntimeException {
     }
 
     public static RetrofitException errorExecuting(Request request, IOException cause) {
-        return new RetrofitIOException(cause.getMessage() + ", request=" + request, cause);
+        return new RetrofitIOException(describe(cause) + ", request=" + request, cause);
     }
 
     public static RetrofitException errorUnknown(Request request, Exception cause) {
         if (cause instanceof RetrofitException) {
             return (RetrofitException)cause;
         }
-        return new RetrofitException(cause.getMessage() + ", request=" + request, cause);
+        return new RetrofitException(describe(cause) + ", request=" + request, cause);
+    }
+
+    /**
+     * 生成异常描述：保留类型名，避免 cause.getMessage() 为 null 时丢失信息。
+     */
+    private static String describe(Throwable cause) {
+        String message = cause.getMessage();
+        String typeName = cause.getClass().getSimpleName();
+        return message == null ? typeName : typeName + ": " + message;
     }
 }
