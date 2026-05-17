@@ -135,6 +135,7 @@ public class BusinessService {
 
 - `Call<T>`: 不执行适配处理，直接返回`Call<T>`对象
 - `String`：将`Response Body`适配成`String`返回。
+  - 默认使用JSON Converter将`Response Body`的bytes转成String，如果想直接得到`Response Body`转成的String，可以指定`Converter.Factory`为`com.github.lianjiatech.retrofit.spring.boot.core.StringConverterFactory`
 - 基础类型(`Long`/`Integer`/`Boolean`/`Float`/`Double`)：将`Response Body`适配成上述基础类型
 - `CompletableFuture<T>`: 将`Response Body`适配成`CompletableFuture<T>`对象返回
 - `Void`: 不关注返回类型可以使用`Void`
@@ -193,7 +194,7 @@ retrofit:
 
 针对每个`Java`接口，还可以通过`@RetrofitClient.converterFactories`指定当前接口采用的`Converter.Factory`。
 
-**注意：如果接口返回原始结果就是String文本，且无法用JSON转换器转换，可以使用`StringConverterFactory`，该转换器会直接将结果转为String返回**
+**注意：如果接口返回原始结果就是String文本，且无法用JSON转换器转换，可以使用`com.github.lianjiatech.retrofit.spring.boot.core.StringConverterFactory`，该转换器会直接将结果转为String返回**
 
 ### 自定义OkHttpClient
 

@@ -136,6 +136,7 @@ This component automatically adapts HTTP responses to the return types defined i
 
 - `Call<T>`: Returns the `Call<T>` object directly without adaptation.
 - `String`: Adapts the `Response Body` to a `String`.
+  - By default, JSON Converter is used to convert the bytes of 'Response Body' to String, if you want to directly get the String converted by 'Response Body', you can specify 'Converter.Factory' as ' com.github.lianjiatech.retrofit.spring.boot.core.StringConverterFactory`
 - Primitive Types (`Long`/`Integer`/`Boolean`/`Float`/`Double`): Adapts the `Response Body` to the specified primitive type.
 - `CompletableFuture<T>`: Adapts the `Response Body` to a `CompletableFuture<T>`.
 - `Void`: Use for requests where the return type is irrelevant.
