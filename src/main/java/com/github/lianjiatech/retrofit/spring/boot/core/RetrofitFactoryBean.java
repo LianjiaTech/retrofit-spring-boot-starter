@@ -2,7 +2,6 @@ package com.github.lianjiatech.retrofit.spring.boot.core;
 
 import java.lang.annotation.Annotation;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.BeansException;
@@ -19,7 +18,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import com.github.lianjiatech.retrofit.spring.boot.config.GlobalConnectionPoolProperty;
-import com.github.lianjiatech.retrofit.spring.boot.config.GlobalTimeoutProperty;
 import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitConfigBean;
 import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitProperties;
 import com.github.lianjiatech.retrofit.spring.boot.core.reactive.*;
@@ -59,15 +57,6 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
     private static final boolean REACTOR3_PRESENT =
             ClassUtils.isPresent("reactor.core.publisher.Mono", RetrofitFactoryBean.class.getClassLoader());
 
-    private static final ConcurrentHashMap<Class<?>, String> BASE_URL_MAP = new ConcurrentHashMap<>();
-
-    /**
-     * 获取指定 Retrofit 接口对应的 baseUrl（只读访问）。
-     */
-    public static String getBaseUrl(Class<?> retrofitInterface) {
-        return BASE_URL_MAP.get(retrofitInterface);
-    }
-
     public RetrofitFactoryBean(Class<T> retrofitInterface) {
         this.retrofitInterface = retrofitInterface;
     }
@@ -79,7 +68,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         Objects.requireNonNull(retrofitClient, "@RetrofitClient annotation not found on " + retrofitInterface.getName());
         BaseUrlParser baseUrlParser = AppContextUtils.getBeanOrNew(applicationContext, retrofitClient.baseUrlParser());
         String baseUrl = baseUrlParser.parse(retrofitClient, environment);
-        BASE_URL_MAP.put(retrofitInterface, baseUrl);
+        retrofitConfigBean.registerBaseUrl(retrofitInterface, baseUrl);
         T source = createRetrofit(retrofitClient, baseUrl).create(retrofitInterface);
         if (!isEnableDegrade(retrofitInterface)) {
             return source;
@@ -110,29 +99,37 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         OkHttpClient.Builder okHttpClientBuilder;
         RetrofitProperties retrofitProperties = retrofitConfigBean.getRetrofitProperties();
         if (Constants.NO_SOURCE_OK_HTTP_CLIENT.equals(Objects.requireNonNull(retrofitClient).sourceOkHttpClient())) {
-            // 使用默认超时时间创建OkHttpClient
-            GlobalTimeoutProperty globalTimeout = retrofitProperties.getGlobalTimeout();
-            int connectTimeoutMs = retrofitClient.connectTimeoutMs() == Constants.INVALID_VALUE
-                    ? globalTimeout.getConnectTimeoutMs() : retrofitClient.connectTimeoutMs();
-            int readTimeoutMs = retrofitClient.readTimeoutMs() == Constants.INVALID_VALUE
-                    ? globalTimeout.getReadTimeoutMs() : retrofitClient.readTimeoutMs();
-            int writeTimeoutMs = retrofitClient.writeTimeoutMs() == Constants.INVALID_VALUE
-                    ? globalTimeout.getWriteTimeoutMs() : retrofitClient.writeTimeoutMs();
-            int callTimeoutMs = retrofitClient.callTimeoutMs() == Constants.INVALID_VALUE
-                    ? globalTimeout.getCallTimeoutMs() : retrofitClient.callTimeoutMs();
+            // 基于共享的 baseOkHttpClient 派生，复用 connectionPool 与 dispatcher
+            OkHttpClient baseClient = retrofitConfigBean.getBaseOkHttpClient();
+            Objects.requireNonNull(baseClient, "baseOkHttpClient must not be null");
+            okHttpClientBuilder = baseClient.newBuilder();
 
-            GlobalConnectionPoolProperty globalConnectionPool = retrofitProperties.getGlobalConnectionPool();
-            int maxIdleConnections = retrofitClient.maxIdleConnections() == Constants.INVALID_VALUE
-                    ? globalConnectionPool.getMaxIdleConnections() : retrofitClient.maxIdleConnections();
-            long keepAliveDurationMs = retrofitClient.keepAliveDurationMs() == Constants.INVALID_VALUE
-                    ? globalConnectionPool.getKeepAliveDurationMs() : retrofitClient.keepAliveDurationMs();
+            // 仅在 @RetrofitClient 显式覆盖时覆盖超时；否则继承 base
+            if (retrofitClient.connectTimeoutMs() != Constants.INVALID_VALUE) {
+                okHttpClientBuilder.connectTimeout(retrofitClient.connectTimeoutMs(), TimeUnit.MILLISECONDS);
+            }
+            if (retrofitClient.readTimeoutMs() != Constants.INVALID_VALUE) {
+                okHttpClientBuilder.readTimeout(retrofitClient.readTimeoutMs(), TimeUnit.MILLISECONDS);
+            }
+            if (retrofitClient.writeTimeoutMs() != Constants.INVALID_VALUE) {
+                okHttpClientBuilder.writeTimeout(retrofitClient.writeTimeoutMs(), TimeUnit.MILLISECONDS);
+            }
+            if (retrofitClient.callTimeoutMs() != Constants.INVALID_VALUE) {
+                okHttpClientBuilder.callTimeout(retrofitClient.callTimeoutMs(), TimeUnit.MILLISECONDS);
+            }
 
-            okHttpClientBuilder = new OkHttpClient.Builder()
-                    .connectTimeout(connectTimeoutMs, TimeUnit.MILLISECONDS)
-                    .readTimeout(readTimeoutMs, TimeUnit.MILLISECONDS)
-                    .writeTimeout(writeTimeoutMs, TimeUnit.MILLISECONDS)
-                    .callTimeout(callTimeoutMs, TimeUnit.MILLISECONDS)
-                    .connectionPool(new ConnectionPool(maxIdleConnections, keepAliveDurationMs, TimeUnit.MILLISECONDS));
+            // 仅在显式覆盖连接池参数时才隔离一份新 ConnectionPool；否则共享 base 的连接池
+            boolean overrideMaxIdle = retrofitClient.maxIdleConnections() != Constants.INVALID_VALUE;
+            boolean overrideKeepAlive = retrofitClient.keepAliveDurationMs() != Constants.INVALID_VALUE;
+            if (overrideMaxIdle || overrideKeepAlive) {
+                GlobalConnectionPoolProperty globalConnectionPool = retrofitProperties.getGlobalConnectionPool();
+                int maxIdleConnections = overrideMaxIdle
+                        ? retrofitClient.maxIdleConnections() : globalConnectionPool.getMaxIdleConnections();
+                long keepAliveDurationMs = overrideKeepAlive
+                        ? retrofitClient.keepAliveDurationMs() : globalConnectionPool.getKeepAliveDurationMs();
+                okHttpClientBuilder.connectionPool(
+                        new ConnectionPool(maxIdleConnections, keepAliveDurationMs, TimeUnit.MILLISECONDS));
+            }
         } else {
             OkHttpClient sourceOkHttpClient = retrofitConfigBean.getSourceOkHttpClientRegistry()
                     .get(retrofitClient.sourceOkHttpClient());

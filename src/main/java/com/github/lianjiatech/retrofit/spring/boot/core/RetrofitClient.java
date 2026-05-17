@@ -160,15 +160,22 @@ public @interface RetrofitClient {
     int callTimeoutMs() default Constants.INVALID_VALUE;
 
     /**
-     * The maximum number of idle connections for each address.
-     * If it is configured as -1, the global default configuration is used.
+     * 该接口独占的最大空闲连接数。
+     * <p>
+     * 默认 {@link Constants#INVALID_VALUE}，此时会复用全局共享的 {@code retrofitBaseOkHttpClient}
+     * 的 ConnectionPool；只有显式覆盖该字段（或 {@link #keepAliveDurationMs()}）时，才会为当前接口
+     * 隔离一份独立的 ConnectionPool —— 这意味着失去与其他接口共享空闲连接的机会，仅在确实需要隔离时才使用。
+     *
      * @return maxIdleConnections
      */
     int maxIdleConnections() default Constants.INVALID_VALUE;
 
     /**
-     *  keep alive duration for each address.
-     *  If it is configured as -1, the global default configuration is used.
+     * 该接口独占的连接保活时间。
+     * <p>
+     * 默认 {@link Constants#INVALID_VALUE}，此时复用全局共享的 ConnectionPool。语义同
+     * {@link #maxIdleConnections()}：显式设置会触发独立池。
+     *
      * @return keepAliveDurationMs
      */
     long keepAliveDurationMs() default Constants.INVALID_VALUE;
