@@ -115,18 +115,22 @@ public class RetrofitAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnClass(com.fasterxml.jackson.databind.ObjectMapper.class)
+    @ConditionalOnClass(name = "com.fasterxml.jackson.databind.ObjectMapper")
     public JacksonConverterFactory retrofitJacksonConverterFactory(
             @Autowired(required = false) com.fasterxml.jackson.databind.ObjectMapper objectMapper) {
         return objectMapper != null ? JacksonConverterFactory.create(objectMapper) : JacksonConverterFactory.create();
     }
 
-    @Bean
-    @ConditionalOnMissingBean
-    @ConditionalOnClass(tools.jackson.databind.ObjectMapper.class)
-    public Jackson3ConverterFactory retrofitJackson3ConverterFactory(
-            @Autowired(required = false) tools.jackson.databind.ObjectMapper objectMapper) {
-        return objectMapper != null ? Jackson3ConverterFactory.create(objectMapper) : Jackson3ConverterFactory.create();
+    @Configuration
+    @ConditionalOnClass(name = "tools.jackson.databind.ObjectMapper")
+    public static class Jackson3Configuration {
+
+        @Bean
+        @ConditionalOnMissingBean
+        public Jackson3ConverterFactory retrofitJackson3ConverterFactory(
+                @Autowired(required = false) tools.jackson.databind.ObjectMapper objectMapper) {
+            return objectMapper != null ? Jackson3ConverterFactory.create(objectMapper) : Jackson3ConverterFactory.create();
+        }
     }
 
     @Bean
