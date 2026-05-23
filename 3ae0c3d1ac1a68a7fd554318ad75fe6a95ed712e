@@ -1,0 +1,25 @@
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/metrics/MetricsInterceptor.java
+  dfa2530f6dc8d432 14
+  ai_agent 1-5,7-13,15-138
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.15-trip",
+  "base_commit_sha": "3ae0c3d1ac1a68a7fd554318ad75fe6a95ed712e",
+  "prompts": {
+    "dfa2530f6dc8d432": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c50c554a-85f5-43d2-a419-f07f81b58054",
+        "model": "global.anthropic.claude-opus-4-7",
+        "ide_version": "2.0.77 (Claude Code)"
+      },
+      "human_author": "tm.chen <tm.chen@trip.com>",
+      "messages": [],
+      "total_additions": 1,
+      "total_deletions": 1,
+      "accepted_lines": 1,
+      "overriden_lines": 0
+    }
+  }
+}
