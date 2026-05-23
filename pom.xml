@@ -6,7 +6,7 @@
 
     <groupId>com.github.lianjiatech</groupId>
     <artifactId>retrofit-spring-boot-starter</artifactId>
-    <version>4.0.8</version>
+    <version>4.1.0</version>
 
     <name>retrofit-spring-boot-starter</name>
     <description>retrofit-spring-boot-starter</description>
@@ -42,6 +42,7 @@
         <okhttp.version>4.12.0</okhttp.version>
         <sentinel.version>1.8.6</sentinel.version>
         <lombok.version>1.18.24</lombok.version>
+        <micrometer.version>1.14.1</micrometer.version>
     </properties>
 
     <dependencies>
@@ -193,6 +194,19 @@
             <artifactId>rxjava</artifactId>
             <version>2.2.21</version>
             <scope>provided</scope>
+        </dependency>
+
+        <!--
+          Micrometer：可选依赖。仅当用户在自己的项目中显式引入 micrometer-core 并提供 MeterRegistry 时，
+          组件才会激活 metrics 自动配置（@ConditionalOnClass + @ConditionalOnBean 双重保护），未引入时不会
+          产生任何额外开销与类加载错误。
+        -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-core</artifactId>
+            <version>${micrometer.version}</version>
+            <scope>provided</scope>
+            <optional>true</optional>
         </dependency>
 
     </dependencies>

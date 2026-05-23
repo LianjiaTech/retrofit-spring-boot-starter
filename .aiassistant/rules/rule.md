@@ -2,10 +2,8 @@
 apply: always
 ---
 
-- 本项目有两个分支需要长期维护：
-  - master分支支持Java 17，SpringBoot 3及以上版本
-  - 2.x分支支持Java 8，SpringBoot 1.4.2及以上版本，不支持SpringBoot 3及以上版本
-- 所有的代码需要兼容2.x分支，即需要支持Java 8，SpringBoot 1.4.2，不能使用高于该版本的功能特性
+- 对话过程所有信息都用中文展示，git提交代码commit信息都用英文
+- 提交代码的时候，本文件可以永远跟着一起提交
 - SpringBoot 3版本不能强制依赖jackson 3，必须保证SpringBoot 3项目（未依赖jackson 3）依赖本组件时能正常启动
 - 编写新功能的时候必须编写相关测试，单元测试规范
   - 单元测试工具只能使用junit，保证分支兼容性

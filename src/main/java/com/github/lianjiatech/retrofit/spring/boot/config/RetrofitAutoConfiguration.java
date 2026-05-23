@@ -8,6 +8,7 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -29,12 +30,18 @@ import com.github.lianjiatech.retrofit.spring.boot.interceptor.GlobalInterceptor
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.NetworkInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.ServiceChooseInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.log.LoggingInterceptor;
+import com.github.lianjiatech.retrofit.spring.boot.metrics.DefaultRetrofitTagsProvider;
+import com.github.lianjiatech.retrofit.spring.boot.metrics.MetricsInterceptor;
+import com.github.lianjiatech.retrofit.spring.boot.metrics.MetricsProperty;
+import com.github.lianjiatech.retrofit.spring.boot.metrics.RetrofitTagsProvider;
 import com.github.lianjiatech.retrofit.spring.boot.retry.RetryInterceptor;
 
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.ConnectionPool;
+import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
@@ -56,6 +63,13 @@ public class RetrofitAutoConfiguration {
     private List<GlobalInterceptor> globalInterceptors;
     @Autowired(required = false)
     private List<NetworkInterceptor> networkInterceptors;
+    /**
+     * 由 {@link MetricsConfiguration} 在引入 Micrometer 时贡献，否则保持 null。Bean 名固定为
+     * {@code retrofitMetricsInterceptor}，避免与用户自定义的 Interceptor Bean 冲突。
+     */
+    @Autowired(required = false)
+    @Qualifier("retrofitMetricsInterceptor")
+    private Interceptor retrofitMetricsInterceptor;
 
     public RetrofitAutoConfiguration(RetrofitProperties retrofitProperties) {
         this.retrofitProperties = retrofitProperties;
@@ -160,6 +174,7 @@ public class RetrofitAutoConfiguration {
         retrofitConfigBean.setGlobalConverterFactoryClasses(retrofitProperties.getGlobalConverterFactories());
         retrofitConfigBean.setSourceOkHttpClientRegistry(sourceOkHttpClientRegistry);
         retrofitConfigBean.setBaseOkHttpClient(baseOkHttpClient);
+        retrofitConfigBean.setMetricsInterceptor(retrofitMetricsInterceptor);
         return retrofitConfigBean;
     }
 
@@ -288,6 +303,48 @@ public class RetrofitAutoConfiguration {
         @ConditionalOnMissingBean
         public RetrofitDegrade retrofitSentinelRetrofitDegrade() {
             return new SentinelRetrofitDegrade(properties.getDegrade().getGlobalSentinelDegrade());
+        }
+    }
+
+    /**
+     * Micrometer 指标采集自动配置。仅当类路径存在 {@link MeterRegistry} 且容器中已注册了 {@code MeterRegistry}
+     * Bean、并且 {@code retrofit.metrics.enable} 未显式设为 {@code false} 时生效。
+     * <p>提供两个 Bean：
+     * <ul>
+     *     <li>{@link RetrofitTagsProvider} —— 默认实现，用户可自行覆盖；</li>
+     *     <li>名为 {@code retrofitMetricsInterceptor} 的 {@code Interceptor} —— 由
+     *         {@link RetrofitAutoConfiguration} 主体注入到 {@code RetrofitConfigBean}。</li>
+     * </ul>
+     */
+    @Configuration
+    @ConditionalOnClass(MeterRegistry.class)
+    @ConditionalOnBean(MeterRegistry.class)
+    @ConditionalOnProperty(prefix = "retrofit.metrics", name = "enable", havingValue = "true", matchIfMissing = true)
+    @EnableConfigurationProperties(RetrofitProperties.class)
+    public static class MetricsConfiguration {
+
+        private final RetrofitProperties properties;
+
+        public MetricsConfiguration(RetrofitProperties properties) {
+            this.properties = properties;
+        }
+
+        @Bean
+        @ConditionalOnMissingBean
+        public RetrofitTagsProvider retrofitTagsProvider() {
+            return new DefaultRetrofitTagsProvider(properties.getMetrics());
+        }
+
+        /**
+         * Bean 名固定为 {@code retrofitMetricsInterceptor}，与 {@link RetrofitAutoConfiguration} 中的
+         * {@code @Qualifier} 一致。返回 {@link Interceptor} 接口类型，避免在用户禁用 metrics 时仍然需要
+         * 加载 {@link MetricsInterceptor}。
+         */
+        @Bean(name = "retrofitMetricsInterceptor")
+        @ConditionalOnMissingBean(name = "retrofitMetricsInterceptor")
+        public Interceptor retrofitMetricsInterceptor(MeterRegistry meterRegistry,
+                RetrofitTagsProvider tagsProvider) {
+            return new MetricsInterceptor(meterRegistry, tagsProvider, properties.getMetrics());
         }
     }
 

@@ -180,6 +180,12 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
             globalInterceptors.forEach(okHttpClientBuilder::addInterceptor);
         }
         okHttpClientBuilder.addInterceptor(cfg.getRetryInterceptor());
+        // 指标拦截器位于重试之后、日志之前：每次 HTTP 尝试单独计入 timer，与日志看到的耗时一致。
+        // 当 cfg.getMetricsInterceptor() 为 null（未引入 Micrometer 或显式禁用）时跳过。
+        Interceptor metricsInterceptor = cfg.getMetricsInterceptor();
+        if (metricsInterceptor != null) {
+            okHttpClientBuilder.addInterceptor(metricsInterceptor);
+        }
         okHttpClientBuilder.addInterceptor(cfg.getLoggingInterceptor());
         List<NetworkInterceptor> networkInterceptors = cfg.getNetworkInterceptors();
         if (!CollectionUtils.isEmpty(networkInterceptors)) {

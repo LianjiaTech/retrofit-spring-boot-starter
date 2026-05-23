@@ -29,7 +29,7 @@ Gitee project link: [https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>  
     <groupId>com.github.lianjiatech</groupId>  
     <artifactId>retrofit-spring-boot-starter</artifactId>
-  <version>4.0.8</version>
+  <version>4.1.0</version>
 </dependency>  
 ```
 
@@ -126,6 +126,7 @@ HTTP request-related annotations use Retrofit's native annotations. A brief over
 - [x] [Custom Interceptor Annotations](#Custom-Interceptor-Annotations)
 - [x] [Circuit Breaking](#Circuit-Breaking)
 - [x] [Error Decoding](#Error-Decoding)
+- [x] [Metrics Monitoring (Micrometer)](#Metrics-Monitoring-Micrometer)
 - [x] [HTTP Calls Between Microservices](#HTTP-Calls-Between-Microservices)
 - [x] [Custom RetrofitClient Annotations](#Custom-RetrofitClient-Annotations)
 - [x] [Configuration Properties](#Configuration-Properties)
@@ -600,6 +601,103 @@ Specify the `CircuitBreaker Config` via `circuitBreaker Config Name`. This inclu
 Customize error handling by implementing `ErrorDecoder` and specifying it via `@RetrofitClient.errorDecoder()`. Disable with `retrofit.enable-error-decoder=false`.
 
 
+### Metrics Monitoring (Micrometer)
+
+Built-in metrics support based on [Micrometer](https://micrometer.io/). The integration is **automatically activated only when `io.micrometer.core.instrument.MeterRegistry` is on the classpath and a `MeterRegistry` bean exists in the Spring context**. When Micrometer is not present, the starter incurs zero additional cost.
+
+#### Enabling
+
+Add Micrometer along with the registry implementation for your monitoring backend (Prometheus / Datadog / Atlas / etc.). Spring Boot Actuator registers a `MeterRegistry` out of the box:
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-actuator</artifactId>
+</dependency>
+<dependency>
+    <groupId>io.micrometer</groupId>
+    <artifactId>micrometer-registry-prometheus</artifactId>
+</dependency>
+```
+
+#### Collected Metrics
+
+| Metric | Type | Meaning |
+|---|---|---|
+| `retrofit.client.requests` | Timer | HTTP call duration (with percentiles and SLO histograms) |
+| `retrofit.client.requests.active` | LongTaskTimer | In-flight request count and longest active duration |
+| `retrofit.client.errors` | Counter | Request error count (tagged by exception class) |
+
+#### Tag Dimensions
+
+Default tags (bounded cardinality, safe for high-cardinality-sensitive backends like Prometheus):
+
+| Tag | Meaning | Example |
+|---|---|---|
+| `client` | Simple class name of the Retrofit interface | `UserService` |
+| `method` | Java method name | `getUser` |
+| `http.method` | HTTP verb | `GET` / `POST` |
+| `uri` | Path template from annotations (does NOT expand `@Path`) | `user/{id}` |
+| `status` | Status code bucket | `2xx` / `3xx` / `4xx` / `5xx` / `IO_ERROR` |
+| `outcome` | Outcome category | `SUCCESS` / `CLIENT_ERROR` / `SERVER_ERROR` / `IO_ERROR` |
+| `exception` | (errors metric only) Exception class name | `SocketTimeoutException` |
+
+> **Note**: Tag values must come from a bounded set. The `uri` tag therefore preserves the path template (with `{id}` placeholders) instead of the resolved URL — this prevents cardinality explosion driven by dynamic path parameters.
+
+#### Configuration
+
+```yaml
+retrofit:
+  metrics:
+    # Enabled by default (when MeterRegistry exists). Set to false to opt out explicitly.
+    enable: true
+    # Timer percentiles to publish; empty array disables percentiles
+    percentiles: [0.5, 0.95, 0.99]
+    # SLO histogram boundaries; empty array disables histograms
+    sla:
+      - 50ms
+      - 100ms
+      - 300ms
+      - 1s
+      - 3s
+    tags:
+      # Whether to include the host tag. Default off (host count may be unbounded for dynamic baseUrls).
+      host: false
+      # Whether to include the uri tag. Default on.
+      uri: true
+    # Static extra tags applied to every Retrofit metric
+    extra-tags:
+      app: my-service
+      env: prod
+    # Metric name prefix; default retrofit.client
+    metric-name-prefix: retrofit.client
+```
+
+#### Customizing Tags
+
+If the default tag set does not suit your needs, implement `RetrofitTagsProvider` and register it as a Spring bean — your bean automatically replaces the default:
+
+```java
+@Component
+public class TenantAwareTagsProvider implements RetrofitTagsProvider {
+
+    private final RetrofitTagsProvider delegate;
+
+    public TenantAwareTagsProvider(MetricsProperty property) {
+        this.delegate = new DefaultRetrofitTagsProvider(property);
+    }
+
+    @Override
+    public Tags getTags(Request request, Response response, Throwable exception) {
+        return delegate.getTags(request, response, exception)
+                .and("tenant", TenantContext.current());
+    }
+}
+```
+
+> When implementing your own provider, make sure tag values come from a bounded set and that tag names / order remain stable. Otherwise Micrometer will create distinct meters per variation, wasting memory.
+
+
 ### HTTP Calls Between Microservices
 
 #### Extend `ServiceInstanceChooser`
@@ -704,6 +802,23 @@ retrofit:
   global-connection-pool:
     max-idle-connections: 5
     keep-alive-duration-ms: 300_000
+
+  # Metrics monitoring (active only when Micrometer + MeterRegistry are present)
+  metrics:
+    enable: true
+    percentiles: [0.5, 0.95, 0.99]
+    sla:
+      - 50ms
+      - 100ms
+      - 300ms
+      - 1s
+      - 3s
+    tags:
+      host: false
+      uri: true
+    extra-tags:
+      app: my-service
+    metric-name-prefix: retrofit.client
 
   # Circuit breaking  
   degrade:

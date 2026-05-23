@@ -9,6 +9,7 @@ import com.github.lianjiatech.retrofit.spring.boot.interceptor.ServiceChooseInte
 import com.github.lianjiatech.retrofit.spring.boot.log.LoggingInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.retry.RetryInterceptor;
 import lombok.Data;
+import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import retrofit2.CallAdapter;
 import retrofit2.Converter;
@@ -44,6 +45,14 @@ public class RetrofitConfigBean {
     private ErrorDecoderInterceptor errorDecoderInterceptor;
 
     private SourceOkHttpClientRegistry sourceOkHttpClientRegistry;
+
+    /**
+     * Micrometer 指标拦截器。仅当类路径存在 {@code MeterRegistry} 且容器中已注册时由
+     * {@code RetrofitAutoConfiguration.MetricsConfiguration} 注入；否则保持 null，链路构建时跳过。
+     * <p>用 {@link Interceptor} 而非 {@code MetricsInterceptor} 类型，避免无 Micrometer 依赖时
+     * 触发 NoClassDefFoundError。
+     */
+    private Interceptor metricsInterceptor;
 
     /**
      * 基础 OkHttpClient。所有未指定 {@code sourceOkHttpClient} 的 {@code @RetrofitClient}

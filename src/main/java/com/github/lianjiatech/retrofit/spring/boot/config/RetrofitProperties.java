@@ -3,6 +3,7 @@ package com.github.lianjiatech.retrofit.spring.boot.config;
 import com.github.lianjiatech.retrofit.spring.boot.core.Constants;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeProperty;
 import com.github.lianjiatech.retrofit.spring.boot.log.GlobalLogProperty;
+import com.github.lianjiatech.retrofit.spring.boot.metrics.MetricsProperty;
 import com.github.lianjiatech.retrofit.spring.boot.retry.GlobalRetryProperty;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -63,6 +64,12 @@ public class RetrofitProperties {
      */
     @NestedConfigurationProperty
     private GlobalConnectionPoolProperty globalConnectionPool = new GlobalConnectionPoolProperty();
+
+    /**
+     * Micrometer 指标采集配置。仅当类路径与容器中存在 {@code MeterRegistry} 时生效。
+     */
+    @NestedConfigurationProperty
+    private MetricsProperty metrics = new MetricsProperty();
 
     /**
      * 全局转换器工厂，转换器实例优先从Spring容器获取，如果没有获取到，则反射创建。
