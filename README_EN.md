@@ -29,7 +29,7 @@ Gitee project link: [https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>  
     <groupId>com.github.lianjiatech</groupId>  
     <artifactId>retrofit-spring-boot-starter</artifactId>  
-    <version>2.5.7</version>  
+    <version>2.5.8</version>  
 </dependency>  
 ```
 
@@ -136,6 +136,7 @@ This component automatically adapts HTTP responses to the return types defined i
 
 - `Call<T>`: Returns the `Call<T>` object directly without adaptation.
 - `String`: Adapts the `Response Body` to a `String`.
+  - By default, JSON Converter is used to convert the bytes of 'Response Body' to String, if you want to directly get the String converted by 'Response Body', you can specify 'Converter.Factory' as ' com.github.lianjiatech.retrofit.spring.boot.core.StringConverterFactory`
 - Primitive Types (`Long`/`Integer`/`Boolean`/`Float`/`Double`): Adapts the `Response Body` to the specified primitive type.
 - `CompletableFuture<T>`: Adapts the `Response Body` to a `CompletableFuture<T>`.
 - `Void`: Use for requests where the return type is irrelevant.
@@ -245,23 +246,30 @@ The component supports global and declarative logging.
 
 #### Global Logging
 
-Global logging is enabled by default with the following configuration:
+Global logging is **disabled by default** (`enable=false`) and must be turned on explicitly. Once enabled, the default `BASIC` strategy logs only request/response lines (status code and elapsed time), with negligible overhead. Default configuration:
 
 ```yaml
 retrofit:
   # Global logging configuration
   global-log:
-    # Enable logging
-    enable: true
+    # Enable logging (default: false — no logs out of the box)
+    enable: false
     # Global log level
     log-level: info
-    # Global log strategy
+    # Global log strategy (default: BASIC — request/response lines only)
     log-strategy: basic
     # Aggregate request logs
     aggregate: true
     # Logger name (default: fully qualified class name of LoggingInterceptor)
     logName: com.github.lianjiatech.retrofit.spring.boot.log.LoggingInterceptor
-    redact-headers: 
+    # Sensitive request headers to redact when logging
+    # Default redacted: Authorization, Proxy-Authorization, Cookie, Set-Cookie
+    # Note: setting this property in config replaces the defaults — include any you still want redacted.
+    redact-headers:
+      - Authorization
+      - Proxy-Authorization
+      - Cookie
+      - Set-Cookie
 ```
 
 Logging strategies:
@@ -666,10 +674,15 @@ retrofit:
 
   # Global logging
   global-log:
-    enable: true
+    enable: false
     log-level: info
     log-strategy: basic
     aggregate: true
+    redact-headers:
+      - Authorization
+      - Proxy-Authorization
+      - Cookie
+      - Set-Cookie
 
   # Global retries
   global-retry:
