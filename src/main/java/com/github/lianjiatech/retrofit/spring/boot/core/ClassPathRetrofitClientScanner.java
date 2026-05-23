@@ -48,13 +48,22 @@ public class ClassPathRetrofitClientScanner extends ClassPathBeanDefinitionScann
     protected boolean isCandidateComponent(
             AnnotatedBeanDefinition beanDefinition) {
         if (beanDefinition.getMetadata().isInterface()) {
+            String className = beanDefinition.getMetadata().getClassName();
             try {
-                Class<?> target = ClassUtils.forName(
-                        beanDefinition.getMetadata().getClassName(),
-                        classLoader);
+                Class<?> target = ClassUtils.forName(className, classLoader);
                 return !target.isAnnotation();
+            } catch (ClassNotFoundException ex) {
+                // 通常是该接口的依赖（如 RxJava/Reactor 类）在当前运行时缺失：
+                // 报告具体接口名 + 缺失的类，便于用户定位 — 否则用户只会得到下游
+                // NoSuchBeanDefinitionException，离根因很远。
+                log.error("Skip @RetrofitClient candidate '{}': missing dependency class '{}'. "
+                        + "Add the corresponding dependency or remove the unused return type.",
+                        className, ex.getMessage());
+            } catch (LinkageError ex) {
+                log.error("Skip @RetrofitClient candidate '{}': link error '{}'. "
+                        + "Likely a transitive dependency conflict.", className, ex.getMessage());
             } catch (Exception ex) {
-                log.error("load class exception:", ex);
+                log.error("Skip @RetrofitClient candidate '{}' due to unexpected error", className, ex);
             }
         }
         return false;

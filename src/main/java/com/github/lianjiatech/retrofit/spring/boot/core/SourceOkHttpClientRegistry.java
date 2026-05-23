@@ -1,8 +1,8 @@
 package com.github.lianjiatech.retrofit.spring.boot.core;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.util.Assert;
 
@@ -17,13 +17,19 @@ import okhttp3.OkHttpClient;
  */
 public class SourceOkHttpClientRegistry {
 
+    /**
+     * 使用 {@link ConcurrentHashMap} 而非 {@link java.util.HashMap}：register/get 是 public API，
+     * 用户可能在 {@link SourceOkHttpClientRegistrar#register(SourceOkHttpClientRegistry)} 之外的时机
+     * 调用 register，与请求路径上的 get 形成并发读写。HashMap 在并发修改下行为未定义
+     * （rehash 死循环、size 错乱），ConcurrentHashMap 提供安全保证。
+     */
     private final Map<String, OkHttpClient> okHttpClientMap;
 
     private final List<SourceOkHttpClientRegistrar> registrars;
 
     public SourceOkHttpClientRegistry(List<SourceOkHttpClientRegistrar> registrars) {
         this.registrars = registrars;
-        this.okHttpClientMap = new HashMap<>(4);
+        this.okHttpClientMap = new ConcurrentHashMap<>(4);
     }
 
     @PostConstruct
