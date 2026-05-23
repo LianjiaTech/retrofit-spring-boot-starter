@@ -33,7 +33,7 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-    <version>4.0.7</version>
+    <version>4.0.8</version>
 </dependency>
 ```
 
@@ -239,24 +239,30 @@ public interface CustomOkHttpUserService {
 
 #### 全局日志打印
 
-默认情况下，全局日志打印是开启的，默认配置如下：
+默认情况下，全局日志打印是关闭的（`enable=false`），需要主动开启。开启后默认按 `BASIC` 策略仅打印请求/响应行（含状态码与耗时），开销可忽略。默认配置如下：
 
 ```yaml
 retrofit:
    # 全局日志打印配置
    global-log:
-      # 启用日志打印
-      enable: true
+      # 启用日志打印（默认 false，开箱即用不打印日志）
+      enable: false
       # 全局日志打印级别
       log-level: info
-      # 全局日志打印策略
+      # 全局日志打印策略（默认 BASIC，仅打印请求/响应行）
       log-strategy: basic
       # 是否聚合打印请求日志
       aggregate: true
       # 日志名称，默认为{@link LoggingInterceptor} 的全类名
       logName: com.github.lianjiatech.retrofit.spring.boot.log.LoggingInterceptor
-     # 日志中需要隐藏的敏感请求头
-      redact-headers: 
+      # 日志中需要隐藏的敏感请求头
+      # 默认遮蔽：Authorization、Proxy-Authorization、Cookie、Set-Cookie
+      # 注意：用户配置该项会整体覆盖默认值，需自行包含仍要遮蔽的项
+      redact-headers:
+        - Authorization
+        - Proxy-Authorization
+        - Cookie
+        - Set-Cookie
 ```
 
 四种日志打印策略含义如下：
@@ -739,14 +745,20 @@ retrofit:
 
    # 全局日志打印配置
    global-log:
-      # 启用日志打印
-      enable: true
+      # 启用日志打印（默认 false）
+      enable: false
       # 全局日志打印级别
       log-level: info
-      # 全局日志打印策略
+      # 全局日志打印策略（默认 BASIC）
       log-strategy: basic
       # 是否聚合打印请求日志
       aggregate: true
+      # 日志中需要隐藏的敏感请求头（默认遮蔽 Authorization/Proxy-Authorization/Cookie/Set-Cookie）
+      redact-headers:
+        - Authorization
+        - Proxy-Authorization
+        - Cookie
+        - Set-Cookie
 
    # 全局重试配置
    global-retry:
