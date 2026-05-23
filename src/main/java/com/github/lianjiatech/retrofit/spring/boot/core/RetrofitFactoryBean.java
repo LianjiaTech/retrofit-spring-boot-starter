@@ -43,7 +43,15 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
 
     private Environment environment;
 
-    private RetrofitConfigBean retrofitConfigBean;
+    /**
+     * RetrofitConfigBean 通过 {@link #retrofitConfigBean()} 懒解析。
+     * <p>
+     * setApplicationContext 阶段不能直接 {@code getBean(RetrofitConfigBean.class)}：
+     * 该 Bean 与 RetrofitFactoryBean 没有显式依赖，二者初始化顺序由 Spring 决定，
+     * 用户若自定义 RetrofitConfigBean 并在其依赖链中引入更多 Bean，eager 查找
+     * 有引发 BeanCurrentlyInCreationException 的风险。
+     */
+    private volatile RetrofitConfigBean retrofitConfigBean;
 
     private ApplicationContext applicationContext;
 
@@ -68,21 +76,41 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         Objects.requireNonNull(retrofitClient, "@RetrofitClient annotation not found on " + retrofitInterface.getName());
         BaseUrlParser baseUrlParser = AppContextUtils.getBeanOrNew(applicationContext, retrofitClient.baseUrlParser());
         String baseUrl = baseUrlParser.parse(retrofitClient, environment);
-        retrofitConfigBean.registerBaseUrl(retrofitInterface, baseUrl);
+        retrofitConfigBean().registerBaseUrl(retrofitInterface, baseUrl);
         T source = createRetrofit(retrofitClient, baseUrl).create(retrofitInterface);
         if (!isEnableDegrade(retrofitInterface)) {
             return source;
         }
-        retrofitConfigBean.getRetrofitDegrade().loadDegradeRules(retrofitInterface, baseUrl);
+        retrofitConfigBean().getRetrofitDegrade().loadDegradeRules(retrofitInterface, baseUrl);
         return DegradeProxy.create(source, retrofitInterface, applicationContext);
     }
 
     public boolean isEnableDegrade(Class<?> retrofitInterface) {
-        RetrofitDegrade retrofitDegrade = retrofitConfigBean.getRetrofitDegrade();
+        RetrofitDegrade retrofitDegrade = retrofitConfigBean().getRetrofitDegrade();
         if (retrofitDegrade == null) {
             return false;
         }
         return retrofitDegrade.isEnableDegrade(retrofitInterface);
+    }
+
+    /**
+     * 懒解析 RetrofitConfigBean。
+     * <p>
+     * 此处用 volatile + 单检的"benign race"模式即可，无需 synchronized：
+     * <ul>
+     *     <li>{@code FactoryBean.isSingleton()=true} 让 Spring 仅调用一次 {@code getObject()}，
+     *     <li>{@code ApplicationContext.getBean} 本身线程安全，
+     *     <li>{@code RetrofitConfigBean} 是 singleton — 多次 getBean 拿到同一引用，
+     *         即使被多个线程同时写入 {@link #retrofitConfigBean}，结果完全一致；
+     *     <li>{@code volatile} 保证写入对其它线程立即可见。
+     * </ul>
+     * 与 {@code BaseRetrofitDegrade.lookupBaseUrl} 的写法保持一致。
+     */
+    private RetrofitConfigBean retrofitConfigBean() {
+        if (this.retrofitConfigBean == null) {
+            this.retrofitConfigBean = applicationContext.getBean(RetrofitConfigBean.class);
+        }
+        return this.retrofitConfigBean;
     }
 
     @Override
@@ -96,11 +124,12 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
     }
 
     private OkHttpClient createOkHttpClient(RetrofitClient retrofitClient) {
+        RetrofitConfigBean cfg = retrofitConfigBean();
         OkHttpClient.Builder okHttpClientBuilder;
-        RetrofitProperties retrofitProperties = retrofitConfigBean.getRetrofitProperties();
+        RetrofitProperties retrofitProperties = cfg.getRetrofitProperties();
         if (Constants.NO_SOURCE_OK_HTTP_CLIENT.equals(Objects.requireNonNull(retrofitClient).sourceOkHttpClient())) {
             // 基于共享的 baseOkHttpClient 派生，复用 connectionPool 与 dispatcher
-            OkHttpClient baseClient = retrofitConfigBean.getBaseOkHttpClient();
+            OkHttpClient baseClient = cfg.getBaseOkHttpClient();
             Objects.requireNonNull(baseClient, "baseOkHttpClient must not be null");
             okHttpClientBuilder = baseClient.newBuilder();
 
@@ -131,28 +160,28 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
                         new ConnectionPool(maxIdleConnections, keepAliveDurationMs, TimeUnit.MILLISECONDS));
             }
         } else {
-            OkHttpClient sourceOkHttpClient = retrofitConfigBean.getSourceOkHttpClientRegistry()
+            OkHttpClient sourceOkHttpClient = cfg.getSourceOkHttpClientRegistry()
                     .get(retrofitClient.sourceOkHttpClient());
             okHttpClientBuilder = sourceOkHttpClient.newBuilder();
         }
 
         if (isEnableDegrade(retrofitInterface)) {
-            okHttpClientBuilder.addInterceptor(retrofitConfigBean.getRetrofitDegrade());
+            okHttpClientBuilder.addInterceptor(cfg.getRetrofitDegrade());
         }
         if (StringUtils.hasText(retrofitClient.serviceId())) {
-            okHttpClientBuilder.addInterceptor(retrofitConfigBean.getServiceChooseInterceptor());
+            okHttpClientBuilder.addInterceptor(cfg.getServiceChooseInterceptor());
         }
         if (retrofitProperties.isEnableErrorDecoder()) {
-            okHttpClientBuilder.addInterceptor(retrofitConfigBean.getErrorDecoderInterceptor());
+            okHttpClientBuilder.addInterceptor(cfg.getErrorDecoderInterceptor());
         }
         findInterceptorByAnnotation().forEach(okHttpClientBuilder::addInterceptor);
-        List<GlobalInterceptor> globalInterceptors = retrofitConfigBean.getGlobalInterceptors();
+        List<GlobalInterceptor> globalInterceptors = cfg.getGlobalInterceptors();
         if (!CollectionUtils.isEmpty(globalInterceptors)) {
             globalInterceptors.forEach(okHttpClientBuilder::addInterceptor);
         }
-        okHttpClientBuilder.addInterceptor(retrofitConfigBean.getRetryInterceptor());
-        okHttpClientBuilder.addInterceptor(retrofitConfigBean.getLoggingInterceptor());
-        List<NetworkInterceptor> networkInterceptors = retrofitConfigBean.getNetworkInterceptors();
+        okHttpClientBuilder.addInterceptor(cfg.getRetryInterceptor());
+        okHttpClientBuilder.addInterceptor(cfg.getLoggingInterceptor());
+        List<NetworkInterceptor> networkInterceptors = cfg.getNetworkInterceptors();
         if (!CollectionUtils.isEmpty(networkInterceptors)) {
             networkInterceptors.forEach(okHttpClientBuilder::addNetworkInterceptor);
         }
@@ -210,6 +239,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
     private Retrofit createRetrofit(RetrofitClient retrofitClient, String baseUrl) {
 
         OkHttpClient client = createOkHttpClient(retrofitClient);
+        RetrofitConfigBean cfg = retrofitConfigBean();
         Retrofit.Builder retrofitBuilder = new Retrofit.Builder()
                 .baseUrl(baseUrl)
                 .validateEagerly(retrofitClient.validateEagerly())
@@ -222,7 +252,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
             callAdapterFactories.addAll(Arrays.asList(retrofitCallAdapterFactories));
         }
         Class<? extends CallAdapter.Factory>[] globalCallAdapterFactoryClasses =
-                retrofitConfigBean.getGlobalCallAdapterFactoryClasses();
+                cfg.getGlobalCallAdapterFactoryClasses();
         if (globalCallAdapterFactoryClasses != null) {
             callAdapterFactories.addAll(Arrays.asList(globalCallAdapterFactoryClasses));
         }
@@ -244,7 +274,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
             converterFactories.addAll(Arrays.asList(retrofitConverterFactories));
         }
         Class<? extends Converter.Factory>[] globalConverterFactoryClasses =
-                retrofitConfigBean.getGlobalConverterFactoryClasses();
+                cfg.getGlobalConverterFactoryClasses();
         if (globalConverterFactoryClasses != null) {
             converterFactories.addAll(Arrays.asList(globalConverterFactoryClasses));
         }
@@ -276,6 +306,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
-        this.retrofitConfigBean = applicationContext.getBean(RetrofitConfigBean.class);
+        // RetrofitConfigBean 改为懒解析（见 retrofitConfigBean()），不在此处 eager getBean，
+        // 避免与用户自定义 Bean 的初始化顺序冲突。
     }
 }

@@ -31,7 +31,11 @@ public class Resilience4jUserServiceTest extends MockWebServerTest {
     @Test
     public void getName() {
         Set<String> set = IntStream.range(0, 50).parallel().mapToObj(i -> {
-            mockServerReturnObject(MIKE, 0, SUCCESS_CODE);
+            // bodyDelay=1s 配合 readTimeoutMs=1ms 强制每次调用在 1ms 后读超时，
+            // 确保第一次失败立即打开熔断器（minimumNumberOfCalls=1 + failureRateThreshold=1），
+            // 后续调用通过 fallbackFactory 返回 FALL_BACK；避免 bodyDelay=0 在快机上 1ms 内完成
+            // 导致整批调用全部成功、断言扑空的偶发性失败。
+            mockServerReturnObject(MIKE, 1, SUCCESS_CODE);
             try {
                 return resilience4jUserService.getName(Long100);
             } catch (Exception e) {
@@ -44,7 +48,7 @@ public class Resilience4jUserServiceTest extends MockWebServerTest {
     @Test
     public void getUser() {
         Set<User> set = IntStream.range(0, 50).parallel().mapToObj(i -> {
-            mockServerReturnObject(MIKE, 0, SUCCESS_CODE);
+            mockServerReturnObject(MIKE, 1, SUCCESS_CODE);
             try {
                 return resilience4jUserService.getUser(Long100);
             } catch (Exception e) {
