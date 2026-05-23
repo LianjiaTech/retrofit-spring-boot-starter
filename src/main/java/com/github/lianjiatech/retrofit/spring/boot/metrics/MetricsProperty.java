@@ -19,10 +19,18 @@ import lombok.Data;
 public class MetricsProperty {
 
     /**
-     * 是否启用指标采集。默认 true：在 MeterRegistry 可用的前提下开箱即用。
-     * 若用户希望即使引入了 Micrometer 也不采集 Retrofit 指标，可显式设为 false。
+     * 是否启用指标采集。<b>默认关闭</b>。
+     *
+     * <p>采用"opt-in"策略而非按 {@code MeterRegistry} 是否存在自动启用，原因：
+     * <ul>
+     *     <li>避免依赖 {@code @ConditionalOnBean(MeterRegistry.class)} 的求值时机 ——
+     *         在 autoconfig 加载顺序不确定的情况下，{@code MeterRegistry} 可能在本配置类
+     *         被处理时尚未注册，导致条件误判；</li>
+     *     <li>显式开启让用户行为可预期：引入 actuator 不会"被自动埋点"，需要主动声明
+     *         {@code retrofit.metrics.enable=true}。</li>
+     * </ul>
      */
-    private boolean enable = true;
+    private boolean enable = false;
 
     /**
      * Timer 发布的分位数，默认 P50/P95/P99。设为空数组表示不发布分位数。

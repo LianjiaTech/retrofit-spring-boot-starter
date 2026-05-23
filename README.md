@@ -664,11 +664,13 @@ public class HttpDegradeFallbackFactory implements FallbackFactory<HttpDegradeAp
 
 ### 指标监控（Micrometer）
 
-组件内置了基于 [Micrometer](https://micrometer.io/) 的指标采集能力。**仅当类路径中存在 `io.micrometer.core.instrument.MeterRegistry` 且 Spring 容器中已注册了 `MeterRegistry` Bean 时**自动启用，未引入 Micrometer 时不会产生任何额外开销。
+组件内置了基于 [Micrometer](https://micrometer.io/) 的指标采集能力。**默认关闭**，需要显式设置 `retrofit.metrics.enable=true` 才会启用。
+
+> **为什么是默认关闭、显式开启**：Spring Boot autoconfig 之间没有可靠的加载顺序约束，依赖 `@ConditionalOnBean(MeterRegistry.class)` 自动启用会因求值时机问题导致"用户引入 actuator 却没有指标"的隐性失败。改为 opt-in 后行为完全可预期：用户引入 actuator 不会被自动埋点；显式开启时若容器内没有 `MeterRegistry`，启动会快速失败而非静默无指标。
 
 #### 启用方式
 
-只需要引入 Micrometer 与对应的监控后端（Prometheus / Datadog / Atlas 等）即可。Spring Boot Actuator 默认会注册 `MeterRegistry`：
+1. 引入 Micrometer 与对应的监控后端（Prometheus / Datadog / Atlas 等）。Spring Boot Actuator 会注册 `MeterRegistry`：
 
 ```xml
 <dependency>
@@ -679,6 +681,14 @@ public class HttpDegradeFallbackFactory implements FallbackFactory<HttpDegradeAp
     <groupId>io.micrometer</groupId>
     <artifactId>micrometer-registry-prometheus</artifactId>
 </dependency>
+```
+
+2. 在配置中显式开启：
+
+```yaml
+retrofit:
+  metrics:
+    enable: true
 ```
 
 #### 采集的指标
@@ -710,7 +720,7 @@ public class HttpDegradeFallbackFactory implements FallbackFactory<HttpDegradeAp
 ```yaml
 retrofit:
   metrics:
-    # 是否启用，默认 true（前提是有 MeterRegistry）。需要显式关闭可设为 false。
+    # 是否启用，默认 false。需要显式设置为 true 才会装配 metrics 拦截器。
     enable: true
     # Timer 发布的分位数；空数组表示不发布
     percentiles: [0.5, 0.95, 0.99]
@@ -887,10 +897,10 @@ retrofit:
      max-idle-connections: 5
      keep-alive-duration-ms: 300_000
 
-   # 指标监控配置（仅在引入 Micrometer 且容器中存在 MeterRegistry 时生效）
+   # 指标监控配置（默认关闭；需要显式 enable=true 才会装配，且容器内必须有 MeterRegistry）
    metrics:
-      # 是否启用，默认 true
-      enable: true
+      # 是否启用，默认 false
+      enable: false
       # Timer 分位数
       percentiles: [0.5, 0.95, 0.99]
       # SLO 直方图分桶

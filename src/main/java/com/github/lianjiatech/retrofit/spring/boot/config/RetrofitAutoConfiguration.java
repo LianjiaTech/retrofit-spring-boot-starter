@@ -8,7 +8,6 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -307,19 +306,28 @@ public class RetrofitAutoConfiguration {
     }
 
     /**
-     * Micrometer 指标采集自动配置。仅当类路径存在 {@link MeterRegistry} 且容器中已注册了 {@code MeterRegistry}
-     * Bean、并且 {@code retrofit.metrics.enable} 未显式设为 {@code false} 时生效。
-     * <p>提供两个 Bean：
+     * Micrometer 指标采集自动配置。
+     *
+     * <p><b>启用条件</b>：
      * <ul>
-     *     <li>{@link RetrofitTagsProvider} —— 默认实现，用户可自行覆盖；</li>
-     *     <li>名为 {@code retrofitMetricsInterceptor} 的 {@code Interceptor} —— 由
-     *         {@link RetrofitAutoConfiguration} 主体注入到 {@code RetrofitConfigBean}。</li>
+     *     <li>类路径存在 {@link MeterRegistry}（即用户引入了 Micrometer 或相关 starter）；</li>
+     *     <li>{@code retrofit.metrics.enable=true}（<b>必须显式开启</b>，默认关闭）。</li>
+     * </ul>
+     *
+     * <p><b>为什么是 opt-in 而非根据 {@code @ConditionalOnBean(MeterRegistry.class)} 自动开启</b>：
+     * autoconfig 加载顺序由 jar 扫描决定，{@code @ConditionalOnBean} 在 {@code REGISTER_BEAN} 阶段
+     * 求值，只要 Retrofit 这个 autoconfig 排在 actuator 的 {@code SimpleMetricsExportAutoConfiguration}
+     * 之前，{@code MeterRegistry} 的 BeanDefinition 还没声明，条件就会误判为"无 MeterRegistry"，
+     * 整个 metrics 模块被错误跳过。让用户显式开启则把控制权交给用户，行为可预测：
+     * <ul>
+     *     <li>用户引入 actuator 不会"被自动埋点"，避免无意中产生指标；</li>
+     *     <li>用户显式开启时若容器内并没有 {@code MeterRegistry}，Spring 会在依赖注入时报错，
+     *         明确告知"你启用了 metrics 但没有 MeterRegistry"，而不是悄悄什么都没采集。</li>
      * </ul>
      */
     @Configuration
     @ConditionalOnClass(MeterRegistry.class)
-    @ConditionalOnBean(MeterRegistry.class)
-    @ConditionalOnProperty(prefix = "retrofit.metrics", name = "enable", havingValue = "true", matchIfMissing = true)
+    @ConditionalOnProperty(prefix = "retrofit.metrics", name = "enable", havingValue = "true")
     @EnableConfigurationProperties(RetrofitProperties.class)
     public static class MetricsConfiguration {
 
@@ -337,8 +345,12 @@ public class RetrofitAutoConfiguration {
 
         /**
          * Bean 名固定为 {@code retrofitMetricsInterceptor}，与 {@link RetrofitAutoConfiguration} 中的
-         * {@code @Qualifier} 一致。返回 {@link Interceptor} 接口类型，避免在用户禁用 metrics 时仍然需要
+         * {@code @Qualifier} 一致。返回 {@link Interceptor} 接口类型，避免在用户禁用 metrics 时仍然
          * 加载 {@link MetricsInterceptor}。
+         *
+         * <p>{@code MeterRegistry} 直接作为方法参数注入：用户开启 metrics 但容器内不存在
+         * {@code MeterRegistry} 时 Spring 会抛 {@code NoSuchBeanDefinitionException}，
+         * 明确暴露配置错误，而不是静默无指标。
          */
         @Bean(name = "retrofitMetricsInterceptor")
         @ConditionalOnMissingBean(name = "retrofitMetricsInterceptor")

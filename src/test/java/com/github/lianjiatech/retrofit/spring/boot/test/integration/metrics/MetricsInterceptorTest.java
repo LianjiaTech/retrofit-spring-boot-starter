@@ -35,7 +35,7 @@ import okhttp3.mockwebserver.MockResponse;
  *
  * @author 陈添明
  */
-@SpringBootTest(classes = {RetrofitBootApplication.class})
+@SpringBootTest(classes = {RetrofitBootApplication.class}, properties = "retrofit.metrics.enable=true")
 @Import(MetricsTestConfig.class)
 @RunWith(SpringRunner.class)
 public class MetricsInterceptorTest extends MockWebServerTest {

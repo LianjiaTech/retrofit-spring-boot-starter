@@ -20,8 +20,8 @@ import com.github.lianjiatech.retrofit.spring.boot.metrics.RetrofitTagsProvider;
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.RetrofitBootApplication;
 
 /**
- * 验证未注册 {@code MeterRegistry} Bean 时 metrics 自动配置完全不生效，
- * 且业务调用链路不受影响。这是 starter 在生产中的默认形态。
+ * 验证 metrics 默认关闭时（即未显式设置 {@code retrofit.metrics.enable=true}），
+ * metrics 自动配置完全不生效，且业务调用链路不受影响。这是 starter 在生产中的默认形态。
  *
  * <p><b>实现注意</b>：本类故意 <i>不</i> 使用 {@code getBeansOfType(Interceptor.class)} 之类的
  * 全量类型查询，因为这会触发同类型 prototype Bean（如测试包里的

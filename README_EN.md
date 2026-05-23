@@ -603,11 +603,13 @@ Customize error handling by implementing `ErrorDecoder` and specifying it via `@
 
 ### Metrics Monitoring (Micrometer)
 
-Built-in metrics support based on [Micrometer](https://micrometer.io/). The integration is **automatically activated only when `io.micrometer.core.instrument.MeterRegistry` is on the classpath and a `MeterRegistry` bean exists in the Spring context**. When Micrometer is not present, the starter incurs zero additional cost.
+Built-in metrics support based on [Micrometer](https://micrometer.io/). The integration is **disabled by default** — set `retrofit.metrics.enable=true` explicitly to activate it.
+
+> **Why opt-in instead of auto-detection**: Spring Boot does not guarantee a stable autoconfig load order, so relying on `@ConditionalOnBean(MeterRegistry.class)` is fragile — when Retrofit's autoconfig is processed before actuator's `SimpleMetricsExportAutoConfiguration`, the condition silently evaluates to "no MeterRegistry" and the entire metrics module is skipped, leaving users wondering why no Retrofit metrics show up. Switching to opt-in makes the behavior predictable: pulling in actuator does not silently start emitting metrics; explicitly enabling metrics without a `MeterRegistry` in context fails fast at startup instead of going silently uninstrumented.
 
 #### Enabling
 
-Add Micrometer along with the registry implementation for your monitoring backend (Prometheus / Datadog / Atlas / etc.). Spring Boot Actuator registers a `MeterRegistry` out of the box:
+1. Add Micrometer along with the registry implementation for your monitoring backend (Prometheus / Datadog / Atlas / etc.). Spring Boot Actuator registers a `MeterRegistry` out of the box:
 
 ```xml
 <dependency>
@@ -618,6 +620,14 @@ Add Micrometer along with the registry implementation for your monitoring backen
     <groupId>io.micrometer</groupId>
     <artifactId>micrometer-registry-prometheus</artifactId>
 </dependency>
+```
+
+2. Explicitly enable metrics:
+
+```yaml
+retrofit:
+  metrics:
+    enable: true
 ```
 
 #### Collected Metrics
@@ -649,7 +659,7 @@ Default tags (bounded cardinality, safe for high-cardinality-sensitive backends 
 ```yaml
 retrofit:
   metrics:
-    # Enabled by default (when MeterRegistry exists). Set to false to opt out explicitly.
+    # Disabled by default. Must be explicitly set to true to wire the metrics interceptor.
     enable: true
     # Timer percentiles to publish; empty array disables percentiles
     percentiles: [0.5, 0.95, 0.99]
@@ -803,9 +813,9 @@ retrofit:
     max-idle-connections: 5
     keep-alive-duration-ms: 300_000
 
-  # Metrics monitoring (active only when Micrometer + MeterRegistry are present)
+  # Metrics monitoring (disabled by default; set enable=true and ensure a MeterRegistry exists)
   metrics:
-    enable: true
+    enable: false
     percentiles: [0.5, 0.95, 0.99]
     sla:
       - 50ms
