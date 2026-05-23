@@ -1,0 +1,28 @@
+README_EN.md
+  536f5aaba751693a 32
+README.md
+  536f5aaba751693a 36
+pom.xml
+  536f5aaba751693a 9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.15-trip",
+  "base_commit_sha": "131fd001a0f0c2ec14b7d4221c467ae654f44a09",
+  "prompts": {
+    "536f5aaba751693a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "44ee7deb-9532-4022-8f99-7bd6018864ea",
+        "model": "global.anthropic.claude-opus-4-7",
+        "ide_version": "2.0.77 (Claude Code)"
+      },
+      "human_author": "tm.chen <tm.chen@trip.com>",
+      "messages": [],
+      "total_additions": 3,
+      "total_deletions": 3,
+      "accepted_lines": 3,
+      "overriden_lines": 0
+    }
+  }
+}
