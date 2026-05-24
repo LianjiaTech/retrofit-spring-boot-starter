@@ -126,7 +126,7 @@ HTTP request-related annotations use Retrofit's native annotations. A brief over
 - [x] [Custom Interceptor Annotations](#Custom-Interceptor-Annotations)
 - [x] [Circuit Breaking](#Circuit-Breaking)
 - [x] [Error Decoding](#Error-Decoding)
-- [x] [Metrics Monitoring (Micrometer)](#Metrics-Monitoring-Micrometer)
+- [x] [Metrics Monitoring (Micrometer)-Developing](#Metrics-Monitoring-Micrometer-Developing)
 - [x] [HTTP Calls Between Microservices](#HTTP-Calls-Between-Microservices)
 - [x] [Custom RetrofitClient Annotations](#Custom-RetrofitClient-Annotations)
 - [x] [Configuration Properties](#Configuration-Properties)
@@ -601,7 +601,7 @@ Specify the `CircuitBreaker Config` via `circuitBreaker Config Name`. This inclu
 Customize error handling by implementing `ErrorDecoder` and specifying it via `@RetrofitClient.errorDecoder()`. Disable with `retrofit.enable-error-decoder=false`.
 
 
-### Metrics Monitoring (Micrometer)
+### Metrics Monitoring (Micrometer)-Developing
 
 Built-in metrics support based on [Micrometer](https://micrometer.io/). The integration is **disabled by default** — set `retrofit.metrics.enable=true` explicitly to activate it.
 

@@ -125,7 +125,7 @@ public class BusinessService {
 - [x] [自定义拦截器注解](#自定义拦截器注解)
 - [x] [熔断降级](#熔断降级)
 - [x] [错误解码器](#错误解码器)
-- [x] [指标监控（Micrometer）](#指标监控micrometer)
+- [x] [指标监控（Micrometer）-开发中](#指标监控micrometer-开发中)
 - [x] [微服务之间的HTTP调用](#微服务之间的HTTP调用)
 - [x] [自定义RetrofitClient注解](#自定义RetrofitClient注解)
 - [x] [配置属性](#配置属性)
@@ -662,7 +662,7 @@ public class HttpDegradeFallbackFactory implements FallbackFactory<HttpDegradeAp
 在`HTTP`发生请求错误(包括发生异常或者响应数据不符合预期)的时候，错误解码器可将`HTTP`相关信息解码到自定义异常中。你可以在`@RetrofitClient`注解的`errorDecoder()`
 指定当前接口的错误解码器，自定义错误解码器需要实现`ErrorDecoder`接口。 可以通过配置`retrofit.enable-error-decoder=false`配置关闭ErrorDecoder功能。
 
-### 指标监控（Micrometer）
+### 指标监控（Micrometer）-开发中
 
 组件内置了基于 [Micrometer](https://micrometer.io/) 的指标采集能力。**默认关闭**，需要显式设置 `retrofit.metrics.enable=true` 才会启用。
 
