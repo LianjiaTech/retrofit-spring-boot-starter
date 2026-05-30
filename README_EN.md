@@ -126,7 +126,8 @@ HTTP request-related annotations use Retrofit's native annotations. A brief over
 - [x] [Custom Interceptor Annotations](#Custom-Interceptor-Annotations)
 - [x] [Circuit Breaking](#Circuit-Breaking)
 - [x] [Error Decoding](#Error-Decoding)
-- [x] [Metrics Monitoring (Micrometer)-Developing](#Metrics-Monitoring-Micrometer-Developing)
+- [x] [Metrics Monitoring (Micrometer)](#Metrics-Monitoring-Micrometer)
+- [x] [Actuator Endpoint (Expose RetrofitClient Metadata)](#Actuator-Endpoint-Expose-RetrofitClient-Metadata)
 - [x] [HTTP Calls Between Microservices](#HTTP-Calls-Between-Microservices)
 - [x] [Custom RetrofitClient Annotations](#Custom-RetrofitClient-Annotations)
 - [x] [Configuration Properties](#Configuration-Properties)
@@ -601,7 +602,7 @@ Specify the `CircuitBreaker Config` via `circuitBreaker Config Name`. This inclu
 Customize error handling by implementing `ErrorDecoder` and specifying it via `@RetrofitClient.errorDecoder()`. Disable with `retrofit.enable-error-decoder=false`.
 
 
-### Metrics Monitoring (Micrometer)-Developing
+### Metrics Monitoring (Micrometer)
 
 Built-in metrics support based on [Micrometer](https://micrometer.io/). The integration is **disabled by default** — set `retrofit.metrics.enable=true` explicitly to activate it.
 
@@ -706,6 +707,98 @@ public class TenantAwareTagsProvider implements RetrofitTagsProvider {
 ```
 
 > When implementing your own provider, make sure tag values come from a bounded set and that tag names / order remain stable. Otherwise Micrometer will create distinct meters per variation, wasting memory.
+
+
+### Actuator Endpoint (Expose RetrofitClient Metadata)
+
+The component provides a read-only Actuator Endpoint that exposes the full configuration metadata of every `@RetrofitClient` interface in the application via `/actuator/retrofit`. It helps answer "what baseUrl / timeout / logging / retry / circuit-breaking config is actually in effect for a given interface".
+
+> **Optional dependency, opt-in exposure**: the endpoint is only assembled when actuator is on the classpath (`@ConditionalOnClass`). SpringBoot 3 projects without actuator are unaffected and start normally. Exposure and the on/off switch are fully delegated to Spring Boot's standard management configuration (`@ConditionalOnAvailableEndpoint`) — no custom switch.
+
+#### How to Enable
+
+1. Add actuator:
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-actuator</artifactId>
+</dependency>
+```
+
+2. Expose the retrofit endpoint (by default actuator only exposes `health`, so add it explicitly):
+
+```yaml
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,retrofit
+```
+
+#### Access
+
+| Request | Description |
+|---|---|
+| `GET /actuator/retrofit` | List all clients + the `global` config section + `count` |
+| `GET /actuator/retrofit/{fully-qualified-interface-name}` | Query a single client by its fully-qualified interface name; returns 404 if not found |
+
+#### Response Example
+
+```json
+{
+  "count": 2,
+  "global": {
+    "enableErrorDecoder": true,
+    "globalConverterFactories": ["retrofit2.converter.jackson.JacksonConverterFactory"],
+    "timeout": { "connectMs": 10000, "readMs": 10000, "writeMs": 10000, "callMs": 0 },
+    "connectionPool": { "maxIdleConnections": 5, "keepAliveDurationMs": 300000 },
+    "log":     { "enable": false, "logLevel": "INFO", "logStrategy": "BASIC", "aggregate": true },
+    "retry":   { "enable": false, "maxRetries": 2, "intervalMs": 100,
+                 "retryRules": ["RESPONSE_STATUS_NOT_2XX", "OCCUR_IO_EXCEPTION"] },
+    "degrade": { "degradeType": "none",
+                 "sentinel":     { "enable": false, "ruleCount": 0 },
+                 "resilience4j": { "enable": false, "circuitBreakerConfigName": "defaultCircuitBreakerConfig" } },
+    "metrics": { "enable": false, "metricNamePrefix": "retrofit.client", "tagHost": false, "tagUri": true }
+  },
+  "clients": [{
+    "beanName": "userService",
+    "interfaceName": "com.example.UserService",
+    "baseUrl": "${test.baseUrl}",
+    "resolvedBaseUrl": "http://localhost:8080/api/user/",
+    "serviceId": null,
+    "path": null,
+    "converterFactories": [],
+    "callAdapterFactories": [],
+    "fallback": null,
+    "fallbackFactory": null,
+    "errorDecoder": "com.github.lianjiatech.retrofit.spring.boot.core.ErrorDecoder$DefaultErrorDecoder",
+    "validateEagerly": false,
+    "sourceOkHttpClient": null,
+    "timeoutEffective": true,
+    "timeout": { "connectMs": 3000, "readMs": 3000, "writeMs": 10000, "callMs": 0,
+                 "inheritedFields": ["writeMs", "callMs"] },
+    "pool":    { "maxIdleConnections": 5, "keepAliveDurationMs": 300000,
+                 "inheritedFields": ["maxIdleConnections", "keepAliveDurationMs"] },
+    "logging": { "source": "interface", "enable": true, "logLevel": "DEBUG",
+                 "logStrategy": "BODY", "aggregate": true },
+    "retry":   { "source": "global" },
+    "degrade": { "enabled": false, "type": "none" }
+  }]
+}
+```
+
+#### Field Semantics
+
+- **`resolvedBaseUrl`**: the resolved final baseUrl. Only populated once the interface has been injected/used (i.e. instantiated); otherwise `null` (baseUrl is resolved lazily and not pre-resolved).
+- **`inheritedFields` in `timeout` / `pool`**: a value of `-1` (the default) on `@RetrofitClient` means "reuse the global config". The endpoint resolves `-1` to the global fallback value using the exact same rules as the real client build, and records those field names in `inheritedFields` so you can tell "explicitly configured on the interface" from "inherited from global".
+- **`timeoutEffective`**: `false` when the interface specifies a custom OkHttpClient via `sourceOkHttpClient` (timeouts/pool are then governed by the source client, and `timeout`/`pool` are omitted).
+- **`source` in `logging` / `retry`**:
+  - `"interface"`: the interface has a `@Logging` / `@Retry` annotation; the remaining fields are the expanded annotation values;
+  - `"global"`: the interface has no such annotation and falls back to global config at runtime; values are not repeated here — consult the top-level `global` section.
+  - Note: method-level `@Logging` / `@Retry` are not drilled down here (at runtime, method annotation takes precedence over interface, and interface over global).
+- **`degrade.enabled`**: taken from `RetrofitDegrade.isEnableDegrade(interface)`; `type` is the global `degrade.degrade-type` (`none` / `sentinel` / `resilience4j`).
+- **`fallback` / `fallbackFactory`**: `null` when not configured (default `void.class`).
 
 
 ### HTTP Calls Between Microservices

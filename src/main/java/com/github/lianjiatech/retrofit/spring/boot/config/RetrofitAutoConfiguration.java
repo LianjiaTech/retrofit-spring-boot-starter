@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 import com.alibaba.csp.sentinel.SphU;
+import com.github.lianjiatech.retrofit.spring.boot.actuate.RetrofitEndpoint;
 import com.github.lianjiatech.retrofit.spring.boot.core.*;
 import com.github.lianjiatech.retrofit.spring.boot.core.jackson3.Jackson3ConverterFactory;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitDegrade;
@@ -357,6 +358,36 @@ public class RetrofitAutoConfiguration {
         public Interceptor retrofitMetricsInterceptor(MeterRegistry meterRegistry,
                 RetrofitTagsProvider tagsProvider) {
             return new MetricsInterceptor(meterRegistry, tagsProvider, properties.getMetrics());
+        }
+    }
+
+    /**
+     * Actuator Endpoint 自动配置，暴露 {@code /actuator/retrofit}。
+     *
+     * <p><b>启用条件</b>：
+     * <ul>
+     *     <li>类路径存在 {@code org.springframework.boot.actuate.endpoint.annotation.Endpoint}
+     *         （即用户引入了 actuator）；</li>
+     *     <li>{@code @ConditionalOnAvailableEndpoint} 通过——即该 endpoint 已被
+     *         {@code management.endpoints.web.exposure.include} 暴露且
+     *         {@code management.endpoint.retrofit.enabled} 未禁用。</li>
+     * </ul>
+     *
+     * <p>用 {@code @ConditionalOnClass} 把整个配置类隔离在 actuator 缺失时不加载，保证未引入 actuator 的
+     * SpringBoot 3 项目正常启动；endpoint 的暴露与开关完全交给 Spring Boot 标准的 management 配置，
+     * 不自造开关，行为与其它 endpoint 一致。
+     */
+    @Configuration
+    @ConditionalOnClass(name = "org.springframework.boot.actuate.endpoint.annotation.Endpoint")
+    @EnableConfigurationProperties(RetrofitProperties.class)
+    public static class RetrofitEndpointConfiguration {
+
+        @Bean
+        @ConditionalOnMissingBean
+        @org.springframework.boot.actuate.autoconfigure.endpoint.condition.ConditionalOnAvailableEndpoint(endpoint = RetrofitEndpoint.class)
+        public RetrofitEndpoint retrofitEndpoint(
+                org.springframework.beans.factory.ListableBeanFactory beanFactory, RetrofitProperties properties) {
+            return new RetrofitEndpoint(beanFactory, properties);
         }
     }
 

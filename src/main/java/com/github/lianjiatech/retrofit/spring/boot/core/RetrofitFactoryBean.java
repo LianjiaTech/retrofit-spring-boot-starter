@@ -18,12 +18,16 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import com.github.lianjiatech.retrofit.spring.boot.config.GlobalConnectionPoolProperty;
+import com.github.lianjiatech.retrofit.spring.boot.config.GlobalTimeoutProperty;
 import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitConfigBean;
 import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitProperties;
 import com.github.lianjiatech.retrofit.spring.boot.core.reactive.*;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeProxy;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitDegrade;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.*;
+import com.github.lianjiatech.retrofit.spring.boot.log.Logging;
+import com.github.lianjiatech.retrofit.spring.boot.retry.Retry;
+import com.github.lianjiatech.retrofit.spring.boot.retry.RetryRule;
 import com.github.lianjiatech.retrofit.spring.boot.util.AppContextUtils;
 import com.github.lianjiatech.retrofit.spring.boot.util.BeanExtendUtils;
 
@@ -91,6 +95,160 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
             return false;
         }
         return retrofitDegrade.isEnableDegrade(retrofitInterface);
+    }
+
+    /**
+     * 解析当前 {@code @RetrofitClient} 接口的完整配置元信息，供 Actuator Endpoint 等上层只读消费。
+     *
+     * <p>该方法<b>不触发 {@link #getObject()}</b>（即不创建 Retrofit 产品代理），仅读取注解与
+     * {@link RetrofitConfigBean} 中已注册的状态，因此可安全地对所有声明的 client 调用。超时/连接池中
+     * 值为 {@link Constants#INVALID_VALUE} 的字段会按与 {@link #createOkHttpClient} 完全一致的规则
+     * 解析为全局兜底值，并记入 {@code inheritedFields}，保证 Endpoint 展示与真实构建行为一致。
+     */
+    public RetrofitClientResolution describe() {
+        RetrofitConfigBean cfg = retrofitConfigBean();
+        RetrofitProperties properties = cfg.getRetrofitProperties();
+        RetrofitClient retrofitClient =
+                AnnotatedElementUtils.findMergedAnnotation(retrofitInterface, RetrofitClient.class);
+        Objects.requireNonNull(retrofitClient,
+                "@RetrofitClient annotation not found on " + retrofitInterface.getName());
+
+        RetrofitClientResolution resolution = new RetrofitClientResolution();
+        resolution.setInterfaceName(retrofitInterface.getName());
+        resolution.setBaseUrl(emptyToNull(retrofitClient.baseUrl()));
+        resolution.setResolvedBaseUrl(cfg.getBaseUrl(retrofitInterface));
+        resolution.setServiceId(emptyToNull(retrofitClient.serviceId()));
+        resolution.setPath(emptyToNull(retrofitClient.path()));
+        resolution.setConverterFactories(classNames(retrofitClient.converterFactories()));
+        resolution.setCallAdapterFactories(classNames(retrofitClient.callAdapterFactories()));
+        resolution.setFallback(voidToNull(retrofitClient.fallback()));
+        resolution.setFallbackFactory(voidToNull(retrofitClient.fallbackFactory()));
+        resolution.setErrorDecoder(retrofitClient.errorDecoder().getName());
+        resolution.setValidateEagerly(retrofitClient.validateEagerly());
+
+        String sourceOkHttpClient = retrofitClient.sourceOkHttpClient();
+        boolean useGlobalClient = Constants.NO_SOURCE_OK_HTTP_CLIENT.equals(sourceOkHttpClient);
+        resolution.setSourceOkHttpClient(useGlobalClient ? null : sourceOkHttpClient);
+        resolution.setTimeoutEffective(useGlobalClient);
+        if (useGlobalClient) {
+            resolution.setTimeout(resolveTimeout(retrofitClient, properties.getGlobalTimeout()));
+            resolution.setPool(resolvePool(retrofitClient, properties.getGlobalConnectionPool()));
+        }
+
+        resolution.setLogging(resolveLogging());
+        resolution.setRetry(resolveRetry());
+        resolution.setDegrade(resolveDegrade());
+        return resolution;
+    }
+
+    private RetrofitClientResolution.Timeout resolveTimeout(RetrofitClient retrofitClient, GlobalTimeoutProperty global) {
+        RetrofitClientResolution.Timeout timeout = new RetrofitClientResolution.Timeout();
+        List<String> inherited = new ArrayList<>(4);
+        timeout.setConnectMs(resolveTimeoutField(retrofitClient.connectTimeoutMs(), global.getConnectTimeoutMs(),
+                "connectMs", inherited));
+        timeout.setReadMs(resolveTimeoutField(retrofitClient.readTimeoutMs(), global.getReadTimeoutMs(),
+                "readMs", inherited));
+        timeout.setWriteMs(resolveTimeoutField(retrofitClient.writeTimeoutMs(), global.getWriteTimeoutMs(),
+                "writeMs", inherited));
+        timeout.setCallMs(resolveTimeoutField(retrofitClient.callTimeoutMs(), global.getCallTimeoutMs(),
+                "callMs", inherited));
+        timeout.setInheritedFields(inherited);
+        return timeout;
+    }
+
+    private int resolveTimeoutField(int clientValue, int globalValue, String fieldName, List<String> inherited) {
+        if (clientValue == Constants.INVALID_VALUE) {
+            inherited.add(fieldName);
+            return globalValue;
+        }
+        return clientValue;
+    }
+
+    private RetrofitClientResolution.Pool resolvePool(RetrofitClient retrofitClient, GlobalConnectionPoolProperty global) {
+        RetrofitClientResolution.Pool pool = new RetrofitClientResolution.Pool();
+        List<String> inherited = new ArrayList<>(2);
+        if (retrofitClient.maxIdleConnections() == Constants.INVALID_VALUE) {
+            pool.setMaxIdleConnections(global.getMaxIdleConnections());
+            inherited.add("maxIdleConnections");
+        } else {
+            pool.setMaxIdleConnections(retrofitClient.maxIdleConnections());
+        }
+        if (retrofitClient.keepAliveDurationMs() == Constants.INVALID_VALUE) {
+            pool.setKeepAliveDurationMs(global.getKeepAliveDurationMs());
+            inherited.add("keepAliveDurationMs");
+        } else {
+            pool.setKeepAliveDurationMs(retrofitClient.keepAliveDurationMs());
+        }
+        pool.setInheritedFields(inherited);
+        return pool;
+    }
+
+    private RetrofitClientResolution.Logging resolveLogging() {
+        RetrofitClientResolution.Logging info = new RetrofitClientResolution.Logging();
+        Logging logging = AnnotatedElementUtils.findMergedAnnotation(retrofitInterface, Logging.class);
+        if (logging == null) {
+            info.setSource("global");
+            return info;
+        }
+        info.setSource("interface");
+        info.setEnable(logging.enable());
+        info.setLogLevel(logging.logLevel().name());
+        info.setLogStrategy(logging.logStrategy().name());
+        info.setAggregate(logging.aggregate());
+        info.setLogName(emptyToNull(logging.logName()));
+        info.setRedactHeaders(logging.redactHeaders().length == 0 ? null : Arrays.asList(logging.redactHeaders()));
+        return info;
+    }
+
+    private RetrofitClientResolution.Retry resolveRetry() {
+        RetrofitClientResolution.Retry info = new RetrofitClientResolution.Retry();
+        Retry retry = AnnotatedElementUtils.findMergedAnnotation(retrofitInterface, Retry.class);
+        if (retry == null) {
+            info.setSource("global");
+            return info;
+        }
+        info.setSource("interface");
+        info.setEnable(retry.enable());
+        info.setMaxRetries(retry.maxRetries());
+        info.setIntervalMs(retry.intervalMs());
+        List<String> rules = new ArrayList<>(retry.retryRules().length);
+        for (RetryRule rule : retry.retryRules()) {
+            rules.add(rule.name());
+        }
+        info.setRetryRules(rules);
+        return info;
+    }
+
+    private RetrofitClientResolution.Degrade resolveDegrade() {
+        RetrofitClientResolution.Degrade info = new RetrofitClientResolution.Degrade();
+        RetrofitDegrade retrofitDegrade = retrofitConfigBean().getRetrofitDegrade();
+        if (retrofitDegrade == null) {
+            info.setEnabled(false);
+            info.setType(RetrofitDegrade.NONE);
+            return info;
+        }
+        info.setEnabled(retrofitDegrade.isEnableDegrade(retrofitInterface));
+        info.setType(retrofitConfigBean().getRetrofitProperties().getDegrade().getDegradeType());
+        return info;
+    }
+
+    private static String emptyToNull(String value) {
+        return StringUtils.hasText(value) ? value : null;
+    }
+
+    private static String voidToNull(Class<?> clazz) {
+        return void.class.isAssignableFrom(clazz) ? null : clazz.getName();
+    }
+
+    private static List<String> classNames(Class<?>[] classes) {
+        if (classes == null || classes.length == 0) {
+            return Collections.emptyList();
+        }
+        List<String> names = new ArrayList<>(classes.length);
+        for (Class<?> clazz : classes) {
+            names.add(clazz.getName());
+        }
+        return names;
     }
 
     /**

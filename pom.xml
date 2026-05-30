@@ -59,6 +59,26 @@
             <version>${spring-boot.version}</version>
             <scope>provided</scope>
         </dependency>
+        <!--
+          Spring Boot Actuator：可选依赖。仅当用户在自己的项目中显式引入 actuator（如 spring-boot-starter-actuator）
+          时，组件才会装配 RetrofitEndpoint（@ConditionalOnClass + @ConditionalOnAvailableEndpoint 双重保护）。
+          使用 spring-boot-actuator（非 starter）以最小化传递依赖；provided + optional 保证未引入时不会强制传递，
+          也不会因类缺失导致 SpringBoot 3 项目启动失败。
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-actuator</artifactId>
+            <version>${spring-boot.version}</version>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-actuator-autoconfigure</artifactId>
+            <version>${spring-boot.version}</version>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
