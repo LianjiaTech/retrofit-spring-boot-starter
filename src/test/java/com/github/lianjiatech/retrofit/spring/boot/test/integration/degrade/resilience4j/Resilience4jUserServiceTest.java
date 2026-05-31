@@ -30,12 +30,19 @@ public class Resilience4jUserServiceTest extends MockWebServerTest {
 
     @Test
     public void getName() {
+        // Pre-trigger: one synchronous call that will timeout
+        // (readTimeoutMs=1 vs bodyDelay=1s), recording a failure that opens the circuit breaker
+        // (minimumNumberOfCalls=1, failureRateThreshold=1).
+        // Without this, 50 parallel calls may all acquire permission simultaneously (all see CLOSED),
+        // none sees OPEN → no fallback → assertion flaps on fast/many-core machines.
+        mockServerReturnObject(MIKE, 1, SUCCESS_CODE);
+        try {
+            resilience4jUserService.getName(Long100);
+        } catch (Exception ignored) {
+        }
+
+        // Circuit breaker is now OPEN → all subsequent calls hit fallbackFactory → FALL_BACK
         Set<String> set = IntStream.range(0, 50).parallel().mapToObj(i -> {
-            // bodyDelay=1s 配合 readTimeoutMs=1ms 强制每次调用在 1ms 后读超时，
-            // 确保第一次失败立即打开熔断器（minimumNumberOfCalls=1 + failureRateThreshold=1），
-            // 后续调用通过 fallbackFactory 返回 FALL_BACK；避免 bodyDelay=0 在快机上 1ms 内完成
-            // 导致整批调用全部成功、断言扑空的偶发性失败。
-            mockServerReturnObject(MIKE, 1, SUCCESS_CODE);
             try {
                 return resilience4jUserService.getName(Long100);
             } catch (Exception e) {
