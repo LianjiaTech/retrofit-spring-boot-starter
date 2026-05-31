@@ -302,10 +302,16 @@ retrofit:
   global-retry:
     # Enable global retries
     enable: false
-    # Retry interval (ms)
+    # Base retry interval (ms)
     interval-ms: 100
     # Max retries
     max-retries: 2
+    # Backoff strategy: FIXED (constant interval, default) / EXPONENTIAL
+    backoff-strategy: fixed
+    # Maximum backoff interval cap (ms), only applies to EXPONENTIAL
+    max-interval-ms: 30000
+    # Jitter factor [0.0, 1.0], 0.0 means no jitter
+    jitter: 0.0
     # Retry rules
     retry-rules:  
       - response_status_not_2xx
@@ -317,6 +323,34 @@ Retry rules:
 1. `RESPONSE_STATUS_NOT_2XX`: Retry on non-2xx status codes.
 2. `OCCUR_IO_EXCEPTION`: Retry on IO exceptions.
 3. `OCCUR_EXCEPTION`: Retry on any exception.
+
+#### Backoff Strategy and Jitter
+
+`backoffStrategy` controls how the retry interval grows. It defaults to `FIXED` for backward compatibility:
+
+- `FIXED`: constant interval of `intervalMs` between retries.
+- `EXPONENTIAL`: exponential backoff, the N-th retry interval = `intervalMs * 2^N` (N starts at 0), capped at `maxIntervalMs` to prevent unbounded growth.
+
+`jitter` (range `[0.0, 1.0]`, default `0.0` = no jitter) adds randomness on top of the computed delay to avoid the thundering herd problem with synchronized retries:
+
+> Actual delay = computed delay × (1 + jitter × random), where random is in `[0, 1)`.
+
+#### Conditional Triggering: by Status Code / Exception Type
+
+On top of the coarse-grained `RetryRule`, you can further narrow the trigger condition (both empty by default, matching legacy behavior):
+
+- `retryStatusCodes`: only retry when the response status code matches the list (requires the `RESPONSE_STATUS_NOT_2XX` rule). e.g. `{502, 503, 504}`.
+- `retryExceptionClasses`: only retry when the exception type matches the list (further narrows exceptions already matching the `RetryRule`). e.g. `{SocketTimeoutException.class}`.
+
+```java
+@RetrofitClient(baseUrl = "http://localhost:8080/")
+@Retry(maxRetries = 3, intervalMs = 200, backoffStrategy = BackoffStrategy.EXPONENTIAL,
+        maxIntervalMs = 5000, jitter = 0.3, retryStatusCodes = {502, 503, 504})
+public interface Api {
+    @GET("getUser")
+    User getUser(@Query("id") Long id);
+}
+```
 
 #### Declarative Retries
 
@@ -689,6 +723,9 @@ retrofit:
     enable: false
     interval-ms: 100
     max-retries: 2
+    backoff-strategy: fixed
+    max-interval-ms: 30000
+    jitter: 0.0
     retry-rules:
       - response_status_not_2xx
       - occur_io_exception
