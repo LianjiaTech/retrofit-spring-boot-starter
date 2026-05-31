@@ -3,8 +3,8 @@
 
 [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 ![Maven Central](https://img.shields.io/maven-central/v/com.github.lianjiatech/retrofit-spring-boot-starter.svg?label=Maven)
-[![License](https://img.shields.io/badge/JDK-1.8+-4EB1BA.svg)](https://docs.oracle.com/javase/8/docs/index.html)
-[![License](https://img.shields.io/badge/SpringBoot-1.4.2+-green.svg)](https://docs.spring.io/spring-boot/docs/2.1.5.RELEASE/reference/htmlsingle/)
+[![License](https://img.shields.io/badge/JDK-17+-4EB1BA.svg)](https://docs.oracle.com/en/java/javase/17/)
+[![License](https://img.shields.io/badge/SpringBoot-3+-green.svg)](https://docs.spring.io/spring-boot/)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/LianjiaTech/retrofit-spring-boot-starter)
 
 [English Document](https://github.com/LianjiaTech/retrofit-spring-boot-starter/blob/master/README_EN.md)
@@ -127,6 +127,7 @@ public class BusinessService {
 - [x] [错误解码器](#错误解码器)
 - [x] [指标监控（Micrometer）](#指标监控micrometer)
 - [x] [Actuator Endpoint（暴露 RetrofitClient 元信息）](#actuator-endpoint暴露-retrofitclient-元信息)
+- [x] [GraalVM Native Image / AOT 支持](#GraalVM-Native-Image--AOT-支持)
 - [x] [微服务之间的HTTP调用](#微服务之间的HTTP调用)
 - [x] [自定义RetrofitClient注解](#自定义RetrofitClient注解)
 - [x] [配置属性](#配置属性)
@@ -895,6 +896,21 @@ management:
   - 注意：方法级 `@Logging` / `@Retry` 不在此处下钻展示（运行时方法注解优先于接口、接口优先于全局）。
 - **`degrade.enabled`**：取自 `RetrofitDegrade.isEnableDegrade(接口)`；`type` 为全局 `degrade.degrade-type`（`none` / `sentinel` / `resilience4j`）。
 - **`fallback` / `fallbackFactory`**：未配置（默认 `void.class`）时为 `null`。
+
+### GraalVM Native Image / AOT 支持
+
+组件已内置 Spring AOT 支持，在 Spring Boot 3.x / 4.x 下编译为 GraalVM Native Image 时**开箱即用，无需手写 `reflect-config.json` / `proxy-config.json`**。
+
+构建期（`spring-boot:process-aot` 或 native 编译）会自动为每个 `@RetrofitClient` 接口注册：
+
+- **JDK 动态代理**：`Retrofit.create(接口)` 与熔断降级代理都基于接口生成 JDK 代理；
+- **接口反射**：方法签名与参数注解需在 native 下反射可见，供 Retrofit 解析 HTTP 请求；
+- **注解引用类的反射构造**：`@RetrofitClient` 上的 `baseUrlParser` / `converterFactories` / `callAdapterFactories` / `errorDecoder` / `fallback` / `fallbackFactory`，以及 `@InterceptMark`（含 `@Intercept` / `@Sign`）注解的 `handler` 拦截器类，运行期可能通过反射创建并注入属性；
+- **Actuator 值对象序列化**：`/actuator/retrofit` 返回结果的反射序列化。
+
+> 该能力由 `RetrofitAotProcessor`（`BeanFactoryInitializationAotProcessor`）实现，**仅在 AOT 构建期生效**，普通 JVM 启动与 native 运行期不执行任何逻辑，对功能与性能零影响。
+>
+> 若你自定义的 `Converter.Factory` / `CallAdapter.Factory` / `ErrorDecoder` 等会被 JSON 序列化为复杂业务实体，业务实体本身的 native 反射 hints 仍需按 Spring 标准方式（如 `@RegisterReflectionForBinding`）声明——这与具体业务模型相关，不在组件职责范围内。
 
 ### 微服务之间的HTTP调用
 

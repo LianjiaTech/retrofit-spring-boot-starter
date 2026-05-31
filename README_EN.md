@@ -2,8 +2,8 @@
 
 [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 ![Maven Central](https://img.shields.io/maven-central/v/com.github.lianjiatech/retrofit-spring-boot-starter.svg?label=Maven)
-[![License](https://img.shields.io/badge/JDK-1.8+-4EB1BA.svg)](https://docs.oracle.com/javase/8/docs/index.html)
-[![License](https://img.shields.io/badge/SpringBoot-1.4.2+-green.svg)](https://docs.spring.io/spring-boot/docs/2.1.5.RELEASE/reference/htmlsingle/)
+[![License](https://img.shields.io/badge/JDK-17+-4EB1BA.svg)](https://docs.oracle.com/en/java/javase/17/)
+[![License](https://img.shields.io/badge/SpringBoot-3+-green.svg)](https://docs.spring.io/spring-boot/)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/LianjiaTech/retrofit-spring-boot-starter)
 
 [中文文档](https://github.com/LianjiaTech/retrofit-spring-boot-starter/)
@@ -128,6 +128,7 @@ HTTP request-related annotations use Retrofit's native annotations. A brief over
 - [x] [Error Decoding](#Error-Decoding)
 - [x] [Metrics Monitoring (Micrometer)](#Metrics-Monitoring-Micrometer)
 - [x] [Actuator Endpoint (Expose RetrofitClient Metadata)](#Actuator-Endpoint-Expose-RetrofitClient-Metadata)
+- [x] [GraalVM Native Image / AOT Support](#GraalVM-Native-Image--AOT-Support)
 - [x] [HTTP Calls Between Microservices](#HTTP-Calls-Between-Microservices)
 - [x] [Custom RetrofitClient Annotations](#Custom-RetrofitClient-Annotations)
 - [x] [Configuration Properties](#Configuration-Properties)
@@ -835,6 +836,22 @@ management:
   - Note: method-level `@Logging` / `@Retry` are not drilled down here (at runtime, method annotation takes precedence over interface, and interface over global).
 - **`degrade.enabled`**: taken from `RetrofitDegrade.isEnableDegrade(interface)`; `type` is the global `degrade.degrade-type` (`none` / `sentinel` / `resilience4j`).
 - **`fallback` / `fallbackFactory`**: `null` when not configured (default `void.class`).
+
+
+### GraalVM Native Image / AOT Support
+
+The starter ships with built-in Spring AOT support, so compiling to a GraalVM Native Image under Spring Boot 3.x / 4.x works **out of the box — no hand-written `reflect-config.json` / `proxy-config.json` required**.
+
+At build time (`spring-boot:process-aot` or native compilation) it automatically registers, for every `@RetrofitClient` interface:
+
+- **JDK dynamic proxies**: both `Retrofit.create(interface)` and the circuit-breaking fallback proxy generate JDK proxies from the interface;
+- **Interface reflection**: method signatures and parameter annotations must be reflectively visible under native image for Retrofit to parse HTTP requests;
+- **Reflective construction of annotation-referenced types**: `baseUrlParser` / `converterFactories` / `callAdapterFactories` / `errorDecoder` / `fallback` / `fallbackFactory` on `@RetrofitClient`, plus the `handler` interceptor classes referenced by `@InterceptMark` annotations (including `@Intercept` / `@Sign`), which may be created reflectively and have properties injected at runtime;
+- **Actuator value-object serialization**: reflective serialization of the `/actuator/retrofit` response.
+
+> This is implemented by `RetrofitAotProcessor` (a `BeanFactoryInitializationAotProcessor`) and **only runs at AOT build time**. It executes no logic during a normal JVM startup or at native runtime, so it has zero impact on functionality and performance.
+>
+> If your custom `Converter.Factory` / `CallAdapter.Factory` / `ErrorDecoder` serializes complex business entities via JSON, the native reflection hints for those business entities still need to be declared the standard Spring way (e.g. `@RegisterReflectionForBinding`) — this is tied to your specific domain model and is out of scope for the starter.
 
 
 ### HTTP Calls Between Microservices

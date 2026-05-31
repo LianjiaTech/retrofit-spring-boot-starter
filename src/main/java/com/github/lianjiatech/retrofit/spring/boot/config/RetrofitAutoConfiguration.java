@@ -75,6 +75,16 @@ public class RetrofitAutoConfiguration {
         this.retrofitProperties = retrofitProperties;
     }
 
+    /**
+     * GraalVM Native Image / Spring AOT 支持。仅在 AOT 构建期被 Spring 调用，为每个 {@code @RetrofitClient}
+     * 接口自动注册反射 / 动态代理 / 序列化 hints。普通 JVM 与 native 运行期不触发任何逻辑，仅作为无状态空
+     * bean 存在，对功能与性能零影响。{@code static} 避免提前实例化外层配置类。
+     */
+    @Bean
+    public static RetrofitAotProcessor retrofitAotProcessor() {
+        return new RetrofitAotProcessor();
+    }
+
     @Configuration
     public static class RetrofitAdvanceConfiguration {
 
