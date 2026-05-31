@@ -132,6 +132,23 @@ public class RetrofitEndpoint {
         retry.setEnable(property.isEnable());
         retry.setMaxRetries(property.getMaxRetries());
         retry.setIntervalMs(property.getIntervalMs());
+        retry.setBackoffStrategy(property.getBackoffStrategy() == null ? null : property.getBackoffStrategy().name());
+        retry.setMaxIntervalMs(property.getMaxIntervalMs());
+        retry.setJitter(property.getJitter());
+        List<Integer> statusCodes = new ArrayList<>();
+        if (property.getRetryStatusCodes() != null) {
+            for (int code : property.getRetryStatusCodes()) {
+                statusCodes.add(code);
+            }
+        }
+        retry.setRetryStatusCodes(statusCodes);
+        List<String> exceptionClasses = new ArrayList<>();
+        if (property.getRetryExceptionClasses() != null) {
+            for (Class<? extends Throwable> clazz : property.getRetryExceptionClasses()) {
+                exceptionClasses.add(clazz.getName());
+            }
+        }
+        retry.setRetryExceptionClasses(exceptionClasses);
         List<String> rules = new ArrayList<>();
         if (property.getRetryRules() != null) {
             for (RetryRule rule : property.getRetryRules()) {

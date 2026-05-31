@@ -146,6 +146,11 @@ public class RetrofitGlobalInfo {
         private boolean enable;
         private int maxRetries;
         private int intervalMs;
+        private String backoffStrategy;
+        private int maxIntervalMs;
+        private double jitter;
+        private List<Integer> retryStatusCodes;
+        private List<String> retryExceptionClasses;
         private List<String> retryRules;
 
         public boolean isEnable() {
@@ -170,6 +175,46 @@ public class RetrofitGlobalInfo {
 
         public void setIntervalMs(int intervalMs) {
             this.intervalMs = intervalMs;
+        }
+
+        public String getBackoffStrategy() {
+            return backoffStrategy;
+        }
+
+        public void setBackoffStrategy(String backoffStrategy) {
+            this.backoffStrategy = backoffStrategy;
+        }
+
+        public int getMaxIntervalMs() {
+            return maxIntervalMs;
+        }
+
+        public void setMaxIntervalMs(int maxIntervalMs) {
+            this.maxIntervalMs = maxIntervalMs;
+        }
+
+        public double getJitter() {
+            return jitter;
+        }
+
+        public void setJitter(double jitter) {
+            this.jitter = jitter;
+        }
+
+        public List<Integer> getRetryStatusCodes() {
+            return retryStatusCodes;
+        }
+
+        public void setRetryStatusCodes(List<Integer> retryStatusCodes) {
+            this.retryStatusCodes = retryStatusCodes;
+        }
+
+        public List<String> getRetryExceptionClasses() {
+            return retryExceptionClasses;
+        }
+
+        public void setRetryExceptionClasses(List<String> retryExceptionClasses) {
+            this.retryExceptionClasses = retryExceptionClasses;
         }
 
         public List<String> getRetryRules() {

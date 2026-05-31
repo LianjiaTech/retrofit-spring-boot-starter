@@ -37,11 +37,19 @@ public class RetryInterceptor implements Interceptor {
         if (!needRetry(retry)) {
             return chain.proceed(request);
         }
-        // 重试
+        // 重试配置：注解优先于全局
         int maxRetries = retry == null ? globalRetryProperty.getMaxRetries() : retry.maxRetries();
         int intervalMs = retry == null ? globalRetryProperty.getIntervalMs() : retry.intervalMs();
+        int maxIntervalMs = retry == null ? globalRetryProperty.getMaxIntervalMs() : retry.maxIntervalMs();
+        BackoffStrategy backoffStrategy =
+                retry == null ? globalRetryProperty.getBackoffStrategy() : retry.backoffStrategy();
+        double jitter = retry == null ? globalRetryProperty.getJitter() : retry.jitter();
         RetryRule[] retryRules = retry == null ? globalRetryProperty.getRetryRules() : retry.retryRules();
-        return retryIntercept(maxRetries, intervalMs, retryRules, chain);
+        int[] retryStatusCodes = retry == null ? globalRetryProperty.getRetryStatusCodes() : retry.retryStatusCodes();
+        Class<? extends Throwable>[] retryExceptionClasses =
+                retry == null ? globalRetryProperty.getRetryExceptionClasses() : retry.retryExceptionClasses();
+        return retryIntercept(maxRetries, intervalMs, maxIntervalMs, backoffStrategy, jitter, retryRules,
+                retryStatusCodes, retryExceptionClasses, chain);
     }
 
     protected boolean needRetry(Retry retry) {
@@ -55,17 +63,18 @@ public class RetryInterceptor implements Interceptor {
         }
     }
 
-    protected Response retryIntercept(int maxRetries, int intervalMs, RetryRule[] retryRules, Chain chain)
-            throws IOException {
+    protected Response retryIntercept(int maxRetries, int intervalMs, int maxIntervalMs, BackoffStrategy backoffStrategy,
+            double jitter, RetryRule[] retryRules, int[] retryStatusCodes,
+            Class<? extends Throwable>[] retryExceptionClasses, Chain chain) throws IOException {
         Set<RetryRule> retryRuleSet = toRetryRuleSet(retryRules);
-        RetryStrategy retryStrategy = new RetryStrategy(maxRetries, intervalMs);
+        RetryStrategy retryStrategy = new RetryStrategy(maxRetries, intervalMs, maxIntervalMs, backoffStrategy, jitter);
         Request request = chain.request();
         while (true) {
             Response response = null;
             try {
                 response = chain.proceed(request);
-                // 如果响应状态码是2xx就不用重试，直接返回 response
-                if (!retryRuleSet.contains(RetryRule.RESPONSE_STATUS_NOT_2XX) || response.isSuccessful()) {
+                // 状态码不在重试范围内（2xx，或未命中 retryStatusCodes 条件），直接返回 response
+                if (!shouldRetryOnStatus(retryRuleSet, retryStatusCodes, response)) {
                     return response;
                 }
                 if (!retryStrategy.shouldRetry()) {
@@ -83,7 +92,7 @@ public class RetryInterceptor implements Interceptor {
                 if (response != null) {
                     response.close();
                 }
-                if (shouldThrowEx(retryRuleSet, e)) {
+                if (shouldThrowEx(retryRuleSet, retryExceptionClasses, e)) {
                     rethrowWithoutRetry(e);
                 }
                 if (!retryStrategy.shouldRetry()) {
@@ -98,14 +107,59 @@ public class RetryInterceptor implements Interceptor {
         }
     }
 
-    protected boolean shouldThrowEx(Set<RetryRule> retryRuleSet, Exception e) {
-        if (retryRuleSet.contains(RetryRule.OCCUR_EXCEPTION)) {
+    /**
+     * 判断当前响应是否应触发重试。
+     * <p>
+     * 先要求命中 {@link RetryRule#RESPONSE_STATUS_NOT_2XX} 且响应非2xx；
+     * 当 {@code retryStatusCodes} 非空时，进一步收窄为仅当状态码命中列表才重试。
+     */
+    protected boolean shouldRetryOnStatus(Set<RetryRule> retryRuleSet, int[] retryStatusCodes, Response response) {
+        if (!retryRuleSet.contains(RetryRule.RESPONSE_STATUS_NOT_2XX) || response.isSuccessful()) {
             return false;
         }
-        if (retryRuleSet.contains(RetryRule.OCCUR_IO_EXCEPTION)) {
-            return !(e instanceof IOException);
+        if (retryStatusCodes != null && retryStatusCodes.length > 0) {
+            return contains(retryStatusCodes, response.code());
         }
         return true;
+    }
+
+    protected boolean shouldThrowEx(Set<RetryRule> retryRuleSet, Class<? extends Throwable>[] retryExceptionClasses,
+            Exception e) {
+        // 先按 RetryRule 粗粒度判定是否属于可重试异常
+        boolean ruleMatched;
+        if (retryRuleSet.contains(RetryRule.OCCUR_EXCEPTION)) {
+            ruleMatched = true;
+        } else if (retryRuleSet.contains(RetryRule.OCCUR_IO_EXCEPTION)) {
+            ruleMatched = e instanceof IOException;
+        } else {
+            ruleMatched = false;
+        }
+        if (!ruleMatched) {
+            return true;
+        }
+        // retryExceptionClasses 非空时进一步收窄：仅当异常命中列表才重试
+        if (retryExceptionClasses != null && retryExceptionClasses.length > 0) {
+            return !isInstanceOfAny(retryExceptionClasses, e);
+        }
+        return false;
+    }
+
+    private static boolean isInstanceOfAny(Class<? extends Throwable>[] classes, Throwable e) {
+        for (Class<? extends Throwable> clazz : classes) {
+            if (clazz != null && clazz.isInstance(e)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean contains(int[] codes, int code) {
+        for (int c : codes) {
+            if (c == code) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static Set<RetryRule> toRetryRuleSet(RetryRule[] retryRules) {
