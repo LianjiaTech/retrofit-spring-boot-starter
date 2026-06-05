@@ -1,0 +1,39 @@
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/retry/RetryStrategy.java
+  s_300515caf4c837::t_aa7b94b9b9fcf2 57
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/config/RetrofitAutoConfiguration.java
+  s_300515caf4c837::t_717f0145cf78cf 250-252
+  s_300515caf4c837::t_abb986b86523c2 162-163
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/core/RetrofitFactoryBean.java
+  s_300515caf4c837::t_ea995093b45b75 109
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/core/RetrofitClient.java
+  s_300515caf4c837::t_fe6baca9571a38 47-49
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/retry/RetryInterceptor.java
+  s_300515caf4c837::t_d3cc516bdb5e0c 179-180
+  s_300515caf4c837::t_9d4d6bfd061665 116-119
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/log/Logging.java
+  s_300515caf4c837::t_83d74166a478b3 60-61
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/exception/RetrofitException.java
+  s_300515caf4c837::t_b164b65fdd2da4 54-55
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/core/CallFactoryConfigurer.java
+  s_300515caf4c837::t_1d5a075592f503 29
+  s_300515caf4c837::t_91ae644575c984 25
+  s_300515caf4c837::t_5fd5c170dae9fa 11
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/degrade/BaseRetrofitDegrade.java
+  s_300515caf4c837::t_19b38f61cc0b87 40-41
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.10-trip",
+  "base_commit_sha": "475c4108b629445b1568c4488fe6bd69bbc229d0",
+  "prompts": {},
+  "sessions": {
+    "s_300515caf4c837": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b0d92c06-c265-4a3a-a42b-2b0dd482aa01",
+        "model": "glm-5.1"
+      },
+      "human_author": "tm.chen <tm.chen@trip.com>"
+    }
+  }
+}
