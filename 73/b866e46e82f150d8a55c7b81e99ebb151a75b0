@@ -1,0 +1,107 @@
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/timeout/TimeoutCallFactory.java
+  s_f0d4b4436a4f25::t_b7414955e14546 50
+  s_f0d4b4436a4f25::t_4a9599676ab159 56
+  s_f0d4b4436a4f25::t_287ac79af41913 1-14,17,19-20,23-25,27-44,46-49,51-55,57-59,64-67,69-70,72-73,75-76,78-94
+  s_f0d4b4436a4f25::t_7f0b0753c07a89 15-16
+  s_f0d4b4436a4f25::t_62645641af97ee 60-63,68,71,74,77
+  s_f0d4b4436a4f25::t_4dccef3252792a 18,21-22,26
+  s_f0d4b4436a4f25::t_0ba9e2410fc715 45
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/degrade/resilience4j/GlobalResilience4jUserService.java
+  s_f0d4b4436a4f25::t_0d85c74b5f5356 4
+  s_f0d4b4436a4f25::t_cfd04c0ea98b6c 13-14
+README.md
+  s_f0d4b4436a4f25::t_e4bf7728178eab 367-370
+  s_f0d4b4436a4f25::t_8170b9199260c5 739-740
+  s_f0d4b4436a4f25::t_a867ed491741b2 121
+  s_f0d4b4436a4f25::t_cb017b307a406b 307,310
+  s_f0d4b4436a4f25::t_7f4e54eb8b828b 204
+  s_f0d4b4436a4f25::t_940efc1bd3b7e8 297-306,308-309,311-366,371
+  s_f0d4b4436a4f25::t_be2c952907c1d4 268
+  s_f0d4b4436a4f25::t_1c19c23942776b 660-661
+  h_b701a059e95ce3 36
+pom.xml
+  s_f0d4b4436a4f25::t_a17f26efb6aa2f 9
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/timeout/Timeout.java
+  s_f0d4b4436a4f25::t_43237d85063f02 1-11,13-14,17-21,23,27-40,42-47,49-54,56-61,63
+  s_f0d4b4436a4f25::t_828c3dd6acb033 12,15-16,22,24-26
+  s_f0d4b4436a4f25::t_e76ce7833b00d2 41,48,55,62
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/retry/RetryExhaustionUserService.java
+  s_f0d4b4436a4f25::t_1f63c65b7bc492 21-22
+  s_f0d4b4436a4f25::t_0b258c3a2c4471 6
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/callfactory/CallFactoryConfigurerTest.java
+  s_f0d4b4436a4f25::t_fb21646722182d 27
+  s_f0d4b4436a4f25::t_86956b06c90963 69
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/degrade/resilience4j/Resilience4jUserService.java
+  s_f0d4b4436a4f25::t_0ee10bf06864e7 6
+  s_f0d4b4436a4f25::t_d1b358d44611d1 17-18
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/retry/RetryUserService.java
+  s_f0d4b4436a4f25::t_2a8563c1fa2fc3 8
+  s_f0d4b4436a4f25::t_d2f72ca6bbdf9a 19-20
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/timeout/TimeoutDimensionsServices.java
+  s_f0d4b4436a4f25::t_30cd885672587f 22-23
+  s_f0d4b4436a4f25::t_de8609e0dfae17 4
+  s_f0d4b4436a4f25::t_2b35757e2eb3d0 29-30
+README_EN.md
+  s_f0d4b4436a4f25::t_0ac2c81a459ac7 303-312,314-315,317-372,377
+  s_f0d4b4436a4f25::t_d3ceaee9576103 274
+  s_f0d4b4436a4f25::t_1085646a0416b8 209
+  s_f0d4b4436a4f25::t_a09677a50e98e9 313,316
+  s_f0d4b4436a4f25::t_b9fb7939aa07c3 740-741
+  s_f0d4b4436a4f25::t_d5eaf8d8ada762 670-671
+  s_f0d4b4436a4f25::t_a74db769afdea0 373-376
+  h_b701a059e95ce3 32
+  s_f0d4b4436a4f25::t_e5f994b377220d 122
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/timeout/MethodTimeoutTest.java
+  s_f0d4b4436a4f25::t_d0c08e530a1b02 1-55,58-78,81-92,95-113
+  s_f0d4b4436a4f25::t_5dab2c02f1f5a2 56-57,79-80,93-94
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/core/RetrofitClient.java
+  s_f0d4b4436a4f25::t_06b66667344b98 118
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/timeout/TimeoutUserService.java
+  s_f0d4b4436a4f25::t_ea96b70ccb9479 13-14
+  s_f0d4b4436a4f25::t_97edc69476adda 4
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/core/RetrofitFactoryBean.java
+  s_f0d4b4436a4f25::t_c7050745d29bbe 159-162
+  s_f0d4b4436a4f25::t_ff4f1c2bd80811 4,28-29
+  s_f0d4b4436a4f25::t_b51fb9c942e47b 311
+  s_f0d4b4436a4f25::t_976b0e3311eb90 319,322,325,328
+  s_f0d4b4436a4f25::t_86e177a6c00ad7 309-310,312-318,320-321,323-324,326-327,329-332
+  s_f0d4b4436a4f25::t_825e1c0802abbc 246-249
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/timeout/MethodTimeoutServices.java
+  s_f0d4b4436a4f25::t_7e49f38b06a59c 1-65
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/degrade/sentinel/GlobalSentinelUserService.java
+  s_f0d4b4436a4f25::t_826c5a711a55dc 13-14
+  s_f0d4b4436a4f25::t_58aba0756b5c24 4
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/retry/RetryEnhancementUserService.java
+  s_f0d4b4436a4f25::t_5ecac07ca80972 25-26
+  s_f0d4b4436a4f25::t_1cc8b744049978 9
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/callfactory/CallFactoryConfigurerServices.java
+  s_f0d4b4436a4f25::t_f4044976bbed69 4
+  s_f0d4b4436a4f25::t_ca579c638e37d9 25-26
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/degrade/sentinel/SentinelUserService.java
+  s_f0d4b4436a4f25::t_2254b1457b6b39 17-18
+  s_f0d4b4436a4f25::t_bf59a4d4d0628f 6
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/core/Constants.java
+  s_f0d4b4436a4f25::t_e87acdc52db48c 20-24
+  s_f0d4b4436a4f25::t_656446416dbde7 19,25
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.10-trip",
+  "base_commit_sha": "73b866e46e82f150d8a55c7b81e99ebb151a75b0",
+  "prompts": {},
+  "humans": {
+    "h_b701a059e95ce3": {
+      "author": "tm.chen <tm.chen@trip.com>"
+    }
+  },
+  "sessions": {
+    "s_f0d4b4436a4f25": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "709a7bbe-ecaa-4440-bd6c-69d59eee6aa2",
+        "model": "glm-5.1"
+      },
+      "human_author": "tm.chen <tm.chen@trip.com>"
+    }
+  }
+}
