@@ -29,7 +29,7 @@ Gitee project link: [https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>  
     <groupId>com.github.lianjiatech</groupId>  
     <artifactId>retrofit-spring-boot-starter</artifactId>
-  <version>4.1.0</version>
+  <version>4.2.0</version>
 </dependency>  
 ```
 
@@ -118,6 +118,8 @@ HTTP request-related annotations use Retrofit's native annotations. A brief over
 - [x] [Automatic Adaptation of HTTP Responses to Java Return Types](#Automatic-Adaptation-of-HTTP-Responses-to-Java-Return-Types)
 - [x] [Custom Data Converters](#Custom-Data-Converters)
 - [x] [Custom OkHttpClient](#Custom-OkHttpClient)
+- [x] [@Timeout Configuration](#timeout-configuration)
+- [x] [CallFactoryConfigurer SPI](#callfactoryconfigurer-spi)
 - [x] [Logging](#Logging)
 - [x] [Request Retries](#Request-Retries)
 - [x] [Global Application Interceptors](#Global-Application-Interceptors)
@@ -208,7 +210,7 @@ For individual interfaces, specify `Converter.Factory` using `@RetrofitClient.co
 
 ### Custom OkHttpClient
 
-Timeout configurations for `OkHttpClient` can be set via the configuration file or `@RetrofitClient`. For advanced configurations, customize `OkHttpClient` as follows:
+Timeout configurations for `OkHttpClient` can be set via the `@Timeout` annotation or global configuration `retrofit.global-timeout`. For advanced configurations, customize `OkHttpClient` as follows:
 
 #### Implement `SourceOkHttpClientRegistrar`
 
@@ -243,6 +245,55 @@ public interface CustomOkHttpUserService {
 }  
 ```  
 
+
+### @Timeout Configuration
+
+The component supports configuring timeouts via the `@Timeout` annotation at both the interface (class-level) and method (method-level) levels, with higher priority than global timeout properties.
+
+Priority chain: method `@Timeout` → class `@Timeout` → global `GlobalTimeoutProperty`
+
+```java
+@Timeout(readTimeoutMs = 1000, writeTimeoutMs = 1000)
+@RetrofitClient(baseUrl = "${test.baseUrl}")
+public interface UserService {
+
+    @GET("getUser")
+    User getUser(@Query("id") Long id);
+
+    @Timeout(readTimeoutMs = 5000)
+    @GET("getUserSlow")
+    User getUserSlow(@Query("id") Long id);
+}
+```
+
+Annotation attribute default value `-1` (`Constants.INVALID_VALUE`) means "not configured, inherit from upper level"; `0` means "no timeout"; positive value means timeout in milliseconds.
+
+- Class-level `@Timeout`: processed at OkHttpClient creation time, zero runtime overhead
+- Method-level `@Timeout`: `TimeoutCallFactory` pre-creates per-method OkHttpClient clones, looked up via Invocation tag at runtime; interfaces without method-level `@Timeout` have zero extra overhead
+
+### CallFactoryConfigurer SPI
+
+Allows users to register a Spring Bean to customize the `Call.Factory` used by each `@RetrofitClient` interface. The framework passes the fully-configured OkHttpClient (with all interceptors, timeouts, connection pool, etc.) as a parameter. When no Bean is registered, the component behavior remains unchanged.
+
+```java
+@Component
+public class MyCallFactoryConfigurer implements CallFactoryConfigurer {
+
+    @Override
+    public Call.Factory configure(Class<?> retrofitInterface, OkHttpClient baseClient) {
+        // Derive from baseClient via newBuilder (e.g., dynamic callTimeout)
+        if (retrofitInterface == UserService.class) {
+            return baseClient.newBuilder()
+                    .callTimeout(5, TimeUnit.SECONDS)
+                    .build();
+        }
+        // Return baseClient directly (equivalent to default behavior)
+        return baseClient;
+    }
+}
+```
+
+> When `CallFactoryConfigurer` returns a non-`OkHttpClient` instance, method-level `@Timeout` will not take effect — users should handle timeouts in their custom implementation.
 
 ### Logging
 
@@ -535,8 +586,8 @@ Set `degrade-type: sentinel` and use `@SentinelDegrade` on interfaces/methods. A
 2. Enable `degrade-type=sentinel`, and then declare the `@SentinelDegrade` annotation on the relevant interface or method, for example:
 
    ```java
-    @RetrofitClient(baseUrl = "${test.baseUrl}", fallback = SentinelFallbackUserService.class, connectTimeoutMs = 1,
-        readTimeoutMs = 1, writeTimeoutMs = 1)
+    @Timeout(connectTimeoutMs = 1, readTimeoutMs = 1, writeTimeoutMs = 1)
+    @RetrofitClient(baseUrl = "${test.baseUrl}", fallback = SentinelFallbackUserService.class)
     @SentinelDegrade(rules = {@SentinelDegradeRule(grade = 0, count = 100, timeWindow = 4),
     @SentinelDegradeRule(grade = 1, count = 0.01, timeWindow = 3)})
     public interface SentinelUserService {
@@ -605,8 +656,8 @@ Set `degrade-type: sentinel` and use `@SentinelDegrade` on interfaces/methods. A
      ```
 3. Enable `degrade-type=resilience4j`. Then declare `@Resilience4jDegrade` on the relevant interface or method, for example:
     ```java
-    @RetrofitClient(baseUrl = "${test.baseUrl}", fallbackFactory = Resilience4jFallbackFactory.class, connectTimeoutMs = 1,
-            readTimeoutMs = 1, writeTimeoutMs = 1)
+    @Timeout(connectTimeoutMs = 1, readTimeoutMs = 1, writeTimeoutMs = 1)
+    @RetrofitClient(baseUrl = "${test.baseUrl}", fallbackFactory = Resilience4jFallbackFactory.class)
     @Resilience4jDegrade(circuitBreakerConfigName = "testCircuitBreakerConfig")
     public interface Resilience4jUserService {
     

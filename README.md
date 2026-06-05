@@ -33,7 +33,7 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-    <version>4.1.0</version>
+    <version>4.2.0</version>
 </dependency>
 ```
 
@@ -117,6 +117,8 @@ public class BusinessService {
 - [x] [HTTP响应结果自动适配JAVA接口返回类型](#HTTP响应结果自动适配JAVA接口返回类型)
 - [x] [自定义数据转换器](#自定义数据转换器)
 - [x] [自定义OkHttpClient](#自定义OkHttpClient)
+- [x] [@Timeout 超时配置](#timeout-超时配置)
+- [x] [CallFactoryConfigurer SPI](#callfactoryconfigurer-spi)
 - [x] [日志打印](#日志打印)
 - [x] [请求重试](#请求重试)
 - [x] [全局应用拦截器](#全局应用拦截器)
@@ -201,7 +203,7 @@ retrofit:
 
 ### 自定义OkHttpClient
 
-对于OkHttpClient超时相关配置，可以通过配置文件或者`@RetrofitClient`设置。但是如果需要修改更灵活复杂的`OkHttpClient`配置，推荐通过自定义`OkHttpClient`来实现，步骤如下：
+对于OkHttpClient超时相关配置，推荐通过 `@Timeout` 注解或全局配置 `retrofit.global-timeout` 设置。如果需要修改更灵活复杂的`OkHttpClient`配置，推荐通过自定义`OkHttpClient`来实现，步骤如下：
 
 #### 实现`SourceOkHttpClientRegistrar`接口
    
@@ -235,6 +237,55 @@ public interface CustomOkHttpUserService {
    User getUser(@Query("id") Long id);
 }
 ```
+
+### @Timeout 超时配置
+
+组件支持通过 `@Timeout` 注解在接口（类级）和方法（方法级）上灵活配置超时，优先级高于全局超时属性。
+
+优先级链：方法 `@Timeout` → 类 `@Timeout` → 全局 `GlobalTimeoutProperty`
+
+```java
+@Timeout(readTimeoutMs = 1000, writeTimeoutMs = 1000)
+@RetrofitClient(baseUrl = "${test.baseUrl}")
+public interface UserService {
+
+    @GET("getUser")
+    User getUser(@Query("id") Long id);
+
+    @Timeout(readTimeoutMs = 5000)
+    @GET("getUserSlow")
+    User getUserSlow(@Query("id") Long id);
+}
+```
+
+注解属性默认值 `-1`（`Constants.INVALID_VALUE`）表示"未配置，继承上层优先级链"；`0` 表示"无超时"；正数表示具体超时毫秒数。
+
+- 类级 `@Timeout`：在 OkHttpClient 创建时处理，零运行时开销
+- 方法级 `@Timeout`：由 `TimeoutCallFactory` 预创建 per-method OkHttpClient clone，运行时通过 Invocation tag 查找，无注解接口零额外开销
+
+### CallFactoryConfigurer SPI
+
+允许用户注册 Spring Bean 自定义每个 `@RetrofitClient` 接口使用的 `Call.Factory`，框架会将已配置好的 OkHttpClient（含全部拦截器、超时、连接池等）作为参数传入。未注册 Bean 时组件行为完全不变。
+
+```java
+@Component
+public class MyCallFactoryConfigurer implements CallFactoryConfigurer {
+
+    @Override
+    public Call.Factory configure(Class<?> retrofitInterface, OkHttpClient baseClient) {
+        // 可基于 baseClient 做 newBuilder 派生（如动态 callTimeout）
+        if (retrofitInterface == UserService.class) {
+            return baseClient.newBuilder()
+                    .callTimeout(5, TimeUnit.SECONDS)
+                    .build();
+        }
+        // 也可直接返回 baseClient（等价默认行为）
+        return baseClient;
+    }
+}
+```
+
+> 当 `CallFactoryConfigurer` 返回的不是 `OkHttpClient` 时，方法级 `@Timeout` 不生效——用户应在自定义实现中自行处理超时。
 
 ### 日志打印
 
@@ -524,8 +575,8 @@ retrofit:
 
 2. 配置`degrade-type=sentinel`开启，然后在相关接口或者方法上声明`@SentinelDegrade`注解即可，例如：
    ```java
-    @RetrofitClient(baseUrl = "${test.baseUrl}", fallback = SentinelFallbackUserService.class, connectTimeoutMs = 1,
-        readTimeoutMs = 1, writeTimeoutMs = 1)
+    @Timeout(connectTimeoutMs = 1, readTimeoutMs = 1, writeTimeoutMs = 1)
+    @RetrofitClient(baseUrl = "${test.baseUrl}", fallback = SentinelFallbackUserService.class)
     @SentinelDegrade(rules = {@SentinelDegradeRule(grade = 0, count = 100, timeWindow = 4),
     @SentinelDegradeRule(grade = 1, count = 0.01, timeWindow = 3)})
     public interface SentinelUserService {
@@ -603,8 +654,8 @@ retrofit:
      ```
 3. 配置`degrade-type=resilience4j`开启。然后在相关接口或者方法上声明`@Resilience4jDegrade`即可，例如
     ```java
-    @RetrofitClient(baseUrl = "${test.baseUrl}", fallbackFactory = Resilience4jFallbackFactory.class, connectTimeoutMs = 1,
-            readTimeoutMs = 1, writeTimeoutMs = 1)
+    @Timeout(connectTimeoutMs = 1, readTimeoutMs = 1, writeTimeoutMs = 1)
+    @RetrofitClient(baseUrl = "${test.baseUrl}", fallbackFactory = Resilience4jFallbackFactory.class)
     @Resilience4jDegrade(circuitBreakerConfigName = "testCircuitBreakerConfig")
     public interface Resilience4jUserService {
     

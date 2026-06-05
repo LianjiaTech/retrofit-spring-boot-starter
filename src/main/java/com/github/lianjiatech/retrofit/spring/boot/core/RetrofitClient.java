@@ -49,7 +49,9 @@ public @interface RetrofitClient {
     String path() default Constants.STR_EMPTY;
 
     /**
-     * 当前接口的BaseUrl解析器，用于将`@Retrofit`上的信息解析成发起HTTP请求的BaseUrl，默认DefaultBaseUrlParser，优先从Spring容器获取，如果没有获取到，则反射创建。
+     * 当前接口的BaseUrl解析器，用于将{@code @RetrofitClient}上的信息解析成发起HTTP请求的BaseUrl，默认DefaultBaseUrlParser，优先从Spring容器获取，如果没有获取到，则反射创建。
+     *
+     * @return BaseUrl解析器类型
      */
     Class<? extends BaseUrlParser> baseUrlParser() default DefaultBaseUrlParser.class;
 
@@ -117,47 +119,6 @@ public @interface RetrofitClient {
      * @return 源OkHttpClient
      */
     String sourceOkHttpClient() default Constants.NO_SOURCE_OK_HTTP_CLIENT;
-
-    /*===============以下属性只有在sourceOkHttpClient为NO_SOURCE_OK_HTTP_CLIENT时才有效=================*/
-
-    /**
-     * Sets the default connect timeout for new connections. A value of 0 means no timeout,
-     * otherwise values must be between 1 and Integer.MAX_VALUE when converted to milliseconds.
-     * If it is configured as -1, the global default configuration is used.
-     *
-     * @return connectTimeoutMs
-     *
-     */
-    int connectTimeoutMs() default Constants.INVALID_VALUE;
-
-    /**
-     * Sets the default read timeout for new connections. A value of 0 means no timeout,
-     * otherwise values must be between 1 and Integer.MAX_VALUE when converted to milliseconds.
-     * If it is configured as -1, the global default configuration is used.
-     *
-     * @return readTimeoutMs
-     *
-     */
-    int readTimeoutMs() default Constants.INVALID_VALUE;
-
-    /**
-     * Sets the default write timeout for new connections. A value of 0 means no timeout,
-     * otherwise values must be between 1 and Integer.MAX_VALUE when converted to milliseconds.
-     * If it is configured as -1, the global default configuration is used.
-     *
-     * @return writeTimeoutMs
-     */
-    int writeTimeoutMs() default Constants.INVALID_VALUE;
-
-    /**
-     * Sets the default timeout for complete calls. A value of 0 means no timeout,
-     * otherwise values must be between 1 and Integer.MAX_VALUE when converted to milliseconds.
-     * If it is configured as -1, the global default configuration is used.
-     *
-     * @return callTimeoutMs
-     *
-     */
-    int callTimeoutMs() default Constants.INVALID_VALUE;
 
     /**
      * 该接口独占的最大空闲连接数。

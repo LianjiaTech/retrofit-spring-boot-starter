@@ -1,6 +1,7 @@
 package com.github.lianjiatech.retrofit.spring.boot.core;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -28,9 +29,12 @@ import com.github.lianjiatech.retrofit.spring.boot.interceptor.*;
 import com.github.lianjiatech.retrofit.spring.boot.log.Logging;
 import com.github.lianjiatech.retrofit.spring.boot.retry.Retry;
 import com.github.lianjiatech.retrofit.spring.boot.retry.RetryRule;
+import com.github.lianjiatech.retrofit.spring.boot.timeout.Timeout;
+import com.github.lianjiatech.retrofit.spring.boot.timeout.TimeoutCallFactory;
 import com.github.lianjiatech.retrofit.spring.boot.util.AppContextUtils;
 import com.github.lianjiatech.retrofit.spring.boot.util.BeanExtendUtils;
 
+import okhttp3.Call;
 import okhttp3.ConnectionPool;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -144,13 +148,18 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
     private RetrofitClientResolution.Timeout resolveTimeout(RetrofitClient retrofitClient, GlobalTimeoutProperty global) {
         RetrofitClientResolution.Timeout timeout = new RetrofitClientResolution.Timeout();
         List<String> inherited = new ArrayList<>(4);
-        timeout.setConnectMs(resolveTimeoutField(retrofitClient.connectTimeoutMs(), global.getConnectTimeoutMs(),
+        Timeout annotation = AnnotatedElementUtils.findMergedAnnotation(retrofitInterface, Timeout.class);
+        int connectMs = annotation != null ? annotation.connectTimeoutMs() : Constants.INVALID_VALUE;
+        int readMs = annotation != null ? annotation.readTimeoutMs() : Constants.INVALID_VALUE;
+        int writeMs = annotation != null ? annotation.writeTimeoutMs() : Constants.INVALID_VALUE;
+        int callMs = annotation != null ? annotation.callTimeoutMs() : Constants.INVALID_VALUE;
+        timeout.setConnectMs(resolveTimeoutField(connectMs, global.getConnectTimeoutMs(),
                 "connectMs", inherited));
-        timeout.setReadMs(resolveTimeoutField(retrofitClient.readTimeoutMs(), global.getReadTimeoutMs(),
+        timeout.setReadMs(resolveTimeoutField(readMs, global.getReadTimeoutMs(),
                 "readMs", inherited));
-        timeout.setWriteMs(resolveTimeoutField(retrofitClient.writeTimeoutMs(), global.getWriteTimeoutMs(),
+        timeout.setWriteMs(resolveTimeoutField(writeMs, global.getWriteTimeoutMs(),
                 "writeMs", inherited));
-        timeout.setCallMs(resolveTimeoutField(retrofitClient.callTimeoutMs(), global.getCallTimeoutMs(),
+        timeout.setCallMs(resolveTimeoutField(callMs, global.getCallTimeoutMs(),
                 "callMs", inherited));
         timeout.setInheritedFields(inherited);
         return timeout;
@@ -291,20 +300,6 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
             Objects.requireNonNull(baseClient, "baseOkHttpClient must not be null");
             okHttpClientBuilder = baseClient.newBuilder();
 
-            // 仅在 @RetrofitClient 显式覆盖时覆盖超时；否则继承 base
-            if (retrofitClient.connectTimeoutMs() != Constants.INVALID_VALUE) {
-                okHttpClientBuilder.connectTimeout(retrofitClient.connectTimeoutMs(), TimeUnit.MILLISECONDS);
-            }
-            if (retrofitClient.readTimeoutMs() != Constants.INVALID_VALUE) {
-                okHttpClientBuilder.readTimeout(retrofitClient.readTimeoutMs(), TimeUnit.MILLISECONDS);
-            }
-            if (retrofitClient.writeTimeoutMs() != Constants.INVALID_VALUE) {
-                okHttpClientBuilder.writeTimeout(retrofitClient.writeTimeoutMs(), TimeUnit.MILLISECONDS);
-            }
-            if (retrofitClient.callTimeoutMs() != Constants.INVALID_VALUE) {
-                okHttpClientBuilder.callTimeout(retrofitClient.callTimeoutMs(), TimeUnit.MILLISECONDS);
-            }
-
             // 仅在显式覆盖连接池参数时才隔离一份新 ConnectionPool；否则共享 base 的连接池
             boolean overrideMaxIdle = retrofitClient.maxIdleConnections() != Constants.INVALID_VALUE;
             boolean overrideKeepAlive = retrofitClient.keepAliveDurationMs() != Constants.INVALID_VALUE;
@@ -321,6 +316,12 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
             OkHttpClient sourceOkHttpClient = cfg.getSourceOkHttpClientRegistry()
                     .get(retrofitClient.sourceOkHttpClient());
             okHttpClientBuilder = sourceOkHttpClient.newBuilder();
+        }
+
+        // 类级 @Timeout 覆盖超时（对 baseClient 和 sourceOkHttpClient 均生效）
+        Timeout classTimeout = AnnotatedElementUtils.findMergedAnnotation(retrofitInterface, Timeout.class);
+        if (classTimeout != null) {
+            applyTimeoutOverrides(okHttpClientBuilder, classTimeout);
         }
 
         if (isEnableDegrade(retrofitInterface)) {
@@ -350,6 +351,30 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
             networkInterceptors.forEach(okHttpClientBuilder::addNetworkInterceptor);
         }
         return okHttpClientBuilder.build();
+    }
+
+    private boolean hasMethodLevelTimeout(Class<?> retrofitInterface) {
+        for (Method method : retrofitInterface.getMethods()) {
+            if (AnnotatedElementUtils.findMergedAnnotation(method, Timeout.class) != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void applyTimeoutOverrides(OkHttpClient.Builder builder, Timeout timeout) {
+        if (timeout.connectTimeoutMs() != Constants.INVALID_VALUE) {
+            builder.connectTimeout(timeout.connectTimeoutMs(), TimeUnit.MILLISECONDS);
+        }
+        if (timeout.readTimeoutMs() != Constants.INVALID_VALUE) {
+            builder.readTimeout(timeout.readTimeoutMs(), TimeUnit.MILLISECONDS);
+        }
+        if (timeout.writeTimeoutMs() != Constants.INVALID_VALUE) {
+            builder.writeTimeout(timeout.writeTimeoutMs(), TimeUnit.MILLISECONDS);
+        }
+        if (timeout.callTimeoutMs() != Constants.INVALID_VALUE) {
+            builder.callTimeout(timeout.callTimeoutMs(), TimeUnit.MILLISECONDS);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -404,10 +429,21 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
 
         OkHttpClient client = createOkHttpClient(retrofitClient);
         RetrofitConfigBean cfg = retrofitConfigBean();
+
+        Call.Factory callFactory = client;
+        CallFactoryConfigurer configurer = cfg.getCallFactoryConfigurer();
+        if (configurer != null) {
+            callFactory = configurer.configure(retrofitInterface, client);
+        }
+        // 仅当存在方法级 @Timeout 时才引入 TimeoutCallFactory，否则无额外开销
+        if (hasMethodLevelTimeout(retrofitInterface)) {
+            callFactory = new TimeoutCallFactory(callFactory, retrofitInterface);
+        }
+
         Retrofit.Builder retrofitBuilder = new Retrofit.Builder()
                 .baseUrl(baseUrl)
                 .validateEagerly(retrofitClient.validateEagerly())
-                .client(client);
+                .callFactory(callFactory);
 
         // 添加配置或者指定的CallAdapterFactory
         List<Class<? extends CallAdapter.Factory>> callAdapterFactories = new ArrayList<>(2);

@@ -1,5 +1,6 @@
 package com.github.lianjiatech.retrofit.spring.boot.config;
 
+import com.github.lianjiatech.retrofit.spring.boot.core.CallFactoryConfigurer;
 import com.github.lianjiatech.retrofit.spring.boot.core.SourceOkHttpClientRegistry;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitDegrade;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.ErrorDecoderInterceptor;
@@ -45,6 +46,8 @@ public class RetrofitConfigBean {
     private ErrorDecoderInterceptor errorDecoderInterceptor;
 
     private SourceOkHttpClientRegistry sourceOkHttpClientRegistry;
+
+    private CallFactoryConfigurer callFactoryConfigurer;
 
     /**
      * Micrometer 指标拦截器。仅当类路径存在 {@code MeterRegistry} 且容器中已注册时由

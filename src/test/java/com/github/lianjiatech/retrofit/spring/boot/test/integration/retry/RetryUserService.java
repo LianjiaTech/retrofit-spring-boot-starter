@@ -5,6 +5,7 @@ import java.util.List;
 import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClient;
 import com.github.lianjiatech.retrofit.spring.boot.retry.Retry;
 import com.github.lianjiatech.retrofit.spring.boot.retry.RetryRule;
+import com.github.lianjiatech.retrofit.spring.boot.timeout.Timeout;
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.entity.User;
 
 import retrofit2.http.GET;
@@ -15,7 +16,8 @@ import retrofit2.http.Query;
  * @author 陈添明
  * @since 2023/12/17 12:47 下午
  */
-@RetrofitClient(baseUrl = "${test.baseUrl}", connectTimeoutMs = 100, readTimeoutMs = 100, writeTimeoutMs = 100)
+@Timeout(connectTimeoutMs = 100, readTimeoutMs = 100, writeTimeoutMs = 100)
+@RetrofitClient(baseUrl = "${test.baseUrl}")
 @Retry(intervalMs = 5, maxRetries = 3, retryRules = RetryRule.RESPONSE_STATUS_NOT_2XX)
 public interface RetryUserService {
 

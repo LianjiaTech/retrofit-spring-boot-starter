@@ -70,6 +70,8 @@ public class RetrofitAutoConfiguration {
     @Autowired(required = false)
     @Qualifier("retrofitMetricsInterceptor")
     private Interceptor retrofitMetricsInterceptor;
+    @Autowired(required = false)
+    private CallFactoryConfigurer callFactoryConfigurer;
 
     public RetrofitAutoConfiguration(RetrofitProperties retrofitProperties) {
         this.retrofitProperties = retrofitProperties;
@@ -185,6 +187,7 @@ public class RetrofitAutoConfiguration {
         retrofitConfigBean.setSourceOkHttpClientRegistry(sourceOkHttpClientRegistry);
         retrofitConfigBean.setBaseOkHttpClient(baseOkHttpClient);
         retrofitConfigBean.setMetricsInterceptor(retrofitMetricsInterceptor);
+        retrofitConfigBean.setCallFactoryConfigurer(callFactoryConfigurer);
         return retrofitConfigBean;
     }
 

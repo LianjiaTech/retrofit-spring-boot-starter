@@ -22,4 +22,5 @@ Single-context layout. See `docs/agents/domain.md`.
   - 不用针对每个类编写对应的代码测试代码，而是编写集成测试代码即可（参考现在的测试代码编写），重点是要保证场景全覆盖
 - 开启caveman模式，优先使用codegraph进行代码搜索分析
 - 编写新功能的时候，一定要同步更新文档：README.md 和 README_EN.md。更新文档的时候把"功能特性"目录也更新一下
-- 
+- 不要直接就写代码，永远要跟我确认方案没问题之后，再写代码
+- 代码注释要符合javadoc规范，内部private方法不用写注释

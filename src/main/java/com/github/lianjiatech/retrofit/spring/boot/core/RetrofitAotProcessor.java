@@ -22,6 +22,7 @@ import org.springframework.util.ClassUtils;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.InterceptMark;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.Intercept;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.Intercepts;
+import com.github.lianjiatech.retrofit.spring.boot.timeout.Timeout;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -115,6 +116,9 @@ public class RetrofitAotProcessor implements BeanFactoryInitializationAotProcess
             registerInstantiableTypes(reflection, retrofitClient.fallback());
             registerInstantiableTypes(reflection, retrofitClient.fallbackFactory());
         }
+        // @Timeout 注解需在 native 下反射可见（类级和方法级）
+        reflection.registerType(Timeout.class,
+                MemberCategory.INVOKE_PUBLIC_METHODS);
         registerInterceptorHandlers(reflection, retrofitInterface);
     }
 
