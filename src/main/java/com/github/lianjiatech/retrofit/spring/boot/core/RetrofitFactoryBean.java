@@ -1,6 +1,7 @@
 package com.github.lianjiatech.retrofit.spring.boot.core;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -24,6 +25,8 @@ import com.github.lianjiatech.retrofit.spring.boot.core.reactive.*;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.DegradeProxy;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitDegrade;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.*;
+import com.github.lianjiatech.retrofit.spring.boot.timeout.Timeout;
+import com.github.lianjiatech.retrofit.spring.boot.timeout.TimeoutCallFactory;
 import com.github.lianjiatech.retrofit.spring.boot.util.AppContextUtils;
 import com.github.lianjiatech.retrofit.spring.boot.util.BeanExtendUtils;
 
@@ -135,20 +138,6 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
             Objects.requireNonNull(baseClient, "baseOkHttpClient must not be null");
             okHttpClientBuilder = baseClient.newBuilder();
 
-            // 仅在 @RetrofitClient 显式覆盖时覆盖超时；否则继承 base
-            if (retrofitClient.connectTimeoutMs() != Constants.INVALID_VALUE) {
-                okHttpClientBuilder.connectTimeout(retrofitClient.connectTimeoutMs(), TimeUnit.MILLISECONDS);
-            }
-            if (retrofitClient.readTimeoutMs() != Constants.INVALID_VALUE) {
-                okHttpClientBuilder.readTimeout(retrofitClient.readTimeoutMs(), TimeUnit.MILLISECONDS);
-            }
-            if (retrofitClient.writeTimeoutMs() != Constants.INVALID_VALUE) {
-                okHttpClientBuilder.writeTimeout(retrofitClient.writeTimeoutMs(), TimeUnit.MILLISECONDS);
-            }
-            if (retrofitClient.callTimeoutMs() != Constants.INVALID_VALUE) {
-                okHttpClientBuilder.callTimeout(retrofitClient.callTimeoutMs(), TimeUnit.MILLISECONDS);
-            }
-
             // 仅在显式覆盖连接池参数时才隔离一份新 ConnectionPool；否则共享 base 的连接池
             boolean overrideMaxIdle = retrofitClient.maxIdleConnections() != Constants.INVALID_VALUE;
             boolean overrideKeepAlive = retrofitClient.keepAliveDurationMs() != Constants.INVALID_VALUE;
@@ -165,6 +154,12 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
             OkHttpClient sourceOkHttpClient = cfg.getSourceOkHttpClientRegistry()
                     .get(retrofitClient.sourceOkHttpClient());
             okHttpClientBuilder = sourceOkHttpClient.newBuilder();
+        }
+
+        // 类级 @Timeout 覆盖超时（对 baseClient 和 sourceOkHttpClient 均生效）
+        Timeout classTimeout = AnnotatedElementUtils.findMergedAnnotation(retrofitInterface, Timeout.class);
+        if (classTimeout != null) {
+            applyTimeoutOverrides(okHttpClientBuilder, classTimeout);
         }
 
         if (isEnableDegrade(retrofitInterface)) {
@@ -248,6 +243,10 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         if (configurer != null) {
             callFactory = configurer.configure(retrofitInterface, client);
         }
+        // 仅当存在方法级 @Timeout 时才引入 TimeoutCallFactory，否则无额外开销
+        if (hasMethodLevelTimeout(retrofitInterface)) {
+            callFactory = new TimeoutCallFactory(callFactory, retrofitInterface);
+        }
 
         Retrofit.Builder retrofitBuilder = new Retrofit.Builder()
                 .baseUrl(baseUrl)
@@ -304,6 +303,30 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         if (RXJAVA3_PRESENT) {
             retrofitBuilder.addCallAdapterFactory(Rxjava3SingleCallAdapterFactory.INSTANCE);
             retrofitBuilder.addCallAdapterFactory(Rxjava3CompletableCallAdapterFactory.INSTANCE);
+        }
+    }
+
+    private boolean hasMethodLevelTimeout(Class<?> retrofitInterface) {
+        for (Method method : retrofitInterface.getMethods()) {
+            if (AnnotatedElementUtils.findMergedAnnotation(method, Timeout.class) != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void applyTimeoutOverrides(OkHttpClient.Builder builder, Timeout timeout) {
+        if (timeout.connectTimeoutMs() != Constants.INVALID_VALUE) {
+            builder.connectTimeout(timeout.connectTimeoutMs(), TimeUnit.MILLISECONDS);
+        }
+        if (timeout.readTimeoutMs() != Constants.INVALID_VALUE) {
+            builder.readTimeout(timeout.readTimeoutMs(), TimeUnit.MILLISECONDS);
+        }
+        if (timeout.writeTimeoutMs() != Constants.INVALID_VALUE) {
+            builder.writeTimeout(timeout.writeTimeoutMs(), TimeUnit.MILLISECONDS);
+        }
+        if (timeout.callTimeoutMs() != Constants.INVALID_VALUE) {
+            builder.callTimeout(timeout.callTimeoutMs(), TimeUnit.MILLISECONDS);
         }
     }
 

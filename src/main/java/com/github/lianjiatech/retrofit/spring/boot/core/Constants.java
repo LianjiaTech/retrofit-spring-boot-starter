@@ -16,5 +16,12 @@ public interface Constants {
 
     String DEFAULT_CIRCUIT_BREAKER_CONFIG = "defaultCircuitBreakerConfig";
 
+    /**
+     * 通用无效值标记（-1）。
+     * <p>
+     * 在 OkHttp 超时上下文中，-1 是非法值域（OkHttp 只接受 0 和正数），
+     * 因此用作 @Timeout / @RetrofitClient 等注解的"未配置，继承上层"默认值，
+     * 不与合法超时值冲突。
+     */
     int INVALID_VALUE = -1;
 }

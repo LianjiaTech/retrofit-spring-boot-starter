@@ -6,6 +6,7 @@ import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClient;
 import com.github.lianjiatech.retrofit.spring.boot.retry.BackoffStrategy;
 import com.github.lianjiatech.retrofit.spring.boot.retry.Retry;
 import com.github.lianjiatech.retrofit.spring.boot.retry.RetryRule;
+import com.github.lianjiatech.retrofit.spring.boot.timeout.Timeout;
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.entity.User;
 
 import retrofit2.http.GET;
@@ -21,7 +22,8 @@ import retrofit2.http.Query;
  *
  * @author 陈添明
  */
-@RetrofitClient(baseUrl = "${test.baseUrl}", connectTimeoutMs = 200, readTimeoutMs = 200, writeTimeoutMs = 200)
+@Timeout(connectTimeoutMs = 200, readTimeoutMs = 200, writeTimeoutMs = 200)
+@RetrofitClient(baseUrl = "${test.baseUrl}")
 public interface RetryEnhancementUserService {
 
     @GET("getUser")

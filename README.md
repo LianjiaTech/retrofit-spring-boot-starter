@@ -33,7 +33,7 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-   <version>2.5.10</version>
+   <version>2.6.0</version>
 </dependency>
 ```
 
@@ -118,6 +118,7 @@ public class BusinessService {
 - [x] [自定义数据转换器](#自定义数据转换器)
 - [x] [自定义OkHttpClient](#自定义OkHttpClient)
 - [x] [自定义Call.Factory SPI](#自定义CallFactory-SPI)
+- [x] [方法级超时配置](#方法级超时配置)
 - [x] [日志打印](#日志打印)
 - [x] [请求重试](#请求重试)
 - [x] [全局应用拦截器](#全局应用拦截器)
@@ -200,7 +201,7 @@ retrofit:
 
 ### 自定义OkHttpClient
 
-对于OkHttpClient超时相关配置，可以通过配置文件或者`@RetrofitClient`设置。但是如果需要修改更灵活复杂的`OkHttpClient`配置，推荐通过自定义`OkHttpClient`来实现，步骤如下：
+对于OkHttpClient超时相关配置，可以通过配置文件或者`@Timeout`注解设置。但是如果需要修改更灵活复杂的`OkHttpClient`配置，推荐通过自定义`OkHttpClient`来实现，步骤如下：
 
 #### 实现`SourceOkHttpClientRegistrar`接口
    
@@ -264,7 +265,7 @@ public class DynamicCallTimeoutConfigurer implements CallFactoryConfigurer {
                                 .newCall(request);
                     }
                 }
-                // 无覆盖 → 使用 @RetrofitClient.callTimeoutMs 默认值
+                // 无覆盖 → 使用 @Timeout 或全局默认值
                 return baseClient.newCall(request);
             }
         };
@@ -292,6 +293,81 @@ public class SelectiveCallFactoryConfigurer implements CallFactoryConfigurer {
 ```
 
 > 未注册 `CallFactoryConfigurer` Bean 时，组件行为完全不变。
+
+### 方法级超时配置
+
+组件支持通过 `@Timeout` 注解在方法或类级别设置超时参数，覆盖全局超时配置。
+
+#### 优先级链
+
+```
+方法 @Timeout → 类 @Timeout → 全局配置（GlobalTimeoutProperty）
+```
+
+- `@Timeout` 属性默认值 `-1` 表示"未配置，继承上层优先级链"
+- 设为 `0` 表示"无超时"
+- 设为正数表示具体超时毫秒数
+- `-1` 是 OkHttp 超时的非法值域（OkHttp 只接受 0 和正数），用作"未配置"标记不会与合法超时值冲突
+
+#### 类级 @Timeout
+
+在接口上声明 `@Timeout`，为该接口的所有方法设置超时（替代旧版 `@RetrofitClient` 超时属性）：
+
+```java
+@Timeout(readTimeoutMs = 5000)
+@RetrofitClient(baseUrl = "${test.baseUrl}")
+public interface UserService {
+
+   @GET("getUser")
+   User getUser(@Query("id") Long id);
+}
+```
+
+#### 方法级 @Timeout
+
+在特定方法上声明 `@Timeout`，覆盖类级或全局超时配置：
+
+```java
+@Timeout(readTimeoutMs = 5000)
+@RetrofitClient(baseUrl = "${test.baseUrl}")
+public interface UserService {
+
+   // 继承类级 readTimeoutMs = 5000
+   @GET("getUser")
+   User getUser(@Query("id") Long id);
+
+   // 方法级覆盖：慢查询接口使用更长超时
+   @Timeout(readTimeoutMs = 30000)
+   @GET("search")
+   List<User> searchUsers(@Query("q") String query);
+}
+```
+
+#### 仅方法级 @Timeout（无类级注解）
+
+```java
+@RetrofitClient(baseUrl = "${test.baseUrl}")
+public interface UserService {
+
+   // 使用全局超时配置
+   @GET("getUser")
+   User getUser(@Query("id") Long id);
+
+   // 仅此方法使用自定义超时
+   @Timeout(connectTimeoutMs = 3000, readTimeoutMs = 30000)
+   @GET("search")
+   List<User> searchUsers(@Query("q") String query);
+}
+```
+
+#### 四种超时维度
+
+| 属性 | 含义 | 默认值 |
+|------|------|--------|
+| `connectTimeoutMs` | 连接超时（毫秒） | `-1`（继承上层） |
+| `readTimeoutMs` | 读取超时（毫秒） | `-1`（继承上层） |
+| `writeTimeoutMs` | 写入超时（毫秒） | `-1`（继承上层） |
+| `callTimeoutMs` | 完整调用超时（毫秒） | `-1`（继承上层） |
 
 ### 日志打印
 
@@ -581,8 +657,8 @@ retrofit:
 
 2. 配置`degrade-type=sentinel`开启，然后在相关接口或者方法上声明`@SentinelDegrade`注解即可，例如：
    ```java
-    @RetrofitClient(baseUrl = "${test.baseUrl}", fallback = SentinelFallbackUserService.class, connectTimeoutMs = 1,
-        readTimeoutMs = 1, writeTimeoutMs = 1)
+    @Timeout(connectTimeoutMs = 1, readTimeoutMs = 1, writeTimeoutMs = 1)
+    @RetrofitClient(baseUrl = "${test.baseUrl}", fallback = SentinelFallbackUserService.class)
     @SentinelDegrade(rules = {@SentinelDegradeRule(grade = 0, count = 100, timeWindow = 4),
     @SentinelDegradeRule(grade = 1, count = 0.01, timeWindow = 3)})
     public interface SentinelUserService {
@@ -660,8 +736,8 @@ retrofit:
      ```
 3. 配置`degrade-type=resilience4j`开启。然后在相关接口或者方法上声明`@Resilience4jDegrade`即可，例如
     ```java
-    @RetrofitClient(baseUrl = "${test.baseUrl}", fallbackFactory = Resilience4jFallbackFactory.class, connectTimeoutMs = 1,
-            readTimeoutMs = 1, writeTimeoutMs = 1)
+    @Timeout(connectTimeoutMs = 1, readTimeoutMs = 1, writeTimeoutMs = 1)
+    @RetrofitClient(baseUrl = "${test.baseUrl}", fallbackFactory = Resilience4jFallbackFactory.class)
     @Resilience4jDegrade(circuitBreakerConfigName = "testCircuitBreakerConfig")
     public interface Resilience4jUserService {
     

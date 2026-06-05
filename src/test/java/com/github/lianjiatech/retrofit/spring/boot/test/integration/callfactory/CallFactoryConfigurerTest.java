@@ -24,7 +24,7 @@ import com.github.lianjiatech.retrofit.spring.boot.test.integration.callfactory.
  *     <li>TestCallFactoryConfigurer 对 DefaultCallTimeoutService 动态覆盖 callTimeout</li>
  *     <li>@DynamicCallTimeout(ms=500) 注解使慢响应触发超时</li>
  *     <li>无注解的方法使用全局默认超时（5000ms），快响应正常返回</li>
- *     <li>ShortCallTimeoutService 通过 @RetrofitClient.callTimeoutMs=500 静态配置超时</li>
+ *     <li>ShortCallTimeoutService 通过 @Timeout.callTimeoutMs=500 静态配置超时</li>
  * </ul>
  */
 @SpringBootTest(classes = {RetrofitBootApplication.class, CallFactoryConfigurerTest.TestConfig.class})
@@ -66,7 +66,7 @@ public class CallFactoryConfigurerTest extends MockWebServerTest {
 
     @Test
     public void staticCallTimeout_shortDelayCausesError() {
-        // @RetrofitClient.callTimeoutMs=500 + server delay 2s → 静态 callTimeout 超时
+        // @Timeout.callTimeoutMs=500 + server delay 2s → 静态 callTimeout 超时
         mockServerReturnObject(USER_MIKE, 2);
         try {
             shortCallTimeoutService.getUser(Long100);
