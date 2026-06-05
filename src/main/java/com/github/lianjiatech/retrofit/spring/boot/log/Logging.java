@@ -57,6 +57,8 @@ public @interface Logging {
 
     /**
      * 日志中需要隐藏的敏感请求头
+     *
+     * @return 需要隐藏的请求头名称数组
      */
     String[] redactHeaders() default {};
 }

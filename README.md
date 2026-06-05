@@ -33,7 +33,7 @@ gitee项目地址：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
    <artifactId>retrofit-spring-boot-starter</artifactId>
-   <version>2.5.9</version>
+   <version>2.5.10</version>
 </dependency>
 ```
 
@@ -117,6 +117,7 @@ public class BusinessService {
 - [x] [HTTP响应结果自动适配JAVA接口返回类型](#HTTP响应结果自动适配JAVA接口返回类型)
 - [x] [自定义数据转换器](#自定义数据转换器)
 - [x] [自定义OkHttpClient](#自定义OkHttpClient)
+- [x] [自定义Call.Factory SPI](#自定义CallFactory-SPI)
 - [x] [日志打印](#日志打印)
 - [x] [请求重试](#请求重试)
 - [x] [全局应用拦截器](#全局应用拦截器)
@@ -233,6 +234,64 @@ public interface CustomOkHttpUserService {
    User getUser(@Query("id") Long id);
 }
 ```
+
+### 自定义Call.Factory SPI
+
+组件为每个 `@RetrofitClient` 接口创建一个配置好的 `OkHttpClient`（含全部拦截器、超时、连接池等），并作为 Retrofit 的 `Call.Factory` 使用。如果需要在 Call 创建层面做自定义（如动态 callTimeout、请求级定制等），可通过 `CallFactoryConfigurer` SPI 实现。
+
+> **为什么需要 SPI？** OkHttp 的 `callTimeout` 是整个调用的截止时间，无法在拦截器中可靠覆盖（OkHttp 在拦截器链执行前已完成 timeout 调度）。`CallFactoryConfigurer` 在 Call 创建层面介入，使用 `OkHttpClient.newBuilder()` 派生轻量 client（共享 connectionPool 与 dispatcher）来实现 per-request 覆盖。
+
+#### 实现 `CallFactoryConfigurer` 接口
+
+```java
+@Component
+public class DynamicCallTimeoutConfigurer implements CallFactoryConfigurer {
+
+    @Override
+    public Call.Factory configure(Class<?> retrofitInterface, OkHttpClient baseClient) {
+        // 对所有接口返回动态覆盖的 Call.Factory
+        return new Call.Factory() {
+            @Override
+            public Call newCall(Request request) {
+                Invocation invocation = request.tag(Invocation.class);
+                if (invocation != null) {
+                    MyCallTimeout ann = invocation.method().getAnnotation(MyCallTimeout.class);
+                    if (ann != null) {
+                        // newBuilder() 共享 connectionPool/dispatcher/interceptors，仅 callTimeout 不同
+                        return baseClient.newBuilder()
+                                .callTimeout(ann.ms(), TimeUnit.MILLISECONDS)
+                                .build()
+                                .newCall(request);
+                    }
+                }
+                // 无覆盖 → 使用 @RetrofitClient.callTimeoutMs 默认值
+                return baseClient.newCall(request);
+            }
+        };
+    }
+}
+```
+
+#### 仅对特定接口生效
+
+```java
+@Component
+public class SelectiveCallFactoryConfigurer implements CallFactoryConfigurer {
+
+    @Override
+    public Call.Factory configure(Class<?> retrofitInterface, OkHttpClient baseClient) {
+        if (retrofitInterface == SlowApiService.class) {
+            return baseClient.newBuilder()
+                    .callTimeout(30_000, TimeUnit.MILLISECONDS)
+                    .build();
+        }
+        // 其它接口直接返回 baseClient，等价默认行为
+        return baseClient;
+    }
+}
+```
+
+> 未注册 `CallFactoryConfigurer` Bean 时，组件行为完全不变。
 
 ### 日志打印
 

@@ -54,6 +54,7 @@ class RetryStrategy {
      *     <li>FIXED：base</li>
      * </ul>
      * 若 jitter &gt; 0，再叠加 delay * (1 + jitter * random[0,1))。
+     * @return 等待时间（毫秒）
      */
     long calculateDelay() {
         long delay;

@@ -51,6 +51,8 @@ public class RetrofitException extends RuntimeException {
 
     /**
      * 生成异常描述：保留类型名，避免 cause.getMessage() 为 null 时丢失信息。
+     * @param cause 异常原因
+     * @return 异常描述字符串
      */
     private static String describe(Throwable cause) {
         String message = cause.getMessage();

@@ -27,6 +27,7 @@ import com.github.lianjiatech.retrofit.spring.boot.interceptor.*;
 import com.github.lianjiatech.retrofit.spring.boot.util.AppContextUtils;
 import com.github.lianjiatech.retrofit.spring.boot.util.BeanExtendUtils;
 
+import okhttp3.Call;
 import okhttp3.ConnectionPool;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -105,6 +106,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
      *     <li>{@code volatile} 保证写入对其它线程立即可见。
      * </ul>
      * 与 {@code BaseRetrofitDegrade.lookupBaseUrl} 的写法保持一致。
+     * @return RetrofitConfigBean 实例
      */
     private RetrofitConfigBean retrofitConfigBean() {
         if (this.retrofitConfigBean == null) {
@@ -240,10 +242,17 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
 
         OkHttpClient client = createOkHttpClient(retrofitClient);
         RetrofitConfigBean cfg = retrofitConfigBean();
+
+        Call.Factory callFactory = client;
+        CallFactoryConfigurer configurer = cfg.getCallFactoryConfigurer();
+        if (configurer != null) {
+            callFactory = configurer.configure(retrofitInterface, client);
+        }
+
         Retrofit.Builder retrofitBuilder = new Retrofit.Builder()
                 .baseUrl(baseUrl)
                 .validateEagerly(retrofitClient.validateEagerly())
-                .client(client);
+                .callFactory(callFactory);
 
         // 添加配置或者指定的CallAdapterFactory
         List<Class<? extends CallAdapter.Factory>> callAdapterFactories = new ArrayList<>(2);

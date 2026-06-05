@@ -113,6 +113,10 @@ public class RetryInterceptor implements Interceptor {
      * <p>
      * 先要求命中 {@link RetryRule#RESPONSE_STATUS_NOT_2XX} 且响应非2xx；
      * 当 {@code retryStatusCodes} 非空时，进一步收窄为仅当状态码命中列表才重试。
+     * @param retryRuleSet      已激活的重试规则集合
+     * @param retryStatusCodes  需要重试的 HTTP 状态码列表
+     * @param response          当前 HTTP 响应
+     * @return 是否应触发重试
      */
     protected boolean shouldRetryOnStatus(Set<RetryRule> retryRuleSet, int[] retryStatusCodes, Response response) {
         if (!retryRuleSet.contains(RetryRule.RESPONSE_STATUS_NOT_2XX) || response.isSuccessful()) {
@@ -172,6 +176,8 @@ public class RetryInterceptor implements Interceptor {
 
     /**
      * 不重试时直接向上传递：保留 {@link IOException} 与 {@link RuntimeException}，其它受检异常再包装。
+     * @param e 需要传递的异常
+     * @throws IOException 当异常为 IOException 或其子类时直接抛出
      */
     private static void rethrowWithoutRetry(Exception e) throws IOException {
         if (e instanceof IOException) {

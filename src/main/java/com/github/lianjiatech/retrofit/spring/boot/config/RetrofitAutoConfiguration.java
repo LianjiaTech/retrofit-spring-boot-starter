@@ -56,6 +56,8 @@ public class RetrofitAutoConfiguration {
     private List<NetworkInterceptor> networkInterceptors;
     @Autowired(required = false)
     private com.fasterxml.jackson.databind.ObjectMapper objectMapper;
+    @Autowired(required = false)
+    private CallFactoryConfigurer callFactoryConfigurer;
 
     public RetrofitAutoConfiguration(RetrofitProperties retrofitProperties) {
         this.retrofitProperties = retrofitProperties;
@@ -147,6 +149,7 @@ public class RetrofitAutoConfiguration {
         retrofitConfigBean.setGlobalConverterFactoryClasses(retrofitProperties.getGlobalConverterFactories());
         retrofitConfigBean.setSourceOkHttpClientRegistry(sourceOkHttpClientRegistry);
         retrofitConfigBean.setBaseOkHttpClient(baseOkHttpClient);
+        retrofitConfigBean.setCallFactoryConfigurer(callFactoryConfigurer);
         return retrofitConfigBean;
     }
 
@@ -156,6 +159,8 @@ public class RetrofitAutoConfiguration {
      * 独立持有线程池/连接池造成的资源浪费。
      * <p>
      * destroyMethod 留空，由 {@link OkHttpClientLifecycle} 显式负责关停，避免 Spring 误调用。
+     *
+     * @return 共享的基础 OkHttpClient
      */
     @Bean(name = "retrofitBaseOkHttpClient", destroyMethod = "")
     @ConditionalOnMissingBean(name = "retrofitBaseOkHttpClient")
@@ -242,7 +247,9 @@ public class RetrofitAutoConfiguration {
 
         /**
          * 默认 CircuitBreakerRegistry。若用户已在 Spring 容器中注册了自定义 CircuitBreakerRegistry（如通过
-         * resilience4j-spring-boot 自动配置），则 @ConditionalOnMissingBean 保证不会覆盖它。
+         * resilience4j-spring-boot 自动配置），则 {@code @ConditionalOnMissingBean} 保证不会覆盖它。
+         *
+         * @return CircuitBreakerRegistry 实例
          */
         @Bean
         @ConditionalOnMissingBean

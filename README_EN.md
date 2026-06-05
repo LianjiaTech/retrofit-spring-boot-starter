@@ -29,7 +29,7 @@ Gitee project link: [https://gitee.com/lianjiatech/retrofit-spring-boot-starter]
 <dependency>  
     <groupId>com.github.lianjiatech</groupId>  
     <artifactId>retrofit-spring-boot-starter</artifactId>  
-    <version>2.5.9</version>  
+    <version>2.5.10</version>  
 </dependency>  
 ```
 
@@ -118,6 +118,7 @@ HTTP request-related annotations use Retrofit's native annotations. A brief over
 - [x] [Automatic Adaptation of HTTP Responses to Java Return Types](#Automatic-Adaptation-of-HTTP-Responses-to-Java-Return-Types)
 - [x] [Custom Data Converters](#Custom-Data-Converters)
 - [x] [Custom OkHttpClient](#Custom-OkHttpClient)
+- [x] [Custom Call.Factory SPI](#Custom-CallFactory-SPI)
 - [x] [Logging](#Logging)
 - [x] [Request Retries](#Request-Retries)
 - [x] [Global Application Interceptors](#Global-Application-Interceptors)
@@ -238,6 +239,65 @@ public interface CustomOkHttpUserService {
     User getUser(@Query("id") Long id);  
 }  
 ```  
+
+
+### Custom Call.Factory SPI
+
+For each `@RetrofitClient` interface, the component creates a fully-configured `OkHttpClient` (with all interceptors, timeouts, connection pool, etc.) and uses it as Retrofit's `Call.Factory`. If you need to customize Call creation behavior (e.g., dynamic callTimeout, per-request overrides), implement the `CallFactoryConfigurer` SPI.
+
+> **Why an SPI?** OkHttp's `callTimeout` is a deadline for the entire call, which cannot be reliably overridden inside an interceptor (OkHttp schedules timeouts before the interceptor chain executes). `CallFactoryConfigurer` intervenes at the Call creation level, using `OkHttpClient.newBuilder()` to derive a lightweight client (sharing connectionPool and dispatcher) for per-request overrides.
+
+#### Implement `CallFactoryConfigurer`
+
+```java
+@Component
+public class DynamicCallTimeoutConfigurer implements CallFactoryConfigurer {
+
+    @Override
+    public Call.Factory configure(Class<?> retrofitInterface, OkHttpClient baseClient) {
+        // Return a dynamic Call.Factory for all interfaces
+        return new Call.Factory() {
+            @Override
+            public Call newCall(Request request) {
+                Invocation invocation = request.tag(Invocation.class);
+                if (invocation != null) {
+                    MyCallTimeout ann = invocation.method().getAnnotation(MyCallTimeout.class);
+                    if (ann != null) {
+                        // newBuilder() shares connectionPool/dispatcher/interceptors, only callTimeout differs
+                        return baseClient.newBuilder()
+                                .callTimeout(ann.ms(), TimeUnit.MILLISECONDS)
+                                .build()
+                                .newCall(request);
+                    }
+                }
+                // No override → use @RetrofitClient.callTimeoutMs default
+                return baseClient.newCall(request);
+            }
+        };
+    }
+}
+```
+
+#### Apply Only to Specific Interfaces
+
+```java
+@Component
+public class SelectiveCallFactoryConfigurer implements CallFactoryConfigurer {
+
+    @Override
+    public Call.Factory configure(Class<?> retrofitInterface, OkHttpClient baseClient) {
+        if (retrofitInterface == SlowApiService.class) {
+            return baseClient.newBuilder()
+                    .callTimeout(30_000, TimeUnit.MILLISECONDS)
+                    .build();
+        }
+        // Other interfaces: return baseClient unchanged (equivalent to default behavior)
+        return baseClient;
+    }
+}
+```
+
+> When no `CallFactoryConfigurer` bean is registered, component behavior remains completely unchanged.
 
 
 ### Logging

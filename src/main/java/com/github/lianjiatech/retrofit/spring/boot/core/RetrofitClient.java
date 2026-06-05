@@ -44,7 +44,9 @@ public @interface RetrofitClient {
     String path() default Constants.STR_EMPTY;
 
     /**
-     * 当前接口的BaseUrl解析器，用于将`@Retrofit`上的信息解析成发起HTTP请求的BaseUrl，默认DefaultBaseUrlParser，优先从Spring容器获取，如果没有获取到，则反射创建。
+     * 当前接口的BaseUrl解析器，用于将{@code @RetrofitClient}上的信息解析成发起HTTP请求的BaseUrl，默认DefaultBaseUrlParser，优先从Spring容器获取，如果没有获取到，则反射创建。
+     *
+     * @return BaseUrl解析器类型
      */
     Class<? extends BaseUrlParser> baseUrlParser() default DefaultBaseUrlParser.class;
 

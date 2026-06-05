@@ -37,6 +37,8 @@ public abstract class BaseRetrofitDegrade implements RetrofitDegrade, ResourceNa
 
     /**
      * 查找指定 Retrofit 接口当前注册的 baseUrl，由 {@link RetrofitConfigBean} 管理生命周期。
+     * @param retrofitInterface Retrofit 接口类
+     * @return 该接口注册的 baseUrl
      */
     protected String lookupBaseUrl(Class<?> retrofitInterface) {
         RetrofitConfigBean cfg = retrofitConfigBean;

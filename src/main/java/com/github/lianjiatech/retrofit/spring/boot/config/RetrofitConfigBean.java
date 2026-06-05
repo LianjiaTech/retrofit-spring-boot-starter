@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import com.github.lianjiatech.retrofit.spring.boot.core.CallFactoryConfigurer;
 import com.github.lianjiatech.retrofit.spring.boot.core.SourceOkHttpClientRegistry;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.RetrofitDegrade;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.ErrorDecoderInterceptor;
@@ -45,6 +46,8 @@ public class RetrofitConfigBean {
     private ErrorDecoderInterceptor errorDecoderInterceptor;
 
     private SourceOkHttpClientRegistry sourceOkHttpClientRegistry;
+
+    private CallFactoryConfigurer callFactoryConfigurer;
 
     /**
      * 基础 OkHttpClient。所有未指定 {@code sourceOkHttpClient} 的 {@code @RetrofitClient}
