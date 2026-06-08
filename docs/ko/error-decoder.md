@@ -1,0 +1,16 @@
+# 에러 디코더
+[English](../en/error-decoder.md) | [简体中文](../cn/error-decoder.md) | [繁體中文](../tw/error-decoder.md) | [日本語](../ja/error-decoder.md) | **한국어** | [Español](../es/error-decoder.md) | [Türkçe](../tr/error-decoder.md) | [Русский](../ru/error-decoder.md)
+
+HTTP 요청 에러(예외 발생 또는 응답 데이터가 예상과 다른 경우)가 발생할 때, 에러 디코더는 HTTP 관련 정보를 커스텀 예외로 디코딩할 수 있습니다.
+
+## 사용 방법
+
+`@RetrofitClient` 어노테이션의 `errorDecoder()` 속성으로 현재 인터페이스의 에러 디코더를 지정합니다. 커스텀 에러 디코더는 `ErrorDecoder` 인터페이스를 구현해야 합니다.
+
+## ErrorDecoder 비활성화
+
+`retrofit.enable-error-decoder=false` 설정으로 ErrorDecoder 기능을 비활성화할 수 있습니다.
+
+---
+
+[이전 섹션: 서킷브레이커 / 데그레이드](degrade.md) | [다음 섹션: 메트릭 모니터링 (Micrometer)](metrics.md)
