@@ -1,0 +1,340 @@
+docs/tr/retry.md
+  s_6781a8e5c5be61::t_71b2ca09a4c150 1-77
+docs/tr/actuator.md
+  s_6781a8e5c5be61::t_d07522b3553a79 1-97
+docs/en/interceptor.md
+  s_6781a8e5c5be61::t_5aa031c8ced5e2 2
+  s_6781a8e5c5be61::t_3d2b8259784de3 1,3-140
+docs/tr/microservice.md
+  s_6781a8e5c5be61::t_b0d00655d89dd6 1-45
+docs/ja/examples.md
+  s_6781a8e5c5be61::t_08895f2ee1bcbb 1-121
+docs/es/error-decoder.md
+  s_6781a8e5c5be61::t_81e5315df3b7f9 1-16
+docs/cn/logging.md
+  s_6781a8e5c5be61::t_fedd70138c6b0c 1-50
+docs/tw/timeout.md
+  s_6781a8e5c5be61::t_8f8701176cc763 1-84
+docs/en/README.md
+  s_6781a8e5c5be61::t_02c2b68f3f8182 3
+  s_6781a8e5c5be61::t_b76cca09593119 4,18,25-27,29-30,39-44,48-49,51,57-59,61-67,77-79,81-82,84-88,96-105,111-127
+docs/tr/metrics.md
+  s_6781a8e5c5be61::t_44f74cfb862e37 1-110
+docs/cn/configuration.md
+  s_6781a8e5c5be61::t_f2f07c258badfd 1-147
+docs/tw/converter.md
+  s_6781a8e5c5be61::t_2a4a67c0838396 1-38
+docs/tr/README.md
+  s_6781a8e5c5be61::t_b096241ef3eb0c 1-126
+docs/ru/microservice.md
+  s_6781a8e5c5be61::t_b97c73619f9ef7 8
+  s_6781a8e5c5be61::t_8037ffc2e78839 1-7,9-45
+docs/ja/README.md
+  s_6781a8e5c5be61::t_2715e0c40b8c2f 1-84
+docs/ko/converter.md
+  s_6781a8e5c5be61::t_988940792d4327 1-38
+docs/cn/okhttp-client.md
+  s_6781a8e5c5be61::t_bc032015f2db85 1-101
+docs/cn/timeout.md
+  s_6781a8e5c5be61::t_fe0cb0217186b3 1-84
+docs/en/converter.md
+  s_6781a8e5c5be61::t_c16df85dc92ef5 1,3-38
+  s_6781a8e5c5be61::t_cf043901565f0b 2
+docs/tw/okhttp-client.md
+  s_6781a8e5c5be61::t_93665755b75467 1-101
+docs/ja/response-adaptation.md
+  s_6781a8e5c5be61::t_f29f502d6d34a3 1-46
+docs/ko/interceptor.md
+  s_6781a8e5c5be61::t_ae342e07f10cc3 1-140
+docs/es/timeout.md
+  s_6781a8e5c5be61::t_e3c4ca8c9eeb0b 1-84
+docs/cn/error-decoder.md
+  s_6781a8e5c5be61::t_3b7724d059b0bc 1-16
+docs/en/retry.md
+  s_6781a8e5c5be61::t_d1a62b0ee9d9e6 2
+  s_6781a8e5c5be61::t_d1df8816f2d06f 1,3-77
+docs/ru/configuration.md
+  s_6781a8e5c5be61::t_d586a345c392dc 1-147
+docs/ru/converter.md
+  s_6781a8e5c5be61::t_60fe4a2b856646 1-38
+docs/es/metrics.md
+  s_6781a8e5c5be61::t_5da7ada1b4a26d 1-110
+docs/en/response-adaptation.md
+  s_6781a8e5c5be61::t_9d75641f87d3d8 1,3-46
+  s_6781a8e5c5be61::t_57b0367a283abc 2
+docs/tw/logging.md
+  s_6781a8e5c5be61::t_9ff942359443dc 1-50
+docs/tr/examples.md
+  s_6781a8e5c5be61::t_e3426570588a46 1-121
+docs/es/README.md
+  s_6781a8e5c5be61::t_9a7f8aaa521d97 1-84
+docs/ja/retry.md
+  s_6781a8e5c5be61::t_02193a9eff5e9b 1-77
+docs/ru/aot.md
+  s_6781a8e5c5be61::t_4fad27d6cf86aa 1-3,5-19
+  s_6781a8e5c5be61::t_ada3deb4dc97b7 4
+docs/cn/interceptor.md
+  s_6781a8e5c5be61::t_218799b381ab57 1-140
+docs/en/logging.md
+  s_6781a8e5c5be61::t_f99611a9a0bf25 1,3-50
+  s_6781a8e5c5be61::t_3dd39be60cecdf 2
+docs/cn/metrics.md
+  s_6781a8e5c5be61::t_8080a92eaaebde 1-110
+docs/ru/custom-annotation.md
+  s_6781a8e5c5be61::t_e5e4f7149e1882 1-3,5-28
+  s_6781a8e5c5be61::t_72a8595a126278 4
+docs/es/microservice.md
+  s_6781a8e5c5be61::t_a21f4eebc757ac 1-45
+docs/ru/logging.md
+  s_6781a8e5c5be61::t_abb5ec5b0ffeed 1-50
+docs/ru/degrade.md
+  s_6781a8e5c5be61::t_f200e53d68f47c 1-196
+docs/ja/faq.md
+  s_6781a8e5c5be61::t_93e7bdb037c6f4 1-49
+docs/ja/error-decoder.md
+  s_6781a8e5c5be61::t_821481a4b40589 1-16
+docs/cn/converter.md
+  s_6781a8e5c5be61::t_82d89761cc2e08 1-38
+docs/cn/faq.md
+  s_6781a8e5c5be61::t_c702fd8b9c384b 1-49
+docs/tr/error-decoder.md
+  s_6781a8e5c5be61::t_b6706465cbc227 1-16
+docs/ko/retry.md
+  s_6781a8e5c5be61::t_47233b2b9c78fd 1-77
+docs/ko/degrade.md
+  s_6781a8e5c5be61::t_a9a6b02c156307 1-196
+docs/tw/metrics.md
+  s_6781a8e5c5be61::t_a7688b04133bfe 1-110
+docs/tw/degrade.md
+  s_6781a8e5c5be61::t_fd0e0c4ef4caff 1-196
+docs/ko/faq.md
+  s_6781a8e5c5be61::t_565e69bd8e2517 1-49
+docs/es/interceptor.md
+  s_6781a8e5c5be61::t_c0a591e86cbfcc 1-140
+docs/es/logging.md
+  s_6781a8e5c5be61::t_41b1352b0ed10f 1-50
+docs/ko/error-decoder.md
+  s_6781a8e5c5be61::t_e07e30e05d474c 1-16
+docs/es/okhttp-client.md
+  s_6781a8e5c5be61::t_5521a073adb031 1-101
+docs/ko/README.md
+  s_6781a8e5c5be61::t_4107b7f0d342d3 1-84
+docs/cn/degrade.md
+  s_6781a8e5c5be61::t_41fcac13a8afef 1-196
+docs/ru/response-adaptation.md
+  s_6781a8e5c5be61::t_8a318c1274cbad 1-46
+docs/en/configuration.md
+  s_6781a8e5c5be61::t_d318ac5adb07f6 2
+  s_6781a8e5c5be61::t_4a6db67ebd4de6 1,3-147
+docs/tw/custom-annotation.md
+  s_6781a8e5c5be61::t_ada8b53077b741 1-28
+docs/ja/okhttp-client.md
+  s_6781a8e5c5be61::t_b08ec584109c83 1-101
+docs/ko/timeout.md
+  s_6781a8e5c5be61::t_81143f41d8a910 1-84
+docs/ko/actuator.md
+  s_6781a8e5c5be61::t_8389e81884ff4f 1-97
+docs/ja/actuator.md
+  s_6781a8e5c5be61::t_bd2b6fa6682795 1-97
+docs/cn/retry.md
+  s_6781a8e5c5be61::t_90614cff01e74f 1-77
+docs/es/retry.md
+  s_6781a8e5c5be61::t_1cb27efc06983b 1-77
+docs/tr/response-adaptation.md
+  s_6781a8e5c5be61::t_6129615f7b3c25 1-46
+docs/es/configuration.md
+  s_6781a8e5c5be61::t_d4e5ca6e216b92 1-147
+docs/en/actuator.md
+  s_6781a8e5c5be61::t_202cc4606948c1 1,3-97
+  s_6781a8e5c5be61::t_5a72e1848cb010 2
+docs/ru/retry.md
+  s_6781a8e5c5be61::t_13d6f3623ec492 1-77
+docs/tw/README.md
+  s_6781a8e5c5be61::t_ef87c744225e09 1-84
+docs/en/error-decoder.md
+  s_6781a8e5c5be61::t_e44445b5b294a3 2
+  s_6781a8e5c5be61::t_0f8081755470d0 1,3-16
+docs/ja/timeout.md
+  s_6781a8e5c5be61::t_ae3b5e36e1a977 1-84
+docs/ko/okhttp-client.md
+  s_6781a8e5c5be61::t_3086da38c2e7b9 1-101
+docs/ja/metrics.md
+  s_6781a8e5c5be61::t_27f8b3d212afba 1-110
+docs/ru/error-decoder.md
+  s_6781a8e5c5be61::t_c5189b8e4f99d5 1-16
+docs/en/timeout.md
+  s_6781a8e5c5be61::t_c8054d74eae52c 1,3-84
+  s_6781a8e5c5be61::t_2a19ea079434a9 2
+docs/tw/retry.md
+  s_6781a8e5c5be61::t_fd1507c79c4c8b 1-77
+docs/es/faq.md
+  s_6781a8e5c5be61::t_6b3759aa93eb01 1-49
+docs/tw/configuration.md
+  s_6781a8e5c5be61::t_0d9baf3f6a6a91 1-147
+docs/en/metrics.md
+  s_6781a8e5c5be61::t_2d46751c477591 1,3-110
+  s_6781a8e5c5be61::t_ace63e3e9d812e 2
+docs/tw/microservice.md
+  s_6781a8e5c5be61::t_77f84850f5a856 1-45
+docs/cn/aot.md
+  s_6781a8e5c5be61::t_110074db82c7a4 1-19
+docs/tw/aot.md
+  s_6781a8e5c5be61::t_acc07b3c7bae4a 1-19
+docs/tr/interceptor.md
+  s_6781a8e5c5be61::t_47de99700822af 1-140
+docs/ko/logging.md
+  s_6781a8e5c5be61::t_42a87cc2a7ec19 1-50
+docs/ru/actuator.md
+  s_6781a8e5c5be61::t_c0ae9a3a04ab0e 1-82,84,86,88-97
+  s_6781a8e5c5be61::t_34139594b750b4 83,85,87
+docs/es/examples.md
+  s_6781a8e5c5be61::t_cd23d326840b5b 1-121
+CLAUDE.md
+  h_b701a059e95ce3 24
+docs/en/examples.md
+  s_6781a8e5c5be61::t_ac27354467d504 2
+  s_6781a8e5c5be61::t_3b8641558efa4c 1,3-121
+docs/ja/logging.md
+  s_6781a8e5c5be61::t_7035c9639206cd 1-50
+docs/ja/custom-annotation.md
+  s_6781a8e5c5be61::t_b772d75369df8d 1-28
+docs/tr/timeout.md
+  s_6781a8e5c5be61::t_ce46bf402bf8f2 1-84
+docs/tr/converter.md
+  s_6781a8e5c5be61::t_63bdd8555a03a3 1-38
+docs/en/microservice.md
+  s_6781a8e5c5be61::t_670056951f9db7 1,3-45
+  s_6781a8e5c5be61::t_a7f041e25af767 2
+docs/ja/converter.md
+  s_6781a8e5c5be61::t_dcf96533dfec55 1-38
+docs/ru/timeout.md
+  s_6781a8e5c5be61::t_d573b50025373f 1-84
+docs/ja/microservice.md
+  s_6781a8e5c5be61::t_28b3b4afd9959b 1-45
+docs/es/converter.md
+  s_6781a8e5c5be61::t_dec2d10f8bfa16 1-38
+docs/ja/interceptor.md
+  s_6781a8e5c5be61::t_4282a61c8bb01c 1-140
+docs/ko/configuration.md
+  s_6781a8e5c5be61::t_f87b24cd9e2ede 1-147
+docs/ko/examples.md
+  s_6781a8e5c5be61::t_389970f8a22130 1-121
+docs/tr/degrade.md
+  s_6781a8e5c5be61::t_df1eec9b15dc3e 1-196
+docs/cn/response-adaptation.md
+  s_6781a8e5c5be61::t_a06d63e82fc226 1-46
+docs/es/degrade.md
+  s_6781a8e5c5be61::t_976b95c755996d 1-196
+docs/tw/actuator.md
+  s_6781a8e5c5be61::t_dd79a6d8e57326 1-97
+docs/ja/aot.md
+  s_6781a8e5c5be61::t_bcbc9c08b5a520 1-19
+docs/ru/examples.md
+  s_6781a8e5c5be61::t_310f87ee0067aa 1-121
+docs/tr/configuration.md
+  s_6781a8e5c5be61::t_3205076bbd0bb7 1-147
+docs/en/custom-annotation.md
+  s_6781a8e5c5be61::t_5ff58495c70a7e 1,3-28
+  s_6781a8e5c5be61::t_847b4b4597e44a 2
+docs/tw/error-decoder.md
+  s_6781a8e5c5be61::t_3a47148bf28940 1-16
+docs/tr/custom-annotation.md
+  s_6781a8e5c5be61::t_467859b863dca5 1-28
+docs/ru/metrics.md
+  s_6781a8e5c5be61::t_2756ac1471a625 1-5,7-40,42-63,65-85,87-110
+  s_6781a8e5c5be61::t_871273436e4514 6,41,64,86
+docs/cn/microservice.md
+  s_6781a8e5c5be61::t_02f1a8b0e5d82d 1-45
+README.md
+  s_6781a8e5c5be61::t_50397bbacc196a 9,11,13-16,18,20-21,30,35,37,39,45-49,53,57,67,72,74,76,78-87,89,93-109,113,117
+docs/cn/examples.md
+  s_6781a8e5c5be61::t_ddccb2e8b1c1f3 1-121
+docs/en/faq.md
+  s_6781a8e5c5be61::t_e2097af0888652 1,3-49
+  s_6781a8e5c5be61::t_5b268204e97719 2
+docs/ko/aot.md
+  s_6781a8e5c5be61::t_1b3a547f3728c6 1-19
+docs/ko/custom-annotation.md
+  s_6781a8e5c5be61::t_0e4ce8f0e5a72d 1-28
+docs/tr/logging.md
+  s_6781a8e5c5be61::t_de5175920fe867 1-50
+docs/tw/interceptor.md
+  s_6781a8e5c5be61::t_e3896bc31ccdf7 1-140
+docs/ko/response-adaptation.md
+  s_6781a8e5c5be61::t_6079609415af42 1-46
+docs/ru/okhttp-client.md
+  s_6781a8e5c5be61::t_c18bb7778e5ef8 1-101
+docs/es/actuator.md
+  s_6781a8e5c5be61::t_89da92cae49215 1-97
+docs/ru/README.md
+  s_6781a8e5c5be61::t_aa171f4641c56c 1-89,91-127
+  s_6781a8e5c5be61::t_271e2ada4845e6 90
+docs/es/custom-annotation.md
+  s_6781a8e5c5be61::t_4858f1092d9a28 1-28
+docs/ko/microservice.md
+  s_6781a8e5c5be61::t_66c1b1f5150a3c 1-45
+docs/cn/custom-annotation.md
+  s_6781a8e5c5be61::t_a008526f700155 1-28
+docs/tw/response-adaptation.md
+  s_6781a8e5c5be61::t_1369f051cc4042 1-46
+docs/es/aot.md
+  s_6781a8e5c5be61::t_c53e3073f5bce8 1-19
+docs/tr/aot.md
+  s_6781a8e5c5be61::t_b918dc56bcaa62 1-19
+docs/ru/interceptor.md
+  s_6781a8e5c5be61::t_4b4b71c1fa5eda 1-3,5-25,27,29-63,65-140
+  s_6781a8e5c5be61::t_8557a9ba781f40 4
+  s_6781a8e5c5be61::t_bc0277f9323299 28
+  s_6781a8e5c5be61::t_fc4441499f88c3 26,64
+docs/tw/faq.md
+  s_6781a8e5c5be61::t_b4730f6081d4f0 1-49
+docs/es/response-adaptation.md
+  s_6781a8e5c5be61::t_25e4b2a81a4982 1-46
+docs/en/aot.md
+  s_6781a8e5c5be61::t_f0b2f77183bd48 1,3-19
+  s_6781a8e5c5be61::t_1c55214774fbdd 2
+docs/ja/configuration.md
+  s_6781a8e5c5be61::t_93190a3f7faaf5 1-147
+docs/cn/actuator.md
+  s_6781a8e5c5be61::t_ce9f6473984cf8 1-97
+docs/ko/metrics.md
+  s_6781a8e5c5be61::t_037a138ea231b8 1-110
+docs/en/degrade.md
+  s_6781a8e5c5be61::t_fefdf6bfbf43bf 1,3-196
+  s_6781a8e5c5be61::t_56c71bc8b0bec4 2
+docs/tr/faq.md
+  s_6781a8e5c5be61::t_29e4cdfcac59ad 1-49
+docs/ru/faq.md
+  s_6781a8e5c5be61::t_4e30b269ce4d97 1-5,7-23,25-40,42-49
+  s_6781a8e5c5be61::t_00788ce41cefc7 6,24,41
+docs/tr/okhttp-client.md
+  s_6781a8e5c5be61::t_e10497ca10411b 1-101
+docs/tw/examples.md
+  s_6781a8e5c5be61::t_84ad2f77d5477f 1-121
+docs/en/okhttp-client.md
+  s_6781a8e5c5be61::t_df3bbea13abe47 2
+  s_6781a8e5c5be61::t_ae8a927503b9a8 1,3-101
+docs/ja/degrade.md
+  s_6781a8e5c5be61::t_0b59bdf26c2b43 1-196
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.10-trip",
+  "base_commit_sha": "2f75b838f11a3ed29cdf8366f255113b61ffc84e",
+  "prompts": {},
+  "humans": {
+    "h_b701a059e95ce3": {
+      "author": "tm.chen <tm.chen@trip.com>"
+    }
+  },
+  "sessions": {
+    "s_6781a8e5c5be61": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "194ceada-387d-4146-a346-5cfa35da1cc1",
+        "model": "glm-5.1"
+      },
+      "human_author": "tm.chen <tm.chen@trip.com>"
+    }
+  }
+}
