@@ -1,0 +1,293 @@
+docs/ru/okhttp-client.md
+  s_4875f61ecae4fc::t_d23fa1e769e486 1-101
+docs/es/error-decoder.md
+  ai_agent 1-16
+docs/ja/microservice.md
+  s_4875f61ecae4fc::t_79cd4d8c652085 1-45
+docs/cn/examples.md
+  s_4875f61ecae4fc::t_99d3f016c85578 1,3-121
+  s_4875f61ecae4fc::t_bd3b5a021b0e4f 2
+docs/ru/microservice.md
+  s_4875f61ecae4fc::t_1a9802fe060a27 1-45
+docs/tw/degrade.md
+  s_4875f61ecae4fc::t_b17e4212797c49 1-149,151-196
+  s_4875f61ecae4fc::t_d5cde5c0377cb4 150
+docs/en/converter.md
+  s_4875f61ecae4fc::t_d1ccb3240c81ec 1-35
+docs/es/custom-annotation.md
+  s_4875f61ecae4fc::t_4d85d8488ebdf8 1-28
+docs/tr/configuration.md
+  s_4875f61ecae4fc::t_4e8f1c8e84c394 1-112
+docs/tw/response-adaptation.md
+  s_4875f61ecae4fc::t_6c5d8dd4a4757c 1-45
+  s_4875f61ecae4fc::t_c535198501ae47 46
+docs/ko/faq.md
+  s_4875f61ecae4fc::t_aac0f341abfb5c 1-49
+docs/en/retry.md
+  s_4875f61ecae4fc::t_63b8485225c767 1-77
+docs/ja/faq.md
+  s_4875f61ecae4fc::t_0d6460e8cbfff6 1-49
+README.md
+  s_4875f61ecae4fc::t_acc3ab589fea96 9
+  s_4875f61ecae4fc::t_f97c4fb107fe77 11,30-31,35,37,39,45-49,53,57,67,72,74,76-85,87,104
+  s_4875f61ecae4fc::t_f98d36446ab987 13-16,18,20-21,91-103,108,112
+docs/ko/retry.md
+  s_4875f61ecae4fc::t_363e16333ae5d5 1-77
+docs/ko/microservice.md
+  s_4875f61ecae4fc::t_0ea66968005099 1-45
+docs/en/okhttp-client.md
+  s_4875f61ecae4fc::t_af054a36c74853 1-2,4,6,8,10,12-14,16-26,29,31,33-35,37-40,42,44,46,48,78,91,97,99,101
+docs/ru/response-adaptation.md
+  s_4875f61ecae4fc::t_7ce7494a2c722e 1-46
+docs/ru/README.md
+  s_4875f61ecae4fc::t_a4b34c565c6038 53
+  s_4875f61ecae4fc::t_0040e08b5f76d7 9
+  s_4875f61ecae4fc::t_5495db9c8d55de 1-8,10-52,54-112
+docs/ja/response-adaptation.md
+  s_4875f61ecae4fc::t_e45a6dbc9b2169 1-46
+docs/tw/converter.md
+  s_4875f61ecae4fc::t_df054726df2f7d 1-35
+docs/tw/retry.md
+  s_4875f61ecae4fc::t_92302738b23ccd 50
+docs/ru/examples.md
+  s_4875f61ecae4fc::t_91aebd8a0e9260 1-121
+docs/tr/logging.md
+  s_4875f61ecae4fc::t_104dbcdb98fa3c 1-50
+docs/tw/okhttp-client.md
+  s_4875f61ecae4fc::t_8b5de2a3d86fde 1-96,98-101
+  s_4875f61ecae4fc::t_eec1e28d8edbdc 97
+docs/en/interceptor.md
+  s_4875f61ecae4fc::t_6856243ba04455 1-140
+docs/ko/logging.md
+  s_4875f61ecae4fc::t_b4ad5577ace2a2 1-50
+docs/ru/retry.md
+  s_4875f61ecae4fc::t_07ca3c63cc1f64 1-77
+docs/ko/converter.md
+  s_4875f61ecae4fc::t_3e3c70de88bcd1 1-35
+docs/en/faq.md
+  s_4875f61ecae4fc::t_b640e8dce04e84 1-49
+docs/ko/configuration.md
+  s_4875f61ecae4fc::t_5806cbdc120df2 1-112
+docs/es/README.md
+  s_4875f61ecae4fc::t_0040e08b5f76d7 9
+  s_4875f61ecae4fc::t_f100ed4cd4d9e9 1-8,10-112
+docs/cn/retry.md
+  s_4875f61ecae4fc::t_bd3b5a021b0e4f 2
+  s_4875f61ecae4fc::t_a08f0127daea53 1,3-77
+docs/ja/retry.md
+  s_4875f61ecae4fc::t_a1af80d25432c4 1-77
+docs/ja/timeout.md
+  s_4875f61ecae4fc::t_b56e27d7bf8e09 1-79
+docs/tr/faq.md
+  s_4875f61ecae4fc::t_9136a54141fecd 1,3-49
+  s_4875f61ecae4fc::t_8f429f4212664c 2
+docs/tr/examples.md
+  s_4875f61ecae4fc::t_9cad3479981bf4 1-121
+docs/tr/retry.md
+  s_4875f61ecae4fc::t_6c624bc9e66dab 1-77
+docs/en/README.md
+  s_4875f61ecae4fc::t_52e102351e386b 1-8,10-112
+  s_4875f61ecae4fc::t_0040e08b5f76d7 9
+docs/cn/error-decoder.md
+  s_4875f61ecae4fc::t_5c06e8de5804d1 1,3-16
+  s_4875f61ecae4fc::t_bd3b5a021b0e4f 2
+docs/es/okhttp-client.md
+  s_4875f61ecae4fc::t_ebfa2a1e444399 1-101
+docs/ru/degrade.md
+  s_4875f61ecae4fc::t_331b244e9e820d 1-196
+docs/ja/configuration.md
+  s_4875f61ecae4fc::t_72e6a76f879d93 1-112
+docs/es/configuration.md
+  s_4875f61ecae4fc::t_0ec53d2c15d938 1-112
+docs/es/examples.md
+  s_4875f61ecae4fc::t_a9d5aa177a2f59 1-121
+docs/tr/converter.md
+  s_4875f61ecae4fc::t_928f364ed6ace8 1-35
+docs/tw/faq.md
+  s_4875f61ecae4fc::t_02fc2e6d7a6765 1-49
+docs/tr/interceptor.md
+  s_4875f61ecae4fc::t_ae591538feb922 2
+  s_4875f61ecae4fc::t_3f1f64b9780f30 1,3-140
+docs/cn/configuration.md
+  s_4875f61ecae4fc::t_d31704176e79d5 1,3-107,109-112
+  s_4875f61ecae4fc::t_bd3b5a021b0e4f 2
+  s_4875f61ecae4fc::t_59cb1b608f1694 108
+docs/ru/converter.md
+  s_4875f61ecae4fc::t_652d6c11166297 1-35
+docs/cn/interceptor.md
+  s_4875f61ecae4fc::t_0b6ffa43036fd5 1,3-140
+  s_4875f61ecae4fc::t_bd3b5a021b0e4f 2
+docs/ko/okhttp-client.md
+  s_4875f61ecae4fc::t_0a6dd35bbc3bce 1-101
+docs/ko/interceptor.md
+  s_4875f61ecae4fc::t_8edaf298b91625 1-140
+docs/ja/degrade.md
+  s_4875f61ecae4fc::t_3277204e77105e 1-196
+docs/ja/custom-annotation.md
+  s_4875f61ecae4fc::t_8a99e7c549b392 1-28
+docs/tr/okhttp-client.md
+  s_4875f61ecae4fc::t_2641efe1cf51ae 1-101
+docs/es/logging.md
+  s_4875f61ecae4fc::t_e857d6968cfec7 1-50
+docs/ja/README.md
+  s_4875f61ecae4fc::t_0040e08b5f76d7 9
+  s_4875f61ecae4fc::t_38d58c0565bddf 1-8,10-112
+docs/tw/logging.md
+  s_4875f61ecae4fc::t_17d02e22b82ef3 1-50
+docs/ja/examples.md
+  s_4875f61ecae4fc::t_1ef7776d9a29fc 1-121
+docs/cn/okhttp-client.md
+  s_4875f61ecae4fc::t_bd3b5a021b0e4f 1-101
+docs/tw/configuration.md
+  s_4875f61ecae4fc::t_6a44e288899d70 1-112
+docs/en/timeout.md
+  s_4875f61ecae4fc::t_fb11486f4096b3 1-79
+docs/ko/examples.md
+  s_4875f61ecae4fc::t_1948fcb75f10e5 1-121
+docs/cn/converter.md
+  s_4875f61ecae4fc::t_bd3b5a021b0e4f 2
+  s_4875f61ecae4fc::t_661a305b0bc7b0 1,3-35
+docs/ja/error-decoder.md
+  s_4875f61ecae4fc::t_ebe3aa046fc830 1-16
+docs/tw/interceptor.md
+  s_4875f61ecae4fc::t_2706941136a984 44
+  s_4875f61ecae4fc::t_f17ea62f536ef2 1-43,45-59,61-140
+  s_4875f61ecae4fc::t_77aa5cdc913d01 60
+docs/tr/custom-annotation.md
+  s_4875f61ecae4fc::t_d0c21062032298 1-28
+docs/es/interceptor.md
+  s_4875f61ecae4fc::t_7b55042f0606f4 1-140
+docs/tw/README.md
+  s_4875f61ecae4fc::t_0040e08b5f76d7 9
+  s_4875f61ecae4fc::t_cc83c6abd6e8a4 1-8,10-112
+docs/ja/converter.md
+  s_4875f61ecae4fc::t_2e0d9429d12d9a 1-35
+docs/en/configuration.md
+  s_4875f61ecae4fc::t_3b2a6bda984c52 1-113
+docs/ko/README.md
+  s_4875f61ecae4fc::t_df439f7288598b 1-8,10-112
+  s_4875f61ecae4fc::t_0040e08b5f76d7 9
+docs/tw/examples.md
+  s_4875f61ecae4fc::t_53df5380d69f92 1-121
+docs/tr/error-decoder.md
+  ai_agent 1-16
+docs/cn/response-adaptation.md
+  s_4875f61ecae4fc::t_360e7aa4b836be 46
+  s_4875f61ecae4fc::t_2102f03664e918 1,3-45
+  s_4875f61ecae4fc::t_bd3b5a021b0e4f 2
+docs/ja/okhttp-client.md
+  s_4875f61ecae4fc::t_9ab76188855341 1-101
+docs/es/microservice.md
+  s_4875f61ecae4fc::t_240fdc7f6e786c 1-45
+docs/ja/interceptor.md
+  s_4875f61ecae4fc::t_1f0435d6ef6132 1-140
+docs/tr/timeout.md
+  s_4875f61ecae4fc::t_fd199bd8a04c5d 1-79
+docs/en/custom-annotation.md
+  s_4875f61ecae4fc::t_1bc0950cda5fce 1-28
+docs/es/faq.md
+  s_4875f61ecae4fc::t_31ea82bff67dd5 1-49
+docs/cn/microservice.md
+  s_4875f61ecae4fc::t_ac594f75288228 1,3-45
+  s_4875f61ecae4fc::t_bd3b5a021b0e4f 2
+docs/ru/error-decoder.md
+  s_4875f61ecae4fc::t_427210289bcd0f 1-16
+docs/en/examples.md
+  s_4875f61ecae4fc::t_9c14a1e8db1cc7 1-122
+docs/ko/timeout.md
+  s_4875f61ecae4fc::t_edc008afb1fd24 1-79
+docs/ko/degrade.md
+  s_4875f61ecae4fc::t_06f749bd40359b 1-196
+docs/ru/logging.md
+  s_4875f61ecae4fc::t_196ed37393e45f 1-50
+docs/en/error-decoder.md
+  s_4875f61ecae4fc::t_aa259781aada89 1-16
+docs/ru/faq.md
+  s_4875f61ecae4fc::t_bedfa54a767960 1-49
+docs/ru/timeout.md
+  s_4875f61ecae4fc::t_6dfd833a46219d 1-79
+docs/tw/timeout.md
+  s_4875f61ecae4fc::t_74257e059e0fcc 1-79
+docs/cn/degrade.md
+  s_4875f61ecae4fc::t_bd3b5a021b0e4f 2
+docs/tw/error-decoder.md
+  s_4875f61ecae4fc::t_8091e1ccaac68b 1-16
+docs/es/degrade.md
+  s_4875f61ecae4fc::t_9bad4b3e47bad8 1-196
+docs/en/microservice.md
+  s_4875f61ecae4fc::t_48742f4bdc7f22 1-45
+docs/en/degrade.md
+  s_4875f61ecae4fc::t_d0ebf31a89f9bc 1-196
+docs/en/response-adaptation.md
+  s_4875f61ecae4fc::t_a6a6de6fe554b7 1-46
+docs/cn/faq.md
+  s_4875f61ecae4fc::t_bd3b5a021b0e4f 1-49
+docs/tr/response-adaptation.md
+  s_4875f61ecae4fc::t_f3cd6bac8109d0 1-46
+docs/ru/interceptor.md
+  s_4875f61ecae4fc::t_dd9943dc2f92d3 1-140
+docs/tr/microservice.md
+  s_4875f61ecae4fc::t_0cf34a90c1f3bd 1-45
+docs/tr/degrade.md
+  s_4875f61ecae4fc::t_9599a6db17d436 1-196
+docs/ru/custom-annotation.md
+  ai_agent 1-28
+docs/cn/timeout.md
+  s_4875f61ecae4fc::t_7430bc86788f0f 1,3-79
+  s_4875f61ecae4fc::t_bd3b5a021b0e4f 2
+docs/ko/custom-annotation.md
+  s_4875f61ecae4fc::t_6b8699f055db34 1-28
+docs/en/logging.md
+  s_4875f61ecae4fc::t_a35c36f2ce2e1c 1-51
+docs/es/retry.md
+  s_4875f61ecae4fc::t_12aeba8e131c1d 1-77
+docs/ko/error-decoder.md
+  s_4875f61ecae4fc::t_f52476af9879bf 1-16
+docs/es/response-adaptation.md
+  s_4875f61ecae4fc::t_5fcdae4b7aeb9b 1-46
+docs/es/converter.md
+  s_4875f61ecae4fc::t_1b4ee9da3cab65 1-35
+docs/ru/configuration.md
+  s_4875f61ecae4fc::t_32ba18bdd3b850 1-112
+docs/cn/logging.md
+  s_4875f61ecae4fc::t_d0cb66338c6711 1,3-50
+  s_4875f61ecae4fc::t_bd3b5a021b0e4f 2
+docs/ko/response-adaptation.md
+  s_4875f61ecae4fc::t_c0d280e7342eb8 1-46
+docs/es/timeout.md
+  s_4875f61ecae4fc::t_a2aaedbbbe8d30 1-79
+docs/tr/README.md
+  s_4875f61ecae4fc::t_0040e08b5f76d7 9
+  s_4875f61ecae4fc::t_bdfb13d79d25d3 1-8,10-112
+docs/tw/microservice.md
+  s_4875f61ecae4fc::t_7f63c075815d71 1-45
+docs/cn/custom-annotation.md
+  s_4875f61ecae4fc::t_bd3b5a021b0e4f 2
+  s_4875f61ecae4fc::t_4b744ad0558033 1,3-28
+docs/ja/logging.md
+  ai_agent 1-50
+docs/tw/custom-annotation.md
+  s_4875f61ecae4fc::t_6407028c293cbc 1-17,19-20,22-28
+  s_4875f61ecae4fc::t_68a4ffb479a57d 18,21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.10-trip",
+  "base_commit_sha": "5bf84cb173b0dd0a30c702af0bce6733caeb5528",
+  "prompts": {},
+  "humans": {
+    "h_b701a059e95ce3": {
+      "author": "tm.chen <tm.chen@trip.com>"
+    }
+  },
+  "sessions": {
+    "s_4875f61ecae4fc": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4d4dd947-a1cf-4dfc-83bc-88be799aae44",
+        "model": "glm-5.1"
+      },
+      "human_author": "tm.chen <tm.chen@trip.com>"
+    }
+  }
+}
