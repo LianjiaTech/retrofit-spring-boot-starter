@@ -1,0 +1,34 @@
+.agents/rules/coding-style.md
+  ai_agent 1-3
+.agents/rules/security.md
+  ai_agent 1-3
+AGENTS.md
+  h_b701a059e95ce3 1-40
+.agents/rules/domain-glossary.md
+  ai_agent 1-3
+.agents/rules/testing.md
+  ai_agent 1-3
+.agents/rules/git-workflow.md
+  s_82b7232d584402::t_e0bb118e9e7f79 3-30
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.10-trip",
+  "base_commit_sha": "e382d7f801ef81fa9f1353f11ace122f32b3873f",
+  "prompts": {},
+  "humans": {
+    "h_b701a059e95ce3": {
+      "author": "tm.chen <tm.chen@trip.com>"
+    }
+  },
+  "sessions": {
+    "s_82b7232d584402": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ff26c2c6-cfaa-4c46-9185-0b238c84fb5f",
+        "model": "arn:aws:bedrock:us-west-2:671660153913:application-inference-profile/iwn212cjpyff"
+      },
+      "human_author": null
+    }
+  }
+}
