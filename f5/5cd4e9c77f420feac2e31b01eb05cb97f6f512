@@ -1,0 +1,14 @@
+AGENTS.md
+  h_b701a059e95ce3 1-26
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.10-trip",
+  "base_commit_sha": "f55cd4e9c77f420feac2e31b01eb05cb97f6f512",
+  "prompts": {},
+  "humans": {
+    "h_b701a059e95ce3": {
+      "author": "tm.chen <tm.chen@trip.com>"
+    }
+  }
+}
