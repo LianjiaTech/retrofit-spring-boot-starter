@@ -1,0 +1,19 @@
+.claude/hooks/format-and-test.sh
+  s_0b70acea4bdc68::t_6ef54ab7a8719d 3,31,33-34,36-37,40-41,44,46,54,56,59,64,71
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.24-trip",
+  "base_commit_sha": "70a948cb0fe0a629b5f7e2515ea81b877c8d85b4",
+  "prompts": {},
+  "sessions": {
+    "s_0b70acea4bdc68": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b91ebd78-3d7c-4c46-8374-2ca0ca8d559d",
+        "model": "arn:aws:bedrock:us-west-2:133197901387:application-inference-profile/ypvzpmevzxdl"
+      },
+      "human_author": "tm.chen <tm.chen@trip.com>"
+    }
+  }
+}
