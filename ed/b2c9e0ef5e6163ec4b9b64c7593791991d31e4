@@ -1,0 +1,37 @@
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/interceptor/ServiceChooseInterceptor.java
+  s_5210555169fbf8::t_d4559229f9d1bc 23-25
+  s_5210555169fbf8::t_da995512f98ba8 52
+pom.xml
+  s_5210555169fbf8::t_73fc462e6fbe26 368
+  s_5210555169fbf8::t_f50e46c65c5000 356-367,369-378
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/core/jackson3/Jackson3ConverterFactory.java
+  s_5210555169fbf8::t_979b60bcd220b9 51-52,54,57,59-60,62
+  s_5210555169fbf8::t_70409c0102d005 53,55
+.claude/hooks/format-and-test.sh
+  s_5210555169fbf8::t_f1b6934f050c66 140
+  s_5210555169fbf8::t_333d044350ff99 54-123
+  s_5210555169fbf8::t_dcbed7f425705e 128
+CLAUDE.md
+  s_5210555169fbf8::t_ad98a668b8ea38 18-67
+.claude/format/ali-p3c-ruleset.xml
+  s_5210555169fbf8::t_b72552d1159b6c 1-39
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/metrics/DefaultRetrofitTagsProvider.java
+  s_5210555169fbf8::t_100c6217c45024 100,103,106,109,123,126,129,132,135
+  s_5210555169fbf8::t_67d4af75ad6374 49-56
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.24-trip",
+  "base_commit_sha": "edb2c9e0ef5e6163ec4b9b64c7593791991d31e4",
+  "prompts": {},
+  "sessions": {
+    "s_5210555169fbf8": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "bc3f33f8-8eb4-493d-8809-e538d9e9a149",
+        "model": "arn:aws:bedrock:us-west-2:133197901387:application-inference-profile/ypvzpmevzxdl"
+      },
+      "human_author": "tm.chen <tm.chen@trip.com>"
+    }
+  }
+}
