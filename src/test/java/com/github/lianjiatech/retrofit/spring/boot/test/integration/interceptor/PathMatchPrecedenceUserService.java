@@ -3,6 +3,7 @@ package com.github.lianjiatech.retrofit.spring.boot.test.integration.interceptor
 import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClient;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.Intercept;
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.entity.User;
+
 import retrofit2.Response;
 import retrofit2.http.GET;
 import retrofit2.http.Query;

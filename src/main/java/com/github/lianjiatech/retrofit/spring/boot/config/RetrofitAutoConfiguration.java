@@ -119,7 +119,7 @@ public class RetrofitAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public ServiceChooseInterceptor
-    retrofitServiceChooseInterceptor(ServiceInstanceChooser serviceInstanceChooser) {
+            retrofitServiceChooseInterceptor(ServiceInstanceChooser serviceInstanceChooser) {
         return new ServiceChooseInterceptor(serviceInstanceChooser);
     }
 
@@ -221,8 +221,7 @@ public class RetrofitAutoConfiguration {
     @Configuration
     @Import({AutoConfiguredRetrofitScannerRegistrar.class})
     @ConditionalOnMissingBean(RetrofitFactoryBean.class)
-    public static class RetrofitScannerRegistrarNotFoundConfiguration {
-    }
+    public static class RetrofitScannerRegistrarNotFoundConfiguration {}
 
     @Configuration
     @ConditionalOnClass(CircuitBreaker.class)

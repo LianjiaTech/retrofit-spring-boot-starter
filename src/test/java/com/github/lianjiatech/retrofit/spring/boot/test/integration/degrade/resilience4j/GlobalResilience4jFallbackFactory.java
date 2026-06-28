@@ -1,9 +1,9 @@
 package com.github.lianjiatech.retrofit.spring.boot.test.integration.degrade.resilience4j;
 
-import com.github.lianjiatech.retrofit.spring.boot.test.integration.MockWebServerTest;
 import org.springframework.stereotype.Component;
 
 import com.github.lianjiatech.retrofit.spring.boot.degrade.FallbackFactory;
+import com.github.lianjiatech.retrofit.spring.boot.test.integration.MockWebServerTest;
 
 import lombok.extern.slf4j.Slf4j;
 

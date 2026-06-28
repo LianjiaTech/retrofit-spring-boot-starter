@@ -1,7 +1,5 @@
 package com.github.lianjiatech.retrofit.spring.boot.test.integration.retry;
 
-import static org.junit.Assert.*;
-
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
@@ -14,6 +12,8 @@ import com.github.lianjiatech.retrofit.spring.boot.exception.RetrofitException;
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.MockWebServerTest;
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.RetrofitBootApplication;
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.entity.User;
+
+import static org.junit.Assert.*;
 
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.SocketPolicy;

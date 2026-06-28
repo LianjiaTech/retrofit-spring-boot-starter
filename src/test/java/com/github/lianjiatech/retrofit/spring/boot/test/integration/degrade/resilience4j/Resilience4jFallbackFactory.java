@@ -1,11 +1,12 @@
 package com.github.lianjiatech.retrofit.spring.boot.test.integration.degrade.resilience4j;
 
-import com.github.lianjiatech.retrofit.spring.boot.degrade.FallbackFactory;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import com.github.lianjiatech.retrofit.spring.boot.degrade.FallbackFactory;
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.MockWebServerTest;
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.entity.User;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author 陈添明

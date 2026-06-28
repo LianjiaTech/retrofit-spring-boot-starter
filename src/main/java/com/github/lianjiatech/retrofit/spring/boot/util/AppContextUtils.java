@@ -67,7 +67,7 @@ public final class AppContextUtils {
         }
         try {
             Method create = clz.getMethod("create");
-            return (T) create.invoke(null);
+            return (T)create.invoke(null);
         } catch (NoSuchMethodException e) {
             throw new IllegalStateException(
                     "Cannot instantiate " + clz.getName()

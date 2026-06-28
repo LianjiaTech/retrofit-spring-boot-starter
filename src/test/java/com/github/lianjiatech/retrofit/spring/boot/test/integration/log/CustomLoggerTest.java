@@ -1,13 +1,5 @@
 package com.github.lianjiatech.retrofit.spring.boot.test.integration.log;
 
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.AppenderBase;
-import com.github.lianjiatech.retrofit.spring.boot.log.GlobalLogProperty;
-import com.github.lianjiatech.retrofit.spring.boot.log.Logging;
-import com.github.lianjiatech.retrofit.spring.boot.test.integration.MockWebServerTest;
-import com.github.lianjiatech.retrofit.spring.boot.test.integration.RetrofitBootApplication;
-import com.github.lianjiatech.retrofit.spring.boot.test.integration.entity.User;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,7 +8,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import com.github.lianjiatech.retrofit.spring.boot.log.GlobalLogProperty;
+import com.github.lianjiatech.retrofit.spring.boot.log.Logging;
+import com.github.lianjiatech.retrofit.spring.boot.test.integration.MockWebServerTest;
+import com.github.lianjiatech.retrofit.spring.boot.test.integration.RetrofitBootApplication;
+import com.github.lianjiatech.retrofit.spring.boot.test.integration.entity.User;
+
 import static org.junit.Assert.assertEquals;
+
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.AppenderBase;
 
 /**
  * Tests for {@link Logging#logName()} based on logback
@@ -44,7 +46,7 @@ public class CustomLoggerTest extends MockWebServerTest {
     public void shouldEqualsDefaultLogger() {
         // given
         GlobalLogProperty property = new GlobalLogProperty();
-        Logger logger = (Logger) LoggerFactory.getLogger(property.getLogName());
+        Logger logger = (Logger)LoggerFactory.getLogger(property.getLogName());
         logger.addAppender(testAppender);
         testAppender.start();
 
@@ -60,7 +62,7 @@ public class CustomLoggerTest extends MockWebServerTest {
     @Test
     public void shouldEqualsClassLogger() {
         // given
-        Logger logger = (Logger) LoggerFactory.getLogger(CustomLoggerUserService.LOGGER);
+        Logger logger = (Logger)LoggerFactory.getLogger(CustomLoggerUserService.LOGGER);
         logger.addAppender(testAppender);
         testAppender.start();
 
@@ -76,7 +78,7 @@ public class CustomLoggerTest extends MockWebServerTest {
     @Test
     public void shouldEqualsMethodLogger() {
         // given
-        Logger logger = (Logger) LoggerFactory.getLogger(CustomLoggerUserService.LOGGER);
+        Logger logger = (Logger)LoggerFactory.getLogger(CustomLoggerUserService.LOGGER);
         logger.addAppender(testAppender);
         testAppender.start();
 

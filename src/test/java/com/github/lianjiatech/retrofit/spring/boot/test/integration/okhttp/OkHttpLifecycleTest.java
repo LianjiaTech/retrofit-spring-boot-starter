@@ -1,19 +1,21 @@
 package com.github.lianjiatech.retrofit.spring.boot.test.integration.okhttp;
 
+import java.io.IOException;
+
+import org.junit.Test;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.ConfigurableApplicationContext;
+
+import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitConfigBean;
+import com.github.lianjiatech.retrofit.spring.boot.test.integration.RetrofitBootApplication;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.io.IOException;
-
-import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitConfigBean;
-import com.github.lianjiatech.retrofit.spring.boot.test.integration.RetrofitBootApplication;
 import okhttp3.OkHttpClient;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
-import org.junit.Test;
-import org.springframework.boot.SpringApplication;
-import org.springframework.context.ConfigurableApplicationContext;
 
 /**
  * 集成测试：验证 4.0.6 commit 引入的 {@code OkHttpClientLifecycle} 钩子在 Spring

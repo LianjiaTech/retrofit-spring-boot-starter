@@ -1,9 +1,5 @@
 package com.github.lianjiatech.retrofit.spring.boot.test.integration.retry;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,12 +13,17 @@ import com.github.lianjiatech.retrofit.spring.boot.test.integration.MockWebServe
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.RetrofitBootApplication;
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.entity.User;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 /**
  * @author 陈添明
  * @since 2023/12/17 12:50 下午
  */
-@SpringBootTest(classes = {RetrofitBootApplication.class}, properties = {"retrofit.global-retry.enable=true", "retrofit.global-retry.interval-ms=10",
-    "retrofit.global-retry.max-retries=3", "retrofit.global-retry.retry-rules=[RESPONSE_STATUS_NOT_2XX]"})
+@SpringBootTest(classes = {RetrofitBootApplication.class},
+        properties = {"retrofit.global-retry.enable=true", "retrofit.global-retry.interval-ms=10",
+            "retrofit.global-retry.max-retries=3", "retrofit.global-retry.retry-rules=[RESPONSE_STATUS_NOT_2XX]"})
 @RunWith(SpringRunner.class)
 public class GlobalRetryUserServiceTest extends MockWebServerTest {
 

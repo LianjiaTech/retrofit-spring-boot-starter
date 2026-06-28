@@ -268,6 +268,26 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- Spotless: Ali P3C code formatting (JDK 8 compatible) -->
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>2.30.0</version>
+                <configuration>
+                    <java>
+                        <eclipse>
+                            <file>.claude/format/ali-java-style.xml</file>
+                            <version>4.19.0</version>
+                        </eclipse>
+                        <removeUnusedImports/>
+                        <importOrder>
+                            <order>java,javax,org,com,\#</order>
+                        </importOrder>
+                        <trimTrailingWhitespace/>
+                        <endWithNewline/>
+                    </java>
+                </configuration>
+            </plugin>
             <!--自动发布-->
             <plugin>
                 <groupId>org.sonatype.central</groupId>

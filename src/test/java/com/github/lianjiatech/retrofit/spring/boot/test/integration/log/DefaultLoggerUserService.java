@@ -1,6 +1,7 @@
 package com.github.lianjiatech.retrofit.spring.boot.test.integration.log;
 
 import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClient;
+
 import retrofit2.http.POST;
 import retrofit2.http.Query;
 

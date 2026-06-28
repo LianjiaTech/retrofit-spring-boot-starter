@@ -4,7 +4,7 @@ import lombok.Data;
 
 /**
  * @author 陈添明
- * @since 2026/2/12 14:21 
+ * @since 2026/2/12 14:21
  */
 @Data
 public class GlobalConnectionPoolProperty {

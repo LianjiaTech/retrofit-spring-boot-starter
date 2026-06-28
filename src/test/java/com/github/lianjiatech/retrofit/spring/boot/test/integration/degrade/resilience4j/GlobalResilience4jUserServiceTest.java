@@ -1,7 +1,5 @@
 package com.github.lianjiatech.retrofit.spring.boot.test.integration.degrade.resilience4j;
 
-import static org.junit.Assert.assertTrue;
-
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -14,6 +12,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.MockWebServerTest;
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.RetrofitBootApplication;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author 陈添明

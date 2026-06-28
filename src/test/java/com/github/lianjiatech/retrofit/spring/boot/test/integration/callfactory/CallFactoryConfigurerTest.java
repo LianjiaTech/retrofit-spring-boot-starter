@@ -1,8 +1,5 @@
 package com.github.lianjiatech.retrofit.spring.boot.test.integration.callfactory;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +14,9 @@ import com.github.lianjiatech.retrofit.spring.boot.test.integration.MockWebServe
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.RetrofitBootApplication;
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.callfactory.CallFactoryConfigurerServices.DefaultCallTimeoutService;
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.callfactory.CallFactoryConfigurerServices.ShortCallTimeoutService;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 /**
  * 集成测试：CallFactoryConfigurer SPI。

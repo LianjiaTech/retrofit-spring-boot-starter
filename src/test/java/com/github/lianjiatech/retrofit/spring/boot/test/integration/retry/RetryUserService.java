@@ -5,8 +5,8 @@ import java.util.List;
 import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClient;
 import com.github.lianjiatech.retrofit.spring.boot.retry.Retry;
 import com.github.lianjiatech.retrofit.spring.boot.retry.RetryRule;
-import com.github.lianjiatech.retrofit.spring.boot.timeout.Timeout;
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.entity.User;
+import com.github.lianjiatech.retrofit.spring.boot.timeout.Timeout;
 
 import retrofit2.http.GET;
 import retrofit2.http.POST;

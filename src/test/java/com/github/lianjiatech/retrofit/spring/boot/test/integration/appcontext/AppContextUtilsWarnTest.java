@@ -1,19 +1,9 @@
 package com.github.lianjiatech.retrofit.spring.boot.test.integration.appcontext;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.AppenderBase;
-import com.github.lianjiatech.retrofit.spring.boot.test.integration.MockWebServerTest;
-import com.github.lianjiatech.retrofit.spring.boot.test.integration.RetrofitBootApplication;
-import com.github.lianjiatech.retrofit.spring.boot.util.AppContextUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,6 +12,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import com.github.lianjiatech.retrofit.spring.boot.test.integration.MockWebServerTest;
+import com.github.lianjiatech.retrofit.spring.boot.test.integration.RetrofitBootApplication;
+import com.github.lianjiatech.retrofit.spring.boot.util.AppContextUtils;
+
+import static org.junit.Assert.assertTrue;
+
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.AppenderBase;
 
 /**
  * 集成测试：覆盖 H2 — {@link AppContextUtils#getBeanOrNew} 在反射回退路径上打 WARN，
@@ -44,7 +45,7 @@ public class AppContextUtilsWarnTest extends MockWebServerTest {
 
     @Before
     public void attachAppender() {
-        boundLogger = (Logger) LoggerFactory.getLogger(AppContextUtils.class);
+        boundLogger = (Logger)LoggerFactory.getLogger(AppContextUtils.class);
         appender = new TrackingAppender();
         appender.setContext(boundLogger.getLoggerContext());
         boundLogger.addAppender(appender);

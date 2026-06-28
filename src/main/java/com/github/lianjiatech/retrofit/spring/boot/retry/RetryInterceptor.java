@@ -34,7 +34,8 @@ public class RetryInterceptor implements Interceptor {
             return chain.proceed(request);
         }
         // 获取重试配置
-        Retry retry = AnnotationExtendUtils.findMergedAnnotation(invocation.method(), invocation.service(), Retry.class);
+        Retry retry =
+                AnnotationExtendUtils.findMergedAnnotation(invocation.method(), invocation.service(), Retry.class);
         if (!needRetry(retry)) {
             return chain.proceed(request);
         }
@@ -64,7 +65,8 @@ public class RetryInterceptor implements Interceptor {
         }
     }
 
-    protected Response retryIntercept(int maxRetries, int intervalMs, int maxIntervalMs, BackoffStrategy backoffStrategy,
+    protected Response retryIntercept(int maxRetries, int intervalMs, int maxIntervalMs,
+            BackoffStrategy backoffStrategy,
             double jitter, RetryRule[] retryRules, int[] retryStatusCodes,
             Class<? extends Throwable>[] retryExceptionClasses, Chain chain) throws IOException {
         Set<RetryRule> retryRuleSet = toRetryRuleSet(retryRules);

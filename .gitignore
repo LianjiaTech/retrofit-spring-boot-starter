@@ -8,3 +8,4 @@
 *.iml
 temp
 **/pom.xml.releaseBackup
+.codegraph

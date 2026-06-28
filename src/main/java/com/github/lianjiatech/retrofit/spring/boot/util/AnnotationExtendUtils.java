@@ -44,7 +44,7 @@ public class AnnotationExtendUtils {
             }
             return Optional.ofNullable(AnnotatedElementUtils.findMergedAnnotation(clazz, annotationType));
         });
-        return (A) cached.orElse(null);
+        return (A)cached.orElse(null);
     }
 
     /**
@@ -84,7 +84,7 @@ public class AnnotationExtendUtils {
             if (!(o instanceof AnnotationCacheKey)) {
                 return false;
             }
-            AnnotationCacheKey k = (AnnotationCacheKey) o;
+            AnnotationCacheKey k = (AnnotationCacheKey)o;
             return Objects.equals(method, k.method)
                     && Objects.equals(clazz, k.clazz)
                     && Objects.equals(annotationType, k.annotationType);

@@ -1,24 +1,26 @@
 package com.github.lianjiatech.retrofit.spring.boot.test.integration.errordecoder;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import java.util.concurrent.TimeUnit;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import com.github.lianjiatech.retrofit.spring.boot.exception.RetrofitException;
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.MockWebServerTest;
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.RetrofitBootApplication;
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.base.UserService;
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.errordecoder.CustomErrorDecoder.BizException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.SocketPolicy;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
 /**
  * 集成测试：覆盖 ErrorDecoder 三个分支：

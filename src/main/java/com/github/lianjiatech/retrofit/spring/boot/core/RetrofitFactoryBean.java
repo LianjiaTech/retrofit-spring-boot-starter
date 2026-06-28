@@ -77,7 +77,8 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
     public T getObject() {
         RetrofitClient retrofitClient =
                 AnnotatedElementUtils.findMergedAnnotation(retrofitInterface, RetrofitClient.class);
-        Objects.requireNonNull(retrofitClient, "@RetrofitClient annotation not found on " + retrofitInterface.getName());
+        Objects.requireNonNull(retrofitClient,
+                "@RetrofitClient annotation not found on " + retrofitInterface.getName());
         BaseUrlParser baseUrlParser = AppContextUtils.getBeanOrNew(applicationContext, retrofitClient.baseUrlParser());
         String baseUrl = baseUrlParser.parse(retrofitClient, environment);
         retrofitConfigBean().registerBaseUrl(retrofitInterface, baseUrl);

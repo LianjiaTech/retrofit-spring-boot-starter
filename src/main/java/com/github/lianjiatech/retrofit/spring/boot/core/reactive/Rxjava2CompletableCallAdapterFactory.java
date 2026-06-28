@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 
 import com.github.lianjiatech.retrofit.spring.boot.core.InternalCallAdapterFactory;
+
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.annotations.NonNull;
