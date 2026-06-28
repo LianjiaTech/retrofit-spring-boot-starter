@@ -1,9 +1,5 @@
 package com.github.lianjiatech.retrofit.spring.boot.test.integration.metrics;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -13,6 +9,10 @@ import org.junit.Test;
 
 import com.github.lianjiatech.retrofit.spring.boot.metrics.DefaultRetrofitTagsProvider;
 import com.github.lianjiatech.retrofit.spring.boot.metrics.MetricsProperty;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import io.micrometer.core.instrument.Tag;
 import io.micrometer.core.instrument.Tags;
@@ -71,7 +71,7 @@ public class DefaultRetrofitTagsProviderTest {
         return b.build();
     }
 
-    private static final SampleApi DUMMY_API = (SampleApi) java.lang.reflect.Proxy.newProxyInstance(
+    private static final SampleApi DUMMY_API = (SampleApi)java.lang.reflect.Proxy.newProxyInstance(
             SampleApi.class.getClassLoader(),
             new Class[] {SampleApi.class},
             (proxy, method, args) -> {

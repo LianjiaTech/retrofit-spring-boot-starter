@@ -32,7 +32,6 @@ public class MockWebServerTest {
     public static final int INT20 = 20;
     public static final int INT30 = 30;
 
-
     public static final User USER_MIKE = new User().setId(Long100)
             .setName(MIKE)
             .setAge(INT20)
@@ -47,8 +46,6 @@ public class MockWebServerTest {
             .setName(FALL_BACK)
             .setAge(-1)
             .setMale(false);
-
-
 
     public MockWebServer server;
 
@@ -88,7 +85,7 @@ public class MockWebServerTest {
     }
 
     public void mockServerReturnObject(Object object, int bodyDelaySeconds) {
-       mockServerReturnObject(object, bodyDelaySeconds, SUCCESS_CODE);
+        mockServerReturnObject(object, bodyDelaySeconds, SUCCESS_CODE);
     }
 
     public void mockServerReturnObject(Object object, int bodyDelaySeconds, int responseCode) {

@@ -82,7 +82,7 @@ public final class RetrofitUtils {
                         decoded.writeAll(gzippedResponseBody);
                     } else {
                         // 仅解压最多 maxBytes+1 字节，用于检测是否 truncated
-                        long limit = (long) maxBytes + 1;
+                        long limit = (long)maxBytes + 1;
                         long written = 0;
                         long n;
                         while (written < limit

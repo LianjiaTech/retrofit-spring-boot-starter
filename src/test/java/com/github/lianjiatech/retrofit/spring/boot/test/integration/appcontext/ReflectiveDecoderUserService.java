@@ -1,7 +1,6 @@
 package com.github.lianjiatech.retrofit.spring.boot.test.integration.appcontext;
 
 import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClient;
-import com.github.lianjiatech.retrofit.spring.boot.core.ErrorDecoder;
 
 import retrofit2.http.GET;
 import retrofit2.http.Query;

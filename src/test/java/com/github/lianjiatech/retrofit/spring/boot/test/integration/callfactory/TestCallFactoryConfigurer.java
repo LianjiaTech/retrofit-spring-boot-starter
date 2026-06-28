@@ -2,12 +2,12 @@ package com.github.lianjiatech.retrofit.spring.boot.test.integration.callfactory
 
 import java.util.concurrent.TimeUnit;
 
+import com.github.lianjiatech.retrofit.spring.boot.core.CallFactoryConfigurer;
+
 import okhttp3.Call;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import retrofit2.Invocation;
-
-import com.github.lianjiatech.retrofit.spring.boot.core.CallFactoryConfigurer;
 
 /**
  * 测试用 CallFactoryConfigurer：对 DefaultCallTimeoutService 接口动态覆盖 callTimeout 为极短值（500ms），

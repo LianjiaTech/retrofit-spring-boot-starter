@@ -1,8 +1,5 @@
 package com.github.lianjiatech.retrofit.spring.boot.test.integration.aot;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import java.util.Set;
 
 import org.junit.Test;
@@ -20,12 +17,15 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.javapoet.ClassName;
 
 import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitAotProcessor;
+import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClient;
 import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClientResolution;
 import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitFactoryBean;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.FallbackFactory;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.BasePathMatchInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.Intercept;
-import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClient;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import okhttp3.Interceptor;
 import okhttp3.Response;

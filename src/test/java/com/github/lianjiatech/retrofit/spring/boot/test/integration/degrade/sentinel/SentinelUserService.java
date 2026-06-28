@@ -3,8 +3,8 @@ package com.github.lianjiatech.retrofit.spring.boot.test.integration.degrade.sen
 import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClient;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.sentinel.SentinelDegrade;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.sentinel.SentinelDegradeRule;
-import com.github.lianjiatech.retrofit.spring.boot.timeout.Timeout;
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.entity.User;
+import com.github.lianjiatech.retrofit.spring.boot.timeout.Timeout;
 
 import retrofit2.http.GET;
 import retrofit2.http.POST;

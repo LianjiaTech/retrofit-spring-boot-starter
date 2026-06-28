@@ -3,9 +3,6 @@ package com.github.lianjiatech.retrofit.spring.boot.test.integration.retry;
 import java.util.List;
 
 import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClient;
-import com.github.lianjiatech.retrofit.spring.boot.log.LogStrategy;
-import com.github.lianjiatech.retrofit.spring.boot.log.Logging;
-import com.github.lianjiatech.retrofit.spring.boot.retry.Retry;
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.entity.User;
 
 import retrofit2.http.GET;

@@ -32,7 +32,6 @@ import com.github.lianjiatech.retrofit.spring.boot.interceptor.ServiceChooseInte
 import com.github.lianjiatech.retrofit.spring.boot.log.LoggingInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.metrics.DefaultRetrofitTagsProvider;
 import com.github.lianjiatech.retrofit.spring.boot.metrics.MetricsInterceptor;
-import com.github.lianjiatech.retrofit.spring.boot.metrics.MetricsProperty;
 import com.github.lianjiatech.retrofit.spring.boot.metrics.RetrofitTagsProvider;
 import com.github.lianjiatech.retrofit.spring.boot.retry.RetryInterceptor;
 
@@ -143,7 +142,7 @@ public class RetrofitAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public ServiceChooseInterceptor
-    retrofitServiceChooseInterceptor(ServiceInstanceChooser serviceInstanceChooser) {
+            retrofitServiceChooseInterceptor(ServiceInstanceChooser serviceInstanceChooser) {
         return new ServiceChooseInterceptor(serviceInstanceChooser);
     }
 
@@ -163,7 +162,8 @@ public class RetrofitAutoConfiguration {
         @ConditionalOnMissingBean
         public Jackson3ConverterFactory retrofitJackson3ConverterFactory(
                 @Autowired(required = false) tools.jackson.databind.ObjectMapper objectMapper) {
-            return objectMapper != null ? Jackson3ConverterFactory.create(objectMapper) : Jackson3ConverterFactory.create();
+            return objectMapper != null ? Jackson3ConverterFactory.create(objectMapper)
+                    : Jackson3ConverterFactory.create();
         }
     }
 
@@ -257,8 +257,7 @@ public class RetrofitAutoConfiguration {
     @Configuration
     @Import({AutoConfiguredRetrofitScannerRegistrar.class})
     @ConditionalOnMissingBean(RetrofitFactoryBean.class)
-    public static class RetrofitScannerRegistrarNotFoundConfiguration {
-    }
+    public static class RetrofitScannerRegistrarNotFoundConfiguration {}
 
     @Configuration
     @ConditionalOnClass(CircuitBreaker.class)
@@ -397,7 +396,8 @@ public class RetrofitAutoConfiguration {
 
         @Bean
         @ConditionalOnMissingBean
-        @org.springframework.boot.actuate.autoconfigure.endpoint.condition.ConditionalOnAvailableEndpoint(endpoint = RetrofitEndpoint.class)
+        @org.springframework.boot.actuate.autoconfigure.endpoint.condition.ConditionalOnAvailableEndpoint(
+                endpoint = RetrofitEndpoint.class)
         public RetrofitEndpoint retrofitEndpoint(
                 org.springframework.beans.factory.ListableBeanFactory beanFactory, RetrofitProperties properties) {
             return new RetrofitEndpoint(beanFactory, properties);

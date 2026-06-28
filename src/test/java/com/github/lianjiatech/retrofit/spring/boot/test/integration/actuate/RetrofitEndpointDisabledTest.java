@@ -1,7 +1,5 @@
 package com.github.lianjiatech.retrofit.spring.boot.test.integration.actuate;
 
-import static org.junit.Assert.assertFalse;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +9,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import com.github.lianjiatech.retrofit.spring.boot.actuate.RetrofitEndpoint;
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.RetrofitBootApplication;
+
+import static org.junit.Assert.assertFalse;
 
 /**
  * 未通过 {@code management.endpoints.web.exposure.include} 暴露 retrofit endpoint 时，

@@ -2,6 +2,7 @@ package com.github.lianjiatech.retrofit.spring.boot.test.integration.reactive.mo
 
 import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClient;
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.entity.User;
+
 import reactor.core.publisher.Mono;
 import retrofit2.http.GET;
 import retrofit2.http.Query;

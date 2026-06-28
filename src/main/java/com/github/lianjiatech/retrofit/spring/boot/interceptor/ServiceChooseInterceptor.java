@@ -1,17 +1,19 @@
 package com.github.lianjiatech.retrofit.spring.boot.interceptor;
 
+import java.io.IOException;
+import java.net.URI;
+
+import org.springframework.core.annotation.AnnotatedElementUtils;
+import org.springframework.util.StringUtils;
+
 import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClient;
 import com.github.lianjiatech.retrofit.spring.boot.core.ServiceInstanceChooser;
+
 import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
-import org.springframework.core.annotation.AnnotatedElementUtils;
-import org.springframework.util.StringUtils;
 import retrofit2.Invocation;
-
-import java.io.IOException;
-import java.net.URI;
 
 /**
  * @author 陈添明

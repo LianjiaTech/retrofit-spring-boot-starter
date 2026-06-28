@@ -1,6 +1,5 @@
 package com.github.lianjiatech.retrofit.spring.boot.log;
 
-
 /**
  * @author 陈添明
  */

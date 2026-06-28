@@ -1,20 +1,20 @@
 package com.github.lianjiatech.retrofit.spring.boot.test.integration.interceptor;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-
 import java.util.ArrayList;
 import java.util.List;
 
-import com.github.lianjiatech.retrofit.spring.boot.test.integration.RetrofitBootApplication;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.github.lianjiatech.retrofit.spring.boot.test.integration.entity.User;
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.MockWebServerTest;
+import com.github.lianjiatech.retrofit.spring.boot.test.integration.RetrofitBootApplication;
+import com.github.lianjiatech.retrofit.spring.boot.test.integration.entity.User;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import okhttp3.Headers;
 import retrofit2.Response;

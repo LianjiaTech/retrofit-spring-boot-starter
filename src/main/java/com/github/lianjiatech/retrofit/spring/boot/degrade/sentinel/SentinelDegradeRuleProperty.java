@@ -34,7 +34,6 @@ public class SentinelDegradeRuleProperty {
      */
     private int timeWindow = 5;
 
-
     /**
      * （在有效统计时间范围内）能够触发熔断的最小请求数
      * <p>

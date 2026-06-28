@@ -5,14 +5,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.core.annotation.AnnotatedElementUtils;
+
 import com.github.lianjiatech.retrofit.spring.boot.core.Constants;
 
 import okhttp3.Call;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import retrofit2.Invocation;
-
-import org.springframework.core.annotation.AnnotatedElementUtils;
 
 /**
  * Call.Factory 包装器：为方法级 {@link Timeout} 注解预创建带超时覆盖的 OkHttpClient，
@@ -44,7 +44,7 @@ public class TimeoutCallFactory implements Call.Factory {
         if (!(delegate instanceof OkHttpClient)) {
             return new HashMap<>(0);
         }
-        OkHttpClient baseClient = (OkHttpClient) delegate;
+        OkHttpClient baseClient = (OkHttpClient)delegate;
         Map<Method, Call.Factory> map = new HashMap<>(4);
         for (Method method : retrofitInterface.getMethods()) {
             Timeout timeout = AnnotatedElementUtils.findMergedAnnotation(method, Timeout.class);

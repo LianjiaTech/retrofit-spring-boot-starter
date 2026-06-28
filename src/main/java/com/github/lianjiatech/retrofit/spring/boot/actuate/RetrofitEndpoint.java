@@ -78,7 +78,7 @@ public class RetrofitEndpoint {
         for (String beanName : beanNames) {
             // & 前缀取 FactoryBean 实例本身，而非其产品；不会触发 Retrofit 代理创建。
             RetrofitFactoryBean<?> factoryBean =
-                    (RetrofitFactoryBean<?>) beanFactory.getBean(BeanFactory.FACTORY_BEAN_PREFIX + beanName);
+                    (RetrofitFactoryBean<?>)beanFactory.getBean(BeanFactory.FACTORY_BEAN_PREFIX + beanName);
             RetrofitClientResolution resolution = factoryBean.describe();
             resolution.setBeanName(beanName);
             clients.add(resolution);

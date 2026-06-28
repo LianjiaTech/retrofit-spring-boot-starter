@@ -81,7 +81,8 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
     public T getObject() {
         RetrofitClient retrofitClient =
                 AnnotatedElementUtils.findMergedAnnotation(retrofitInterface, RetrofitClient.class);
-        Objects.requireNonNull(retrofitClient, "@RetrofitClient annotation not found on " + retrofitInterface.getName());
+        Objects.requireNonNull(retrofitClient,
+                "@RetrofitClient annotation not found on " + retrofitInterface.getName());
         BaseUrlParser baseUrlParser = AppContextUtils.getBeanOrNew(applicationContext, retrofitClient.baseUrlParser());
         String baseUrl = baseUrlParser.parse(retrofitClient, environment);
         retrofitConfigBean().registerBaseUrl(retrofitInterface, baseUrl);
@@ -145,7 +146,8 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         return resolution;
     }
 
-    private RetrofitClientResolution.Timeout resolveTimeout(RetrofitClient retrofitClient, GlobalTimeoutProperty global) {
+    private RetrofitClientResolution.Timeout resolveTimeout(RetrofitClient retrofitClient,
+            GlobalTimeoutProperty global) {
         RetrofitClientResolution.Timeout timeout = new RetrofitClientResolution.Timeout();
         List<String> inherited = new ArrayList<>(4);
         Timeout annotation = AnnotatedElementUtils.findMergedAnnotation(retrofitInterface, Timeout.class);
@@ -173,7 +175,8 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         return clientValue;
     }
 
-    private RetrofitClientResolution.Pool resolvePool(RetrofitClient retrofitClient, GlobalConnectionPoolProperty global) {
+    private RetrofitClientResolution.Pool resolvePool(RetrofitClient retrofitClient,
+            GlobalConnectionPoolProperty global) {
         RetrofitClientResolution.Pool pool = new RetrofitClientResolution.Pool();
         List<String> inherited = new ArrayList<>(2);
         if (retrofitClient.maxIdleConnections() == Constants.INVALID_VALUE) {

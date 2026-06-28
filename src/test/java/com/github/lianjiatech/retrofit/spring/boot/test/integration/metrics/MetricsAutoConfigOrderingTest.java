@@ -1,7 +1,5 @@
 package com.github.lianjiatech.retrofit.spring.boot.test.integration.metrics;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
@@ -9,6 +7,8 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitAutoConfiguration;
 import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitConfigBean;
 import com.github.lianjiatech.retrofit.spring.boot.metrics.RetrofitTagsProvider;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import okhttp3.Interceptor;

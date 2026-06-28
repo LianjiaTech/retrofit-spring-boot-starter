@@ -1,12 +1,5 @@
 package com.github.lianjiatech.retrofit.spring.boot.test.integration.metrics;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -18,6 +11,13 @@ import org.springframework.test.context.junit4.SpringRunner;
 import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitConfigBean;
 import com.github.lianjiatech.retrofit.spring.boot.metrics.RetrofitTagsProvider;
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.RetrofitBootApplication;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * 验证 metrics 默认关闭时（即未显式设置 {@code retrofit.metrics.enable=true}），

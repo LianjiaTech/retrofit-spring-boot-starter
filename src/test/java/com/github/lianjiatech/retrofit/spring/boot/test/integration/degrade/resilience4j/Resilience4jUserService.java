@@ -2,9 +2,8 @@ package com.github.lianjiatech.retrofit.spring.boot.test.integration.degrade.res
 
 import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClient;
 import com.github.lianjiatech.retrofit.spring.boot.degrade.resilience4j.Resilience4jDegrade;
-import com.github.lianjiatech.retrofit.spring.boot.degrade.sentinel.SentinelDegrade;
-import com.github.lianjiatech.retrofit.spring.boot.timeout.Timeout;
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.entity.User;
+import com.github.lianjiatech.retrofit.spring.boot.timeout.Timeout;
 
 import retrofit2.http.GET;
 import retrofit2.http.POST;

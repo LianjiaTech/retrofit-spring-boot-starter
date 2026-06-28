@@ -69,8 +69,7 @@ public class DefaultRetrofitTagsProvider implements RetrofitTagsProvider {
                 Tag.of("method", method),
                 Tag.of("http.method", request.method()),
                 Tag.of("status", statusBucket(response, exception)),
-                Tag.of("outcome", outcome(response, exception))
-        );
+                Tag.of("outcome", outcome(response, exception)));
 
         if (property.getTags().isUri()) {
             tags = tags.and(Tag.of("uri", uriTemplate(invocation)));

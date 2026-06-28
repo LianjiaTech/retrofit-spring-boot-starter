@@ -1,13 +1,14 @@
 package com.github.lianjiatech.retrofit.spring.boot.test.integration.bdfprocessor;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import com.github.lianjiatech.retrofit.spring.boot.test.integration.RetrofitBootApplication;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import com.github.lianjiatech.retrofit.spring.boot.test.integration.RetrofitBootApplication;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * 集成测试：覆盖 M2 — {@code PathMatchInterceptorBdfProcessor} 仅做类型匹配，

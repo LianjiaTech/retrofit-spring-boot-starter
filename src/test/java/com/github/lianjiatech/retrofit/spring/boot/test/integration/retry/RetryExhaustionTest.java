@@ -1,23 +1,25 @@
 package com.github.lianjiatech.retrofit.spring.boot.test.integration.retry;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import java.util.concurrent.TimeUnit;
 
-import com.github.lianjiatech.retrofit.spring.boot.exception.RetrofitException;
-import com.github.lianjiatech.retrofit.spring.boot.exception.RetryFailedException;
-import com.github.lianjiatech.retrofit.spring.boot.test.integration.MockWebServerTest;
-import com.github.lianjiatech.retrofit.spring.boot.test.integration.RetrofitBootApplication;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.SocketPolicy;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import com.github.lianjiatech.retrofit.spring.boot.exception.RetrofitException;
+import com.github.lianjiatech.retrofit.spring.boot.exception.RetryFailedException;
+import com.github.lianjiatech.retrofit.spring.boot.test.integration.MockWebServerTest;
+import com.github.lianjiatech.retrofit.spring.boot.test.integration.RetrofitBootApplication;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.SocketPolicy;
 
 /**
  * 集成测试：覆盖重试穷尽 / 规则不命中场景。

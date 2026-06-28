@@ -23,6 +23,7 @@ public class CustomErrorDecoder implements ErrorDecoder {
 
     public static class BizException extends RuntimeException {
         public final int code;
+
         public BizException(int code, String msg) {
             super(msg);
             this.code = code;
@@ -50,7 +51,7 @@ public class CustomErrorDecoder implements ErrorDecoder {
     @Override
     public RuntimeException exceptionDecode(Request request, Exception cause) {
         if (cause instanceof RetrofitException) {
-            return (RetrofitException) cause;
+            return (RetrofitException)cause;
         }
         return new BizException(-1, "unknown:" + cause.getClass().getSimpleName());
     }

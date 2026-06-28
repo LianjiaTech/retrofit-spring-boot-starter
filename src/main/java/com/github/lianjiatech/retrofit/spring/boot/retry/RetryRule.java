@@ -5,7 +5,7 @@ package com.github.lianjiatech.retrofit.spring.boot.retry;
  * Rules that trigger retry
  * @author 陈添明
  */
-public enum  RetryRule {
+public enum RetryRule {
 
     /**
      * 响应状态码不是2xx

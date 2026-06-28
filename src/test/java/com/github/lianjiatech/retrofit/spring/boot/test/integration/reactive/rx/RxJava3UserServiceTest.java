@@ -1,22 +1,21 @@
 package com.github.lianjiatech.retrofit.spring.boot.test.integration.reactive.rx;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import com.github.lianjiatech.retrofit.spring.boot.test.integration.RetrofitBootApplication;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.github.lianjiatech.retrofit.spring.boot.test.integration.entity.User;
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.MockWebServerTest;
+import com.github.lianjiatech.retrofit.spring.boot.test.integration.RetrofitBootApplication;
+import com.github.lianjiatech.retrofit.spring.boot.test.integration.entity.User;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Single;
-
 
 /**
  * @author 陈添明

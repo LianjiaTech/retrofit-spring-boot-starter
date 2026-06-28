@@ -5,6 +5,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 import com.github.lianjiatech.retrofit.spring.boot.core.InternalCallAdapterFactory;
+
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.annotations.NonNull;

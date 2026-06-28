@@ -1,7 +1,10 @@
 package com.github.lianjiatech.retrofit.spring.boot.test.integration.timeout;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import com.github.lianjiatech.retrofit.spring.boot.exception.RetrofitException;
 import com.github.lianjiatech.retrofit.spring.boot.exception.RetrofitIOException;
@@ -10,11 +13,9 @@ import com.github.lianjiatech.retrofit.spring.boot.test.integration.RetrofitBoot
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.timeout.TimeoutDimensionsServices.CallTimeoutService;
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.timeout.TimeoutDimensionsServices.DefaultTimeoutService;
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.timeout.TimeoutDimensionsServices.ReadTimeoutService;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 /**
  * 集成测试：覆盖各超时维度。

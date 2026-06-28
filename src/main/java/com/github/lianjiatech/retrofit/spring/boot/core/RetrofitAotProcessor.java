@@ -13,14 +13,14 @@ import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.beans.factory.aot.BeanFactoryInitializationAotContribution;
 import org.springframework.beans.factory.aot.BeanFactoryInitializationAotProcessor;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.config.ConstructorArgumentValues;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.config.ConstructorArgumentValues;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.ClassUtils;
 
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.InterceptMark;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.Intercept;
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.InterceptMark;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.Intercepts;
 import com.github.lianjiatech.retrofit.spring.boot.timeout.Timeout;
 
@@ -86,7 +86,7 @@ public class RetrofitAotProcessor implements BeanFactoryInitializationAotProcess
         ConstructorArgumentValues args = definition.getConstructorArgumentValues();
         ConstructorArgumentValues.ValueHolder holder = args.getArgumentValue(0, String.class);
         if (holder != null && holder.getValue() instanceof String) {
-            return (String) holder.getValue();
+            return (String)holder.getValue();
         }
         return null;
     }
@@ -139,7 +139,7 @@ public class RetrofitAotProcessor implements BeanFactoryInitializationAotProcess
                 interceptAnnotations.add(classAnnotation);
             }
             if (classAnnotation instanceof Intercepts) {
-                Intercept[] value = ((Intercepts) classAnnotation).value();
+                Intercept[] value = ((Intercepts)classAnnotation).value();
                 interceptAnnotations.addAll(java.util.Arrays.asList(value));
             }
         }
@@ -148,7 +148,7 @@ public class RetrofitAotProcessor implements BeanFactoryInitializationAotProcess
             Object handler = attributes.get("handler");
             if (handler instanceof Class) {
                 // 拦截器除反射构造外，还要通过 setter 注入属性（BeanExtendUtils.populate）
-                reflection.registerType((Class<?>) handler,
+                reflection.registerType((Class<?>)handler,
                         MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS,
                         MemberCategory.INVOKE_PUBLIC_METHODS);
             }

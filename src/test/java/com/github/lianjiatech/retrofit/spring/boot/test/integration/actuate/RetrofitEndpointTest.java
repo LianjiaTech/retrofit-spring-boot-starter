@@ -1,11 +1,5 @@
 package com.github.lianjiatech.retrofit.spring.boot.test.integration.actuate;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import java.util.List;
 import java.util.Map;
 
@@ -19,6 +13,12 @@ import com.github.lianjiatech.retrofit.spring.boot.actuate.RetrofitEndpoint;
 import com.github.lianjiatech.retrofit.spring.boot.actuate.RetrofitGlobalInfo;
 import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClientResolution;
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.RetrofitBootApplication;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Actuator Endpoint 集成测试。覆盖：
@@ -60,7 +60,7 @@ public class RetrofitEndpointTest {
         assertTrue(result.containsKey("global"));
         assertTrue(result.containsKey("clients"));
 
-        List<RetrofitClientResolution> clients = (List<RetrofitClientResolution>) result.get("clients");
+        List<RetrofitClientResolution> clients = (List<RetrofitClientResolution>)result.get("clients");
         assertEquals(clients.size(), result.get("count"));
         // 测试上下文里至少包含本测试声明的两个 client
         assertTrue(findByInterface(clients, ANNOTATED) != null);
@@ -167,7 +167,7 @@ public class RetrofitEndpointTest {
 
     @Test
     public void globalSectionMapsProperties() {
-        RetrofitGlobalInfo global = (RetrofitGlobalInfo) retrofitEndpoint.retrofitClients().get("global");
+        RetrofitGlobalInfo global = (RetrofitGlobalInfo)retrofitEndpoint.retrofitClients().get("global");
         assertNotNull(global);
         // application.yml: global-log.enable=true, log-strategy=basic
         assertTrue(global.getLog().isEnable());

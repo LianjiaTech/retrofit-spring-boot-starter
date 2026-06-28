@@ -42,11 +42,11 @@ public class MetricsProperty {
      * 设为空数组表示不发布直方图。
      */
     private Duration[] sla = {
-            Duration.ofMillis(50),
-            Duration.ofMillis(100),
-            Duration.ofMillis(300),
-            Duration.ofSeconds(1),
-            Duration.ofSeconds(3)
+        Duration.ofMillis(50),
+        Duration.ofMillis(100),
+        Duration.ofMillis(300),
+        Duration.ofSeconds(1),
+        Duration.ofSeconds(3)
     };
 
     /**

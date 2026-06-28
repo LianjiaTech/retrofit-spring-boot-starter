@@ -60,13 +60,13 @@ class RetryStrategy {
         if (backoffStrategy == BackoffStrategy.EXPONENTIAL) {
             // 用 double 计算指数，避免 long 溢出，再封顶到 maxIntervalMs
             double exponential = baseIntervalMs * Math.pow(2, attempt);
-            delay = (long) Math.min(exponential, maxIntervalMs);
+            delay = (long)Math.min(exponential, maxIntervalMs);
         } else {
             delay = baseIntervalMs;
         }
         if (jitter > 0.0) {
             double randomFactor = ThreadLocalRandom.current().nextDouble();
-            delay = (long) (delay * (1.0 + jitter * randomFactor));
+            delay = (long)(delay * (1.0 + jitter * randomFactor));
         }
         return delay;
     }
