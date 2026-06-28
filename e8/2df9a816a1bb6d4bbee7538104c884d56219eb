@@ -1,0 +1,255 @@
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/core/CallFactoryConfigurer.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 34
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/core/reactive/Rxjava2CompletableCallAdapterFactory.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 7
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/actuate/RetrofitEndpointDisabledTest.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 13
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/config/RetrofitProperties.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 3-5,11
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/degrade/resilience4j/Resilience4jFallbackFactory.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 5,9
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/config/RetrofitConfigBean.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 3-6,16
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/util/RetrofitUtils.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 85
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/appcontext/ReflectiveOnlyErrorDecoder.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 10
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/degrade/sentinel/SentinelUserServiceTest.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 15-17,56
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/core/RetrofitClient.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 10-12
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/core/ServiceInstanceChooser.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 6
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/config/RetrofitAutoConfiguration.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 145,165-166,260,399-400
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/interceptor/InterceptorUserService.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 3-4,8
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/core/reactive/MonoCallAdapterFactory.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 8
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/log/LogStrategyTest.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 16-25,152
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/chooser/ChooserOkHttpUserServiceTest.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 11,38
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/degrade/resilience4j/Resilience4jUserServiceTest.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 17-18,60
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/log/LogUserServiceTest.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 16-17,64
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/degrade/resilience4j/Resilience4jUserService.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 6
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/metrics/MetricsAutoConfigurationDisabledTest.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 15-20
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/metrics/DefaultRetrofitTagsProvider.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 72
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/degrade/resilience4j/CustomCircuitBreakerConfigRegistrar.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 39
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/interceptor/PathMatchPrecedenceTest.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 8-15
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/okhttp/SharedOkHttpClientTest.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 3-7,14-19
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/reactive/mono/MonoUserService.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 5
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/retry/GlobalRetryUserServiceTest.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 16-19,24-26,66
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/retry/RetryExhaustionUserService.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 7
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/log/LogStrategy.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 28
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/appcontext/AppContextUtilsWarnTest.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 16-26,48
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/degrade/sentinel/SentinelFallbackUserService.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 3-4
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/log/CustomLoggerTest.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 11-16,19-22,49,65,81,103
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/okhttp/OkHttpLifecycleTest.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 5-8,11-15
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/chooser/MyServiceInstanceChooser.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 3-4,7-9
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/reactive/mono/MonoUserServiceTest.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 10-15,30,42
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/meta/annotation/MyRetrofitClient.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 3-11,17,35
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/inherit/Sub.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 4
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/metrics/MetricsAutoConfigOrderingTest.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 11
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/util/AnnotationExtendUtils.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 47,87
+.gitignore
+  h_b701a059e95ce3 11
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/calladapter/ErrorBodyDecodingTest.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 8-15
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/custom/okhttp/CustomOkHttpUserService.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 5
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/interceptor/PathMatchPrecedenceUserService.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 6
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/timeout/TimeoutDimensionsServices.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 5
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/metrics/MetricsProperty.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 45-49
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/timeout/MethodTimeoutServices.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 5,65
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/callfactory/CallFactoryConfigurerTest.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 18-20,78
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/degrade/sentinel/GlobalSentinelUserServiceTest.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 16-17,46
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/timeout/MethodTimeoutTest.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 3-7,17-18,113
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/timeout/TimeoutUserService.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 5-6
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/core/InternalCallAdapterFactory.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 9
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/callfactory/TestCallFactoryConfigurer.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 5-6,49
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/interceptor/MyGlobalInterceptor.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 3-4,7-9
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/log/DefaultLoggerUserService.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 4
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/metrics/DefaultRetrofitTagsProviderTest.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 13-16,74
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/retry/RetryUserServiceTest.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 13-18,62
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/base/UserServiceTest.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 14,16-21,149
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/aot/RetrofitAotProcessorTest.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 20,26-28
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/MockWebServerTest.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 88
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/metrics/MetricsInterceptorTest.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 9,14-17
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/timeout/TimeoutCallFactory.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 8-9,47,94
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/util/AppContextUtils.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 70
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/degrade/resilience4j/GlobalResilience4jUserServiceTest.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 16-17,44
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/retry/RetryEnhancementTest.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 5-10,16-18
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/actuate/AnnotatedActuateService.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 10
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/errordecoder/CustomErrorDecoder.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 26,54
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/core/reactive/Rxjava3CompletableCallAdapterFactory.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 7
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/log/CustomLoggerUserService.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 7
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/reactive/rx/RxJava2UserServiceTest.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 10-15,49
+pom.xml
+  s_0b70acea4bdc68::t_3a20ba410a1d12 336-355
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/retry/RetryEnhancementUserService.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 10
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/timeout/TimeoutDimensionsTest.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 3-7,16-18
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/core/jackson3/Jackson3ResponseBodyConverter.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 4-5,7,9-11,16,22,24-26,28-34,36
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/timeout/TimeoutUserServiceTest.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 11,30
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/meta/annotation/MetaAnnotationUserServiceTest.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 11,38
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/core/SourceOkHttpClientRegistry.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 7-8
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/actuate/RetrofitEndpoint.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 81
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/retry/RetryInterceptor.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 3-7,10,37-38,68-69
+.claude/hooks/format-and-test.sh
+  s_0b70acea4bdc68::t_2db6d254881fda 109,111-115
+  s_0b70acea4bdc68::t_251089737fb31d 121
+  s_0b70acea4bdc68::t_8ca90cb2135fd4 13-34
+  s_0b70acea4bdc68::t_75a29e4108c085 3-4,9,11-12,36,91,94-97,101-103,108,110,118,120,122-125,127-130,132-133,141-142,144-152,155,165,167
+  s_0b70acea4bdc68::t_65cf8e094f8441 93
+  s_0b70acea4bdc68::t_8ac1776b8d61c3 5-8,10,35,37-72,76-77,81,83,86-87,89,92,98-100,104-107,119,126,131,136-137,143,153-154,156-164,166
+  s_0b70acea4bdc68::t_8055baa814b642 73-75,78-80,82,84-85,88,90
+  s_0b70acea4bdc68::t_aa31b062e01759 2,135,138
+  s_0b70acea4bdc68::t_67cbd2cfc4957d 139
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/retry/RetryExhaustionTest.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 5-10,15-20
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/custom/okhttp/CustomOkHttpUserServiceTest.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 11,30
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/callfactory/DynamicCallTimeout.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 17
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/retry/RetryRule.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 8
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/reactive/rx/RxJava3UserServiceTest.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 10-15,49
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/timeout/Timeout.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 62
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/degrade/resilience4j/GlobalResilience4jFallbackFactory.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 6
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/core/jackson3/Jackson3StreamingRequestBody.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 4-5,7,9-11,16,23-25,27-31,33-36,38-42
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/degrade/resilience4j/CircuitBreakerConfigRegistry.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 7-8
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/inherit/SubTest.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 9-10
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/bdfprocessor/BdfProcessorClassInitTest.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 8-11
+.claude/settings.json
+  s_0b70acea4bdc68::t_e4b6e78662b336 9
+  s_249b045af595c4::t_f2c52bf7529824 1-8,10-15
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/core/RetrofitAotProcessor.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 17,23,89,142,151
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/actuate/RetrofitEndpointTest.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 17-22,63,170
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/core/reactive/Rxjava3SingleCallAdapterFactory.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 8
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/core/PathMatchInterceptorBdfProcessor.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 33,35
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/core/RetrofitFactoryBean.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 84-85,149-150,178-179
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/callfactory/CallFactoryConfigurerServices.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 5,31
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/core/reactive/Rxjava2SingleCallAdapterFactory.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 8
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/core/jackson3/Jackson3ConverterFactory.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 4-5,7,9-11,17,38-39,41-44,46-49,51-59,61-63,65-69,71-79,81-87,89-99
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/errordecoder/ErrorDecoderTest.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 5-10,16-21
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/interceptor/ServiceChooseInterceptor.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 3-8,11
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/retry/RetryStrategy.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 63,69
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/reactive/rx/RxJava2UserService.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 5
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/core/jackson3/Jackson3RequestBodyConverter.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 4-5,7,9-11,16,23-25,27-30,33-42
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/degrade/sentinel/SentinelUserService.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 7
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/interceptor/InterceptorUserServiceTest.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 13-17,96
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/retry/RetryUserService.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 9
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/degrade/resilience4j/Resilience4jDegrade.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 34
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/config/GlobalConnectionPoolProperty.java
+  s_0b70acea4bdc68::t_a78fbc698f9f09 7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.24-trip",
+  "base_commit_sha": "e82df9a816a1bb6d4bbee7538104c884d56219eb",
+  "prompts": {},
+  "humans": {
+    "h_b701a059e95ce3": {
+      "author": "tm.chen <tm.chen@trip.com>"
+    }
+  },
+  "sessions": {
+    "s_0b70acea4bdc68": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b91ebd78-3d7c-4c46-8374-2ca0ca8d559d",
+        "model": "arn:aws:bedrock:us-west-2:133197901387:application-inference-profile/ypvzpmevzxdl"
+      },
+      "human_author": "tm.chen <tm.chen@trip.com>"
+    },
+    "s_249b045af595c4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8bcbc111-924f-461d-9112-36098d9de865",
+        "model": "glm-5.1"
+      },
+      "human_author": "tm.chen <tm.chen@trip.com>"
+    }
+  }
+}
