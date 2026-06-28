@@ -48,13 +48,18 @@ public final class Jackson3ConverterFactory extends Converter.Factory {
         return create(mapper, DEFAULT_MEDIA_TYPE);
     }
 
-    /** Create an instance using {@code mapper} and {@code mediaType} for conversion. */
-    @SuppressWarnings("ConstantConditions") // Guarding public API nullability.
+    /**
+     * Create an instance using {@code mapper} and {@code mediaType} for conversion.
+     * Guards public API nullability via explicit null checks.
+     */
+    @SuppressWarnings("ConstantConditions")
     public static Jackson3ConverterFactory create(ObjectMapper mapper, MediaType mediaType) {
-        if (mapper == null)
+        if (mapper == null) {
             throw new NullPointerException("mapper == null");
-        if (mediaType == null)
+        }
+        if (mediaType == null) {
             throw new NullPointerException("mediaType == null");
+        }
         return new Jackson3ConverterFactory(mapper, mediaType, false);
     }
 

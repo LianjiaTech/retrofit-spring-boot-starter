@@ -20,6 +20,9 @@ import retrofit2.Invocation;
  */
 public class ServiceChooseInterceptor implements Interceptor {
 
+    /** Maximum valid TCP port number. */
+    private static final int MAX_TCP_PORT = 65535;
+
     protected final ServiceInstanceChooser serviceInstanceChooser;
 
     public ServiceChooseInterceptor(ServiceInstanceChooser serviceDiscovery) {
@@ -46,7 +49,7 @@ public class ServiceChooseInterceptor implements Interceptor {
         HttpUrl url = request.url();
         int port = uri.getPort();
         String scheme = uri.getScheme();
-        if (port <= 0 || port > 65535) {
+        if (port <= 0 || port > MAX_TCP_PORT) {
             port = HttpUrl.defaultPort(scheme);
         }
 

@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<ruleset name="ali-p3c-custom"
+         xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 https://pmd.sourceforge.io/ruleset_2_0_0.xsd">
+
+    <description>
+        Ali P3C ruleset tailored for this project.
+        Excludes rules that force boilerplate (mandatory @author / javadoc) or fight Java
+        conventions (treating ABC as an acronym in IOException-style names).
+    </description>
+
+    <!-- Naming -->
+    <rule ref="rulesets/java/ali-naming.xml">
+        <!-- Java standard library itself uses IOException; keep parity. -->
+        <exclude name="ClassNamingShouldBeCamelRule"/>
+    </rule>
+
+    <!-- Comment -->
+    <rule ref="rulesets/java/ali-comment.xml">
+        <!-- Personal/OSS project, no team-wide @author convention. -->
+        <exclude name="ClassMustHaveAuthorRule"/>
+        <!-- Self-explanatory enum constants (e.g. NONE/BASIC/HEADERS/BODY) don't need docs. -->
+        <exclude name="EnumConstantsMustHaveCommentRule"/>
+        <!-- Over-zealous: requires @param/@return on every interface method. -->
+        <exclude name="AbstractMethodOrInterfaceMethodMustUseJavadocRule"/>
+    </rule>
+
+    <!-- The remaining P3C rulesets in full -->
+    <rule ref="rulesets/java/ali-concurrent.xml"/>
+    <rule ref="rulesets/java/ali-constant.xml"/>
+    <rule ref="rulesets/java/ali-exception.xml"/>
+    <rule ref="rulesets/java/ali-flowcontrol.xml"/>
+    <rule ref="rulesets/java/ali-oop.xml"/>
+    <rule ref="rulesets/java/ali-orm.xml"/>
+    <rule ref="rulesets/java/ali-other.xml"/>
+    <rule ref="rulesets/java/ali-set.xml"/>
+
+</ruleset>

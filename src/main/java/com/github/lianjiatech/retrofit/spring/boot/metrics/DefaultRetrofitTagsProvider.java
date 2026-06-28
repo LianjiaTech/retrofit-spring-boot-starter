@@ -46,6 +46,14 @@ public class DefaultRetrofitTagsProvider implements RetrofitTagsProvider {
     private static final String UNKNOWN = "UNKNOWN";
     private static final String NONE = "NONE";
 
+    /** HTTP status code class boundaries (inclusive lower, exclusive upper). */
+    private static final int HTTP_STATUS_INFORMATIONAL_MIN = 100;
+    private static final int HTTP_STATUS_SUCCESS_MIN = 200;
+    private static final int HTTP_STATUS_REDIRECTION_MIN = 300;
+    private static final int HTTP_STATUS_CLIENT_ERROR_MIN = 400;
+    private static final int HTTP_STATUS_SERVER_ERROR_MIN = 500;
+    private static final int HTTP_STATUS_SERVER_ERROR_MAX_EXCLUSIVE = 600;
+
     private final MetricsProperty property;
 
     /**
@@ -89,16 +97,16 @@ public class DefaultRetrofitTagsProvider implements RetrofitTagsProvider {
     private String statusBucket(Response response, Throwable exception) {
         if (response != null) {
             int code = response.code();
-            if (code >= 200 && code < 300) {
+            if (code >= HTTP_STATUS_SUCCESS_MIN && code < HTTP_STATUS_REDIRECTION_MIN) {
                 return "2xx";
             }
-            if (code >= 300 && code < 400) {
+            if (code >= HTTP_STATUS_REDIRECTION_MIN && code < HTTP_STATUS_CLIENT_ERROR_MIN) {
                 return "3xx";
             }
-            if (code >= 400 && code < 500) {
+            if (code >= HTTP_STATUS_CLIENT_ERROR_MIN && code < HTTP_STATUS_SERVER_ERROR_MIN) {
                 return "4xx";
             }
-            if (code >= 500 && code < 600) {
+            if (code >= HTTP_STATUS_SERVER_ERROR_MIN && code < HTTP_STATUS_SERVER_ERROR_MAX_EXCLUSIVE) {
                 return "5xx";
             }
             return NONE;
@@ -112,19 +120,19 @@ public class DefaultRetrofitTagsProvider implements RetrofitTagsProvider {
     private String outcome(Response response, Throwable exception) {
         if (response != null) {
             int code = response.code();
-            if (code < 200) {
+            if (code < HTTP_STATUS_SUCCESS_MIN) {
                 return UNKNOWN;
             }
-            if (code < 300) {
+            if (code < HTTP_STATUS_REDIRECTION_MIN) {
                 return "SUCCESS";
             }
-            if (code < 400) {
+            if (code < HTTP_STATUS_CLIENT_ERROR_MIN) {
                 return "REDIRECTION";
             }
-            if (code < 500) {
+            if (code < HTTP_STATUS_SERVER_ERROR_MIN) {
                 return "CLIENT_ERROR";
             }
-            if (code < 600) {
+            if (code < HTTP_STATUS_SERVER_ERROR_MAX_EXCLUSIVE) {
                 return "SERVER_ERROR";
             }
             return UNKNOWN;
