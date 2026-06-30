@@ -333,49 +333,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- Spotless: Ali P3C code formatting -->
-            <plugin>
-                <groupId>com.diffplug.spotless</groupId>
-                <artifactId>spotless-maven-plugin</artifactId>
-                <version>2.43.0</version>
-                <configuration>
-                    <java>
-                        <eclipse>
-                            <file>.claude/format/ali-java-style.xml</file>
-                            <version>4.30</version>
-                        </eclipse>
-                        <removeUnusedImports/>
-                        <importOrder>
-                            <order>java,jakarta,org,com,\#</order>
-                        </importOrder>
-                        <trimTrailingWhitespace/>
-                        <endWithNewline/>
-                    </java>
-                </configuration>
-            </plugin>
-            <!-- PMD: Ali P3C rule check (only scans src/main/java; excludes tests) -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-pmd-plugin</artifactId>
-                <version>3.21.2</version>
-                <configuration>
-                    <printFailingErrors>true</printFailingErrors>
-                    <failOnViolation>true</failOnViolation>
-                    <includeTests>false</includeTests>
-                    <linkXRef>false</linkXRef>
-                    <targetJdk>17</targetJdk>
-                    <rulesets>
-                        <ruleset>.claude/format/ali-p3c-ruleset.xml</ruleset>
-                    </rulesets>
-                </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>com.alibaba.p3c</groupId>
-                        <artifactId>p3c-pmd</artifactId>
-                        <version>2.1.1</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
             <!--自动发布-->
             <plugin>
                 <groupId>org.sonatype.central</groupId>
