@@ -12,92 +12,80 @@ set -uo pipefail
 # JAVA_HOME 自动检测
 # ============================================================
 
+# 校验 java 可执行文件版本是否 ≥ 17
+# 用 `version "17"` / `version "21"` 形式锚定，避免误匹配 `1.8.0_281`
+_java_version_ge_17() {
+  local java_bin="$1"
+  [[ -x "$java_bin" ]] || return 1
+  "$java_bin" -version 2>&1 | head -1 | grep -qE 'version "(1[7-9]|[2-9][0-9])'
+}
+
 # 确保 JAVA_HOME 存在且 java 版本 ≥ 17
-# 搜索优先级：
-#   1. 已设置的 JAVA_HOME（若版本 ≥ 17）
-#   2. macOS /usr/libexec/java_home（系统 JDK 管理接口）
-#   3. 各平台 JDK 安装目录动态扫描（不硬编码版本号）
-#   4. PATH 中 java 可执行文件推断
+# 探测优先级：
+#   L1. 已设置的 JAVA_HOME（若版本 ≥ 17）—— 所有平台
+#   L2. 平台专属：
+#       - macOS: /usr/libexec/java_home -v 17+ → PATH 中 java 兜底（Homebrew 场景）
+#       - Windows (Git Bash): 扫标准安装目录
+#       - Linux: 不做探测，返回失败（由调用方给出明确提示）
 ensure_java_home() {
-  # 1. 已设置的 JAVA_HOME 若版本 ≥ 17，直接用
-  local current_java="${JAVA_HOME:-}"
-  if [[ -n "$current_java" && -x "$current_java/bin/java" ]]; then
-    local ver
-    ver="$("$current_java/bin/java" -version 2>&1 | head -1)"
-    if echo "$ver" | grep -qE '(1[7-9]|[2-9][0-9])'; then
-      return 0
-    fi
+  # L1: 已设置的 JAVA_HOME
+  if [[ -n "${JAVA_HOME:-}" ]] && _java_version_ge_17 "$JAVA_HOME/bin/java"; then
+    return 0
   fi
 
-  # 2. macOS: /usr/libexec/java_home 是标准 JDK 版本选择接口
-  if [[ -x /usr/libexec/java_home ]]; then
-    local mac_home
-    mac_home="$(/usr/libexec/java_home -v 17+ 2>/dev/null || true)"
-    if [[ -n "$mac_home" && -x "$mac_home/bin/java" ]]; then
-      export JAVA_HOME="$mac_home"
-      return 0
-    fi
-  fi
-
-  # 3. 各平台 JDK 安装目录动态扫描
-  local search_dirs=()
   case "$(uname -s)" in
     Darwin)
-      for d in /Library/Java/JavaVirtualMachines/*.jdk/Contents/Home \
-               "$HOME/Library/Java/JavaVirtualMachines/*.jdk/Contents/Home"; do
-        if [[ -d "$d" && -x "$d/bin/java" ]]; then
-          search_dirs+=("$d")
+      # macOS 官方 JDK 版本选择接口
+      if [[ -x /usr/libexec/java_home ]]; then
+        local mac_home
+        mac_home="$(/usr/libexec/java_home -v 17+ 2>/dev/null || true)"
+        if [[ -n "$mac_home" ]] && _java_version_ge_17 "$mac_home/bin/java"; then
+          export JAVA_HOME="$mac_home"
+          return 0
         fi
-      done
-      ;;
-    Linux)
-      for d in /usr/lib/jvm/java-*; do
-        if [[ -d "$d" && -x "$d/bin/java" ]]; then
-          search_dirs+=("$d")
+      fi
+      # Homebrew 兜底：从 PATH 里的 java 推断
+      local java_in_path inferred
+      java_in_path="$(command -v java 2>/dev/null || true)"
+      if [[ -n "$java_in_path" ]]; then
+        inferred="$(dirname "$(dirname "$java_in_path")")"
+        if _java_version_ge_17 "$inferred/bin/java"; then
+          export JAVA_HOME="$inferred"
+          return 0
         fi
-      done
-      if [[ -d "$HOME/.sdkman/candidates/java/current" && -x "$HOME/.sdkman/candidates/java/current/bin/java" ]]; then
-        search_dirs+=("$HOME/.sdkman/candidates/java/current")
       fi
       ;;
     MINGW*|MSYS*|CYGWIN*)
-      for d in "/c/Program Files/Java/jdk-*" \
-               "/c/Program Files/Eclipse Adoptium/jdk-*" \
-               "/c/Program Files/AdoptOpenJDK/jdk-*" \
-               "/c/Program Files/Microsoft/jdk-*"; do
-        if [[ -d "$d" && -x "$d/bin/java.exe" ]]; then
-          search_dirs+=("$d")
-        fi
+      # Windows Git Bash：扫描主流 JDK 发行版的标准安装目录
+      local base d
+      for base in "/c/Program Files/Java" \
+                  "/c/Program Files/Eclipse Adoptium" \
+                  "/c/Program Files/Microsoft" \
+                  "/c/Program Files/AdoptOpenJDK" \
+                  "/c/Program Files/Amazon Corretto"; do
+        [[ -d "$base" ]] || continue
+        while IFS= read -r d; do
+          if _java_version_ge_17 "$d/bin/java.exe"; then
+            export JAVA_HOME="$d"
+            return 0
+          fi
+        done < <(find "$base" -maxdepth 1 -mindepth 1 -type d 2>/dev/null)
       done
       ;;
   esac
-
-  for d in "${search_dirs[@]:-}"; do
-    if [[ -z "$d" ]]; then continue; fi
-    local d_ver
-    d_ver="$("$d/bin/java" -version 2>&1 | head -1)"
-    if echo "$d_ver" | grep -qE '(1[7-9]|[2-9][0-9])'; then
-      export JAVA_HOME="$d"
-      return 0
-    fi
-  done
-
-  # 4. PATH 中 java 推断
-  local java_in_path
-  java_in_path="$(command -v java 2>/dev/null)"
-  if [[ -n "$java_in_path" ]]; then
-    local path_ver
-    path_ver="$(java -version 2>&1 | head -1)"
-    if echo "$path_ver" | grep -qE '(1[7-9]|[2-9][0-9])'; then
-      local inferred
-      inferred="$(dirname "$(dirname "$java_in_path")")"
-      if [[ -d "$inferred/bin" && -x "$inferred/bin/java" ]]; then
-        export JAVA_HOME="$inferred"
-        return 0
-      fi
-    fi
-  fi
   return 1
+}
+
+# 未找到 JDK 17+ 时输出平台相关的引导信息，供 hook / skill 复用
+warn_missing_java_home() {
+  case "$(uname -s)" in
+    Linux)
+      echo "✗ 未找到 Java 17+。Linux 环境未做自动探测，请手动 export JAVA_HOME 指向 JDK 17+ 安装目录后重启 Claude Code。" >&2
+      ;;
+    *)
+      echo "✗ 未找到 Java 17+ 运行环境。请安装 JDK 17+ 或设置 JAVA_HOME。" >&2
+      ;;
+  esac
 }
 
 # ============================================================

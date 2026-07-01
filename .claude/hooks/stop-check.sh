@@ -16,7 +16,11 @@ source "$HOOK_DIR/lib/config.sh"
 # 消费 stdin（Stop hook 有 payload，但当前实现不需要）
 cat >/dev/null || true
 
-ensure_java_home || { echo "✗ 未找到 Java 17+ 运行环境，跳过 stop-check" >&2; exit 0; }
+if ! ensure_java_home; then
+  warn_missing_java_home
+  echo "  (跳过 stop-check)" >&2
+  exit 0
+fi
 
 PROJECT_ROOT="$(find_project_root)" || exit 0
 

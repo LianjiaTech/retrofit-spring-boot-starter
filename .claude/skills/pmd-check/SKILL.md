@@ -16,8 +16,10 @@ disable-model-invocation: true
 
 ## 执行步骤
 
-1. 使用 Bash 工具在项目根执行：
+1. 使用 Bash 工具在项目根执行（先加载 hooks/lib/common.sh 中的 `ensure_java_home`，保证 mvn 用 JDK 17+）：
    ```bash
+   source .claude/hooks/lib/common.sh
+   ensure_java_home || { warn_missing_java_home; exit 1; }
    mvn -q -B pmd:pmd -DincludeTests=false
    ```
    `pmd:pmd` 不因违规而 fail build，报告输出到各模块 `target/pmd.xml`
