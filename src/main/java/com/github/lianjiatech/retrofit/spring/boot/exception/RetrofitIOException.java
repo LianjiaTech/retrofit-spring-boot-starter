@@ -3,7 +3,9 @@ package com.github.lianjiatech.retrofit.spring.boot.exception;
 /**
  * @author 陈添明
  */
-public class RetrofitIOException extends RetrofitException {
+@SuppressWarnings("AlibabaClassNamingShouldBeCamel")
+public class RetrofitIOException extends RetrofitException { // NOPMD class naming: public API, rename breaks
+                                                             // compatibility
 
     public RetrofitIOException(String message, Throwable cause) {
         super(message, cause);

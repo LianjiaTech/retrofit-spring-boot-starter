@@ -10,10 +10,6 @@ import org.junit.Test;
 import com.github.lianjiatech.retrofit.spring.boot.metrics.DefaultRetrofitTagsProvider;
 import com.github.lianjiatech.retrofit.spring.boot.metrics.MetricsProperty;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import io.micrometer.core.instrument.Tag;
 import io.micrometer.core.instrument.Tags;
 import okhttp3.HttpUrl;
@@ -25,6 +21,10 @@ import retrofit2.Invocation;
 import retrofit2.http.GET;
 import retrofit2.http.HTTP;
 import retrofit2.http.POST;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * {@link DefaultRetrofitTagsProvider} 单元测试。

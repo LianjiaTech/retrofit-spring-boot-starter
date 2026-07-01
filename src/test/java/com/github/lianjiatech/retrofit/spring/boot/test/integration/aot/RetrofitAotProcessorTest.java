@@ -24,12 +24,12 @@ import com.github.lianjiatech.retrofit.spring.boot.degrade.FallbackFactory;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.BasePathMatchInterceptor;
 import com.github.lianjiatech.retrofit.spring.boot.interceptor.Intercept;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import okhttp3.Interceptor;
 import okhttp3.Response;
 import retrofit2.http.GET;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * 验证 {@link RetrofitAotProcessor} 在 AOT 构建期为 {@code @RetrofitClient} 接口注册了 native image

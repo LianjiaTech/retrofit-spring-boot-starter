@@ -14,13 +14,13 @@ import com.github.lianjiatech.retrofit.spring.boot.test.integration.RetrofitBoot
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.base.UserService;
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.errordecoder.CustomErrorDecoder.BizException;
 
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.SocketPolicy;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.SocketPolicy;
 
 /**
  * 集成测试：覆盖 ErrorDecoder 三个分支：

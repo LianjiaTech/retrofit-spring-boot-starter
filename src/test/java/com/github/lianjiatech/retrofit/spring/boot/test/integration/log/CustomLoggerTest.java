@@ -14,11 +14,11 @@ import com.github.lianjiatech.retrofit.spring.boot.test.integration.MockWebServe
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.RetrofitBootApplication;
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.entity.User;
 
-import static org.junit.Assert.assertEquals;
-
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Tests for {@link Logging#logName()} based on logback

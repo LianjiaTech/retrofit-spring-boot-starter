@@ -33,6 +33,8 @@ import tools.jackson.databind.ObjectWriter;
  * handle all types. If you are mixing JSON serialization with something else (such as protocol
  * buffers), you must {@linkplain Retrofit.Builder#addConverterFactory(Converter.Factory) add this
  * instance} last to allow the other converters a chance to see their types.
+ *
+ * @author 陈添明
  */
 public final class Jackson3ConverterFactory extends Converter.Factory {
     private static final MediaType DEFAULT_MEDIA_TYPE =

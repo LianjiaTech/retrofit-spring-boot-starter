@@ -9,3 +9,5 @@
 temp
 **/pom.xml.releaseBackup
 .codegraph
+.claude/hooks/.edited-files.txt
+.claude/hooks/.stop-block-count

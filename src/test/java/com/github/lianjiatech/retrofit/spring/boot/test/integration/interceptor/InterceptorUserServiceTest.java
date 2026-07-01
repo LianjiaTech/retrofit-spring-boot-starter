@@ -13,11 +13,11 @@ import com.github.lianjiatech.retrofit.spring.boot.test.integration.MockWebServe
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.RetrofitBootApplication;
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.entity.User;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-
 import okhttp3.Headers;
 import retrofit2.Response;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author 陈添明

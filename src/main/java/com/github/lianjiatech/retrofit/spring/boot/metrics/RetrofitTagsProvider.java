@@ -30,6 +30,9 @@ public interface RetrofitTagsProvider {
 
     /**
      * 进行中请求的 tag。LongTaskTimer 不知道结果，因此只能给出"静态"维度。
+     *
+     * @param request 原始 OkHttp 请求
+     * @return 过滤掉状态相关 tag 后的 tag 集合
      */
     default Tags getInProgressTags(Request request) {
         return Tags.of(getTags(request, null, null).stream()

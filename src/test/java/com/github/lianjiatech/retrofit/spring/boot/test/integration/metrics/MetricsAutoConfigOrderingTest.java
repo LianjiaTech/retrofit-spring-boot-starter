@@ -8,10 +8,10 @@ import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitAutoConfigurat
 import com.github.lianjiatech.retrofit.spring.boot.config.RetrofitConfigBean;
 import com.github.lianjiatech.retrofit.spring.boot.metrics.RetrofitTagsProvider;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import io.micrometer.core.instrument.MeterRegistry;
 import okhttp3.Interceptor;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * 验证 metrics 装配在 Spring Boot autoconfig 加载流程中的行为：

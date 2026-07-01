@@ -17,12 +17,12 @@ import com.github.lianjiatech.retrofit.spring.boot.test.integration.MockWebServe
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.RetrofitBootApplication;
 import com.github.lianjiatech.retrofit.spring.boot.util.AppContextUtils;
 
-import static org.junit.Assert.assertTrue;
-
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * 集成测试：覆盖 H2 — {@link AppContextUtils#getBeanOrNew} 在反射回退路径上打 WARN，

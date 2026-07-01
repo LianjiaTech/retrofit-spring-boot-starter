@@ -12,12 +12,12 @@ import com.github.lianjiatech.retrofit.spring.boot.test.integration.RetrofitBoot
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.okhttp.SharedOkHttpServices.DefaultClient;
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.okhttp.SharedOkHttpServices.IsolatedPoolClient;
 
+import okhttp3.OkHttpClient;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
-
-import okhttp3.OkHttpClient;
 
 /**
  * 集成测试：覆盖 4.0.6 commit 的核心改动 — 全局共享 {@code retrofitBaseOkHttpClient} bean，
