@@ -229,3 +229,160 @@ stop_block_reset() {
   f="$(_stop_block_file)" || return 0
   if [[ -f "$f" ]]; then rm -f "$f"; fi
 }
+
+# ============================================================
+# spotless / pmd 文件级过滤辅助
+# ============================================================
+
+# 将任意字符串转义为 Java Pattern 可用的字面量正则
+# 覆盖：. \ ( ) [ ] { } * + ? ^ $ | / (斜杠不是元字符但一并转义无害且可避免解析歧义)
+# stdin: 原文，stdout: 转义后
+escape_regex() {
+  local s="$1"
+  # 顺序无关：反斜杠必须最先转，避免后续插入的 \ 又被转义
+  s="${s//\\/\\\\}"
+  s="${s//./\\.}"
+  s="${s//(/\\(}"
+  s="${s//)/\\)}"
+  s="${s//\[/\\[}"
+  s="${s//]/\\]}"
+  s="${s//\{/\\{}"
+  s="${s//\}/\\\}}"
+  s="${s//\*/\\*}"
+  s="${s//+/\\+}"
+  s="${s//\?/\\?}"
+  s="${s//^/\\^}"
+  s="${s//\$/\\\$}"
+  s="${s//|/\\|}"
+  printf '%s' "$s"
+}
+
+# 按字符预算把已转义的路径切成多批
+# 输入：BUDGET, 逐行读取待打包的（已转义）路径
+# 输出：每行一批，路径以逗号分隔
+# 用法：printf '%s\n' "${ESC[@]}" | build_spotless_batches 6000
+build_spotless_batches() {
+  local budget="${1:-6000}"
+  local current="" current_len=0 add_len line
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    [[ -z "$line" ]] && continue
+    add_len=$(( ${#line} + 1 ))  # +1 为逗号分隔符
+    if (( current_len + add_len > budget )) && [[ -n "$current" ]]; then
+      printf '%s\n' "$current"
+      current="$line"
+      current_len=${#line}
+    else
+      if [[ -z "$current" ]]; then
+        current="$line"
+        current_len=${#line}
+      else
+        current="$current,$line"
+        current_len=$(( current_len + add_len ))
+      fi
+    fi
+  done
+  [[ -n "$current" ]] && printf '%s\n' "$current"
+  return 0
+}
+
+# 过滤 PMD XML，仅保留白名单文件的 <file> 段
+# 参数：
+#   $1 = pmd.xml 路径
+#   $2 = 模块根绝对路径（用于把白名单文件转成相对路径以兼容 PMD 相对路径输出）
+#   $3.. = 白名单文件绝对路径列表
+# stdout：
+#   第一行：过滤后 <violation> 数量
+#   之后：过滤后的 XML 段拼接（每个保留的 <file>...</file> 之间原样输出）
+# 返回值：始终 0（即便无匹配，也返回 0 并输出 "0" 计数 + 空正文）
+filter_pmd_xml() {
+  local xml="$1"; shift
+  local mod="$1"; shift
+  # 剩余参数为白名单
+  local -a whitelist=("$@")
+
+  if [[ ! -f "$xml" ]] || (( ${#whitelist[@]} == 0 )); then
+    printf '0\n'
+    return 0
+  fi
+
+  # 构造名字匹配的两组：绝对 & 相对模块根
+  # macOS 的 /var 是 /private/var 的 symlink，mvn/PMD 可能报告任一形式；
+  # 因此每个绝对路径同时插入 "/private" 前缀的孪生版本，保证匹配到位。
+  local -a names=()
+  local f rel twin
+  for f in "${whitelist[@]}"; do
+    names+=("$f")
+    if [[ "$f" == /var/* ]]; then
+      twin="/private$f"
+      names+=("$twin")
+    elif [[ "$f" == /private/var/* ]]; then
+      twin="${f#/private}"
+      names+=("$twin")
+    fi
+    rel="${f#$mod/}"
+    if [[ "$rel" != "$f" ]]; then
+      names+=("$rel")
+    fi
+  done
+
+  awk -v NAMES="$(printf '%s\t' "${names[@]}")" '
+    BEGIN {
+      n = split(NAMES, arr, "\t")
+      for (i = 1; i <= n; i++) {
+        if (arr[i] != "") allow[arr[i]] = 1
+      }
+      inFile = 0
+      keep = 0
+      violations = 0
+      body = ""
+    }
+    {
+      line = $0
+      # 逐行扫描；<file 可能带前置空白
+      if (!inFile) {
+        # 匹配 <file name="..."> （可能跨行属性极少见，此处按单行处理）
+        if (match(line, /<file[[:space:]][^>]*>/)) {
+          seg = substr(line, RSTART, RLENGTH)
+          if (match(seg, /name="[^"]*"/)) {
+            nm = substr(seg, RSTART + 6, RLENGTH - 7)
+            keep = (nm in allow) ? 1 : 0
+          } else {
+            keep = 0
+          }
+          inFile = 1
+          if (keep) body = body line "\n"
+          # 处理同行即结束的情况：<file ...>...</file>
+          if (index(line, "</file>")) {
+            if (keep) {
+              # 统计 violations
+              tmp = line
+              while (match(tmp, /<violation[[:space:]>]/)) {
+                violations++
+                tmp = substr(tmp, RSTART + RLENGTH)
+              }
+            }
+            inFile = 0
+            keep = 0
+          }
+        }
+      } else {
+        if (keep) {
+          body = body line "\n"
+          tmp = line
+          while (match(tmp, /<violation[[:space:]>]/)) {
+            violations++
+            tmp = substr(tmp, RSTART + RLENGTH)
+          }
+        }
+        if (index(line, "</file>")) {
+          inFile = 0
+          keep = 0
+        }
+      }
+    }
+    END {
+      print violations
+      printf "%s", body
+    }
+  ' "$xml"
+}
