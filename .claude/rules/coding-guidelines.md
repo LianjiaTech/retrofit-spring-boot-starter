@@ -1,7 +1,18 @@
-# PMD 代码规范要点（由 team-ai-coding-toolkit 提供）
+# PMD 7 代码规范要点（由 team-ai-coding-toolkit 提供）
 
-> 完整规范以 PMD ali-p3c 全集规则为准，以下仅列出 Claude 容易忽略的高频要点。
+> 本项目使用 PMD 7 内置规则集（maven-pmd-plugin-default.xml），覆盖命名规范、异常处理、并发安全、代码设计、性能等 8 大类别约 100 条精选规则。
+> 以下列出 Claude 容易忽略的高频要点和与 ali-p3c 的差异说明。
 > 本文件由 toolkit 维护，不要手动编辑。
+
+## 与 ali-p3c 的主要差异
+
+PMD 7 内置规则集替代了已停更 4 年的 ali-p3c（p3c-pmd 2.1.1）。两者覆盖对比：
+
+- **命名规范**：PMD 7 完全覆盖 ali-p3c 的全部命名规则（类名 CamelCase、常量 UPPER_SNAKE_CASE、包名全小写等）
+- **异常处理**：ali-p3c 的 `AvoidReturnInFinally`（finally 中 return 吞异常）和 `MethodReturnWrapperType`（包装类返回值 NPE）在 PMD 7 中无等价规则——**请特别留意这两条，代码评审时手动关注**
+- **并发安全**：PMD 7 有 `DoNotUseThreads`（禁止手动创建线程）和 `UnsynchronizedStaticFormatter`（静态 SimpleDateFormat 线程不安全），但 ali-p3c 的 `LockShouldWithTryFinally`（Lock 必须 try-finally）、`ThreadLocalShouldRemove`（ThreadLocal 用后 remove）、`CountDownShouldInFinally`（CountDownLatch 保障）无等价——**这些仍需代码评审时人工把关**
+- **集合安全**：ali-p3c 的 `DontModifyInForeachCircle`（foreach 修改集合）、`UnsupportedExceptionWithModifyAsList`（Arrays.asList 修改）无 PMD 7 等价——**foreach 中不修改集合、Arrays.asList 结果不调用 add/remove，需要自觉遵守**
+- **格式规范**：已由 Spotless 自动格式化覆盖（import 排序、未使用 import 删除、大括号风格、缩进等），PMD 自定义规则集已排除 `UnnecessaryImport` 和 `UnnecessaryFullyQualifiedName` 避免重复检查
 
 ## Hook 协作约定
 
@@ -35,9 +46,29 @@
 
 ## 编码要点
 
-- 命名：变量 camelCase，常量 UPPER_SNAKE_CASE
+### PMD 7 自动检查的（Hook 会阻断）
+
+- 命名：变量 camelCase，常量 UPPER_SNAKE_CASE，类名 CamelCase，包名全小写
+- 未使用：私有字段、局部变量、私有方法不应声明后不使用
+- 异常：不要在 catch 中空处理（PMD `EmptyCatchBlock`）
+- 并发：不要手动 `new Thread()`（用线程池），不要用静态 SimpleDateFormat（线程不安全）
+- 空语句：`if (cond);` 这类空体是 bug 信号
+- equals：字符串常量放 equals 左侧（`"constant".equals(variable)` 避免 NPE）
+- 包装类比较：`Integer` 等包装类用 `equals()` 而非 `==`（PMD `CompareObjectsWithEquals`）
+- BigDecimal：不要用 `new BigDecimal(0.1)`（精度丢失），用 `BigDecimal.valueOf()`
+
+### PMD 不检查但 ali-p3c 曾经检查的（需人工把关）
+
+- **finally 中不要 return**——会吞掉异常，导致上层拿不到真实错误
+- **包装类作为方法返回值时可能 NPE**——`public Integer getCount()` 返回 null 时调用者 `getCount().intValue()` 会 NPE
+- **Lock 必须 try-finally**——`lock.lock()` 后必须 `try { ... } finally { lock.unlock(); }`
+- **ThreadLocal 用后 remove**——否则线程池复用时内存泄漏
+- **foreach 中不修改集合**——`for (Item x : list) { list.remove(x); }` 会 ConcurrentModificationException
+- **Arrays.asList 结果不可修改**——返回的是固定大小内部类，`add/remove` 抛 UnsupportedOperationException
+
+### 通用约定
+
 - Map 取值：禁止 `containsKey() + get()` 组合，一次 `get()` + null 判断即可
-- 异常：禁止吞异常（catch 后必须 log 或抛出），禁止 catch Throwable / Exception 顶级类型
 - 日志：使用 slf4j 占位符（`log.info("xxx={}", value)`），不用字符串拼接
 - 注释：业务关键路径必须注释"为什么"，不写"做了什么"
 

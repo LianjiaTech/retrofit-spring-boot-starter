@@ -1,12 +1,12 @@
 ---
 name: pmd-check
-description: 对整个项目或指定模块批量执行 PMD 静态检查（ali-p3c 全集）。支持传入模块根、模块内子目录或 .java 文件路径；输出报告后询问用户是否修复。
+description: 对整个项目或指定模块批量执行 PMD 静态检查（PMD 7 内置规则集）。支持传入模块根、模块内子目录或 .java 文件路径；输出报告后询问用户是否修复。
 disable-model-invocation: true
 ---
 
 # /pmd-check Skill
 
-对 Java 代码批量执行 PMD 静态检查（ali-p3c 全集规则）。
+对 Java 代码批量执行 PMD 静态检查（PMD 7 内置规则集）。
 
 ## 触发场景
 
@@ -95,4 +95,4 @@ disable-model-invocation: true
 - **必须**先输出报告再询问是否修复，不要默认修复
 - 用户回复"修复"后，逐文件调 Edit；不要尝试批量并发
 - 传子目录/单文件时，实际是对**整个所属模块**扫描，不做子目录粒度过滤
-- 如果失败，提示用户检查 pom.xml 是否已包含 maven-pmd-plugin + p3c-pmd 依赖
+- 如果失败，提示用户检查 pom.xml 是否已包含 maven-pmd-plugin（PMD 7 规则集）

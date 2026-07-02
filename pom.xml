@@ -346,6 +346,8 @@
                 </configuration>
             </plugin>
             <!-- 由 team-ai-coding-toolkit 提供，由 team-ai-coding-toolkit 自动注入 -->
+            <!-- 由 team-ai-coding-toolkit 提供，请合并到根 pom.xml 的 <build><plugins> 段 -->
+            <!-- 由 team-ai-coding-toolkit 提供，由 team-ai-coding-toolkit 自动注入 -->
             <plugin>
               <groupId>com.diffplug.spotless</groupId>
               <artifactId>spotless-maven-plugin</artifactId>
@@ -377,20 +379,11 @@
             <plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-pmd-plugin</artifactId>
-              <version>3.21.2</version>
+              <version>3.26.0</version>
               <configuration>
-                <!-- 使用 ali-p3c 全集规则；ruleset 文件由 p3c-pmd jar 内置 -->
+                <!-- 自定义规则集：基于 PMD 7 内置精选规则，排除与 Spotless 重叠的 import 规则 -->
                 <rulesets>
-                  <ruleset>rulesets/java/ali-comment.xml</ruleset>
-                  <ruleset>rulesets/java/ali-concurrent.xml</ruleset>
-                  <ruleset>rulesets/java/ali-constant.xml</ruleset>
-                  <ruleset>rulesets/java/ali-exception.xml</ruleset>
-                  <ruleset>rulesets/java/ali-flowcontrol.xml</ruleset>
-                  <ruleset>rulesets/java/ali-naming.xml</ruleset>
-                  <ruleset>rulesets/java/ali-oop.xml</ruleset>
-                  <ruleset>rulesets/java/ali-orm.xml</ruleset>
-                  <ruleset>rulesets/java/ali-other.xml</ruleset>
-                  <ruleset>rulesets/java/ali-set.xml</ruleset>
+                  <ruleset>${maven.multiModuleProjectDirectory}/.claude/hooks/lib/pmd-ruleset.xml</ruleset>
                 </rulesets>
                 <!-- 输出到 target/pmd.xml；hook 读取该文件解析违规 -->
                 <format>xml</format>
@@ -398,13 +391,6 @@
                 <!-- pmd:pmd 目标只生成报告，不因违规失败；pmd:check 才 fail-on-violation -->
                 <printFailingErrors>false</printFailingErrors>
               </configuration>
-              <dependencies>
-                <dependency>
-                  <groupId>com.alibaba.p3c</groupId>
-                  <artifactId>p3c-pmd</artifactId>
-                  <version>2.1.1</version>
-                </dependency>
-              </dependencies>
             </plugin>
         </plugins>
     </build>
