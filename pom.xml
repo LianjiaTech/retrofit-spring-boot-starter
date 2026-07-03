@@ -348,6 +348,10 @@
             <!-- 由 team-ai-coding-toolkit 提供，由 team-ai-coding-toolkit 自动注入 -->
             <!-- 由 team-ai-coding-toolkit 提供，请合并到根 pom.xml 的 <build><plugins> 段 -->
             <!-- 由 team-ai-coding-toolkit 提供，由 team-ai-coding-toolkit 自动注入 -->
+            <!-- 由 team-ai-coding-toolkit 提供，由 team-ai-coding-toolkit 自动注入 -->
+            <!-- 由 team-ai-coding-toolkit 提供，由 team-ai-coding-toolkit 自动注入 -->
+            <!-- 由 team-ai-coding-toolkit 提供，由 team-ai-coding-toolkit 自动注入 -->
+            <!-- 由 team-ai-coding-toolkit 提供，由 team-ai-coding-toolkit 自动注入 -->
             <plugin>
               <groupId>com.diffplug.spotless</groupId>
               <artifactId>spotless-maven-plugin</artifactId>
@@ -379,7 +383,7 @@
             <plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-pmd-plugin</artifactId>
-              <version>3.26.0</version>
+              <version>3.28.0</version>
               <configuration>
                 <!-- 自定义规则集：基于 PMD 7 内置精选规则，排除与 Spotless 重叠的 import 规则 -->
                 <rulesets>

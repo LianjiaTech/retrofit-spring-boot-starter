@@ -11,3 +11,4 @@ temp
 .codegraph
 .claude/hooks/.edited-files.txt
 .claude/hooks/.stop-block-count
+.claude/hooks/.stop-violations-prev

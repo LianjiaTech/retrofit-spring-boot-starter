@@ -13,4 +13,5 @@ cat >/dev/null || true
 
 clear_edited_list
 stop_block_reset
+clear_fingerprints
 exit 0

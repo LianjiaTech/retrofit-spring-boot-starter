@@ -231,6 +231,324 @@ stop_block_reset() {
 }
 
 # ============================================================
+# 违规指纹提取（跨轮停滞检测）
+# ============================================================
+
+# 违规指纹文件路径
+_stop_violations_file() {
+  local root
+  root="$(find_project_root)" || return 1
+  echo "$root/.claude/hooks/.stop-violations-prev"
+}
+
+# 从 PMD XML 中提取违规指纹（relative_path:rule_name）
+# 参数：
+#   $1 = pmd.xml 路径，或 "-" 表示从 stdin 读取
+#   $2 = 模块根绝对路径（用于把绝对文件名转为相对路径）
+# stdout：逐行 "relative_path:rule_name"，排序去重
+extract_violation_fingerprints() {
+  local xml="$1" mod="$2"
+
+  # macOS symlink 规范化
+  local mod_real
+  mod_real="$(cd "$mod" && pwd -P)"
+
+  local input_source
+  if [[ "$xml" == "-" ]]; then
+    input_source=""  # stdin
+  elif [[ ! -f "$xml" ]]; then
+    return 0
+  else
+    input_source="$xml"
+  fi
+
+  awk -v MOD="$mod_real" '
+    BEGIN { currentFile = ""; }
+    /<file[[:space:]][^>]*name="[^"]*"/ {
+      match($0, /name="[^"]*"/)
+      currentFile = substr($0, RSTART + 6, RLENGTH - 7)
+      # 转为相对路径
+      rel = currentFile
+      prefix = MOD "/"
+      if (index(rel, prefix) == 1) {
+        rel = substr(rel, length(prefix) + 1)
+      }
+      currentFile = rel
+    }
+    /<violation[[:space:]>]/ && currentFile != "" {
+      rule = ""
+      if (match($0, /rule="[^"]*"/)) {
+        rule = substr($0, RSTART + 6, RLENGTH - 7)
+      }
+      if (rule != "" && currentFile != "") {
+        print currentFile ":" rule
+      }
+    }
+    /<\/file>/ { currentFile = ""; }
+  ' "${input_source:-}" | sort -u
+}
+
+# 读取上一轮指纹文件，输出逐行指纹（文件不存在则无输出）
+load_prev_fingerprints() {
+  local f
+  f="$(_stop_violations_file)" || return 0
+  [[ -f "$f" ]] || return 0
+  cat "$f"
+}
+
+# 保存本轮指纹到文件
+save_fingerprints() {
+  local fingerprints="$1"
+  local f
+  f="$(_stop_violations_file)" || return 0
+  mkdir -p "$(dirname "$f")"
+  printf '%s\n' "$fingerprints" > "$f"
+}
+
+# 清除指纹文件
+clear_fingerprints() {
+  local f
+  f="$(_stop_violations_file)" || return 0
+  [[ -f "$f" ]] && rm -f "$f"
+}
+
+# ============================================================
+# PMD 报告解析（供 /pmd-check skill 使用）
+# ============================================================
+
+# 解析 PMD XML 报告，按文件分组输出违规
+# 用 awk 逐行扫描，不受 XML 命名空间影响（Python ElementTree 等需显式处理 xmlns 才能 findall）
+# 参数：
+#   可传多个 pmd.xml 路径，也可不传参数（由调用方 xargs 传入）
+# stdout 格式：
+#   第一行："<文件数> <总违规数>"
+#   之后按文件分组（绝对路径）：
+#     "<绝对路径>"
+#     "  L<行号>  [<规则名>]  <描述>"
+#   无违规时第一行输出 "0 0"
+# 用法：
+#   parse_pmd_report target/pmd.xml
+#   find "$SCAN_ROOT" -path "*/target/pmd.xml" | xargs parse_pmd_report
+# 拆分：
+#   汇总 = head -1；正文 = tail -n +2
+parse_pmd_report() {
+  awk '
+    BEGIN {
+      currentFile = ""; currentRel = ""; fileCount = 0; totalCount = 0
+      inViolation = 0; violationLine = ""; violationRule = ""; descBuf = ""
+      bodyBuf = ""
+    }
+    /<file[[:space:]][^>]*name="[^"]*"/ {
+      match($0, /name="[^"]*"/)
+      currentFile = substr($0, RSTART + 6, RLENGTH - 7)
+      currentRel = currentFile
+      hasViolation = 0
+    }
+    /<violation[[:space:]>]/ && currentFile != "" {
+      # 提取 beginline
+      violationLine = ""
+      if (match($0, /beginline="[^"]*"/)) {
+        violationLine = substr($0, RSTART + 11, RLENGTH - 12)
+      }
+      # 提取 rule
+      violationRule = ""
+      if (match($0, /rule="[^"]*"/)) {
+        violationRule = substr($0, RSTART + 6, RLENGTH - 7)
+      }
+      # 提取同行描述（<violation ...>描述内容</violation> 或 <violation ...>描述内容）
+      descBuf = ""
+      if (match($0, /<violation[^>]*>/)) {
+        rest = substr($0, RSTART + RLENGTH)
+        if (match(rest, /<\/violation>/)) {
+          descBuf = substr(rest, 1, RSTART - 1)
+        } else {
+          descBuf = rest
+        }
+      }
+      # 去首尾空白
+      gsub(/^[[:space:]]+/, "", descBuf)
+      gsub(/[[:space:]]+$/, "", descBuf)
+      # 判断 violation 是否在本行结束
+      if (index($0, "</violation>") > 0) {
+        # 单行 violation：立即输出
+        if (!hasViolation) {
+          bodyBuf = bodyBuf currentRel "\n"
+          hasViolation = 1
+          fileCount++
+        }
+        totalCount++
+        bodyBuf = bodyBuf sprintf("  L%s  [%s]  %s\n", violationLine, violationRule, descBuf)
+        inViolation = 0
+      } else {
+        # 多行 violation：开始累积描述
+        inViolation = 1
+      }
+    }
+    inViolation && !/<violation[[:space:]>]/ && !/<\/violation>/ {
+      # 描述内容行
+      if (descBuf != "") {
+        descBuf = descBuf " " $0
+      } else {
+        descBuf = $0
+      }
+      gsub(/^[[:space:]]+/, "", descBuf)
+    }
+    /<\/violation>/ && inViolation {
+      # 多行 violation 结束
+      gsub(/[[:space:]]+$/, "", descBuf)
+      if (!hasViolation) {
+        bodyBuf = bodyBuf currentRel "\n"
+        hasViolation = 1
+        fileCount++
+      }
+      totalCount++
+      bodyBuf = bodyBuf sprintf("  L%s  [%s]  %s\n", violationLine, violationRule, descBuf)
+      inViolation = 0
+      descBuf = ""
+    }
+    /<\/file>/ {
+      currentFile = ""; currentRel = ""; hasViolation = 0
+    }
+    END {
+      printf "%d %d\n%s", fileCount, totalCount, bodyBuf
+    }
+  ' "$@"
+}
+
+# 从 parse_pmd_report 输出中提取汇总行（首行 "fileCount totalCount"）
+# 参数：parse_pmd_report 的完整输出（文件路径）
+# stdout："<文件数> <总违规数>"
+parse_pmd_summary() {
+  head -1 "$1"
+}
+
+# 从 parse_pmd_report 输出中提取正文（去掉首行汇总）
+# 参数：parse_pmd_report 的完整输出（文件路径）
+# stdout：按文件分组的违规报告
+parse_pmd_body() {
+  tail -n +2 "$1"
+}
+
+# 将 parse_pmd_report 的正文输出转为中文分类表格
+# 参数：parse_pmd_report 的正文部分（文件路径）
+#       PROJECT_ROOT 用于将绝对路径转为相对路径
+# stdout：按规则类别分组的中文表格
+#   类别标题如 "### 未使用的代码（6 处）"
+#   表格列：类名 | 行号 | 规则(英文) | 描述(中文)
+#   规则列保留英文方便对照规则文件，描述列用中文便于阅读
+#   文件列只显示类名（不含包路径）
+# 用法：
+#   REPORT_FILE="$(mktemp)"
+#   parse_pmd_report ... > "$REPORT_FILE"
+#   format_pmd_report_cn "$REPORT_FILE" "$PROJECT_ROOT"
+#   rm "$REPORT_FILE"
+format_pmd_report_cn() {
+  local report_file="$1"
+  local project_root="$2"
+
+  awk -v PR="$project_root" '
+    BEGIN {
+      # 规则→中文类别映射
+      cat["UnusedPrivateMethod"]   = "未使用的代码"
+      cat["UnusedPrivateField"]    = "未使用的代码"
+      cat["UnusedLocalVariable"]   = "未使用的代码"
+      cat["UnusedFormalParameter"] = "未使用的代码"
+      cat["UnusedImports"]         = "未使用的代码"
+
+      cat["UselessParentheses"]    = "冗余代码"
+      cat["EmptyControlStatement"] = "冗余代码"
+      cat["UselessOperationOnImmutable"] = "冗余代码"
+
+      cat["TooManyStaticImports"]  = "代码风格"
+
+      cat["UnusedNullCheckInEquals"] = "潜在 Bug"
+
+      # 默认类别
+      default_cat = "其他"
+
+      # 规则→中文描述映射（规则列保留英文，描述列用中文）
+      descCn["UnusedPrivateMethod"]   = "存在未使用的私有方法，应删除或改为 protected/package-private 以便复用"
+      descCn["UnusedPrivateField"]    = "存在未使用的私有字段，应删除"
+      descCn["UnusedLocalVariable"]   = "存在未使用的局部变量，应删除"
+      descCn["UnusedFormalParameter"] = "方法参数未被使用，考虑删除或添加注释说明保留原因"
+      descCn["UnusedImports"]         = "存在未使用的导入语句，应删除"
+
+      descCn["UselessParentheses"]    = "多余的括号，不影响逻辑，应删除以简化代码"
+      descCn["EmptyControlStatement"] = "空的控制语句（如空 if/else/for 体），可能是遗漏的逻辑或 bug"
+      descCn["UselessOperationOnImmutable"] = "对不可变对象（如 String/BigDecimal）的操作结果被丢弃，操作无意义"
+
+      descCn["TooManyStaticImports"]  = "静态导入过多，降低代码可读性，应控制数量"
+
+      descCn["UnusedNullCheckInEquals"] = "在 equals() 调用前已做 null 检查，多余的 null 判断应简化"
+
+      ofile = ""; rule = ""; line = ""; desc = ""
+    }
+    # 跳过首行汇总
+    NR == 1 { next }
+    # 文件行（不以空格开头）
+    /^[^[:space:]]/ {
+      ofile = $0
+    }
+    # 违规行（以两个空格开头）
+    /^[[:space:]][[:space:]]/ {
+      # 提取 L行号
+      line = ""
+      if (match($0, /L[0-9]+/)) {
+        line = substr($0, RSTART + 1, RLENGTH - 1)
+      }
+      # 提取 [RuleName]
+      rule = ""
+      if (match($0, /\[[^]]+\]/)) {
+        rule = substr($0, RSTART + 1, RLENGTH - 2)
+      }
+      # 提取描述（] 后的内容）
+      desc = ""
+      if (match($0, /\]  /)) {
+        desc = substr($0, RSTART + 3)
+        # 去尾空白
+        gsub(/[[:space:]]+$/, "", desc)
+        # XML 实体解码
+        gsub(/&lt;/, "<", desc)
+        gsub(/&gt;/, ">", desc)
+        gsub(/&amp;/, "&", desc)
+        gsub(/&quot;/, "\"", desc)
+      }
+      # 分类
+      c = (rule in cat) ? cat[rule] : default_cat
+      # 中文描述：有映射用中文，无映射保留原始英文描述
+      d = (rule in descCn) ? descCn[rule] : desc
+      # 类名：从绝对路径提取，取最后一个 / 之后去掉 .java 后缀
+      className = ofile
+      if (match(className, /\/[^\/]+\.java$/)) {
+        className = substr(className, RSTART + 1, RLENGTH - 6)
+      }
+      # 存入类别数组
+      if (!(c in catCount)) {
+        catCount[c] = 0
+        catOrder[++catIdx] = c
+      }
+      catCount[c]++
+      # 存违规条目
+      items[c, catCount[c]] = className "|" line "|" rule "|" d
+    }
+    END {
+      # 按类别输出表格
+      for (i = 1; i <= catIdx; i++) {
+        c = catOrder[i]
+        n = catCount[c]
+        printf "\n### %s（%d 处）\n\n", c, n
+        printf "| 类名 | 行号 | 规则 | 描述 |\n"
+        printf "|------|------|------|------|\n"
+        for (j = 1; j <= n; j++) {
+          split(items[c, j], parts, "|")
+          printf "| %s | %s | %s | %s |\n", parts[1], parts[2], parts[3], parts[4]
+        }
+      }
+    }
+  ' "$report_file"
+}
+
+# ============================================================
 # spotless / pmd 文件级过滤辅助
 # ============================================================
 

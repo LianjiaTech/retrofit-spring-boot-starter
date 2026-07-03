@@ -3,7 +3,10 @@
     "SessionStart": [
       {
         "hooks": [
-          { "type": "command", "command": ".claude/hooks/session-start.sh" }
+          {
+            "type": "command",
+            "command": ".claude/hooks/session-start.sh"
+          }
         ]
       }
     ],
@@ -11,14 +14,20 @@
       {
         "matcher": "Edit|Write|MultiEdit",
         "hooks": [
-          { "type": "command", "command": ".claude/hooks/record-edit.sh" }
+          {
+            "type": "command",
+            "command": ".claude/hooks/record-edit.sh"
+          }
         ]
       }
     ],
     "Stop": [
       {
         "hooks": [
-          { "type": "command", "command": ".claude/hooks/stop-check.sh" }
+          {
+            "type": "command",
+            "command": ".claude/hooks/stop-check.sh"
+          }
         ]
       }
     ]

@@ -136,7 +136,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         resolution.setSourceOkHttpClient(useGlobalClient ? null : sourceOkHttpClient);
         resolution.setTimeoutEffective(useGlobalClient);
         if (useGlobalClient) {
-            resolution.setTimeout(resolveTimeout(retrofitClient, properties.getGlobalTimeout()));
+            resolution.setTimeout(resolveTimeout(properties.getGlobalTimeout()));
             resolution.setPool(resolvePool(retrofitClient, properties.getGlobalConnectionPool()));
         }
 
@@ -146,7 +146,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         return resolution;
     }
 
-    private RetrofitClientResolution.Timeout resolveTimeout(RetrofitClient retrofitClient,
+    private RetrofitClientResolution.Timeout resolveTimeout(
             GlobalTimeoutProperty global) {
         RetrofitClientResolution.Timeout timeout = new RetrofitClientResolution.Timeout();
         List<String> inherited = new ArrayList<>(4);

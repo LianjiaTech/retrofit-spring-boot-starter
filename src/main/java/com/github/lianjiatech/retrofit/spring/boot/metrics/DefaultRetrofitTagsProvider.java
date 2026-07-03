@@ -46,8 +46,6 @@ public class DefaultRetrofitTagsProvider implements RetrofitTagsProvider {
     private static final String UNKNOWN = "UNKNOWN";
     private static final String NONE = "NONE";
 
-    /** HTTP status code class boundaries (inclusive lower, exclusive upper). */
-    private static final int HTTP_STATUS_INFORMATIONAL_MIN = 100;
     private static final int HTTP_STATUS_SUCCESS_MIN = 200;
     private static final int HTTP_STATUS_REDIRECTION_MIN = 300;
     private static final int HTTP_STATUS_CLIENT_ERROR_MIN = 400;

@@ -58,6 +58,7 @@ public final class AppContextUtils {
             return clz.getDeclaredConstructor().newInstance();
         } catch (NoSuchMethodException noPublicCtor) {
             // 没有公开无参构造，尝试静态 create() 方法
+            log.debug("No public no-arg constructor for {}, trying static create() method", clz.getName());
         } catch (InvocationTargetException e) {
             throw new IllegalStateException(
                     "Constructor of " + clz.getName() + " threw an exception", e.getTargetException());

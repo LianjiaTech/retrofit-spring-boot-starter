@@ -128,9 +128,10 @@ if (( PMD_RC != 0 )); then
   exit 0
 fi
 
-# 汇总各模块的 target/pmd.xml，按 edited files 过滤后统计违规
+# 汇总各模块的 target/pmd.xml，按 edited files 过滤后统计违规 + 提取指纹
 ALL_VIOLATIONS_XML=""
 TOTAL_VIOLATIONS=0
+CURRENT_FINGERPRINTS=""
 for mod in "${!MODULE_FILES[@]}"; do
   PMD_XML="$mod/target/pmd.xml"
   [[ -f "$PMD_XML" ]] || continue
@@ -148,37 +149,109 @@ for mod in "${!MODULE_FILES[@]}"; do
     ALL_VIOLATIONS_XML+=$'\n===== '"${mod#$PROJECT_ROOT/}"$'/target/pmd.xml (filtered) =====\n'
     ALL_VIOLATIONS_XML+="$MOD_BODY"
     ALL_VIOLATIONS_XML+=$'\n'
+
+    # 提取违规指纹用于停滞检测（基于过滤后的内容，只含本轮编辑文件的违规）
+    mod_fps="$(printf '%s' "$MOD_BODY" | extract_violation_fingerprints - "$mod")"
+    if [[ -n "$mod_fps" ]]; then
+      if [[ -n "$CURRENT_FINGERPRINTS" ]]; then
+        CURRENT_FINGERPRINTS+=$'\n'
+      fi
+      CURRENT_FINGERPRINTS+="$mod_fps"
+    fi
   fi
 done
 
-# 无违规：清计数、清列表，放行（即便 spotless 分批曾失败，只要 PMD 无本轮违规也放行）
+# 对当前指纹排序去重
+if [[ -n "$CURRENT_FINGERPRINTS" ]]; then
+  CURRENT_FINGERPRINTS="$(printf '%s\n' "$CURRENT_FINGERPRINTS" | sort -u)"
+fi
+
+# 无违规：清计数、清列表、清指纹，放行
 if (( TOTAL_VIOLATIONS == 0 )); then
   if (( SPOTLESS_FAILED == 1 )); then
-    # 附警告给 AI 作最终回复的上下文，但不阻断本轮 Stop
     REASON="${SPOTLESS_WARN}本轮未发现 PMD 违规。"
     jq -n --arg r "$REASON" '{decision:"block", reason:$r}'
   fi
   clear_edited_list
   stop_block_reset
+  clear_fingerprints
   exit 0
 fi
 
-# 有违规：累加阻断计数
+# 有违规：加载上一轮指纹，做停滞检测分类
+PREV_FINGERPRINTS="$(load_prev_fingerprints)"
+
+# 分类：对比当前指纹与上一轮指纹
+# 停滞 = 本轮存在 & 上轮也存在（AI 修过一轮仍没消除）
+# 新增 = 本轮存在 & 上轮不存在
+# 已修 = 上轮存在 & 本轮不存在（本轮已消除，不参与阻断）
+STAGNANT_FINGERPRINTS=""
+NEW_FINGERPRINTS=""
+STAGNANT_COUNT=0
+NEW_COUNT=0
+
+if [[ -n "$PREV_FINGERPRINTS" ]]; then
+  # 上一轮有历史 → 做对比
+  # 停滞：current ∩ prev
+  STAGNANT_FINGERPRINTS="$(comm -12 <(printf '%s\n' "$CURRENT_FINGERPRINTS") <(printf '%s\n' "$PREV_FINGERPRINTS"))"
+  # 新增：current - prev
+  NEW_FINGERPRINTS="$(comm -23 <(printf '%s\n' "$CURRENT_FINGERPRINTS") <(printf '%s\n' "$PREV_FINGERPRINTS"))"
+
+  STAGNANT_COUNT="$(echo "$STAGNANT_FINGERPRINTS" | grep -c . || true)"
+  STAGNANT_COUNT="${STAGNANT_COUNT:-0}"
+  NEW_COUNT="$(echo "$NEW_FINGERPRINTS" | grep -c . || true)"
+  NEW_COUNT="${NEW_COUNT:-0}"
+else
+  # 首轮（无历史）→ 全部视为新增
+  NEW_FINGERPRINTS="$CURRENT_FINGERPRINTS"
+  NEW_COUNT="$(echo "$NEW_FINGERPRINTS" | grep -c . || true)"
+  NEW_COUNT="${NEW_COUNT:-0}"
+  STAGNANT_COUNT=0
+fi
+
+# 保存本轮指纹（无论后续阻断还是释放，都需要记录）
+save_fingerprints "$CURRENT_FINGERPRINTS"
+
+# 累加阻断计数
 ATTEMPT="$(stop_block_inc)"
 
+# ---- 决策逻辑 ----
+
+# 仅剩停滞违规 → 释放，报告给用户
+if (( NEW_COUNT == 0 && STAGNANT_COUNT > 0 )); then
+  STAGNANT_LIST="$(printf '%s\n' "$STAGNANT_FINGERPRINTS" | sed 's/^/  - /')"
+  REASON=$(printf '%sPMD 检查完成：已修复可自动处理的违规，剩余 %s 处 AI 无法自动修复的违规：\n%s\n\n请在最终回复中向用户汇报以上无法修复的违规，并说明原因。建议用户采取以下措施之一：\n  - 手动修复代码\n  - 调整 pom 中 pmd ruleset 排除条目\n  - 由用户决定是否添加 @SuppressWarnings（AI 不得自行添加）' \
+    "$SPOTLESS_WARN" "$STAGNANT_COUNT" "$STAGNANT_LIST")
+  jq -n --arg r "$REASON" '{decision:"block", reason:$r}'
+  clear_edited_list
+  stop_block_reset
+  clear_fingerprints
+  exit 0
+fi
+
+# 达到阻断上限 → 释放，报告全部违规给用户
 if (( ATTEMPT > STOP_MAX_ATTEMPTS )); then
-  REASON=$(printf '%sPMD 在 %s 轮连续阻断后仍有 %s 处违规，已停止自动修复循环。请在最终回复中：\n1. 汇报卡住的违规规则\n2. 建议用户手动处理或调整 pom 中的 pmd ruleset 排除条目\n\n最后一次报告：\n%s' \
+  REASON=$(printf '%sPMD 在 %s 轮阻断后仍有 %s 处违规，已停止自动修复循环。请在最终回复中向用户汇报：\n1. 哪些规则项无法自动修复\n2. 建议用户手动处理、调整 pmd ruleset 排除条目、或由用户决定是否添加 @SuppressWarnings\n\n最后一次报告：\n%s' \
     "$SPOTLESS_WARN" "$STOP_MAX_ATTEMPTS" "$TOTAL_VIOLATIONS" "$ALL_VIOLATIONS_XML")
   jq -n --arg r "$REASON" '{decision:"block", reason:$r}'
   clear_edited_list
   stop_block_reset
+  clear_fingerprints
   exit 0
 fi
 
-# 未达上限：阻断，把违规反馈给 Claude 继续修
-REASON=$(printf '%sPMD 检查未通过（第 %s/%s 轮），本轮编辑触发 %s 处违规，请逐条修复后再结束响应。修复完成后请在最终回复中简述修改了哪些规则项。\n\n完整 PMD 报告（已过滤到本轮编辑的文件）：\n%s' \
-  "$SPOTLESS_WARN" "$ATTEMPT" "$STOP_MAX_ATTEMPTS" "$TOTAL_VIOLATIONS" "$ALL_VIOLATIONS_XML")
-jq -n --arg r "$REASON" '{decision:"block", reason:$r}'
-
-# 阻断时保留 edited-files 列表，让下轮 AI 修复后 Stop 再次读同一批文件复查
-exit 0
+# 有新增违规 → 阻断，让 AI 专注修新增的，跳过停滞的
+if (( NEW_COUNT > 0 )); then
+  if (( STAGNANT_COUNT > 0 )); then
+    STAGNANT_LIST="$(printf '%s\n' "$STAGNANT_FINGERPRINTS" | sed 's/^/  - /')"
+    REASON=$(printf '%sPMD 检查未通过（第 %s/%s 轮）。本轮 %s 处新增违规需修复，%s 处停滞违规已跳过（AI 上轮未能修复）。\n\n停滞违规（请跳过，不要修这些）：\n%s\n\n新增违规（请逐条修复）：\n%s\n\n注意：禁止添加 @SuppressWarnings 压制违规。修不了的跳过，不要强行压制。' \
+      "$SPOTLESS_WARN" "$ATTEMPT" "$STOP_MAX_ATTEMPTS" "$NEW_COUNT" "$STAGNANT_COUNT" "$STAGNANT_LIST" "$ALL_VIOLATIONS_XML")
+  else
+    # 首轮或无停滞 → 全部是新增，正常阻断
+    REASON=$(printf '%sPMD 检查未通过（第 %s/%s 轮），本轮编辑触发 %s 处违规，请逐条修复后再结束响应。\n\n注意：禁止添加 @SuppressWarnings 压制违规。修不了的跳过，最后会交给用户决策。\n\n完整 PMD 报告（已过滤到本轮编辑的文件）：\n%s' \
+      "$SPOTLESS_WARN" "$ATTEMPT" "$STOP_MAX_ATTEMPTS" "$TOTAL_VIOLATIONS" "$ALL_VIOLATIONS_XML")
+  fi
+  jq -n --arg r "$REASON" '{decision:"block", reason:$r}'
+  # 阻断时保留 edited-files 列表，让下轮 AI 修复后 Stop 再次读同一批文件复查
+  exit 0
+fi

@@ -3,6 +3,9 @@ package com.github.lianjiatech.retrofit.spring.boot.metrics;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.micrometer.core.instrument.*;
 import okhttp3.Interceptor;
 import okhttp3.Request;
@@ -32,6 +35,8 @@ import okhttp3.Response;
  * @author 陈添明
  */
 public class MetricsInterceptor implements Interceptor {
+
+    private static final Logger log = LoggerFactory.getLogger(MetricsInterceptor.class);
 
     private static final String REQUESTS_METER = "requests";
     private static final String ACTIVE_METER = "requests.active";
@@ -81,7 +86,8 @@ public class MetricsInterceptor implements Interceptor {
                     recordError(request, error);
                 }
             } catch (RuntimeException meterError) {
-                // 指标采集是辅助能力，不应影响业务。Micrometer 自身错误（极少）静默忽略。
+                // 指标采集是辅助能力，不应影响业务。Micrometer 自身错误静默忽略，仅 debug 级别记录。
+                log.debug("Micrometer recording failed for request {}", request.url(), meterError);
             }
         }
     }
