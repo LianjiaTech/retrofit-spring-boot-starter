@@ -1,0 +1,25 @@
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/metrics/MetricsInterceptor.java
+  s_3818bc13eadc04::t_56d6965aae44dd 39-40
+  s_3818bc13eadc04::t_ce48b15bcb189c 89-90
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/core/RetrofitFactoryBean.java
+  s_3818bc13eadc04::t_e2875326263e9a 139
+  s_3818bc13eadc04::t_23da14c971d21f 149
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/util/AppContextUtils.java
+  s_3818bc13eadc04::t_f3f5437eb88586 61
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.28-trip",
+  "base_commit_sha": "9fab626aafcb7fa65a6d0e6a4cdfa631d5cefaeb",
+  "prompts": {},
+  "sessions": {
+    "s_3818bc13eadc04": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "20bcbe2c-5baf-45fa-983c-af8c7957889e",
+        "model": "glm-5.1"
+      },
+      "human_author": "tm.chen <tm.chen@trip.com>"
+    }
+  }
+}
