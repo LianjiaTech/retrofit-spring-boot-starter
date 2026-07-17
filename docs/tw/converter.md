@@ -29,9 +29,18 @@ retrofit:
 
 針對每個 JAVA 介面，可以透過 `@RetrofitClient.converterFactories` 指定當前介面採用的 `Converter.Factory`。
 
-## 原始字串结果
+## 預設 Scalars Converter（String / 基本型別）
 
-如果介面回傳的原始结果是 String 文字，且無法用 JSON 轉換器轉換，可以使用 `com.github.lianjiatech.retrofit.spring.boot.core.StringConverterFactory`，該轉換器會直接將结果轉為 String 回傳。
+元件預設最前置內建 `ScalarsConverterFactory`（來自 `com.squareup.retrofit2:converter-scalars`），將 `String` 與基本型別（`Integer`/`Long`/`Boolean`/`Double` 等）回傳值按響應體原始文字回傳，不經過 JSON Converter；POJO 仍由 `global-converter-factories` 配置的轉換器（預設 Jackson）反序列化。
+
+可透過配置項關閉該預設行為（關閉後 `String` 回傳值回退到經 JSON Converter 反序列化）：
+
+```yaml
+retrofit:
+  enable-scalars-converter: false
+```
+
+> 舊版本提供的 `com.github.lianjiatech.retrofit.spring.boot.core.StringConverterFactory` 已移除，其職責由預設內建的 `ScalarsConverterFactory` 取代。如曾顯式在 `@RetrofitClient.converterFactories` 或全域配置中引用此類，請移除該引用。
 
 ---
 

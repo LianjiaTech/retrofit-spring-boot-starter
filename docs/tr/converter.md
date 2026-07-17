@@ -29,9 +29,18 @@ Jackson yapilandirmasinin degistirilmesi gerektiginde, `JacksonConverterFactory`
 
 Her Java arayuzu icin, `@RetrofitClient.converterFactories` ile mevcut arayuzun kullanacagi `Converter.Factory` belirleyebilirsiniz.
 
-## Ham String Sonucu
+## Varsayilan Scalars Converter (String / ilkel turler)
 
-Arayuzun dondurdugu ham sonuc String metni olup JSON donusturucu ile donusturulemiyorsa, `com.github.lianjiatech.retrofit.spring.boot.core.StringConverterFactory` kullanabilirsiniz. Bu donusturucu sonucu dogrudan String olarak dondurur.
+Baslangicta starter, `ScalarsConverterFactory`'i (`com.squareup.retrofit2:converter-scalars` kaynakli) ilk donusturucu olarak kaydeder; boylece `String` ve ilkel tur (`Integer`/`Long`/`Boolean`/`Double` vb.) donus degerleri yanit govdesinin ham metni olarak dondurulur (JSON donusturucu kullanilmaz). POJO'lar yine `global-converter-factories` ile yapilandirilan donusturucu (varsayilan Jackson) ile deserilestirilir.
+
+Bu varsayilan davranisi yapilandirma ile kapatabilirsiniz (kapattiginizda `String` donus degerleri bir JSON donusturucu uzerinden deserilestirmeye geri doner):
+
+```yaml
+retrofit:
+  enable-scalars-converter: false
+```
+
+> Onceki surumlerdeki `com.github.lianjiatech.retrofit.spring.boot.core.StringConverterFactory` kaldirildi; rolunu varsayilan olarak gomulu `ScalarsConverterFactory` devraldi. Bu sinifi `@RetrofitClient.converterFactories` veya global yapilandirmada acikca referans gosteriyorsaniz, bu referansi kaldirin.
 
 ---
 

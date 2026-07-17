@@ -5,7 +5,7 @@ Bu bilesen HTTP yanit sonuclarini Java arayuzunde tanimlanan donus turune otomat
 
 - `Call<T>`: Uyarlama islemi yapilmaz, dogrudan `Call<T>` nesnesi dondurulur
 - `String`: Yanit Govdesi `String` olarak uyarlanir ve dondurulur
-  - Varsayilan olarak JSON Converter kullanilarak Yanit Govdesinin bytes degeri String'e donusturulur; Yanit Govdesini dogrudan String olarak almak istiyorsaniz, `Converter.Factory` olarak `com.github.lianjiatech.retrofit.spring.boot.core.StringConverterFactory` belirleyebilirsiniz
+  - Varsayilan olarak gomulu `ScalarsConverterFactory` (ilk kaydedilen) Yanit Govdesini oldugu gibi String'e donusturur (ham metni korur, JSON donusturucu kullanmaz); `retrofit.enable-scalars-converter=false` ile kapatilabilir ve kapatildiginda bir JSON donusturucu uzerinden deserilestirmeye geri doner
 - Temel turler (`Long`/`Integer`/`Boolean`/`Float`/`Double`): Yanit Govdesi ilgili temel ture uyarlanir
 - `CompletableFuture<T>`: Yanit Govdesi `CompletableFuture<T>` nesnesi olarak uyarlanir ve dondurulur
 - `Void`: Donus turu onemsiz oldugunda kullanilir

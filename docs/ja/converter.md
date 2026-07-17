@@ -29,9 +29,18 @@ Jackson 設定を変更する必要がある場合は、`JacksonConverterFactory
 
 各 Java インターフェースでは、`@RetrofitClient.converterFactories` で現在のインターフェースに使用する `Converter.Factory` を指定できます。
 
-## 生文字列結果
+## デフォルト Scalars Converter（String / 基本型）
 
-インターフェースの戻り値が元の String テキストであり、JSON コンバータで変換できない場合は、`com.github.lianjiatech.retrofit.spring.boot.core.StringConverterFactory` を使用できます。このコンバータは結果を直接 String として返します。
+コンポーネントはデフォルトで最優先（先頭）に `ScalarsConverterFactory`（`com.squareup.retrofit2:converter-scalars` 由来）を内蔵し、`String` および基本型（`Integer`/`Long`/`Boolean`/`Double` など）の戻り値をレスポンスボディの生テキストとして返します（JSON Converter を経由しません）。POJO は引き続き `global-converter-factories` で設定したコンバータ（デフォルトは Jackson）でデシリアライズされます。
+
+このデフォルト動作は設定で無効化できます（無効化すると `String` 戻り値は JSON Converter でのデシリアライズに戻ります）:
+
+```yaml
+retrofit:
+  enable-scalars-converter: false
+```
+
+> 旧バージョンの `com.github.lianjiatech.retrofit.spring.boot.core.StringConverterFactory` は削除され、その役割はデフォルトで内蔵される `ScalarsConverterFactory` に引き継がれました。`@RetrofitClient.converterFactories` やグローバル設定で明示的にこのクラスを参照していた場合は、その参照を削除してください。
 
 ---
 

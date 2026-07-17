@@ -32,6 +32,18 @@ public class RetrofitProperties {
     private boolean enableErrorDecoder = true;
 
     /**
+     * 是否默认最前置内置 ScalarsConverterFactory。
+     * <p>
+     * 开启后，String 与基本类型（Integer/Long/Boolean/Double 等）返回值按响应体原始文本返回，
+     * 不再经过 JSON Converter；关闭后回退到旧行为（String 经 JSON Converter 反序列化）。
+     * <p>
+     * Whether to register ScalarsConverterFactory as the first converter by default.
+     * When enabled, String and primitive-type return values are returned as raw response body text
+     * without going through a JSON Converter. Disable to fall back to the legacy behavior.
+     */
+    private boolean enableScalarsConverter = true;
+
+    /**
      * 全局重试配置
      * <p>
      * retry config

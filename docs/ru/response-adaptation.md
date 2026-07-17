@@ -5,7 +5,7 @@
 
 - `Call<T>`: Без адаптации, возвращается объект `Call<T>` напрямую
 - `String`: Response Body адаптируется в `String`
-  - По умолчанию используется JSON Converter для преобразования bytes Response Body в String; если нужно получить String напрямую из Response Body, можно указать `Converter.Factory` как `com.github.lianjiatech.retrofit.spring.boot.core.StringConverterFactory`
+  - По умолчанию встроенный `ScalarsConverterFactory` (регистрируется первым) преобразует Response Body в String как есть (сохраняя исходный текст, без прохождения через JSON-конвертер); можно отключить через `retrofit.enable-scalars-converter=false`, что вернёт десериализацию через JSON-конвертер
 - Примитивные типы (`Long`/`Integer`/`Boolean`/`Float`/`Double`): Response Body адаптируется в соответствующий примитивный тип
 - `CompletableFuture<T>`: Response Body адаптируется в объект `CompletableFuture<T>`
 - `Void`: Используется, когда тип возврата не важен

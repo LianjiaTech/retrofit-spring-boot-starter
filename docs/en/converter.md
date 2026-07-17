@@ -29,9 +29,18 @@ To customize Jackson configuration, simply override the `JacksonConverterFactory
 
 For each Java interface, you can specify the `Converter.Factory` to use via `@RetrofitClient.converterFactories`.
 
-## Raw String Result
+## Default Scalars Converter (String / primitive types)
 
-If the interface returns raw String text that cannot be converted by a JSON converter, you can use `com.github.lianjiatech.retrofit.spring.boot.core.StringConverterFactory`, which directly converts the result to String and returns it.
+By default the starter registers `ScalarsConverterFactory` (from `com.squareup.retrofit2:converter-scalars`) as the first converter, so `String` and primitive-type (`Integer`/`Long`/`Boolean`/`Double`, etc.) return values are returned as the raw response body text, without going through a JSON converter; POJOs are still deserialized by the converter configured in `global-converter-factories` (Jackson by default).
+
+You can disable this default behavior via config (when disabled, `String` return values fall back to deserialization through a JSON converter):
+
+```yaml
+retrofit:
+  enable-scalars-converter: false
+```
+
+> The `com.github.lianjiatech.retrofit.spring.boot.core.StringConverterFactory` from earlier versions has been removed; its role is taken over by the default built-in `ScalarsConverterFactory`. If you referenced this class explicitly in `@RetrofitClient.converterFactories` or the global config, remove that reference.
 
 ---
 

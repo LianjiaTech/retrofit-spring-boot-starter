@@ -6,7 +6,7 @@
 
     <groupId>com.github.lianjiatech</groupId>
     <artifactId>retrofit-spring-boot-starter</artifactId>
-    <version>4.2.0</version>
+    <version>4.2.1</version>
 
     <name>retrofit-spring-boot-starter</name>
     <description>retrofit-spring-boot-starter</description>
@@ -138,6 +138,15 @@
         <dependency>
             <groupId>com.squareup.retrofit2</groupId>
             <artifactId>converter-jackson</artifactId>
+            <version>${retrofit.version}</version>
+        </dependency>
+        <!--
+          Scalars Converter：默认最前置内置，将 String / 基本类型（Integer/Long/Boolean/Double 等）
+          返回值按原始文本返回，不经过 JSON Converter。受 retrofit.enable-scalars-converter 开关控制（默认开启）。
+        -->
+        <dependency>
+            <groupId>com.squareup.retrofit2</groupId>
+            <artifactId>converter-scalars</artifactId>
             <version>${retrofit.version}</version>
         </dependency>
         <dependency>

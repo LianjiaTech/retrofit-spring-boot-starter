@@ -5,7 +5,7 @@
 
 - `Call<T>`: 적응 처리를 수행하지 않고 `Call<T>` 객체를 직접 반환
 - `String`: Response Body를 `String`으로 적응하여 반환
-  - 기본적으로 JSON Converter를 사용하여 Response Body의 bytes를 String으로 변환합니다. Response Body를 직접 String으로 받으려면 `Converter.Factory`로 `com.github.lianjiatech.retrofit.spring.boot.core.StringConverterFactory`를 지정하세요
+  - 기본적으로 최우선(맨 앞)에 내장된 `ScalarsConverterFactory`가 Response Body를 그대로 String으로 변환합니다(원시 텍스트를 유지하며 JSON Converter를 거치지 않음). `retrofit.enable-scalars-converter=false`로 비활성화할 수 있으며, 비활성화하면 JSON Converter 역직렬화로 돌아갑니다
 - 기본 타입 (`Long`/`Integer`/`Boolean`/`Float`/`Double`): Response Body를 해당 기본 타입으로 적응
 - `CompletableFuture<T>`: Response Body를 `CompletableFuture<T>` 객체로 적응하여 반환
 - `Void`: 반환 타입에 관심이 없을 때 사용
