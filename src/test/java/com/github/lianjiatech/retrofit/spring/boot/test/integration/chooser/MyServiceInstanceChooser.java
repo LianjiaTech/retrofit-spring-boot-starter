@@ -1,12 +1,10 @@
 package com.github.lianjiatech.retrofit.spring.boot.test.integration.chooser;
 
-import java.net.URI;
-
+import com.github.lianjiatech.retrofit.spring.boot.core.ServiceInstanceChooser;
+import okhttp3.Request;
 import org.springframework.stereotype.Component;
 
-import com.github.lianjiatech.retrofit.spring.boot.core.ServiceInstanceChooser;
-
-import okhttp3.Request;
+import java.net.URI;
 
 /**
  * @author 陈添明

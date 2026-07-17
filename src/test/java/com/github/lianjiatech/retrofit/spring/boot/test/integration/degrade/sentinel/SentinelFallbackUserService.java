@@ -1,9 +1,8 @@
 package com.github.lianjiatech.retrofit.spring.boot.test.integration.degrade.sentinel;
 
-import org.springframework.stereotype.Service;
-
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.MockWebServerTest;
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.entity.User;
+import org.springframework.stereotype.Service;
 
 /**
  * @author 陈添明

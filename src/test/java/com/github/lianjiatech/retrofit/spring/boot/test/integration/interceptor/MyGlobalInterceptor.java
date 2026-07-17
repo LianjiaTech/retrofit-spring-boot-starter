@@ -1,12 +1,10 @@
 package com.github.lianjiatech.retrofit.spring.boot.test.integration.interceptor;
 
-import java.io.IOException;
-
+import com.github.lianjiatech.retrofit.spring.boot.interceptor.GlobalInterceptor;
+import okhttp3.Response;
 import org.springframework.stereotype.Component;
 
-import com.github.lianjiatech.retrofit.spring.boot.interceptor.GlobalInterceptor;
-
-import okhttp3.Response;
+import java.io.IOException;
 
 /**
  * @author 陈添明

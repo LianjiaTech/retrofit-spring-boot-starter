@@ -7,4 +7,5 @@ import com.github.lianjiatech.retrofit.spring.boot.core.ErrorDecoder;
  *
  * @author 陈添明
  */
-public class ReflectiveOnlyErrorDecoder implements ErrorDecoder {}
+public class ReflectiveOnlyErrorDecoder implements ErrorDecoder {
+}

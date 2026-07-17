@@ -1,5 +1,6 @@
 package com.github.lianjiatech.retrofit.spring.boot.test.integration.custom.okhttp;
 
+import com.github.lianjiatech.retrofit.spring.boot.test.integration.RetrofitBootApplication;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +9,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import com.github.lianjiatech.retrofit.spring.boot.exception.RetrofitException;
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.MockWebServerTest;
-import com.github.lianjiatech.retrofit.spring.boot.test.integration.RetrofitBootApplication;
 
 /**
  * @author 陈添明

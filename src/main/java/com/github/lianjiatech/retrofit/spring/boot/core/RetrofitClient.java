@@ -115,6 +115,7 @@ public @interface RetrofitClient {
      */
     String sourceOkHttpClient() default Constants.NO_SOURCE_OK_HTTP_CLIENT;
 
+    
     /**
      * 该接口独占的最大空闲连接数。
      * <p>

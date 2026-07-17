@@ -1,9 +1,18 @@
 package com.github.lianjiatech.retrofit.spring.boot.test.integration.log;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.AppenderBase;
+import com.github.lianjiatech.retrofit.spring.boot.test.integration.MockWebServerTest;
+import com.github.lianjiatech.retrofit.spring.boot.test.integration.RetrofitBootApplication;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,16 +21,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import com.github.lianjiatech.retrofit.spring.boot.test.integration.MockWebServerTest;
-import com.github.lianjiatech.retrofit.spring.boot.test.integration.RetrofitBootApplication;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.AppenderBase;
 
 /**
  * 集成测试：覆盖 4.0.6 改动的日志策略与 redactHeaders 行为。
@@ -149,7 +148,7 @@ public class LogStrategyTest extends MockWebServerTest {
         }
 
         void attach() {
-            boundLogger = (Logger)LoggerFactory.getLogger(loggerName);
+            boundLogger = (Logger) LoggerFactory.getLogger(loggerName);
             boundLogger.addAppender(this);
             this.start();
         }

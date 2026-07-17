@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import com.github.lianjiatech.retrofit.spring.boot.core.SourceOkHttpClientRegistrar;
 import com.github.lianjiatech.retrofit.spring.boot.core.SourceOkHttpClientRegistry;
 
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 
 /**

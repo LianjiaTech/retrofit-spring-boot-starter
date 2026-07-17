@@ -1,5 +1,7 @@
 package com.github.lianjiatech.retrofit.spring.boot.test.integration.log;
 
+import static org.junit.Assert.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,8 +14,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.MockWebServerTest;
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.RetrofitBootApplication;
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.entity.User;
-
-import static org.junit.Assert.*;
 
 /**
  * @author 陈添明

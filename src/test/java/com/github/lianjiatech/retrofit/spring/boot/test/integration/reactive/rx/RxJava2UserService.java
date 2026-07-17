@@ -2,7 +2,6 @@ package com.github.lianjiatech.retrofit.spring.boot.test.integration.reactive.rx
 
 import com.github.lianjiatech.retrofit.spring.boot.core.RetrofitClient;
 import com.github.lianjiatech.retrofit.spring.boot.test.integration.entity.User;
-
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import retrofit2.http.Body;
@@ -16,6 +15,7 @@ import retrofit2.http.Query;
  */
 @RetrofitClient(baseUrl = "${test.baseUrl}")
 public interface RxJava2UserService {
+
 
     /**
      * 保存用户，返回Rx-Java流式对象Completable（http请求没有响应体返回该对象）
