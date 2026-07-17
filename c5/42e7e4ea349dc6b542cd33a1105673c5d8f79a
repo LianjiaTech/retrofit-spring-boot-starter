@@ -1,0 +1,81 @@
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/scalars/ScalarsConverterDisabledTest.java
+  s_549a1c08ed9359::t_357473de7e743f 1-37
+docs/ko/converter.md
+  s_549a1c08ed9359::t_0e3f75aa9e0169 29,31,33-40
+docs/tr/README.md
+  s_549a1c08ed9359::t_663e0681fae023 31
+README.md
+  s_549a1c08ed9359::t_663e0681fae023 31
+docs/tr/converter.md
+  s_549a1c08ed9359::t_0e3f75aa9e0169 29,31,33-40
+docs/es/README.md
+  s_549a1c08ed9359::t_663e0681fae023 31
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/core/RetrofitFactoryBean.java
+  s_549a1c08ed9359::t_2944ae1691c0f0 40
+  s_549a1c08ed9359::t_0d8d4f19fa988c 279-286
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/scalars/ScalarsUserService.java
+  s_549a1c08ed9359::t_357473de7e743f 1,3-4,6,9-11,14-39
+docs/tw/README.md
+  s_549a1c08ed9359::t_663e0681fae023 31
+docs/ru/converter.md
+  s_549a1c08ed9359::t_0e3f75aa9e0169 29,31,33-40
+docs/ru/README.md
+  s_549a1c08ed9359::t_663e0681fae023 31
+docs/ko/response-adaptation.md
+  s_549a1c08ed9359::t_68f01055e6c2ff 8
+docs/es/response-adaptation.md
+  s_549a1c08ed9359::t_68f01055e6c2ff 8
+docs/ru/response-adaptation.md
+  s_549a1c08ed9359::t_68f01055e6c2ff 8
+docs/tw/converter.md
+  s_549a1c08ed9359::t_0e3f75aa9e0169 29,31,33-40
+docs/ja/converter.md
+  s_549a1c08ed9359::t_0e3f75aa9e0169 29,31,33-40
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/MockWebServerTest.java
+  s_549a1c08ed9359::t_9fb9911ada6362 77-78,81,83
+docs/ja/response-adaptation.md
+  s_549a1c08ed9359::t_68f01055e6c2ff 8
+pom.xml
+  s_549a1c08ed9359::t_5c842d7f35dfbc 97-105
+  s_549a1c08ed9359::t_46ca7eabf602cd 9
+docs/cn/converter.md
+  s_549a1c08ed9359::t_0e3f75aa9e0169 29,31,33-40
+docs/cn/response-adaptation.md
+  s_549a1c08ed9359::t_68f01055e6c2ff 8
+docs/tw/response-adaptation.md
+  s_549a1c08ed9359::t_68f01055e6c2ff 8
+docs/tr/response-adaptation.md
+  s_549a1c08ed9359::t_68f01055e6c2ff 8
+docs/ko/README.md
+  s_549a1c08ed9359::t_663e0681fae023 31
+docs/ja/README.md
+  s_549a1c08ed9359::t_663e0681fae023 31
+docs/es/converter.md
+  s_549a1c08ed9359::t_0e3f75aa9e0169 29,31,33-40
+docs/en/converter.md
+  s_549a1c08ed9359::t_0e3f75aa9e0169 29,31,33-40
+src/test/java/com/github/lianjiatech/retrofit/spring/boot/test/integration/scalars/ScalarsConverterTest.java
+  s_549a1c08ed9359::t_357473de7e743f 1-79
+docs/en/response-adaptation.md
+  s_549a1c08ed9359::t_68f01055e6c2ff 8
+docs/en/README.md
+  s_549a1c08ed9359::t_663e0681fae023 31
+src/main/java/com/github/lianjiatech/retrofit/spring/boot/config/RetrofitProperties.java
+  s_549a1c08ed9359::t_c2ead6462185a8 32-42
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.34-trip",
+  "base_commit_sha": "c542e7e4ea349dc6b542cd33a1105673c5d8f79a",
+  "prompts": {},
+  "sessions": {
+    "s_549a1c08ed9359": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "430ae6b5-5405-4289-868b-9c5ee8cc7b33",
+        "model": "glm-5.2"
+      },
+      "human_author": "tm.chen <tm.chen@trip.com>"
+    }
+  }
+}
