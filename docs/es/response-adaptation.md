@@ -5,7 +5,7 @@ Este componente adapta automáticamente los resultados de respuesta HTTP al tipo
 
 - `Call<T>`: no realiza adaptación, devuelve directamente el objeto `Call<T>`
 - `String`: adapta el Response Body a `String`
-  - Por defecto usa el JSON Converter para convertir los bytes del Response Body a String; si se desea obtener directamente el String convertido del Response Body, se puede especificar `Converter.Factory` como `com.github.lianjiatech.retrofit.spring.boot.core.StringConverterFactory`
+  - Por defecto el `ScalarsConverterFactory` integrado (registrado primero) convierte el Response Body a String tal cual (conservando el texto original, sin pasar por un convertidor JSON); se puede desactivar con `retrofit.enable-scalars-converter=false`, lo que vuelve a la deserializacion mediante un convertidor JSON
 - Tipos básicos (`Long`/`Integer`/`Boolean`/`Float`/`Double`): adapta el Response Body al tipo básico correspondiente
 - `CompletableFuture<T>`: adapta el Response Body a un objeto `CompletableFuture<T>`
 - `Void`: se usa cuando no se necesita el tipo de retorno

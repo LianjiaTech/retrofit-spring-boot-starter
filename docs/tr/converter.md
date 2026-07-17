@@ -26,10 +26,18 @@ retrofit:
 
 Her Java arayüzü için, `@RetrofitClient.converterFactories` ile ilgili arayüzün kullanacağı `Converter.Factory` belirtilebilir.
 
-## Ham String Sonucu
+## Varsayilan Scalars Converter (String / ilkel turler)
 
-Arayüzün döndürdüğü ham sonuç String metni ise ve JSON dönüştürücü ile dönüştürülemiyorsa, `com.github.lianjiatech.retrofit.spring.boot.core.StringConverterFactory` kullanılabilir. Bu dönüştürücü, sonucu doğrudan String olarak döndürür.
+Baslangicta starter, `ScalarsConverterFactory`'i (`com.squareup.retrofit2:converter-scalars` kaynakli) ilk donusturucu olarak kaydeder; boylece `String` ve ilkel tur (`Integer`/`Long`/`Boolean`/`Double` vb.) donus degerleri yanit govdesinin ham metni olarak dondurulur (JSON donusturucu kullanilmaz). POJO'lar yine `global-converter-factories` ile yapilandirilan donusturucu (varsayilan Jackson) ile deserilestirilir.
 
+Bu varsayilan davranisi yapilandirma ile kapatabilirsiniz (kapattiginizda `String` donus degerleri bir JSON donusturucu uzerinden deserilestirmeye geri doner):
+
+```yaml
+retrofit:
+  enable-scalars-converter: false
+```
+
+> Onceki surumlerdeki `com.github.lianjiatech.retrofit.spring.boot.core.StringConverterFactory` kaldirildi; rolunu varsayilan olarak gomulu `ScalarsConverterFactory` devraldi. Bu sinifi `@RetrofitClient.converterFactories` veya global yapilandirmada acikca referans gosteriyorsaniz, bu referansi kaldirin.
 ---
 
 [Önceki: HTTP Yanıt Sonucu Otomatik Adaptasyonu](response-adaptation.md) | [Sonraki: Özel OkHttpClient](okhttp-client.md)

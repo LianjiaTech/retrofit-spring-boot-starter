@@ -74,12 +74,13 @@ public class MockWebServerTest {
     }
 
     public void mockServerReturnString(Object object) {
-        // mock
+        // String 返回类型接口默认走 ScalarsConverterFactory 原样返回，mock 直接返回纯文本 body，
+        // 不再用 JSON 序列化，否则 String 接口会拿到带引号的 JSON 字符串字面量。
         MockResponse response = new MockResponse()
                 .setResponseCode(SUCCESS_CODE)
-                .addHeader("Content-Type", "application/json; charset=utf-8")
+                .addHeader("Content-Type", "text/plain; charset=utf-8")
                 .addHeader("Cache-Control", "no-cache")
-                .setBody(writeValueAsString(object));
+                .setBody(String.valueOf(object));
         server.enqueue(response);
     }
 

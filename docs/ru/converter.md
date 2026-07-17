@@ -26,10 +26,18 @@ retrofit:
 
 Для каждого Java-интерфейса можно указать `Converter.Factory`, используемый текущим интерфейсом, через `@RetrofitClient.converterFactories`.
 
-## Результат в виде исходной строки
+## Scalars Converter по умолчанию (String / примитивные типы)
 
-Если интерфейс возвращает исходный результат в виде String-текста, который невозможно преобразовать с помощью JSON-конвертера, можно использовать `com.github.lianjiatech.retrofit.spring.boot.core.StringConverterFactory`. Этот конвертер напрямую преобразует результат в String и возвращает его.
+По умолчанию starter регистрирует `ScalarsConverterFactory` (из `com.squareup.retrofit2:converter-scalars`) как первый конвертер, поэтому возвращаемые значения `String` и примитивных типов (`Integer`/`Long`/`Boolean`/`Double` и т. д.) возвращаются как исходный текст тела ответа, без прохождения через JSON-конвертер; POJO по-прежнему десериализуются конвертером, заданным в `global-converter-factories` (по умолчанию Jackson).
 
+Поведение по умолчанию можно отключить через конфигурацию (при отключении возвращаемые значения `String` возвращаются к десериализации через JSON-конвертер):
+
+```yaml
+retrofit:
+  enable-scalars-converter: false
+```
+
+> Класс `com.github.lianjiatech.retrofit.spring.boot.core.StringConverterFactory` из предыдущих версий удалён; его роль берёт на себя встроенный по умолчанию `ScalarsConverterFactory`. Если вы явно ссылались на этот класс в `@RetrofitClient.converterFactories` или глобальной конфигурации, удалите эту ссылку.
 ---
 
 Предыдущий: [Автоматическая адаптация результатов HTTP-ответа](response-adaptation.md) | Следующий: [Пользовательский OkHttpClient](okhttp-client.md)

@@ -37,6 +37,7 @@ import okhttp3.OkHttpClient;
 import retrofit2.CallAdapter;
 import retrofit2.Converter;
 import retrofit2.Retrofit;
+import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 /**
  * @author 陈添明
@@ -274,6 +275,14 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         addReactiveCallAdapterFactory(retrofitBuilder);
         retrofitBuilder.addCallAdapterFactory(ResponseCallAdapterFactory.INSTANCE);
         retrofitBuilder.addCallAdapterFactory(BodyCallAdapterFactory.INSTANCE);
+
+        // 默认最前置内置 ScalarsConverterFactory：String / 基本类型返回值按响应体原始文本返回，
+        // 不经过 JSON Converter。必须 add 在所有用户/全局 Converter 之前，否则会被 Jackson 抢占。
+        // 受 retrofit.enable-scalars-converter 开关控制（默认开启）。
+        RetrofitProperties retrofitProperties = cfg.getRetrofitProperties();
+        if (retrofitProperties.isEnableScalarsConverter()) {
+            retrofitBuilder.addConverterFactory(ScalarsConverterFactory.create());
+        }
 
         // 添加配置或者指定的ConverterFactory
         List<Class<? extends Converter.Factory>> converterFactories = new ArrayList<>(4);

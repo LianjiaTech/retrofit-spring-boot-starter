@@ -5,7 +5,7 @@
 
 - `Call<T>`：適応処理を行わず、直接 `Call<T>` オブジェクトを返す
 - `String`：レスポンスボディを `String` に適応して返す
-  - デフォルトでは JSON Converter を使用してレスポンスボディの bytes を String に変換；レスポンスボディを直接 String として取得したい場合は、`Converter.Factory` に `com.github.lianjiatech.retrofit.spring.boot.core.StringConverterFactory` を指定
+  - デフォルトで最優先（先頭）に内蔵される `ScalarsConverterFactory` が Response Body をそのまま String に変換します（生テキストを保持し、JSON Converter を経由しません）。`retrofit.enable-scalars-converter=false` で無効化でき、無効化すると JSON Converter でのデシリアライズに戻ります
 - 基本型（`Long`/`Integer`/`Boolean`/`Float`/`Double`）：レスポンスボディを対応する基本型に適応
 - `CompletableFuture<T>`：レスポンスボディを `CompletableFuture<T>` オブジェクトに適応して返す
 - `Void`：戻り値型を意識しない場合に使用

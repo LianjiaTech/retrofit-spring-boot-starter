@@ -28,7 +28,7 @@ Gitee：[https://gitee.com/lianjiatech/retrofit-spring-boot-starter](https://git
 <dependency>
     <groupId>com.github.lianjiatech</groupId>
     <artifactId>retrofit-spring-boot-starter</artifactId>
-    <version>2.6.0</version>
+    <version>2.6.1</version>
 </dependency>
 ```
 

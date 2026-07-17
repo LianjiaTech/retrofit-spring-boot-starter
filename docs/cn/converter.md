@@ -26,10 +26,18 @@ retrofit:
 
 针对每个 Java 接口，可以通过 `@RetrofitClient.converterFactories` 指定当前接口采用的 `Converter.Factory`。
 
-## 原始字符串结果
+## 默认 Scalars Converter（String / 基本类型）
 
-如果接口返回的原始结果是 String 文本，且无法用 JSON 转换器转换，可以使用 `com.github.lianjiatech.retrofit.spring.boot.core.StringConverterFactory`，该转换器会直接将结果转为 String 返回。
+组件默认最前置内置 `ScalarsConverterFactory`（来自 `com.squareup.retrofit2:converter-scalars`），将 `String` 与基本类型（`Integer`/`Long`/`Boolean`/`Double` 等）返回值按响应体原始文本返回，不经过 JSON Converter；POJO 仍由 `global-converter-factories` 配置的转换器（默认 Jackson）反序列化。
 
+可通过配置项关闭该默认行为（关闭后 `String` 返回值回退到经 JSON Converter 反序列化）：
+
+```yaml
+retrofit:
+  enable-scalars-converter: false
+```
+
+> 旧版本提供的 `com.github.lianjiatech.retrofit.spring.boot.core.StringConverterFactory` 已移除，其职责由默认内置的 `ScalarsConverterFactory` 取代。如曾显式在 `@RetrofitClient.converterFactories` 或全局配置中引用此类，请移除该引用。
 ---
 
 [上一节：HTTP 响应结果自动适配](response-adaptation.md) | [下一节：自定义 OkHttpClient](okhttp-client.md)

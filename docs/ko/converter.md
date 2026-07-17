@@ -26,10 +26,18 @@ retrofit:
 
 각 Java 인터페이스마다 `@RetrofitClient.converterFactories`를 통해 해당 인터페이스에서 사용하는 `Converter.Factory`를 지정할 수 있습니다.
 
-## 원시 문자열 결과
+## 기본 Scalars Converter (String / 기본 타입)
 
-인터페이스의 원시 결과가 String 텍스트이고 JSON 변환기로 변환할 수 없는 경우, `com.github.lianjiatech.retrofit.spring.boot.core.StringConverterFactory`를 사용할 수 있습니다. 이 변환기는 결과를 String으로 직접 변환하여 반환합니다.
+컴포넌트는 기본적으로 최우선(맨 앞)에 `ScalarsConverterFactory`(`com.squareup.retrofit2:converter-scalars` 제공)를 내장하며, `String` 및 기본 타입(`Integer`/`Long`/`Boolean`/`Double` 등) 반환값을 응답 본문의 원시 텍스트로 반환합니다(JSON Converter를 거치지 않음). POJO는 여전히 `global-converter-factories`에 설정된 컨버터(기본 Jackson)로 역직렬화됩니다.
 
+이 기본 동작은 설정으로 비활성화할 수 있습니다(비활성화하면 `String` 반환값은 JSON Converter 역직렬화로 돌아갑니다):
+
+```yaml
+retrofit:
+  enable-scalars-converter: false
+```
+
+> 이전 버전의 `com.github.lianjiatech.retrofit.spring.boot.core.StringConverterFactory`는 제거되었으며, 그 역할은 기본 내장된 `ScalarsConverterFactory`가 대체합니다. `@RetrofitClient.converterFactories`나 전역 설정에서 이 클래스를 명시적으로 참조했다면 해당 참조를 제거하세요.
 ---
 
 [이전: HTTP 응답 결과 자동 어댑터](response-adaptation.md) | [다음: 커스텀 OkHttpClient](okhttp-client.md)

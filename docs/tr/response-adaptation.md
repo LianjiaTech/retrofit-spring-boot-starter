@@ -5,7 +5,7 @@ Bu bileşen, HTTP yanıt sonuçlarını Java arayüzünde tanımlanan dönüş t
 
 - `Call<T>`: Adaptasyon işlemi yapılmaz, `Call<T>` nesnesi doğrudan döndürülür
 - `String`: Response Body'yi `String` olarak adaptasyon yaparak döndürür
-  - Varsayılan olarak JSON Converter kullanarak Response Body'nin bytes değerini String'e dönüştürür; Response Body'den doğrudan dönüştürülen String'i elde etmek istiyorsanız, `Converter.Factory` değerini `com.github.lianjiatech.retrofit.spring.boot.core.StringConverterFactory` olarak belirleyebilirsiniz
+  - Varsayilan olarak gomulu `ScalarsConverterFactory` (ilk kaydedilen) Yanit Govdesini oldugu gibi String'e donusturur (ham metni korur, JSON donusturucu kullanmaz); `retrofit.enable-scalars-converter=false` ile kapatilabilir ve kapatildiginda bir JSON donusturucu uzerinden deserilestirmeye geri doner
 - Temel türler (`Long`/`Integer`/`Boolean`/`Float`/`Double`): Response Body'yi ilgili temel türde adaptasyon yaparak döndürür
 - `CompletableFuture<T>`: Response Body'yi `CompletableFuture<T>` nesnesi olarak adaptasyon yaparak döndürür
 - `Void`: Dönüş türü önemli olmadığında kullanılır

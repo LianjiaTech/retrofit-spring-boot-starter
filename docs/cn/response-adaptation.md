@@ -5,7 +5,7 @@
 
 - `Call<T>`：不执行适配处理，直接返回 `Call<T>` 对象
 - `String`：将 Response Body 适配成 `String` 返回
-  - 默认使用 JSON Converter 将 Response Body 的 bytes 转成 String；如果想直接得到 Response Body 转成的 String，可以指定 `Converter.Factory` 为 `com.github.lianjiatech.retrofit.spring.boot.core.StringConverterFactory`
+  - 默认最前置内置 `ScalarsConverterFactory`，将 Response Body 原样转成 String（保留原始文本，不经过 JSON Converter）；可通过 `retrofit.enable-scalars-converter=false` 关闭，关闭后回退到经 JSON Converter 反序列化
 - 基础类型（`Long`/`Integer`/`Boolean`/`Float`/`Double`）：将 Response Body 适配成对应基础类型
 - `CompletableFuture<T>`：将 Response Body 适配成 `CompletableFuture<T>` 对象返回
 - `Void`：不关注返回类型时使用

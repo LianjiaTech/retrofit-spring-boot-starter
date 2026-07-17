@@ -5,7 +5,7 @@ This component automatically adapts HTTP response results to the return type def
 
 - `Call<T>`: No adaptation is performed; the `Call<T>` object is returned directly
 - `String`: Adapts the Response Body to a `String` return value
-  - By default, the JSON Converter converts the Response Body bytes to a String; if you want to directly get the String from the Response Body, you can specify `Converter.Factory` as `com.github.lianjiatech.retrofit.spring.boot.core.StringConverterFactory`
+  - By default the built-in `ScalarsConverterFactory` (registered first) converts the Response Body to String as-is (preserving the raw text, without going through a JSON Converter); can be disabled with `retrofit.enable-scalars-converter=false`, which falls back to deserialization through a JSON converter
 - Primitive types (`Long`/`Integer`/`Boolean`/`Float`/`Double`): Adapts the Response Body to the corresponding primitive type
 - `CompletableFuture<T>`: Adapts the Response Body to a `CompletableFuture<T>` object
 - `Void`: Used when the return type is not of interest
