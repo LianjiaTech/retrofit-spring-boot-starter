@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
-# Claude Code Stop hook: 回合结束时对本轮 AI 改过的 .java 文件做 spotless + pmd
+# Stop hook（Claude Stop / Cursor stop 共用）：回合结束时对本轮 AI 改过的 .java 做 spotless + pmd
 # 协议：
-#   - stdout JSON {"decision":"block","reason":"..."} → Claude 继续响应并把 reason 作为上下文
+#   - stdout JSON {"decision":"block","reason":"...","followup_message":"..."}
+#     Claude 读 decision/reason；Cursor 原生 hooks.json 读 followup_message
 #   - stdout 无内容 / exit 0 → 正常结束
+#   - Cursor status 为 aborted/error 时跳过检查
 # 失败不阻断（异常时打印 stderr 警告，正常 exit 0）
 #
 # 与旧实现相比的关键行为差异：
@@ -19,8 +21,19 @@ source "$HOOK_DIR/lib/common.sh"
 # shellcheck source=lib/config.sh
 source "$HOOK_DIR/lib/config.sh"
 
-# 消费 stdin（Stop hook 有 payload，但当前实现不需要）
-cat >/dev/null || true
+# 读 stdin：Cursor stop 带 status；Claude Stop 通常无 status，忽略即可
+INPUT="$(cat || true)"
+if [[ -n "$INPUT" ]] && command -v jq >/dev/null 2>&1; then
+  STOP_STATUS="$(printf '%s' "$INPUT" | jq -r '.status // empty' 2>/dev/null || true)"
+  if [[ "$STOP_STATUS" == "aborted" || "$STOP_STATUS" == "error" ]]; then
+    exit 0
+  fi
+fi
+
+emit_stop_block() {
+  local reason="$1"
+  jq -n --arg r "$reason" '{decision:"block", reason:$r, followup_message:$r}'
+}
 
 if ! ensure_java_home; then
   warn_missing_java_home
@@ -44,7 +57,7 @@ fi
 # 本轮确实要跑 PMD 并输出 block JSON，此时才强依赖 jq
 if ! command -v jq >/dev/null 2>&1; then
   cat <<'JSON'
-{"decision":"block","reason":"Stop hook 缺少依赖 jq，PMD 检查未执行。请安装后重试：\n  macOS: brew install jq\n  Ubuntu/Debian: apt install jq\n  Windows: winget install jqlang.jq"}
+{"decision":"block","reason":"Stop hook 缺少依赖 jq，PMD 检查未执行。请安装后重试：\n  macOS: brew install jq\n  Ubuntu/Debian: apt install jq\n  Windows: winget install jqlang.jq","followup_message":"Stop hook 缺少依赖 jq，PMD 检查未执行。请安装后重试：\n  macOS: brew install jq\n  Ubuntu/Debian: apt install jq\n  Windows: winget install jqlang.jq"}
 JSON
   clear_edited_list
   stop_block_reset
@@ -122,7 +135,7 @@ PMD_RC=0
 if (( PMD_RC != 0 )); then
   ERR_TAIL="$(tail -n 40 "$MVN_STDERR")"
   REASON=$(printf '%sStop hook 执行 mvn pmd:pmd 失败（退出码 %s）。请在最终回复中提醒用户检查 pom.xml 是否已注入 maven-pmd-plugin。\n\nmvn stderr 尾部：\n%s' "$SPOTLESS_WARN" "$PMD_RC" "$ERR_TAIL")
-  jq -n --arg r "$REASON" '{decision:"block", reason:$r}'
+  emit_stop_block "$REASON"
   clear_edited_list
   stop_block_reset
   exit 0
@@ -170,7 +183,7 @@ fi
 if (( TOTAL_VIOLATIONS == 0 )); then
   if (( SPOTLESS_FAILED == 1 )); then
     REASON="${SPOTLESS_WARN}本轮未发现 PMD 违规。"
-    jq -n --arg r "$REASON" '{decision:"block", reason:$r}'
+    emit_stop_block "$REASON"
   fi
   clear_edited_list
   stop_block_reset
@@ -222,7 +235,7 @@ if (( NEW_COUNT == 0 && STAGNANT_COUNT > 0 )); then
   STAGNANT_LIST="$(printf '%s\n' "$STAGNANT_FINGERPRINTS" | sed 's/^/  - /')"
   REASON=$(printf '%sPMD 检查完成：已修复可自动处理的违规，剩余 %s 处 AI 无法自动修复的违规：\n%s\n\n请在最终回复中向用户汇报以上无法修复的违规，并说明原因。建议用户采取以下措施之一：\n  - 手动修复代码\n  - 调整 pom 中 pmd ruleset 排除条目\n  - 由用户决定是否添加 @SuppressWarnings（AI 不得自行添加）' \
     "$SPOTLESS_WARN" "$STAGNANT_COUNT" "$STAGNANT_LIST")
-  jq -n --arg r "$REASON" '{decision:"block", reason:$r}'
+  emit_stop_block "$REASON"
   clear_edited_list
   stop_block_reset
   clear_fingerprints
@@ -233,7 +246,7 @@ fi
 if (( ATTEMPT > STOP_MAX_ATTEMPTS )); then
   REASON=$(printf '%sPMD 在 %s 轮阻断后仍有 %s 处违规，已停止自动修复循环。请在最终回复中向用户汇报：\n1. 哪些规则项无法自动修复\n2. 建议用户手动处理、调整 pmd ruleset 排除条目、或由用户决定是否添加 @SuppressWarnings\n\n最后一次报告：\n%s' \
     "$SPOTLESS_WARN" "$STOP_MAX_ATTEMPTS" "$TOTAL_VIOLATIONS" "$ALL_VIOLATIONS_XML")
-  jq -n --arg r "$REASON" '{decision:"block", reason:$r}'
+  emit_stop_block "$REASON"
   clear_edited_list
   stop_block_reset
   clear_fingerprints
@@ -251,7 +264,7 @@ if (( NEW_COUNT > 0 )); then
     REASON=$(printf '%sPMD 检查未通过（第 %s/%s 轮），本轮编辑触发 %s 处违规，请逐条修复后再结束响应。\n\n注意：禁止添加 @SuppressWarnings 压制违规。修不了的跳过，最后会交给用户决策。\n\n完整 PMD 报告（已过滤到本轮编辑的文件）：\n%s' \
       "$SPOTLESS_WARN" "$ATTEMPT" "$STOP_MAX_ATTEMPTS" "$TOTAL_VIOLATIONS" "$ALL_VIOLATIONS_XML")
   fi
-  jq -n --arg r "$REASON" '{decision:"block", reason:$r}'
+  emit_stop_block "$REASON"
   # 阻断时保留 edited-files 列表，让下轮 AI 修复后 Stop 再次读同一批文件复查
   exit 0
 fi

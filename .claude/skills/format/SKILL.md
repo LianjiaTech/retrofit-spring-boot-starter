@@ -1,6 +1,6 @@
 ---
 name: format
-description: 对整个项目或指定模块批量格式化 Java 代码（spotless + eclipse-formatter）。支持传入模块根、模块内子目录或 .java 文件路径。
+description: 对整个项目或指定模块批量格式化 Java 代码（spotless + eclipse-formatter）。可选传入模块名、子目录或 .java 文件路径，限定格式化范围。
 disable-model-invocation: true
 ---
 
@@ -12,14 +12,15 @@ disable-model-invocation: true
 
 用户输入：
 - `/format`              —— 对整个项目跑 `mvn spotless:apply`
-- `/format <path>`       —— 定位 path 所属的 Maven 模块，对**该整个模块**执行 spotless
+- `/format <模块名>`     —— 对指定模块跑 `mvn -pl <模块名> spotless:apply`
 
-## path 参数语义
+`<模块名>` 可以是：
+- **模块根路径**（如 `user-service`）—— 直接定位该模块
+- **模块内子目录**（如 `user-service/src/main/java/com/foo`）—— 向上找最近的 pom.xml 定位所属模块
+- **单个 .java 文件**（如 `user-service/src/main/java/Foo.java`）—— 同上，定位到所属模块
+- **绝对路径**—— 自动转换为相对项目根路径
 
-- path 可以是模块根、模块内任意子目录、单个 `.java` 文件，绝对路径或相对项目根的路径均可
-- 无论 path 指向多深，实际执行粒度都是**模块级**：向上找最近的 `pom.xml` 定位所属模块，然后对该模块整体跑一遍。spotless 有增量缓存，未变更文件近乎零成本
-- 若 path 指向项目聚合根，等同 `/format`（不带参数）
-- 若 path 不存在、或向上找不到 `pom.xml` → 报错并结束
+无论 `<模块名>` 指向多深，实际执行粒度都是**模块级**：对整个所属模块跑 spotless（spotless 有增量缓存，未变更文件近乎零成本）。
 
 ## 执行步骤
 
@@ -67,5 +68,7 @@ disable-model-invocation: true
 
 - 不要询问用户确认。格式化是修正性、确定性操作，无副作用
 - spotless 直接写文件，不需要 Edit 工具介入
-- 传子目录/单文件时，实际是对**整个所属模块**格式化，不做子目录粒度过滤
+- 传模块名/子目录/单文件时，实际是对**整个所属模块**格式化，不做子目录粒度过滤
+- 若传入项目聚合根，等同 `/format`（不带参数）全量执行
+- 若路径不存在或向上找不到 `pom.xml` → 报错并结束
 - 如果失败，提示用户检查 pom.xml 是否已包含 spotless-maven-plugin

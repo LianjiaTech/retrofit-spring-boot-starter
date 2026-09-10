@@ -14,6 +14,7 @@
     <description>
         PMD 7 精选规则集，覆盖命名、异常、并发、设计、性能等维度。
         排除与 Spotless 重叠的 import 规则（UnnecessaryImport、UnnecessaryFullyQualifiedName）。
+        排除与本项目编码习惯冲突的规则（UselessParentheses、UnusedNullCheckInEquals、UselessOperationOnImmutable）。
     </description>
 
     <!-- bestpractices -->
@@ -25,7 +26,7 @@
     <rule ref="category/java/bestpractices.xml/UnusedPrivateField" />
     <rule ref="category/java/bestpractices.xml/UnusedPrivateMethod" />
 
-    <!-- codestyle（排除 UnnecessaryImport 和 UnnecessaryFullyQualifiedName） -->
+    <!-- codestyle（排除 UnnecessaryImport、UnnecessaryFullyQualifiedName、UselessParentheses） -->
     <rule ref="category/java/codestyle.xml/EmptyControlStatement" />
     <rule ref="category/java/codestyle.xml/ExtendsObject" />
     <rule ref="category/java/codestyle.xml/ForLoopShouldBeWhileLoop" />
@@ -33,7 +34,6 @@
     <rule ref="category/java/codestyle.xml/UnnecessaryModifier" />
     <rule ref="category/java/codestyle.xml/UnnecessaryReturn" />
     <rule ref="category/java/codestyle.xml/UnnecessarySemicolon" />
-    <rule ref="category/java/codestyle.xml/UselessParentheses" />
     <rule ref="category/java/codestyle.xml/UselessQualifiedThis" />
 
     <!-- design -->
@@ -41,7 +41,7 @@
     <rule ref="category/java/design.xml/SimplifiedTernary" />
     <rule ref="category/java/design.xml/UselessOverridingMethod" />
 
-    <!-- errorprone -->
+    <!-- errorprone（排除 UnusedNullCheckInEquals、UselessOperationOnImmutable） -->
     <rule ref="category/java/errorprone.xml/AvoidBranchingStatementAsLastInLoop" />
     <rule ref="category/java/errorprone.xml/AvoidDecimalLiteralsInBigDecimalConstructor" />
     <rule ref="category/java/errorprone.xml/AvoidMultipleUnaryOperators" />
@@ -57,8 +57,6 @@
     <rule ref="category/java/errorprone.xml/ReturnFromFinallyBlock" />
     <rule ref="category/java/errorprone.xml/UnconditionalIfStatement" />
     <rule ref="category/java/errorprone.xml/UnnecessaryConversionTemporary" />
-    <rule ref="category/java/errorprone.xml/UnusedNullCheckInEquals" />
-    <rule ref="category/java/errorprone.xml/UselessOperationOnImmutable" />
 
     <!-- multithreading -->
     <rule ref="category/java/multithreading.xml/AvoidThreadGroup" />

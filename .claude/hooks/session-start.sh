@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Claude Code SessionStart hook: 清理上次会话残留的 edited-files 列表和 stop 阻断计数
+# SessionStart / sessionStart hook（Claude / Cursor 共用）：清理上次会话残留的 edited-files 列表和 stop 阻断计数
 # 防止用户 Ctrl+C 打断上次会话后，本次 Stop 处理到过期文件路径
 
 set -uo pipefail

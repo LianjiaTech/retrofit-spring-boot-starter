@@ -1,7 +1,7 @@
 # PMD 7 代码规范要点（由 team-ai-coding-toolkit 提供）
 
 > 本项目使用 PMD 7 内置规则集（maven-pmd-plugin-default.xml），覆盖命名规范、异常处理、并发安全、代码设计、性能等 8 大类别约 100 条精选规则。
-> 以下列出 Claude 容易忽略的高频要点和与 ali-p3c 的差异说明。
+> 以下列出 AI 容易忽略的高频要点和与 ali-p3c 的差异说明。
 > 本文件由 toolkit 维护，不要手动编辑。
 
 ## 与 ali-p3c 的主要差异
@@ -12,17 +12,18 @@ PMD 7 内置规则集替代了已停更 4 年的 ali-p3c（p3c-pmd 2.1.1）。�
 - **异常处理**：ali-p3c 的 `AvoidReturnInFinally`（finally 中 return 吞异常）和 `MethodReturnWrapperType`（包装类返回值 NPE）在 PMD 7 中无等价规则——**请特别留意这两条，代码评审时手动关注**
 - **并发安全**：PMD 7 有 `DoNotUseThreads`（禁止手动创建线程）和 `UnsynchronizedStaticFormatter`（静态 SimpleDateFormat 线程不安全），但 ali-p3c 的 `LockShouldWithTryFinally`（Lock 必须 try-finally）、`ThreadLocalShouldRemove`（ThreadLocal 用后 remove）、`CountDownShouldInFinally`（CountDownLatch 保障）无等价——**这些仍需代码评审时人工把关**
 - **集合安全**：ali-p3c 的 `DontModifyInForeachCircle`（foreach 修改集合）、`UnsupportedExceptionWithModifyAsList`（Arrays.asList 修改）无 PMD 7 等价——**foreach 中不修改集合、Arrays.asList 结果不调用 add/remove，需要自觉遵守**
-- **格式规范**：已由 Spotless 自动格式化覆盖（import 排序、未使用 import 删除、大括号风格、缩进等），PMD 自定义规则集已排除 `UnnecessaryImport` 和 `UnnecessaryFullyQualifiedName` 避免重复检查
+- **格式规范**：已由 Spotless 自动格式化覆盖（import 排序、未使用 import 删除、大括号风格、缩进等），PMD 自定义规则集已排除 `UnnecessaryImport`、`UnnecessaryFullyQualifiedName`、`UselessParentheses`、`UnusedNullCheckInEquals`、`UselessOperationOnImmutable` 避免重复检查或与项目编码习惯冲突
 
 ## Hook 协作约定
 
-本项目有 Claude Code hook 自动运行：
-- **PostToolUse**（每次 Edit/Write/MultiEdit 后）仅记录被触及的 `.java` 文件路径到 `.claude/hooks/.edited-files.txt`，不做任何检查、不阻塞
-- **Stop**（回合结束时）对本轮编辑过的 `.java` 一次性跑 `mvn spotless:apply pmd:pmd`；如有 PMD 违规则阻断本轮响应，只把**本轮编辑文件**的违规段作为 reason 反馈（历史违规不参与阻断）。阻断有循环上限（`STOP_MAX_ATTEMPTS=3`），超过后停止自动修复循环
+本项目有 AI coding hook 自动运行（Claude Code 与 Cursor 共用同一套脚本和状态文件）：
+- **记录编辑**（Claude：PostToolUse Edit/Write/MultiEdit；Cursor：afterFileEdit Write）仅记录被触及的 `.java` 文件路径到 `.claude/hooks/.edited-files.txt`，不做任何检查、不阻塞
+- **回合结束**（Claude：Stop；Cursor：stop）对本轮编辑过的 `.java` 一次性跑 `mvn spotless:apply pmd:pmd`；如有 PMD 违规则阻断本轮响应，只把**本轮编辑文件**的违规段作为 reason / followup_message 反馈（历史违规不参与阻断）。阻断有循环上限（`STOP_MAX_ATTEMPTS=3`），超过后停止自动修复循环
+- Cursor 多开 Composer 时会共享同一份 `.edited-files.txt`；新会话的 sessionStart 会清空该列表，并行会话可能互相干扰（已知限制）
 
 当 Stop hook 阻断并反馈失败信息时：
 
-1. **禁止添加 `@SuppressWarnings` 注解压制 PMD 违规**。修不了的违规跳过不处理，最后交由用户决策——AI 不得自行添加任何抑制注解
+1. **AI 自修复循环中禁止添加 `@SuppressWarnings` 注解**——AI 不得自行决定压制任何 PMD 违规。但若用户显式告知"压制"，则使用 `@SuppressWarnings("PMD.XxxRule")` 注解压制，并在注解旁注释压制原因
 2. Hook 会区分"新增违规"和"停滞违规"（上轮已存在且未修掉的）：
    - 新增违规 → 尝试修复
    - 停滞违规 → **跳过不处理**，专注修新增的
@@ -72,8 +73,11 @@ PMD 7 内置规则集替代了已停更 4 年的 ali-p3c（p3c-pmd 2.1.1）。�
 ### 通用约定
 
 - Map 取值：禁止 `containsKey() + get()` 组合，一次 `get()` + null 判断即可
-- 日志：使用 slf4j 占位符（`log.info("xxx={}", value)`），不用字符串拼接
+- 日志声明：使用 Lombok `@Slf4j` 注解，不要手动声明 `private static final Logger log = LoggerFactory.getLogger(XxxClass.class)`
+- 日志使用：使用 slf4j 占位符（`log.info("xxx={}", value)`），不用字符串拼接
+- 静态导入：同一类有多个静态导入时，合并为通配符 `import static XxxClass.*`，避免逐条列举
 - 注释：业务关键路径必须注释"为什么"，不写"做了什么"
+- 线程池不允许使用Executors去创建，建议通过ThreadPoolExecutor的方式，规避资源耗尽的风险。
 
 ## 单元测试约定
 

@@ -1,0 +1,115 @@
+---
+description: PMD 7 编码规范与 hook 协作约定。编辑 Java 或处理格式化/PMD 反馈时自动生效。
+alwaysApply: true
+---
+
+# PMD 7 代码规范要点（由 team-ai-coding-toolkit 提供）
+
+> 本项目使用 PMD 7 内置规则集（maven-pmd-plugin-default.xml），覆盖命名规范、异常处理、并发安全、代码设计、性能等 8 大类别约 100 条精选规则。
+> 以下列出 AI 容易忽略的高频要点和与 ali-p3c 的差异说明。
+> 本文件由 toolkit 维护，不要手动编辑。
+
+## 与 ali-p3c 的主要差异
+
+PMD 7 内置规则集替代了已停更 4 年的 ali-p3c（p3c-pmd 2.1.1）。两者覆盖对比：
+
+- **命名规范**：PMD 7 完全覆盖 ali-p3c 的全部命名规则（类名 CamelCase、常量 UPPER_SNAKE_CASE、包名全小写等）
+- **异常处理**：ali-p3c 的 `AvoidReturnInFinally`（finally 中 return 吞异常）和 `MethodReturnWrapperType`（包装类返回值 NPE）在 PMD 7 中无等价规则——**请特别留意这两条，代码评审时手动关注**
+- **并发安全**：PMD 7 有 `DoNotUseThreads`（禁止手动创建线程）和 `UnsynchronizedStaticFormatter`（静态 SimpleDateFormat 线程不安全），但 ali-p3c 的 `LockShouldWithTryFinally`（Lock 必须 try-finally）、`ThreadLocalShouldRemove`（ThreadLocal 用后 remove）、`CountDownShouldInFinally`（CountDownLatch 保障）无等价——**这些仍需代码评审时人工把关**
+- **集合安全**：ali-p3c 的 `DontModifyInForeachCircle`（foreach 修改集合）、`UnsupportedExceptionWithModifyAsList`（Arrays.asList 修改）无 PMD 7 等价——**foreach 中不修改集合、Arrays.asList 结果不调用 add/remove，需要自觉遵守**
+- **格式规范**：已由 Spotless 自动格式化覆盖（import 排序、未使用 import 删除、大括号风格、缩进等），PMD 自定义规则集已排除 `UnnecessaryImport`、`UnnecessaryFullyQualifiedName`、`UselessParentheses`、`UnusedNullCheckInEquals`、`UselessOperationOnImmutable` 避免重复检查或与项目编码习惯冲突
+
+## Hook 协作约定
+
+本项目有 AI coding hook 自动运行（Claude Code 与 Cursor 共用同一套脚本和状态文件）：
+- **记录编辑**（Claude：PostToolUse Edit/Write/MultiEdit；Cursor：afterFileEdit Write）仅记录被触及的 `.java` 文件路径到 `.claude/hooks/.edited-files.txt`，不做任何检查、不阻塞
+- **回合结束**（Claude：Stop；Cursor：stop）对本轮编辑过的 `.java` 一次性跑 `mvn spotless:apply pmd:pmd`；如有 PMD 违规则阻断本轮响应，只把**本轮编辑文件**的违规段作为 reason / followup_message 反馈（历史违规不参与阻断）。阻断有循环上限（`STOP_MAX_ATTEMPTS=3`），超过后停止自动修复循环
+- Cursor 多开 Composer 时会共享同一份 `.edited-files.txt`；新会话的 sessionStart 会清空该列表，并行会话可能互相干扰（已知限制）
+
+当 Stop hook 阻断并反馈失败信息时：
+
+1. **AI 自修复循环中禁止添加 `@SuppressWarnings` 注解**——AI 不得自行决定压制任何 PMD 违规。但若用户显式告知"压制"，则使用 `@SuppressWarnings("PMD.XxxRule")` 注解压制，并在注解旁注释压制原因
+2. Hook 会区分"新增违规"和"停滞违规"（上轮已存在且未修掉的）：
+   - 新增违规 → 尝试修复
+   - 停滞违规 → **跳过不处理**，专注修新增的
+3. 修复完成后，在最终回复中向用户简要汇报：
+   - 触发了哪些 PMD 规则
+   - 各自修复了什么
+4. 当 hook 反馈"仅剩停滞违规"或"已停止自动修复循环"时：
+   - **停止继续修改**
+   - 在回复中清晰说明哪些规则项无法自动修复、推测原因
+   - 建议用户采取以下措施之一：手动修复代码 / 调整 pom 中 pmd ruleset 排除条目 / 由**用户决定**是否添加 @SuppressWarnings
+5. 如果某条规则确实不合理需要团队讨论调整，**先完成当前任务**，
+   再单独向用户提出"建议调整 ruleset 的 X 条规则，原因是 Y"
+
+## Skill 使用
+
+项目提供两个 skill 用于用户主动触发批量检查：
+
+- `/format` —— 对整个项目跑 `mvn spotless:apply`
+- `/pmd-check` —— 对整个项目跑 `mvn pmd:pmd`，输出报告，询问是否修复
+
+- `/format` 直接执行，无需用户确认
+- `/pmd-check` 仅输出违规报告，**不自动修复**；询问用户是否修复，得到肯定后再逐文件 Edit
+  Edit 后 Stop hook 会自动复查
+
+## 编码要点
+
+### PMD 7 自动检查的（Hook 会阻断）
+
+- 命名：变量 camelCase，常量 UPPER_SNAKE_CASE，类名 CamelCase，包名全小写
+- 未使用：私有字段、局部变量、私有方法不应声明后不使用
+- 异常：不要在 catch 中空处理（PMD `EmptyCatchBlock`）
+- 并发：不要手动 `new Thread()`（用线程池），不要用静态 SimpleDateFormat（线程不安全）
+- 空语句：`if (cond);` 这类空体是 bug 信号
+- equals：字符串常量放 equals 左侧（`"constant".equals(variable)` 避免 NPE）
+- 包装类比较：`Integer` 等包装类用 `equals()` 而非 `==`（PMD `CompareObjectsWithEquals`）
+- BigDecimal：不要用 `new BigDecimal(0.1)`（精度丢失），用 `BigDecimal.valueOf()`
+
+### PMD 不检查但 ali-p3c 曾经检查的（需人工把关）
+
+- **finally 中不要 return**——会吞掉异常，导致上层拿不到真实错误
+- **包装类作为方法返回值时可能 NPE**——`public Integer getCount()` 返回 null 时调用者 `getCount().intValue()` 会 NPE
+- **Lock 必须 try-finally**——`lock.lock()` 后必须 `try { ... } finally { lock.unlock(); }`
+- **ThreadLocal 用后 remove**——否则线程池复用时内存泄漏
+- **foreach 中不修改集合**——`for (Item x : list) { list.remove(x); }` 会 ConcurrentModificationException
+- **Arrays.asList 结果不可修改**——返回的是固定大小内部类，`add/remove` 抛 UnsupportedOperationException
+
+### 通用约定
+
+- Map 取值：禁止 `containsKey() + get()` 组合，一次 `get()` + null 判断即可
+- 日志声明：使用 Lombok `@Slf4j` 注解，不要手动声明 `private static final Logger log = LoggerFactory.getLogger(XxxClass.class)`
+- 日志使用：使用 slf4j 占位符（`log.info("xxx={}", value)`），不用字符串拼接
+- 静态导入：同一类有多个静态导入时，合并为通配符 `import static XxxClass.*`，避免逐条列举
+- 注释：业务关键路径必须注释"为什么"，不写"做了什么"
+- 线程池不允许使用Executors去创建，建议通过ThreadPoolExecutor的方式，规避资源耗尽的风险。
+
+## 单元测试约定
+
+修改业务代码时同步补充 / 更新单元测试，覆盖：
+
+- 新增的 public 方法
+- 修改的核心分支逻辑
+- 修复的 bug（回归测试）
+
+测试类放在对应模块的 `src/test/java`，包路径与被测类一致，类名 `<ClassName>Test`。
+
+### 何时建议用户运行测试
+
+**本地 hook 不自动跑单测和编译**（编译/单测由 CI 兜底）。
+当完成以下场景时，请在最终回复末尾建议用户运行特定测试命令进行本地验证：
+
+- 新增或修改了 public 方法的业务逻辑
+- 修复了 bug
+- 改动了核心业务路径
+
+建议命令格式：
+
+    mvn -pl <模块> -am test -Dtest=<TestClass>
+
+不要主动调用 Bash 跑测试（避免长时间等待），把时机决策权交给用户。
+
+## Git 提交
+
+- 提交信息使用英文，遵循 conventional commits（feat / fix / refactor / test / chore）
+- 不在提交中混入无关改动（格式化大批量已有文件请单独提交）
