@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "command": ".claude/hooks/session-start.sh"
+      }
+    ],
+    "afterFileEdit": [
+      {
+        "command": ".claude/hooks/record-edit.sh",
+        "matcher": "Write"
+      }
+    ],
+    "stop": [
+      {
+        "command": ".claude/hooks/stop-check.sh",
+        "loop_limit": 5,
+        "timeout": 180
+      }
+    ]
+  }
+}

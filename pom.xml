@@ -289,6 +289,51 @@
                     <waitUntil>published</waitUntil>
                 </configuration>
             </plugin>
+            <!-- 由 team-ai-coding-toolkit 提供，由 team-ai-coding-toolkit 自动注入 -->
+            <plugin>
+              <groupId>com.diffplug.spotless</groupId>
+              <artifactId>spotless-maven-plugin</artifactId>
+              <version>2.43.0</version>
+              <configuration>
+                <java>
+                  <eclipse>
+                    <file>${maven.multiModuleProjectDirectory}/.claude/hooks/lib/eclipse-formatter.xml</file>
+                  </eclipse>
+                  <removeUnusedImports/>
+                  <importOrder>
+                    <!--
+                    规则说明：分组之间自动产生一个空行。
+                    1. java|javax 为一组 (JDK 核心，用 | 合并到同一组)
+                    2. org 为一组 (开源第三方)
+                    3. com 为一组 (商业第三方及阿里内部)
+                    4. 空字符串 "" 为 catch-all，兜底其它未匹配 import
+                       (如 io.*, okhttp3.*, retrofit2.*, lombok.*)
+                       —— 必须恰好一个；多个空字符串会导致同一 import
+                       被写入每个 catch-all，产生重复
+                    5. \# 代表静态导入 (Static Imports)，放在最后
+                  -->
+                    <order>java|javax,org,com,,\#</order>
+                  </importOrder>
+                </java>
+              </configuration>
+            </plugin>
+            <!-- 由 team-ai-coding-toolkit 提供，由 team-ai-coding-toolkit 自动注入 -->
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-pmd-plugin</artifactId>
+              <version>3.28.0</version>
+              <configuration>
+                <!-- 自定义规则集：基于 PMD 7 内置精选规则，排除与 Spotless 重叠的 import 规则 -->
+                <rulesets>
+                  <ruleset>${maven.multiModuleProjectDirectory}/.claude/hooks/lib/pmd-ruleset.xml</ruleset>
+                </rulesets>
+                <!-- 输出到 target/pmd.xml；hook 读取该文件解析违规 -->
+                <format>xml</format>
+                <includeTests>false</includeTests>
+                <!-- pmd:pmd 目标只生成报告，不因违规失败；pmd:check 才 fail-on-violation -->
+                <printFailingErrors>false</printFailingErrors>
+              </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>
